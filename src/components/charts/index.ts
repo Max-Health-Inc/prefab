@@ -54,7 +54,7 @@ export interface BarChartProps extends BaseChartProps {
 
 export function BarChart(props: BarChartProps): Component {
   const c = new Component('BarChart', props)
-  c['getProps'] = () => chartGetProps(props, {
+  c.getProps = () => chartGetProps(props, {
     ...(props.stacked && { stacked: true }),
     ...(props.horizontal && { horizontal: true }),
     ...(props.barRadius !== undefined && { barRadius: props.barRadius }),
@@ -66,7 +66,7 @@ export function BarChart(props: BarChartProps): Component {
 
 export function LineChart(props: BaseChartProps): Component {
   const c = new Component('LineChart', props)
-  c['getProps'] = () => chartGetProps(props)
+  c.getProps = () => chartGetProps(props)
   return c
 }
 
@@ -74,7 +74,7 @@ export function LineChart(props: BaseChartProps): Component {
 
 export function AreaChart(props: BaseChartProps): Component {
   const c = new Component('AreaChart', props)
-  c['getProps'] = () => chartGetProps(props)
+  c.getProps = () => chartGetProps(props)
   return c
 }
 
@@ -82,7 +82,7 @@ export function AreaChart(props: BaseChartProps): Component {
 
 export function PieChart(props: BaseChartProps): Component {
   const c = new Component('PieChart', props)
-  c['getProps'] = () => chartGetProps(props)
+  c.getProps = () => chartGetProps(props)
   return c
 }
 
@@ -90,7 +90,7 @@ export function PieChart(props: BaseChartProps): Component {
 
 export function RadarChart(props: BaseChartProps): Component {
   const c = new Component('RadarChart', props)
-  c['getProps'] = () => chartGetProps(props)
+  c.getProps = () => chartGetProps(props)
   return c
 }
 
@@ -98,7 +98,7 @@ export function RadarChart(props: BaseChartProps): Component {
 
 export function ScatterChart(props: BaseChartProps): Component {
   const c = new Component('ScatterChart', props)
-  c['getProps'] = () => chartGetProps(props)
+  c.getProps = () => chartGetProps(props)
   return c
 }
 
@@ -114,12 +114,54 @@ export interface SparklineProps extends ComponentProps {
 
 export function Sparkline(props: SparklineProps): Component {
   const c = new Component('Sparkline', props)
-  c['getProps'] = () => ({
+  c.getProps = () => ({
     data: props.data,
     ...(props.variant && { variant: props.variant }),
     ...(props.fill !== undefined && { fill: props.fill }),
     ...(props.curve && { curve: props.curve }),
     ...(props.mode && { mode: props.mode }),
+  })
+  return c
+}
+
+// ── RadialChart ──────────────────────────────────────────────────────────────
+
+export interface RadialChartProps extends BaseChartProps {
+  innerRadius?: number
+  startAngle?: number
+  endAngle?: number
+}
+
+export function RadialChart(props: RadialChartProps): Component {
+  const c = new Component('RadialChart', props)
+  c.getProps = () => chartGetProps(props, {
+    ...(props.innerRadius !== undefined && { innerRadius: props.innerRadius }),
+    ...(props.startAngle !== undefined && { startAngle: props.startAngle }),
+    ...(props.endAngle !== undefined && { endAngle: props.endAngle }),
+  })
+  return c
+}
+
+// ── Histogram ────────────────────────────────────────────────────────────────
+
+export interface HistogramProps extends ComponentProps {
+  data: number[]
+  bins?: number
+  color?: string
+  height?: number
+  showXAxis?: boolean
+  showYAxis?: boolean
+}
+
+export function Histogram(props: HistogramProps): Component {
+  const c = new Component('Histogram', props)
+  c.getProps = () => ({
+    data: props.data,
+    ...(props.bins !== undefined && { bins: props.bins }),
+    ...(props.color && { color: props.color }),
+    ...(props.height !== undefined && { height: props.height }),
+    ...(props.showXAxis !== undefined && { showXAxis: props.showXAxis }),
+    ...(props.showYAxis !== undefined && { showYAxis: props.showYAxis }),
   })
   return c
 }

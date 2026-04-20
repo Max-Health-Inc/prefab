@@ -2,8 +2,8 @@
  * Interactive components — Tabs, Accordion, Dialog, Popover, Tooltip, etc.
  */
 
-import { ContainerComponent, Component } from '../../core/component.js'
-import type { ContainerProps, ComponentProps, RxStr } from '../../core/component.js'
+import { ContainerComponent, type Component } from '../../core/component.js'
+import type { ContainerProps, RxStr } from '../../core/component.js'
 
 // ── Tabs + Tab ───────────────────────────────────────────────────────────────
 
@@ -17,7 +17,7 @@ export interface TabProps extends ContainerProps {
 
 export function Tab(props: TabProps): ContainerComponent {
   const c = new ContainerComponent('Tab', props)
-  c['getProps'] = () => ({ title: props.title })
+  c.getProps = () => ({ title: props.title })
   return c
 }
 
@@ -33,7 +33,7 @@ export interface AccordionItemProps extends ContainerProps {
 
 export function AccordionItem(props: AccordionItemProps): ContainerComponent {
   const c = new ContainerComponent('AccordionItem', props)
-  c['getProps'] = () => ({ title: props.title })
+  c.getProps = () => ({ title: props.title })
   return c
 }
 
@@ -49,7 +49,7 @@ export interface DialogProps extends ContainerProps {
 
 export function Dialog(props: DialogProps): ContainerComponent {
   const c = new ContainerComponent('Dialog', props)
-  c['getProps'] = () => ({
+  c.getProps = () => ({
     ...(props.title && { title: props.title }),
     ...(props.description && { description: props.description }),
     ...(props.trigger && { trigger: props.trigger.toJSON() }),
@@ -69,7 +69,7 @@ export interface PopoverProps extends ContainerProps {
 
 export function Popover(props: PopoverProps): ContainerComponent {
   const c = new ContainerComponent('Popover', props)
-  c['getProps'] = () => ({
+  c.getProps = () => ({
     ...(props.title && { title: props.title }),
     ...(props.description && { description: props.description }),
     ...(props.side && { side: props.side }),
@@ -81,7 +81,7 @@ export function Popover(props: PopoverProps): ContainerComponent {
 
 export function Tooltip(content: RxStr, props?: ContainerProps): ContainerComponent {
   const c = new ContainerComponent('Tooltip', props)
-  c['getProps'] = () => ({ content: String(content) })
+  c.getProps = () => ({ content: String(content) })
   return c
 }
 
@@ -89,7 +89,7 @@ export function Tooltip(content: RxStr, props?: ContainerProps): ContainerCompon
 
 export function HoverCard(content: RxStr, props?: ContainerProps): ContainerComponent {
   const c = new ContainerComponent('HoverCard', props)
-  c['getProps'] = () => ({ content: String(content) })
+  c.getProps = () => ({ content: String(content) })
   return c
 }
 

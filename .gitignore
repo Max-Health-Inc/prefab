@@ -2,3 +2,9 @@ node_modules/
 dist/
 *.tgz
 .DS_Store
+
+# Compiled test artifacts (from stale tsc runs)
+test/**/*.js
+test/**/*.js.map
+test/**/*.d.ts
+test/**/*.d.ts.map

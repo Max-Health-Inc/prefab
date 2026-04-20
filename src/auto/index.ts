@@ -6,10 +6,10 @@
  * manually building component trees.
  */
 
-import { Component, ContainerComponent } from '../core/component.js'
+import { type Component, type ContainerComponent } from '../core/component.js'
 import { Column, Row } from '../components/layout/index.js'
 import { Heading, Text, Muted } from '../components/typography/index.js'
-import { Card, CardContent, CardHeader, CardTitle } from '../components/card/index.js'
+import { Card, CardContent } from '../components/card/index.js'
 import { DataTable, col, Badge, Separator } from '../components/data/index.js'
 import type { DataTableColumnDef, BadgeVariant } from '../components/data/index.js'
 
@@ -97,15 +97,11 @@ function isDateString(value: unknown): boolean {
   return /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2})?/.test(value)
 }
 
-function isBooleanLike(value: unknown): boolean {
-  return typeof value === 'boolean'
-}
-
 function isStatusLike(key: string, value: unknown): boolean {
   if (typeof value !== 'string') return false
   const statusKeys = ['status', 'state', 'phase', 'condition', 'mode']
   return statusKeys.some(sk => key.toLowerCase().includes(sk))
-    || STATUS_VARIANTS[value.toLowerCase().replace(/[\s-]/g, '_')] !== undefined
+    || value.toLowerCase().replace(/[\s-]/g, '_') in STATUS_VARIANTS
 }
 
 function humanizeKey(key: string): string {
@@ -165,7 +161,7 @@ function detectTitle(data: Record<string, unknown>): string | undefined {
   const titleFields = ['name', 'title', 'username', 'displayName', 'display_name', 'label', 'email']
   for (const field of titleFields) {
     if (typeof data[field] === 'string' && data[field]) {
-      return String(data[field])
+      return data[field]
     }
   }
   return undefined
@@ -232,16 +228,16 @@ function renderFieldValue(key: string, value: unknown): Component {
   if (value === null || value === undefined) {
     return Muted('—')
   }
-  if (isBooleanLike(value)) {
+  if (typeof value === 'boolean') {
     return Badge(value ? 'Yes' : 'No', { variant: value ? 'success' : 'outline' })
   }
   if (isStatusLike(key, value)) {
-    return Badge(String(value), { variant: statusVariant(String(value)) })
+    return Badge(value as string, { variant: statusVariant(value as string) })
   }
   if (isDateString(value)) {
-    return Text(String(value), { cssClass: 'font-medium tabular-nums' })
+    return Text(value as string, { cssClass: 'font-medium tabular-nums' })
   }
-  return Text(String(value), { cssClass: 'font-medium' })
+  return Text(typeof value === 'string' ? value : String(value as number), { cssClass: 'font-medium' })
 }
 
 // ── autoTable ───────────────────────────────────────────────────────────────

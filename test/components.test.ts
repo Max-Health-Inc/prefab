@@ -4,10 +4,10 @@
 
 import { describe, it, expect } from 'bun:test'
 import {
-  Column, Row, Grid, GridItem, Div, Span, Container, Dashboard, DashboardItem,
+  Column, Grid, GridItem, Div, Span, Container,
 } from '../src/components/layout'
 import {
-  Heading, H1, H2, Text, P, Muted, Code, Markdown, Link, Kbd,
+  Heading, H1, H2, Text, Muted, Code, Markdown, Link, Kbd,
 } from '../src/components/typography'
 import {
   Card, CardHeader, CardTitle, CardContent, CardFooter,
@@ -26,8 +26,7 @@ import { Alert, AlertTitle, AlertDescription } from '../src/components/alert'
 import { Image, Mermaid } from '../src/components/media'
 import { CallTool } from '../src/actions/mcp'
 import { ShowToast, SetState } from '../src/actions/client'
-import { rx, RESULT } from '../src/rx/rx'
-import { Component } from '../src/core/component'
+import { rx } from '../src/rx/rx'
 
 describe('Layout', () => {
   it('Column with gap and children', () => {

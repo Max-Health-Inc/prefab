@@ -3,7 +3,7 @@
  */
 
 import { describe, it, expect } from 'bun:test'
-import { Rx, rx, ITEM, INDEX, EVENT, ERROR, RESULT, STATE } from '../src/rx/rx'
+import { rx, ITEM, INDEX, EVENT, ERROR, RESULT, STATE } from '../src/rx/rx'
 
 describe('Rx', () => {
   it('creates simple state reference', () => {

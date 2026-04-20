@@ -11,7 +11,7 @@ class TextComponent extends Component {
   constructor(type: string, readonly content: RxStr, props?: ComponentProps) {
     super(type, props)
   }
-  protected getProps() {
+  getProps(): Record<string, unknown> {
     return { content: String(this.content) }
   }
 }
@@ -25,8 +25,8 @@ export interface HeadingProps extends ComponentProps {
 export function Heading(content: RxStr, props?: HeadingProps): Component {
   const c = new TextComponent('Heading', content, props)
   if (props?.level) {
-    const origGetProps = c['getProps'].bind(c)
-    c['getProps'] = () => ({ ...origGetProps(), level: props.level })
+    const origGetProps = c.getProps.bind(c)
+    c.getProps = () => ({ ...origGetProps(), level: props.level })
   }
   return c
 }
@@ -59,8 +59,8 @@ export interface TextProps extends ComponentProps {
 export function Text(content: RxStr, props?: TextProps): Component {
   const c = new TextComponent('Text', content, props)
   if (props?.bold || props?.code) {
-    const origGetProps = c['getProps'].bind(c)
-    c['getProps'] = () => ({
+    const origGetProps = c.getProps.bind(c)
+    c.getProps = () => ({
       ...origGetProps(),
       ...(props.bold && { bold: true }),
       ...(props.code && { code: true }),
@@ -106,8 +106,8 @@ export interface LinkProps extends ComponentProps {
 
 export function Link(content: RxStr, props: LinkProps): Component {
   const c = new TextComponent('Link', content, props)
-  const origGetProps = c['getProps'].bind(c)
-  c['getProps'] = () => ({
+  const origGetProps = c.getProps.bind(c)
+  c.getProps = () => ({
     ...origGetProps(),
     href: props.href,
     ...(props.target && { target: props.target }),
@@ -131,7 +131,7 @@ export function Markdown(content: RxStr, props?: ComponentProps): Component {
 
 export function Kbd(label: string, props?: ComponentProps): Component {
   const c = new TextComponent('Kbd', label, props)
-  const origGetProps = c['getProps'].bind(c)
-  c['getProps'] = () => ({ ...origGetProps(), label })
+  const origGetProps = c.getProps.bind(c)
+  c.getProps = () => ({ ...origGetProps(), label })
   return c
 }

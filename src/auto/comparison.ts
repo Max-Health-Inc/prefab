@@ -4,12 +4,11 @@
  * Ported from mcp-generator-3.x display_tools.py → show_comparison.
  */
 
-import { Component, ContainerComponent } from '../core/component.js'
+import { type Component, type ContainerComponent } from '../core/component.js'
 import { Column, Row, Grid } from '../components/layout/index.js'
 import { Heading, Text, Muted } from '../components/typography/index.js'
 import { Card, CardHeader, CardContent } from '../components/card/index.js'
 import { Badge } from '../components/data/index.js'
-import { statusVariant } from './index.js'
 
 export interface AutoComparisonOptions {
   /** Heading above the comparison. */
@@ -57,7 +56,8 @@ export function autoComparison(
 
   const cards: Component[] = items.map(item => {
     const fieldRows: Component[] = detailKeys.map(key => {
-      const val = String(item[key] ?? '')
+      const rawVal = item[key]
+      const val = rawVal == null ? '' : String(rawVal as string | number | boolean)
       const valueComponent = key === options?.highlightKey
         ? Badge(val, { variant: 'success' })
         : Text(val, { cssClass: 'font-medium' })
@@ -69,7 +69,7 @@ export function autoComparison(
     })
 
     return Card({ children: [
-      CardHeader({ children: [Heading(String(item[nameKey] ?? ''), { level: 3 })] }),
+      CardHeader({ children: [Heading(item[nameKey] == null ? '' : String(item[nameKey] as string | number | boolean), { level: 3 })] }),
       CardContent({ children: fieldRows }),
     ] })
   })

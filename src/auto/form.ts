@@ -4,7 +4,7 @@
  * Ported from mcp-generator-3.x display_tools.py → show_form.
  */
 
-import { Component, ContainerComponent } from '../core/component.js'
+import { type Component, type ContainerComponent } from '../core/component.js'
 import { Column } from '../components/layout/index.js'
 import { Heading, Muted } from '../components/typography/index.js'
 import { Card, CardContent } from '../components/card/index.js'
@@ -67,7 +67,7 @@ export function autoForm(
 
   const onSubmit = options?.onSubmit ?? new CallTool(submitTool, {
     onSuccess: new ShowToast(successMsg, { variant: 'success' }),
-    onError: new ShowToast(errorMsg, { variant: 'destructive' }),
+    onError: new ShowToast(errorMsg, { variant: 'error' }),
   })
 
   const inputComponents: Component[] = fields.map(f => Input({

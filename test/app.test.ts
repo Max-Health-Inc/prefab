@@ -6,7 +6,7 @@ import { describe, it, expect } from 'bun:test'
 import { PrefabApp } from '../src/app'
 import { Column } from '../src/components/layout'
 import { Heading, Text } from '../src/components/typography'
-import { DataTable, col, Badge } from '../src/components/data'
+import { DataTable, col } from '../src/components/data'
 import { Form, Input, Button } from '../src/components/form'
 import { CallTool } from '../src/actions/mcp'
 import { SetState, ShowToast } from '../src/actions/client'
@@ -53,7 +53,7 @@ describe('PrefabApp', () => {
       keyBindings: { 'Escape': new SetState('modal', false) },
     })
     const json = app.toJSON()
-    expect(json.keyBindings!['Escape']).toEqual({ action: 'setState', key: 'modal', value: false })
+    expect(json.keyBindings!.Escape).toEqual({ action: 'setState', key: 'modal', value: false })
   })
 
   it('includes defs', () => {
@@ -62,7 +62,7 @@ describe('PrefabApp', () => {
       defs: { 'MyCard': Column({ gap: 2, children: [Text('Reusable')] }) },
     })
     const json = app.toJSON()
-    expect(json.defs!['MyCard'].type).toBe('Column')
+    expect(json.defs!.MyCard.type).toBe('Column')
   })
 
   it('omits undefined optional fields', () => {

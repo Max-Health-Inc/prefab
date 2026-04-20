@@ -4,7 +4,7 @@
  * Ported from mcp-generator-3.x display_tools.py → show_chart.
  */
 
-import { Component, ContainerComponent } from '../core/component.js'
+import { type Component, type ContainerComponent } from '../core/component.js'
 import { Column } from '../components/layout/index.js'
 import { Heading, Muted } from '../components/typography/index.js'
 import { Card, CardContent } from '../components/card/index.js'
@@ -48,7 +48,7 @@ export function autoChart(
   const chartType = options?.chartType ?? 'bar'
   const showLegend = options?.showLegend ?? true
 
-  const ChartFactory = CHART_MAP[chartType] ?? BarChart
+  const ChartFactory = CHART_MAP[chartType]
 
   const chartProps: BaseChartProps = {
     data,

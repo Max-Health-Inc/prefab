@@ -61,3 +61,15 @@ export class UpdateContext implements Action {
     return { action: 'updateContext', context: serializeValue(this.context) as Record<string, unknown> }
   }
 }
+
+// ── RequestDisplayMode ───────────────────────────────────────────────────────
+
+export type DisplayMode = 'inline' | 'fullscreen' | 'pip'
+
+export class RequestDisplayMode implements Action {
+  constructor(readonly mode: DisplayMode) {}
+
+  toJSON(): ActionJSON {
+    return { action: 'requestDisplayMode', mode: this.mode }
+  }
+}

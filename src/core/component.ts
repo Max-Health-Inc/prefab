@@ -41,7 +41,7 @@ export function serializeValue(v: unknown): unknown {
   if (v === undefined || v === null) return undefined
   if (typeof v === 'string' || typeof v === 'number' || typeof v === 'boolean') return v
   if (v instanceof Component) return v.toJSON()
-  if (typeof v === 'object' && v !== null && 'toJSON' in v && typeof (v as { toJSON: () => unknown }).toJSON === 'function') {
+  if (typeof v === 'object' && 'toJSON' in v && typeof (v as { toJSON: () => unknown }).toJSON === 'function') {
     return (v as { toJSON: () => unknown }).toJSON()
   }
   if (Array.isArray(v)) return v.map(serializeValue)
@@ -78,7 +78,7 @@ export class Component {
   }
 
   /** Override in subclasses to add component-specific props */
-  protected getProps(): Record<string, unknown> {
+  getProps(): Record<string, unknown> {
     return {}
   }
 
@@ -153,7 +153,7 @@ export class StatefulComponent extends Component {
     this.onChange = props.onChange
   }
 
-  protected getProps(): Record<string, unknown> {
+  getProps(): Record<string, unknown> {
     return {
       name: this.name,
       ...(this.value !== undefined && { value: this.value }),

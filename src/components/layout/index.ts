@@ -2,8 +2,8 @@
  * Layout components — Column, Row, Grid, Container, Div, Span, etc.
  */
 
-import { ContainerComponent, Component } from '../../core/component.js'
-import type { ContainerProps, ComponentProps } from '../../core/component.js'
+import { ContainerComponent, type Component } from '../../core/component.js'
+import type { ContainerProps } from '../../core/component.js'
 
 // ── Column ───────────────────────────────────────────────────────────────────
 
@@ -15,8 +15,8 @@ export interface ColumnProps extends ContainerProps {
 export function Column(props: ColumnProps & { children?: Component[] }): ContainerComponent {
   const c = new ContainerComponent('Column', props)
   Object.assign(c, { _gap: props.gap, _align: props.align })
-  const origGetProps = c['getProps'].bind(c)
-  c['getProps'] = () => ({
+  const origGetProps = c.getProps.bind(c)
+  c.getProps = () => ({
     ...origGetProps(),
     ...(props.gap !== undefined && { gap: props.gap }),
     ...(props.align && { align: props.align }),
@@ -33,7 +33,7 @@ export interface RowProps extends ContainerProps {
 
 export function Row(props: RowProps & { children?: Component[] }): ContainerComponent {
   const c = new ContainerComponent('Row', props)
-  c['getProps'] = () => ({
+  c.getProps = () => ({
     ...(props.gap !== undefined && { gap: props.gap }),
     ...(props.align && { align: props.align }),
   })
@@ -51,7 +51,7 @@ export interface GridProps extends ContainerProps {
 
 export function Grid(props: GridProps & { children?: Component[] }): ContainerComponent {
   const c = new ContainerComponent('Grid', props)
-  c['getProps'] = () => ({
+  c.getProps = () => ({
     ...(props.columns !== undefined && { columns: props.columns }),
     ...(props.gap !== undefined && { gap: props.gap }),
     ...(props.minColumnWidth && { minColumnWidth: props.minColumnWidth }),
@@ -69,7 +69,7 @@ export interface GridItemProps extends ContainerProps {
 
 export function GridItem(props: GridItemProps & { children?: Component[] }): ContainerComponent {
   const c = new ContainerComponent('GridItem', props)
-  c['getProps'] = () => ({
+  c.getProps = () => ({
     ...(props.colSpan !== undefined && { colSpan: props.colSpan }),
     ...(props.rowSpan !== undefined && { rowSpan: props.rowSpan }),
   })
@@ -104,7 +104,7 @@ export interface DashboardProps extends ContainerProps {
 
 export function Dashboard(props: DashboardProps & { children?: Component[] }): ContainerComponent {
   const c = new ContainerComponent('Dashboard', props)
-  c['getProps'] = () => ({
+  c.getProps = () => ({
     ...(props.columns !== undefined && { columns: props.columns }),
     ...(props.rowHeight !== undefined && { rowHeight: props.rowHeight }),
     ...(props.gap !== undefined && { gap: props.gap }),
@@ -123,7 +123,7 @@ export interface DashboardItemProps extends ContainerProps {
 
 export function DashboardItem(props: DashboardItemProps & { children?: Component[] }): ContainerComponent {
   const c = new ContainerComponent('DashboardItem', props)
-  c['getProps'] = () => ({
+  c.getProps = () => ({
     ...(props.col !== undefined && { col: props.col }),
     ...(props.row !== undefined && { row: props.row }),
     ...(props.colSpan !== undefined && { colSpan: props.colSpan }),
@@ -144,6 +144,6 @@ export interface PageProps extends ContainerProps {
 
 export function Page(props: PageProps): ContainerComponent {
   const c = new ContainerComponent('Page', props)
-  c['getProps'] = () => ({ name: props.name })
+  c.getProps = () => ({ name: props.name })
   return c
 }

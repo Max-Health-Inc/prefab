@@ -26,8 +26,8 @@ export interface DataTableProps extends ComponentProps {
 
 export function DataTable(props: DataTableProps): Component {
   const c = new Component('DataTable', props)
-  c['getProps'] = () => ({
-    rows: typeof props.rows === 'string' || (typeof props.rows === 'object' && props.rows !== null && 'toJSON' in props.rows)
+  c.getProps = () => ({
+    rows: typeof props.rows === 'string' || (typeof props.rows === 'object' && 'toJSON' in props.rows)
       ? String(props.rows)
       : props.rows,
     columns: props.columns.map(col => ({
@@ -50,7 +50,7 @@ export interface BadgeProps extends ComponentProps {
 
 export function Badge(content: RxStr, props?: BadgeProps): Component {
   const c = new Component('Badge', props)
-  c['getProps'] = () => ({
+  c.getProps = () => ({
     content: String(content),
     ...(props?.variant && { variant: props.variant }),
   })
@@ -61,7 +61,7 @@ export function Badge(content: RxStr, props?: BadgeProps): Component {
 
 export function Dot(color: string, props?: ComponentProps): Component {
   const c = new Component('Dot', props)
-  c['getProps'] = () => ({ color })
+  c.getProps = () => ({ color })
   return c
 }
 
@@ -78,13 +78,13 @@ export interface MetricProps extends ComponentProps {
 
 export function Metric(props: MetricProps): Component {
   const c = new Component('Metric', props)
-  c['getProps'] = () => ({
+  c.getProps = () => ({
     label: String(props.label),
     value: String(props.value),
     ...(props.delta !== undefined && { delta: String(props.delta) }),
     ...(props.trend && { trend: props.trend }),
     ...(props.trendSentiment && { trendSentiment: props.trendSentiment }),
-    ...(props.description && { description: String(props.description) }),
+    ...(props.description != null && { description: String(props.description) }),
   })
   return c
 }
@@ -101,9 +101,9 @@ export interface RingProps extends ComponentProps {
 
 export function Ring(props: RingProps): Component {
   const c = new Component('Ring', props)
-  c['getProps'] = () => ({
+  c.getProps = () => ({
     value: typeof props.value === 'number' ? props.value : String(props.value),
-    ...(props.label && { label: String(props.label) }),
+    ...(props.label != null && { label: String(props.label) }),
     ...(props.variant && { variant: props.variant }),
     ...(props.size !== undefined && { size: props.size }),
     ...(props.thickness !== undefined && { thickness: props.thickness }),
@@ -121,7 +121,7 @@ export interface ProgressProps extends ComponentProps {
 
 export function Progress(props: ProgressProps): Component {
   const c = new Component('Progress', props)
-  c['getProps'] = () => ({
+  c.getProps = () => ({
     value: typeof props.value === 'number' ? props.value : String(props.value),
     ...(props.max !== undefined && { max: props.max }),
     ...(props.variant && { variant: props.variant }),
@@ -145,6 +145,6 @@ export function Loader(props?: ComponentProps): Component {
 
 export function Icon(name: string, props?: ComponentProps): Component {
   const c = new Component('Icon', props)
-  c['getProps'] = () => ({ name })
+  c.getProps = () => ({ name })
   return c
 }

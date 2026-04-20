@@ -9,7 +9,7 @@ class CardTextComponent extends Component {
   constructor(type: string, readonly content: RxStr, props?: ComponentProps) {
     super(type, props)
   }
-  protected getProps() {
+  getProps(): Record<string, unknown> {
     return { content: String(this.content) }
   }
 }

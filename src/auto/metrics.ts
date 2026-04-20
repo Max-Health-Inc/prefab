@@ -4,7 +4,7 @@
  * Ported from mcp-generator-3.x display_tools.py → show_metrics.
  */
 
-import { Component, ContainerComponent } from '../core/component.js'
+import { type Component, type ContainerComponent } from '../core/component.js'
 import { Column, Grid } from '../components/layout/index.js'
 import { Heading, Muted } from '../components/typography/index.js'
 import { Card, CardContent } from '../components/card/index.js'

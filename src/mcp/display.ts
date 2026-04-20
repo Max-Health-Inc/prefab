@@ -6,8 +6,8 @@
  *
  * @example
  * ```ts
- * import { display, display_error } from 'prefab-ui/mcp'
- * import { autoTable } from 'prefab-ui'
+ * import { display, display_error } from '@max-health-inc/prefab/mcp'
+ * import { autoTable } from '@max-health-inc/prefab'
  *
  * // In a FastMCP tool handler:
  * async function listPatients(args, context) {
@@ -17,9 +17,9 @@
  * ```
  */
 
-import { Component } from '../core/component.js'
+import { type Component } from '../core/component.js'
 import { PrefabApp } from '../app.js'
-import type { PrefabAppOptions, Theme } from '../app.js'
+import type { Theme } from '../app.js'
 import type { Action } from '../actions/types.js'
 import type { McpToolResult } from './types.js'
 
@@ -147,7 +147,7 @@ export function display_update(
 // ── display_error() ──────────────────────────────────────────────────────────
 
 import { Column } from '../components/layout/index.js'
-import { Heading, Muted, Code } from '../components/typography/index.js'
+import { Muted, Code } from '../components/typography/index.js'
 import { Alert, AlertTitle, AlertDescription } from '../components/alert/index.js'
 import { Card, CardContent } from '../components/card/index.js'
 

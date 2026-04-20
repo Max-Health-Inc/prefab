@@ -28,7 +28,7 @@ import type { McpToolResult, PrefabWireFormat, PrefabUpdateWire } from '../src/i
 function parsePrefab(result: McpToolResult): PrefabWireFormat | PrefabUpdateWire {
   expect(result.content).toHaveLength(1)
   expect(result.content[0].type).toBe('text')
-  return JSON.parse((result.content[0] as { text: string }).text)
+  return JSON.parse((result.content[0] as { text: string }).text) as PrefabWireFormat | PrefabUpdateWire
 }
 
 // ── Mock MCP tool handler pattern ────────────────────────────────────────────

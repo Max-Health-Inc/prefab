@@ -1,0 +1,99 @@
+name: Release & Publish
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  id-token: write
+
+jobs:
+  release:
+    name: Test → Build → Release → Publish
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      # ── Version bump ────────────────────────────────
+      - name: Determine next version
+        id: version
+        run: |
+          PACKAGE_NAME=$(jq -r .name package.json)
+
+          # Get latest version from npm (fallback to 0.0.0 if never published)
+          LATEST=$(npm view "$PACKAGE_NAME" version 2>/dev/null || echo "0.0.0")
+          echo "npm-latest=$LATEST" >> "$GITHUB_OUTPUT"
+
+          # Bump patch: 0.1.2 → 0.1.3
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$LATEST"
+          NEXT="${MAJOR}.${MINOR}.$((PATCH + 1))"
+          echo "next=$NEXT" >> "$GITHUB_OUTPUT"
+          echo "### Version: $LATEST → $NEXT" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Update package.json version
+        run: |
+          NEXT="${{ steps.version.outputs.next }}"
+          jq --arg v "$NEXT" '.version = $v' package.json > package.json.tmp
+          mv package.json.tmp package.json
+          echo "Updated package.json to $NEXT"
+
+      # ── Quality gates ───────────────────────────────
+      - name: Lint
+        run: bun run lint
+
+      - name: Type check
+        run: bun run typecheck
+
+      - name: Test
+        run: bun test
+
+      # ── Build ───────────────────────────────────────
+      - name: Build
+        run: bun run build
+
+      # ── Commit version bump ─────────────────────────
+      - name: Commit & tag
+        run: |
+          NEXT="${{ steps.version.outputs.next }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add package.json
+          git commit -m "chore: release v${NEXT}" || echo "No changes to commit"
+          git tag "v${NEXT}"
+          git push origin main --tags
+
+      # ── GitHub Release ──────────────────────────────
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.version.outputs.next }}
+          name: v${{ steps.version.outputs.next }}
+          generate_release_notes: true
+
+      # ── npm Publish ─────────────────────────────────
+      - name: Publish to npm
+        run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Summary
+        run: |
+          NEXT="${{ steps.version.outputs.next }}"
+          PACKAGE_NAME=$(jq -r .name package.json)
+          echo "### ✅ Published ${PACKAGE_NAME}@${NEXT}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- npm: https://www.npmjs.com/package/${PACKAGE_NAME}/v/${NEXT}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Release: ${{ github.server_url }}/${{ github.repository }}/releases/tag/v${NEXT}" >> "$GITHUB_STEP_SUMMARY"

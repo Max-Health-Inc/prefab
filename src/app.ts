@@ -5,7 +5,7 @@
  * Serializes to the $prefab wire format compatible with the Python version.
  */
 
-import { Component, ContainerComponent, serializeValue } from './core/component.js'
+import { type Component } from './core/component.js'
 import type { ComponentJSON } from './core/component.js'
 import type { Action, ActionJSON } from './actions/types.js'
 
@@ -25,6 +25,7 @@ export interface PrefabWireFormat {
   theme?: Theme
   defs?: Record<string, ComponentJSON>
   keyBindings?: Record<string, ActionJSON | ActionJSON[]>
+  stylesheets?: string[]
 }
 
 // ── PrefabApp ────────────────────────────────────────────────────────────────
@@ -87,6 +88,7 @@ export class PrefabApp {
 
     if (this.state) wire.state = this.state
     if (this.theme) wire.theme = this.theme
+    if (this.stylesheets != null && this.stylesheets.length > 0) wire.stylesheets = this.stylesheets
 
     if (this.defs) {
       wire.defs = {}
@@ -133,7 +135,7 @@ export class PrefabApp {
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>${escapeHtml(this.title)}</title>
     ${stylesheetTags}
-    <script src="https://cdn.jsdelivr.net/npm/prefab-ui@${cdnVersion}/dist/renderer.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@max-health-inc/prefab@${cdnVersion}/dist/renderer.min.js"></script>
     ${scriptTags}
   </head>
   <body>

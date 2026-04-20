@@ -3,7 +3,7 @@
  */
 
 import { Component } from '../../core/component.js'
-import type { ComponentProps, RxStr } from '../../core/component.js'
+import type { ComponentProps } from '../../core/component.js'
 
 export interface ImageProps extends ComponentProps {
   src: string
@@ -12,7 +12,7 @@ export interface ImageProps extends ComponentProps {
 
 export function Image(props: ImageProps): Component {
   const c = new Component('Image', props)
-  c['getProps'] = () => ({
+  c.getProps = () => ({
     src: props.src,
     ...(props.alt && { alt: props.alt }),
   })
@@ -21,25 +21,25 @@ export function Image(props: ImageProps): Component {
 
 export function Audio(src: string, props?: ComponentProps): Component {
   const c = new Component('Audio', props)
-  c['getProps'] = () => ({ src })
+  c.getProps = () => ({ src })
   return c
 }
 
 export function Video(src: string, props?: ComponentProps): Component {
   const c = new Component('Video', props)
-  c['getProps'] = () => ({ src })
+  c.getProps = () => ({ src })
   return c
 }
 
 export function Embed(src: string, props?: ComponentProps): Component {
   const c = new Component('Embed', props)
-  c['getProps'] = () => ({ src })
+  c.getProps = () => ({ src })
   return c
 }
 
 export function Svg(content: string, props?: ComponentProps): Component {
   const c = new Component('Svg', props)
-  c['getProps'] = () => ({ content })
+  c.getProps = () => ({ content })
   return c
 }
 
@@ -49,6 +49,6 @@ export function DropZone(props?: ComponentProps): Component {
 
 export function Mermaid(content: string, props?: ComponentProps): Component {
   const c = new Component('Mermaid', props)
-  c['getProps'] = () => ({ content })
+  c.getProps = () => ({ content })
   return c
 }

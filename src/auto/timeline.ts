@@ -4,7 +4,7 @@
  * Ported from mcp-generator-3.x display_tools.py → show_timeline.
  */
 
-import { Component, ContainerComponent } from '../core/component.js'
+import { type Component, type ContainerComponent } from '../core/component.js'
 import { Column, Row } from '../components/layout/index.js'
 import { Heading, Text, Muted, Small } from '../components/typography/index.js'
 import { Card, CardContent } from '../components/card/index.js'

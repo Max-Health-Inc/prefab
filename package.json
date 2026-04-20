@@ -1,5 +1,5 @@
 {
-  "name": "prefab-ui",
+  "name": "@max-health-inc/prefab",
   "version": "0.1.0",
   "description": "TypeScript declarative UI component library for MCP apps. Wire-compatible with Python prefab-ui.",
   "type": "module",
@@ -26,17 +26,28 @@
     "./mcp": {
       "import": "./dist/mcp/index.js",
       "types": "./dist/mcp/index.d.ts"
+    },
+    "./renderer": {
+      "import": "./dist/renderer/index.js",
+      "types": "./dist/renderer/index.d.ts"
+    },
+    "./auto": {
+      "import": "./dist/auto/index.js",
+      "types": "./dist/auto/index.d.ts"
     }
   },
+  "sideEffects": false,
   "files": [
     "dist",
     "README.md",
-    "LICENSE"
+    "LICENSE",
+    "CHANGELOG.md"
   ],
   "scripts": {
     "build": "bun run scripts/build.ts",
     "test": "bun test",
-    "lint": "eslint src/",
+    "lint": "eslint src/ test/",
+    "lint:fix": "eslint src/ test/ --fix",
     "typecheck": "tsc --noEmit",
     "prepublishOnly": "bun run build"
   },
@@ -53,10 +64,16 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Max-Health-Inc/prefab-ui.git"
+    "url": "https://github.com/Max-Health-Inc/prefab.git"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@happy-dom/global-registrator": "^20.9.0",
     "@types/bun": "^1.2.0",
-    "typescript": "^5.8.0"
+    "eslint": "^10.2.1",
+    "happy-dom": "^20.9.0",
+    "jiti": "^2.6.1",
+    "typescript": "^5.8.0",
+    "typescript-eslint": "^8.58.2"
   }
 }

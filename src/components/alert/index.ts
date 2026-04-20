@@ -15,7 +15,7 @@ export interface AlertProps extends ContainerProps {
 export function Alert(props?: AlertProps): ContainerComponent {
   const c = new ContainerComponent('Alert', props)
   if (props?.variant || props?.icon) {
-    c['getProps'] = () => ({
+    c.getProps = () => ({
       ...(props.variant && { variant: props.variant }),
       ...(props.icon && { icon: props.icon }),
     })
@@ -27,7 +27,7 @@ class AlertTextComponent extends Component {
   constructor(type: string, readonly content: RxStr, props?: ComponentProps) {
     super(type, props)
   }
-  protected getProps() {
+  getProps(): Record<string, unknown> {
     return { content: String(this.content) }
   }
 }
