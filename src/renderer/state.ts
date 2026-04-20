@@ -121,8 +121,15 @@ function resolvePath(obj: unknown, path: string): unknown {
   return current
 }
 
+/** Keys that must never be traversed in state paths. */
+const BLOCKED_KEYS = new Set(['__proto__', 'constructor', 'prototype'])
+
 function setPath(obj: Record<string, unknown>, path: string, value: unknown): void {
   const parts = path.split('.')
+  if (parts.some(p => BLOCKED_KEYS.has(p))) {
+    console.warn(`[prefab] Blocked prototype pollution attempt: ${path}`)
+    return
+  }
   let current: Record<string, unknown> = obj
   for (let i = 0; i < parts.length - 1; i++) {
     const key = parts[i]

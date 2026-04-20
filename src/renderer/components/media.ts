@@ -52,19 +52,52 @@ function renderEmbed(node: ComponentNode, ctx: RenderContext): HTMLElement {
   iframe.style.width = '100%'
   iframe.style.height = node.height != null ? `${node.height as number}px` : '400px'
   iframe.style.border = 'none'
-  iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin')
+  iframe.setAttribute('sandbox', 'allow-scripts')
   wrapper.appendChild(iframe)
   return wrapper
 }
 
+/** SVG element/attribute allowlist for sanitization. */
+const SVG_ALLOWED_TAGS = new Set([
+  'svg', 'g', 'path', 'rect', 'circle', 'ellipse', 'line', 'polyline',
+  'polygon', 'text', 'tspan', 'textpath', 'defs', 'use', 'symbol',
+  'clippath', 'mask', 'pattern', 'lineargradient', 'radialgradient',
+  'stop', 'filter', 'fegaussianblur', 'feoffset', 'femerge',
+  'femergenode', 'fecolormatrix', 'feblend', 'title', 'desc',
+])
+
 function renderSvg(node: ComponentNode, ctx: RenderContext): HTMLElement {
   const wrapper = el('div', 'pf-svg')
   const content = resolveStr(node.content, ctx)
-  // Sanitize: only allow SVG content
-  if (content.includes('<svg')) {
-    wrapper.innerHTML = content
-  }
+  if (!content.includes('<svg')) return wrapper
+
+  // Parse via DOMParser to avoid innerHTML XSS
+  const doc = new DOMParser().parseFromString(content, 'image/svg+xml')
+  const svg = doc.querySelector('svg')
+  if (!svg) return wrapper
+
+  sanitizeSvgNode(svg)
+  wrapper.appendChild(document.importNode(svg, true))
   return wrapper
+}
+
+function sanitizeSvgNode(node: Element): void {
+  // Remove disallowed elements
+  const children = Array.from(node.children)
+  for (const child of children) {
+    if (!SVG_ALLOWED_TAGS.has(child.tagName.toLowerCase())) {
+      child.remove()
+      continue
+    }
+    // Strip event handler attributes (on*) and dangerous attrs
+    for (const attr of Array.from(child.attributes)) {
+      const name = attr.name.toLowerCase()
+      if (name.startsWith('on') || name === 'href' && attr.value.trim().toLowerCase().startsWith('javascript:')) {
+        child.removeAttribute(attr.name)
+      }
+    }
+    sanitizeSvgNode(child)
+  }
 }
 
 function renderDropZone(node: ComponentNode, ctx: RenderContext): HTMLElement {

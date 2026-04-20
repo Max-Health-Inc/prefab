@@ -32,7 +32,7 @@ import { renderNode } from './engine.js'
 import type { ComponentNode, RenderContext } from './engine.js'
 import { registerAllComponents } from './components/index.js'
 import { applyTheme, applyKeyBindings } from './theme.js'
-import { dispatchActions } from './actions.js'
+import { dispatchActions, clearAllIntervals } from './actions.js'
 import type { McpTransport, ToastEvent, ActionJSON } from './actions.js'
 import { createHttpTransport, createNoopTransport } from './transport.js'
 import type { McpTransportOptions } from './transport.js'
@@ -179,6 +179,7 @@ export const PrefabRenderer = {
       store,
       destroy() {
         cleanupKeys?.()
+        clearAllIntervals()
         for (const s of styleEls) s.remove()
         root.innerHTML = ''
       },

@@ -17,6 +17,7 @@
  */
 
 import type { McpTransport } from './actions.js'
+import type { App as ExtAppsApp, PostMessageTransport as ExtAppsPostMessageTransport } from '@modelcontextprotocol/ext-apps'
 
 // ── Public types ─────────────────────────────────────────────────────────────
 
@@ -59,8 +60,8 @@ export interface HostTheme {
 
 // ── Lazy ext-apps types ──────────────────────────────────────────────────────
 
-type ExtApp = import('@modelcontextprotocol/ext-apps').App
-type ExtTransportClass = typeof import('@modelcontextprotocol/ext-apps').PostMessageTransport
+type ExtApp = InstanceType<typeof ExtAppsApp>
+type ExtTransportClass = typeof ExtAppsPostMessageTransport
 
 // ── Bridge Class ─────────────────────────────────────────────────────────────
 
@@ -88,7 +89,7 @@ export class Bridge {
     const handler = (event: MessageEvent): void => {
       if (this.hostOrigin !== '*' && event.origin !== this.hostOrigin) return
       const msg = event.data as BridgeMessage | undefined
-      if (!msg?.type?.startsWith('prefab:')) return
+      if (!msg?.type.startsWith('prefab:')) return
 
       // Resolve pending tool-call promises
       if (msg.type === 'prefab:tool-call-response' && msg.id) {
@@ -166,7 +167,8 @@ export class Bridge {
     if (!this.listeners.has(type)) {
       this.listeners.set(type, new Set())
     }
-    this.listeners.get(type)!.add(handler)
+    const set = this.listeners.get(type)
+    if (set) set.add(handler)
   }
 
   /** Remove a handler. */
@@ -250,7 +252,8 @@ export class Bridge {
 
   private async initExtApps(appCapabilities: AppCapabilities): Promise<HostContext> {
     const { App, PostMessageTransport } = await import('@modelcontextprotocol/ext-apps')
-    const transport = new (PostMessageTransport as ExtTransportClass)(
+    const Transport = PostMessageTransport as unknown as ExtTransportClass
+    const transport = new Transport(
       window.parent,
       window.parent,
     )
@@ -273,9 +276,9 @@ export class Bridge {
     this.extApp = extApp
     this.protocol = 'ext-apps'
 
-    const hostInfo = extApp.getHostVersion?.()
-    const hostCaps = extApp.getHostCapabilities?.()
-    const hostCtx = extApp.getHostContext?.()
+    const hostInfo = extApp.getHostVersion()
+    const hostCaps = extApp.getHostCapabilities()
+    const hostCtx = extApp.getHostContext()
 
     return {
       hostName: hostInfo?.name,
@@ -295,39 +298,37 @@ export class Bridge {
   }
 
   private wireExtAppsEvents(extApp: ExtApp): void {
-    extApp.ontoolinput = (params) => {
+    extApp.addEventListener('toolinput', (params) => {
       this.dispatch('prefab:tool-input', { args: params.arguments ?? {} })
-    }
-    extApp.ontoolinputpartial = (params) => {
+    })
+    extApp.addEventListener('toolinputpartial', (params) => {
       this.dispatch('prefab:tool-input-partial', { args: params.arguments ?? {} })
-    }
-    extApp.ontoolresult = (params) => {
+    })
+    extApp.addEventListener('toolresult', (params) => {
       this.dispatch('prefab:tool-result', { result: params })
-    }
-    extApp.ontoolcancelled = () => {
+    })
+    extApp.addEventListener('toolcancelled', () => {
       this.dispatch('prefab:tool-cancelled', {})
-    }
-    extApp.onhostcontextchanged = (params) => {
+    })
+    extApp.addEventListener('hostcontextchanged', (params) => {
       const theme: HostTheme = {}
       if (params.theme) {
         theme.colorScheme = params.theme as 'light' | 'dark' | 'auto'
       }
       this.dispatch('prefab:theme-update', theme as Record<string, unknown>)
-    }
+    })
   }
 
   private createExtAppsTransport(): McpTransport {
-    const extApp = this.extApp!
+    const extApp = this.extApp
+    if (!extApp) throw new Error('ext-apps not initialized')
     return {
       callTool: async (name: string, args: Record<string, unknown>): Promise<unknown> => {
         const result = await extApp.callServerTool({ name, arguments: args })
-        if (result?.content) {
-          const texts = (result.content as Array<{ type: string; text?: string }>)
-            .filter(c => c.type === 'text')
-            .map(c => c.text)
-          return texts.length === 1 ? texts[0] : texts
-        }
-        return result
+        const texts = (result.content as { type: string; text?: string }[])
+          .filter(c => c.type === 'text')
+          .map(c => c.text)
+        return texts.length === 1 ? texts[0] : texts
       },
       sendMessage: async (message: string): Promise<void> => {
         await extApp.sendMessage({

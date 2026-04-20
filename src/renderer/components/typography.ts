@@ -56,11 +56,19 @@ function renderStyled(node: ComponentNode, ctx: RenderContext, tag: string, cls:
   return e
 }
 
+/** Blocked URL schemes that can execute code. */
+const UNSAFE_SCHEMES = /^\s*(javascript|vbscript|data):/i
+
 function renderLink(node: ComponentNode, ctx: RenderContext): HTMLElement {
   const a = document.createElement('a')
   a.className = 'pf-link'
   a.textContent = resolveStr(node.content, ctx)
-  if (node.href != null) a.href = resolveStr(node.href, ctx)
+  if (node.href != null) {
+    const href = resolveStr(node.href, ctx)
+    if (!UNSAFE_SCHEMES.test(href)) {
+      a.href = href
+    }
+  }
   if (node.target != null) a.target = resolveStr(node.target, ctx)
   return a
 }

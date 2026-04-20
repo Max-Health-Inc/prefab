@@ -11,12 +11,23 @@ export interface ThemeConfig {
  * Apply theme CSS custom properties to the root element.
  * Light theme props go on :root, dark on [data-theme="dark"].
  */
+/** Strip characters that could break out of a CSS property name. */
+function sanitizeCssIdent(key: string): string {
+  return key.replace(/[^a-zA-Z0-9_-]/g, '')
+}
+
+/** Strip characters/patterns that could escape CSS value context. */
+function sanitizeCssValue(value: string): string {
+  // Remove braces, semicolons, url()/expression() to prevent injection
+  return value.replace(/[{}<>;]/g, '').replace(/\b(url|expression)\s*\(/gi, '')
+}
+
 export function applyTheme(root: HTMLElement, theme?: ThemeConfig): void {
   if (!theme) return
 
   if (theme.light) {
     for (const [key, value] of Object.entries(theme.light)) {
-      root.style.setProperty(`--${key}`, value)
+      root.style.setProperty(`--${sanitizeCssIdent(key)}`, sanitizeCssValue(value))
     }
   }
 
@@ -30,7 +41,7 @@ export function applyTheme(root: HTMLElement, theme?: ThemeConfig): void {
       document.head.appendChild(styleEl)
     }
     const props = Object.entries(theme.dark)
-      .map(([key, value]) => `  --${key}: ${value};`)
+      .map(([key, value]) => `  --${sanitizeCssIdent(key)}: ${sanitizeCssValue(value)};`)
       .join('\n')
     styleEl.textContent = `@media (prefers-color-scheme: dark) {\n  :root {\n${props}\n  }\n}`
   }

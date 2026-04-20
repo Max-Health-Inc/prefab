@@ -127,16 +127,36 @@ function handleCloseOverlay(_action: ActionJSON, _ctx: DispatchContext): void {
 
 function handleOpenLink(action: ActionJSON): void {
   if (typeof window !== 'undefined') {
-    window.open(action.url as string, (action.target as string | undefined) ?? '_blank')
+    const url = action.url as string
+    if (!isSafeUrl(url)) {
+      console.warn(`[prefab] Blocked unsafe URL scheme: ${url}`)
+      return
+    }
+    window.open(url, (action.target as string | undefined) ?? '_blank')
   }
 }
 
+/** Active interval IDs for cleanup. */
+const activeIntervals = new Set<ReturnType<typeof setInterval>>()
+const MAX_INTERVALS = 20
+const MIN_INTERVAL_MS = 100
+
 function handleSetInterval(action: ActionJSON, ctx: DispatchContext): void {
-  const ms = action.intervalMs as number
+  const ms = Math.max(action.intervalMs as number, MIN_INTERVAL_MS)
   const onTick = action.onTick as ActionJSON | ActionJSON[]
-  if (typeof globalThis.setInterval === 'function') {
-    globalThis.setInterval(() => void dispatchActions(onTick, ctx), ms)
+  if (typeof globalThis.setInterval !== 'function') return
+  if (activeIntervals.size >= MAX_INTERVALS) {
+    console.warn('[prefab] Max intervals reached, ignoring new setInterval')
+    return
   }
+  const id = globalThis.setInterval(() => void dispatchActions(onTick, ctx), ms)
+  activeIntervals.add(id)
+}
+
+/** Clear all active intervals (called on destroy). */
+export function clearAllIntervals(): void {
+  for (const id of activeIntervals) globalThis.clearInterval(id)
+  activeIntervals.clear()
 }
 
 // ── MCP Actions ──────────────────────────────────────────────────────────────
@@ -179,6 +199,13 @@ function handleUpdateContext(action: ActionJSON, ctx: DispatchContext): void {
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
+
+/** Blocked URL schemes that can execute code. */
+const UNSAFE_SCHEME_RE = /^\s*(javascript|vbscript|data):/i
+
+function isSafeUrl(url: string): boolean {
+  return !UNSAFE_SCHEME_RE.test(url)
+}
 
 function resolveStr(val: unknown, ctx: DispatchContext): string {
   if (isRxExpression(val)) {
