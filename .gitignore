@@ -3,6 +3,9 @@ dist/
 *.tgz
 .DS_Store
 
+# Generated golden JSON fixtures (built from test/fixtures/py/*.py)
+test/fixtures/golden/
+
 # Compiled test artifacts (from stale tsc runs)
 test/**/*.js
 test/**/*.js.map

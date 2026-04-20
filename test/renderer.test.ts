@@ -395,7 +395,8 @@ describe('Render Engine', () => {
     const node: ComponentNode = { type: 'Progress', value: 75 }
     const dom = renderNode(node, makeCtx()) as HTMLElement
     // Progress is a visual bar with no text — check it has a fill child
-    const fill = dom.querySelector('.pf-progress-fill')!
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+    const fill = dom.querySelector('.pf-progress-fill')! as HTMLElement
     expect(fill).toBeTruthy()
     expect(fill.style.width).toBe('75%')
   })

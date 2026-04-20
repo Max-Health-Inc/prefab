@@ -248,7 +248,7 @@ function resolveTarget(target: string | HTMLElement): HTMLElement {
     }
     const el = document.querySelector(target)
     if (!el) throw new Error(`Element not found: ${target}`)
-    return el
+    return el as HTMLElement
   }
   return target
 }

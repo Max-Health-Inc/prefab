@@ -45,6 +45,8 @@
   ],
   "scripts": {
     "build": "bun run scripts/build.ts",
+    "fixtures": "python test/fixtures/run_fixtures.py",
+    "pretest": "python test/fixtures/run_fixtures.py",
     "test": "bun test",
     "lint": "eslint src/ test/",
     "lint:fix": "eslint src/ test/ --fix",
@@ -69,11 +71,11 @@
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@happy-dom/global-registrator": "^20.9.0",
-    "@types/bun": "^1.2.0",
+    "@types/bun": "^1.3.12",
     "eslint": "^10.2.1",
     "happy-dom": "^20.9.0",
     "jiti": "^2.6.1",
-    "typescript": "^5.8.0",
+    "typescript": "^6.0.3",
     "typescript-eslint": "^8.58.2"
   }
 }

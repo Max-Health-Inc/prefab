@@ -1,5 +1,10 @@
 # prefab
 
+[![CI](https://github.com/Max-Health-Inc/prefab-ui/actions/workflows/ci.yml/badge.svg)](https://github.com/Max-Health-Inc/prefab-ui/actions/workflows/ci.yml)
+[![npm](https://img.shields.io/npm/v/@max-health-inc/prefab)](https://www.npmjs.com/package/@max-health-inc/prefab)
+[![TypeScript](https://img.shields.io/badge/TypeScript-6.0-blue?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 TypeScript declarative UI component library for MCP apps. Renders to JSON component trees using the **$prefab wire format**. Wire-compatible with the Python [prefab-ui](https://github.com/PrefectHQ/prefab) library.
 
 - **100+ components** — layout, form, data, charts, media, interactive, control flow

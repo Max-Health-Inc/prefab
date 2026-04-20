@@ -204,7 +204,7 @@ describe('form extensions', () => {
   test('Combobox serializes', () => {
     const c = Combobox({ name: 'fruit', placeholder: 'Pick...',
       children: [
-        ComboboxOption({ value: 'apple', label: 'Apple' }),
+        ComboboxOption('apple', 'Apple'),
       ],
     })
     const json = c.toJSON()
