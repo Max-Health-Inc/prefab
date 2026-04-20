@@ -1,5 +1,7 @@
 /**
- * Bridge & app() tests — PostMessage bridge, lifecycle hooks, environment detection.
+ * Bridge & app() tests -- prefab:* protocol (primary) with ext-apps fallback.
+ *
+ * Tests the prefab:* PostMessage protocol which VS Code Copilot supports natively.
  *
  * @happy-dom
  */
@@ -9,9 +11,9 @@ import { Bridge, isIframe, applyHostTheme } from '../src/renderer/bridge'
 import type { HostTheme, BridgeMessage } from '../src/renderer/bridge'
 import { app } from '../src/renderer/app'
 
-// ── Bridge ───────────────────────────────────────────────────────────────────
+// ── Bridge (prefab:* protocol) ───────────────────────────────────────────────
 
-describe('Bridge', () => {
+describe('Bridge (prefab:* protocol)', () => {
   let bridge: Bridge
 
   beforeEach(() => {
@@ -35,14 +37,12 @@ describe('Bridge', () => {
       received = payload
     })
 
-    // Simulate host sending a message
     const msg: BridgeMessage = {
       type: 'prefab:tool-input',
       payload: { args: { query: 'test' } },
     }
     window.postMessage(msg, '*')
 
-    // postMessage is async — give it a tick
     return new Promise<void>((resolve) => {
       setTimeout(() => {
         expect(received).toBeDefined()
@@ -91,13 +91,10 @@ describe('Bridge', () => {
     expect(typeof transport.sendMessage).toBe('function')
   })
 
-  it('initialize resolves with defaults on timeout', async () => {
+  it('initialize resolves via prefab:init-response', async () => {
     bridge.connect()
-    // No host responds, so it should resolve with defaults after 3s
-    // We can't wait 3s in tests, but we can verify the promise shape
-    const initPromise = bridge.initialize({ toolInput: true })
 
-    // Simulate host responding
+    // Simulate host responding to prefab:init
     setTimeout(() => {
       const response: BridgeMessage = {
         type: 'prefab:init-response',
@@ -109,23 +106,21 @@ describe('Bridge', () => {
       window.postMessage(response, '*')
     }, 10)
 
-    const context = await initPromise
+    const context = await bridge.initialize({ toolInput: true })
     expect(context).toBeDefined()
-    // May get the response or the timeout defaults — either is valid
     expect(context.capabilities).toBeDefined()
+    expect(bridge.activeProtocol).toBe('prefab')
   })
 
   it('createTransport.callTool sends and resolves on response', () => {
     bridge.connect()
     const transport = bridge.createTransport()
 
-    // Listen for outgoing messages
     let sentMsg: BridgeMessage | undefined
     const captureHandler = (event: MessageEvent): void => {
       const msg = event.data as BridgeMessage
       if (msg?.type === 'prefab:tool-call') {
         sentMsg = msg
-        // Simulate host responding
         const response: BridgeMessage = {
           type: 'prefab:tool-call-response',
           id: msg.id,
@@ -171,6 +166,10 @@ describe('Bridge', () => {
       },
     )
   })
+
+  it('activeProtocol defaults to prefab', () => {
+    expect(bridge.activeProtocol).toBe('prefab')
+  })
 })
 
 // ── applyHostTheme ───────────────────────────────────────────────────────────
@@ -209,7 +208,6 @@ describe('applyHostTheme', () => {
 
 describe('isIframe', () => {
   it('returns false when window.self === window.top', () => {
-    // In happy-dom, self === top (not an iframe)
     expect(isIframe()).toBe(false)
   })
 })
@@ -292,14 +290,11 @@ describe('app()', () => {
     const ui = await app({ mode: 'standalone' })
     let received: Record<string, unknown> | undefined
     ui.onToolInput((args) => { received = args })
-
-    // Handler is registered but no bridge to deliver
     expect(received).toBeUndefined()
     ui.destroy()
   })
 
   it('creates bridge app when mode is bridge', async () => {
-    // Simulate init response from host
     const respondToInit = (event: MessageEvent): void => {
       const msg = event.data as BridgeMessage
       if (msg?.type === 'prefab:init') {
@@ -346,7 +341,6 @@ describe('app()', () => {
     let received: Record<string, unknown> | undefined
     ui.onToolInput((args) => { received = args })
 
-    // Initial toolInput is delivered via queueMicrotask
     await new Promise((r) => setTimeout(r, 50))
     expect(received).toEqual({ query: 'initial' })
 
