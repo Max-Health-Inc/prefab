@@ -44,7 +44,19 @@ export { Image, Audio, Video, Embed, Svg, DropZone, Mermaid } from './components
 
 // ── Auto-rendering ───────────────────────────────────────────────────────────
 export { autoDetail, autoTable, statusVariant, registerStatusVariants } from './auto/index.js'
+export { autoChart } from './auto/chart.js'
+export { autoForm } from './auto/form.js'
+export { autoComparison } from './auto/comparison.js'
+export { autoMetrics } from './auto/metrics.js'
+export { autoTimeline } from './auto/timeline.js'
+export { autoProgress } from './auto/progress.js'
 export type { AutoDetailOptions, AutoTableOptions } from './auto/index.js'
+export type { AutoChartOptions, ChartType } from './auto/chart.js'
+export type { AutoFormField, AutoFormOptions } from './auto/form.js'
+export type { AutoComparisonOptions } from './auto/comparison.js'
+export type { AutoMetricDef, AutoMetricsOptions } from './auto/metrics.js'
+export type { AutoTimelineEvent, AutoTimelineOptions } from './auto/timeline.js'
+export type { AutoProgressStep, AutoProgressOptions } from './auto/progress.js'
 
 // ── Re-export actions and rx for convenience ─────────────────────────────────
 export { rx, Rx, ITEM, INDEX, EVENT, ERROR, RESULT, STATE } from './rx/index.js'

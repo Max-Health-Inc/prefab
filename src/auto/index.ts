@@ -1,7 +1,7 @@
 /**
  * Auto-rendering utilities — smart component generation from raw data.
  *
- * Ported from mcp-generator-3.x display_renderers.py.
+ * Ported from mcp-generator-3.x display_renderers.py and display_tools.py.
  * These helpers let you render API responses as rich UIs without
  * manually building component trees.
  */
@@ -12,6 +12,21 @@ import { Heading, Text, Muted } from '../components/typography/index.js'
 import { Card, CardContent, CardHeader, CardTitle } from '../components/card/index.js'
 import { DataTable, col, Badge, Separator } from '../components/data/index.js'
 import type { DataTableColumnDef, BadgeVariant } from '../components/data/index.js'
+
+// ── Re-export sub-modules ───────────────────────────────────────────────────
+
+export { autoChart } from './chart.js'
+export type { AutoChartOptions, ChartType } from './chart.js'
+export { autoForm } from './form.js'
+export type { AutoFormField, AutoFormOptions } from './form.js'
+export { autoComparison } from './comparison.js'
+export type { AutoComparisonOptions } from './comparison.js'
+export { autoMetrics } from './metrics.js'
+export type { AutoMetricDef, AutoMetricsOptions } from './metrics.js'
+export { autoTimeline } from './timeline.js'
+export type { AutoTimelineEvent, AutoTimelineOptions } from './timeline.js'
+export { autoProgress } from './progress.js'
+export type { AutoProgressStep, AutoProgressOptions } from './progress.js'
 
 // ── Status → Badge variant mapping ──────────────────────────────────────────
 
