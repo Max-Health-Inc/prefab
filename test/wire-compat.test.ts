@@ -19,11 +19,10 @@ import { join } from 'path'
 // ── Builder imports ──────────────────────────────────────────────────────────
 import { PrefabApp } from '../src/app'
 import type { PrefabWireFormat } from '../src/app'
-import type { ComponentJSON } from '../src/core/component'
 import {
   Column, Row, Div, Card, CardHeader, CardTitle, CardDescription,
   CardContent, CardFooter,
-  Heading, H1, H2, H3, Text, Muted,
+  Heading, Text, Muted,
   Badge, DataTable, col, Metric, Separator,
   Input, Textarea, Button,
   Alert, AlertTitle, AlertDescription,
@@ -34,7 +33,6 @@ import { SetState, ToggleState, CallHandler } from '../src/actions/index'
 import { rx } from '../src/rx/index'
 
 // ── Renderer imports ─────────────────────────────────────────────────────────
-import { PrefabRenderer } from '../src/renderer/index'
 import type { PrefabWireData } from '../src/renderer/index'
 import { registerAllComponents } from '../src/renderer/components/index'
 import { renderNode } from '../src/renderer/engine'
@@ -158,12 +156,12 @@ describe('Wire compat: Renderer mounts golden fixtures', () => {
     it(`renders ${name} without throwing`, () => {
       const root = document.createElement('div')
       const wireData = data as unknown as PrefabWireData
-      const state = (wireData.state ?? {}) as Record<string, unknown>
+      const state = (wireData.state ?? {})
       const ctx = makeRenderCtx(state)
-      if (wireData.defs) ctx.defs = wireData.defs as Record<string, ComponentNode>
+      if (wireData.defs) ctx.defs = wireData.defs
 
       expect(() => {
-        const el = renderNode(wireData.view as ComponentNode, ctx)
+        const el = renderNode(wireData.view, ctx)
         root.appendChild(el)
       }).not.toThrow()
 
@@ -174,11 +172,11 @@ describe('Wire compat: Renderer mounts golden fixtures', () => {
     it(`renders ${name} — DOM has expected component types`, () => {
       const root = document.createElement('div')
       const wireData = data as unknown as PrefabWireData
-      const state = (wireData.state ?? {}) as Record<string, unknown>
+      const state = (wireData.state ?? {})
       const ctx = makeRenderCtx(state)
-      if (wireData.defs) ctx.defs = wireData.defs as Record<string, ComponentNode>
+      if (wireData.defs) ctx.defs = wireData.defs
 
-      const el = renderNode(wireData.view as ComponentNode, ctx)
+      const el = renderNode(wireData.view, ctx)
       root.appendChild(el)
 
       // Should have rendered child elements (not just empty)
@@ -209,8 +207,8 @@ describe('Wire compat: TS builder structural equivalence', () => {
 
     it('envelope matches', () => {
       expect(tsWire.$prefab).toEqual({ version: '0.2' })
-      expect((tsWire.view as ComponentJSON).type).toBe('Div')
-      expect((tsWire.view as ComponentJSON).cssClass).toContain('pf-app-root')
+      expect((tsWire.view).type).toBe('Div')
+      expect((tsWire.view).cssClass).toContain('pf-app-root')
     })
 
     it('root component type matches', () => {
@@ -373,15 +371,15 @@ describe('Wire compat: TS builder structural equivalence', () => {
     it('Metric props match', () => {
       // Navigate: Card > CardContent > Column > Row > Metric[0]
       const tCard = tsInner.children as Record<string, unknown>[]
-      const tsContent = (tCard[1] as Record<string, unknown>).children as Record<string, unknown>[]
-      const tsCol = (tsContent[0] as Record<string, unknown>).children as Record<string, unknown>[]
-      const tsRow = (tsCol[0] as Record<string, unknown>).children as Record<string, unknown>[]
+      const tsContent = (tCard[1]).children as Record<string, unknown>[]
+      const tsCol = (tsContent[0]).children as Record<string, unknown>[]
+      const tsRow = (tsCol[0]).children as Record<string, unknown>[]
       const tsMetric = tsRow[0]
 
       const gCard = goldenInner.children as Record<string, unknown>[]
-      const gContent = (gCard[1] as Record<string, unknown>).children as Record<string, unknown>[]
-      const gCol = (gContent[0] as Record<string, unknown>).children as Record<string, unknown>[]
-      const gRow = (gCol[0] as Record<string, unknown>).children as Record<string, unknown>[]
+      const gContent = (gCard[1]).children as Record<string, unknown>[]
+      const gCol = (gContent[0]).children as Record<string, unknown>[]
+      const gRow = (gCol[0]).children as Record<string, unknown>[]
       const gMetric = gRow[0]
 
       expect(tsMetric.label).toBe(gMetric.label)
@@ -482,7 +480,7 @@ describe('Wire compat: TS builder structural equivalence', () => {
 
       // +1 button
       const tsAction = tsButtons[0].onClick as Record<string, unknown>
-      const goldenAction = goldenButtons[0].onClick as Record<string, unknown>
+      const _goldenAction = goldenButtons[0].onClick as Record<string, unknown>
       expect(tsAction.action).toBe('setState')
       expect(tsAction.key).toBe('count')
       expect(String(tsAction.value)).toContain('count')
@@ -732,7 +730,7 @@ describe('Wire compat: Round-trip TS→JSON→DOM', () => {
 
   it('defs are resolved during render', () => {
     const myDef = Text('I am from a def')
-    const view = Div({ children: [
+    const _view = Div({ children: [
       // Use is not a direct component — defs are resolved by type name
     ]})
     const wire = new PrefabApp({

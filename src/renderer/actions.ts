@@ -223,7 +223,7 @@ async function handleFetch(action: ActionJSON, ctx: DispatchContext): Promise<vo
       headers: { 'Content-Type': 'application/json', ...headers },
       ...(body && { body }),
     })
-    const result = await resp.json().catch(() => resp.text())
+    const result: unknown = await resp.json().catch(() => resp.text())
     if (action.resultKey != null) {
       ctx.store.set(action.resultKey as string, result)
     }
@@ -239,7 +239,7 @@ function handleOpenFilePicker(action: ActionJSON, ctx: DispatchContext): void {
 
   const input = document.createElement('input')
   input.type = 'file'
-  if (action.accept) input.accept = action.accept as string
+  if (action.accept != null) input.accept = action.accept as string
   if (action.multiple === true) input.multiple = true
 
   input.addEventListener('change', () => {

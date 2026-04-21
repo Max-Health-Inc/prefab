@@ -260,7 +260,7 @@ describe('Media components', () => {
     const ctx = makeCtx()
     const node: ComponentNode = { type: 'Embed', src: 'https://example.com/widget', height: 500 }
     const dom = renderNode(node, ctx) as HTMLElement
-    const iframe = dom.querySelector('iframe') as HTMLIFrameElement
+    const iframe = dom.querySelector('iframe')!
     expect(iframe.getAttribute('src')).toBe('https://example.com/widget')
     expect(iframe.style.height).toBe('500px')
     expect(iframe.getAttribute('sandbox')).toContain('allow-scripts')
@@ -357,7 +357,7 @@ describe('DataTable with search', () => {
       search: true,
     }
     const dom = renderNode(node, ctx) as HTMLElement
-    const searchInput = dom.querySelector('.pf-datatable-search') as HTMLInputElement
+    const searchInput = dom.querySelector('.pf-datatable-search')!
     expect(searchInput).toBeTruthy()
     expect(searchInput.type).toBe('text')
   })
@@ -373,7 +373,7 @@ describe('DataTable with search', () => {
       search: true,
     }
     const dom = renderNode(node, ctx) as HTMLElement
-    const searchInput = dom.querySelector('.pf-datatable-search') as HTMLInputElement
+    const searchInput = dom.querySelector('.pf-datatable-search')!
     const tbody = dom.querySelector('tbody') as HTMLElement
 
     searchInput.value = 'alice'

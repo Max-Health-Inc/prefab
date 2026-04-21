@@ -78,7 +78,7 @@ describe('Tabs', () => {
 
   it('ArrowRight moves to next tab', () => {
     const dom = renderNode(makeTabs(), makeCtx()) as HTMLElement
-    const tablist = dom.querySelector('[role="tablist"]') as HTMLElement
+    const tablist = dom.querySelector('[role="tablist"]')!
     const tabs = dom.querySelectorAll('[role="tab"]')
 
     // Focus on first tab, press ArrowRight
@@ -96,7 +96,7 @@ describe('Tabs', () => {
 
   it('ArrowLeft wraps to last tab', () => {
     const dom = renderNode(makeTabs(), makeCtx()) as HTMLElement
-    const tablist = dom.querySelector('[role="tablist"]') as HTMLElement
+    const tablist = dom.querySelector('[role="tablist"]')!
     const tabs = dom.querySelectorAll('[role="tab"]')
 
     const event = new KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true })
@@ -108,7 +108,7 @@ describe('Tabs', () => {
 
   it('Home key activates first tab', () => {
     const dom = renderNode(makeTabs(), makeCtx()) as HTMLElement
-    const tablist = dom.querySelector('[role="tablist"]') as HTMLElement
+    const tablist = dom.querySelector('[role="tablist"]')!
     const tabs = dom.querySelectorAll('[role="tab"]')
 
     // First activate tab 2
@@ -125,7 +125,7 @@ describe('Tabs', () => {
 
   it('End key activates last tab', () => {
     const dom = renderNode(makeTabs(), makeCtx()) as HTMLElement
-    const tablist = dom.querySelector('[role="tablist"]') as HTMLElement
+    const tablist = dom.querySelector('[role="tablist"]')!
     const tabs = dom.querySelectorAll('[role="tab"]')
 
     const event = new KeyboardEvent('keydown', { key: 'End', bubbles: true })
@@ -313,7 +313,7 @@ describe('ExpandableRow', () => {
       children: [{ type: 'Text', content: 'Detail content' }],
     }
     const dom = renderNode(node, ctx) as HTMLElement
-    const detail = dom.querySelector('.pf-expandable-row-detail') as HTMLElement
+    const detail = dom.querySelector('.pf-expandable-row-detail')!
     expect(detail.style.display).toBe('none')
   })
 
@@ -325,8 +325,8 @@ describe('ExpandableRow', () => {
       children: [{ type: 'Text', content: 'Detail content' }],
     }
     const dom = renderNode(node, ctx) as HTMLElement
-    const summary = dom.querySelector('.pf-expandable-row-summary') as HTMLElement
-    const detail = dom.querySelector('.pf-expandable-row-detail') as HTMLElement
+    const summary = dom.querySelector('.pf-expandable-row-summary')!
+    const detail = dom.querySelector('.pf-expandable-row-detail')!
 
     summary.click()
     expect(detail.style.display).toBe('block')
@@ -340,8 +340,8 @@ describe('ExpandableRow', () => {
       children: [{ type: 'Text', content: 'Detail content' }],
     }
     const dom = renderNode(node, ctx) as HTMLElement
-    const summary = dom.querySelector('.pf-expandable-row-summary') as HTMLElement
-    const detail = dom.querySelector('.pf-expandable-row-detail') as HTMLElement
+    const summary = dom.querySelector('.pf-expandable-row-summary')!
+    const detail = dom.querySelector('.pf-expandable-row-detail')!
 
     summary.click() // expand
     summary.click() // collapse

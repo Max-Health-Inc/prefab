@@ -135,7 +135,7 @@ describe('SVG sanitization', () => {
       content: '<svg onload="alert(1)"><circle cx="50" cy="50" r="40"/></svg>',
     }
     const dom = renderNode(node, ctx) as HTMLElement
-    const svg = dom.querySelector('svg')
+    const _svg = dom.querySelector('svg')
     // The onload should be stripped from child elements during sanitization
     const circle = dom.querySelector('circle')
     expect(circle).toBeTruthy()
@@ -199,7 +199,7 @@ describe('Embed sandboxing', () => {
       src: 'https://example.com/widget',
     }
     const dom = renderNode(node, ctx) as HTMLElement
-    const iframe = dom.querySelector('iframe') as HTMLIFrameElement
+    const iframe = dom.querySelector('iframe')!
     expect(iframe).toBeTruthy()
     expect(iframe.getAttribute('sandbox')).toBe('allow-scripts')
   })
@@ -211,7 +211,7 @@ describe('Embed sandboxing', () => {
       src: 'https://evil.com',
     }
     const dom = renderNode(node, ctx) as HTMLElement
-    const iframe = dom.querySelector('iframe') as HTMLIFrameElement
+    const iframe = dom.querySelector('iframe')!
     const sandbox = iframe.getAttribute('sandbox') ?? ''
     expect(sandbox).not.toContain('allow-same-origin')
   })

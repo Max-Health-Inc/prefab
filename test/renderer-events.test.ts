@@ -89,7 +89,7 @@ describe('Form onSubmit', () => {
     const form = renderNode(node, ctx) as HTMLFormElement
 
     // Fill in the input
-    const input = form.querySelector('input') as HTMLInputElement
+    const input = form.querySelector('input')!
     input.value = 'Alice'
     // Trigger native input event to sync state
     input.dispatchEvent(new Event('input', { bubbles: true }))
@@ -129,7 +129,7 @@ describe('Input state binding', () => {
     const ctx = makeCtx({ email: '' })
     const node: ComponentNode = { type: 'Input', name: 'email' }
     const dom = renderNode(node, ctx) as HTMLElement
-    const input = dom.querySelector('input') as HTMLInputElement
+    const input = dom.querySelector('input')!
 
     input.value = 'bob@test.com'
     input.dispatchEvent(new Event('input', { bubbles: true }))
@@ -140,7 +140,7 @@ describe('Input state binding', () => {
     const ctx = makeCtx({ name: 'PreFilled' })
     const node: ComponentNode = { type: 'Input', name: 'name' }
     const dom = renderNode(node, ctx) as HTMLElement
-    const input = dom.querySelector('input') as HTMLInputElement
+    const input = dom.querySelector('input')!
     expect(input.value).toBe('PreFilled')
   })
 
@@ -152,7 +152,7 @@ describe('Input state binding', () => {
       onChange: { action: 'setState', key: 'lastEvent', value: 'changed' },
     }
     const dom = renderNode(node, ctx) as HTMLElement
-    const input = dom.querySelector('input') as HTMLInputElement
+    const input = dom.querySelector('input')!
 
     input.value = 'hello'
     input.dispatchEvent(new Event('input', { bubbles: true }))
@@ -167,7 +167,7 @@ describe('Textarea state binding', () => {
     const ctx = makeCtx({ bio: '' })
     const node: ComponentNode = { type: 'Textarea', name: 'bio', rows: 5 }
     const dom = renderNode(node, ctx) as HTMLElement
-    const textarea = dom.querySelector('textarea') as HTMLTextAreaElement
+    const textarea = dom.querySelector('textarea')!
 
     textarea.value = 'Hello world'
     textarea.dispatchEvent(new Event('input', { bubbles: true }))
@@ -178,7 +178,7 @@ describe('Textarea state binding', () => {
     const ctx = makeCtx({ desc: 'Initial text' })
     const node: ComponentNode = { type: 'Textarea', name: 'desc' }
     const dom = renderNode(node, ctx) as HTMLElement
-    const textarea = dom.querySelector('textarea') as HTMLTextAreaElement
+    const textarea = dom.querySelector('textarea')!
     expect(textarea.value).toBe('Initial text')
   })
 })
@@ -190,7 +190,7 @@ describe('Checkbox state binding', () => {
     const ctx = makeCtx({ agree: true })
     const node: ComponentNode = { type: 'Checkbox', name: 'agree', label: 'I agree' }
     const dom = renderNode(node, ctx) as HTMLElement
-    const input = dom.querySelector('input[type="checkbox"]') as HTMLInputElement
+    const input = dom.querySelector('input[type="checkbox"]')!
     expect(input.checked).toBe(true)
   })
 
@@ -198,7 +198,7 @@ describe('Checkbox state binding', () => {
     const ctx = makeCtx({ agree: false })
     const node: ComponentNode = { type: 'Checkbox', name: 'agree', label: 'I agree' }
     const dom = renderNode(node, ctx) as HTMLElement
-    const input = dom.querySelector('input[type="checkbox"]') as HTMLInputElement
+    const input = dom.querySelector('input[type="checkbox"]')!
 
     input.checked = true
     input.dispatchEvent(new Event('change', { bubbles: true }))
@@ -213,7 +213,7 @@ describe('Switch state binding', () => {
     const ctx = makeCtx({ darkMode: false })
     const node: ComponentNode = { type: 'Switch', name: 'darkMode', label: 'Dark mode' }
     const dom = renderNode(node, ctx) as HTMLElement
-    const input = dom.querySelector('[role="switch"]') as HTMLInputElement
+    const input = dom.querySelector('[role="switch"]')!
     expect(input).toBeTruthy()
   })
 
@@ -221,7 +221,7 @@ describe('Switch state binding', () => {
     const ctx = makeCtx({ darkMode: false })
     const node: ComponentNode = { type: 'Switch', name: 'darkMode', label: 'Dark mode' }
     const dom = renderNode(node, ctx) as HTMLElement
-    const input = dom.querySelector('input') as HTMLInputElement
+    const input = dom.querySelector('input')!
 
     input.checked = true
     input.dispatchEvent(new Event('change', { bubbles: true }))
@@ -236,7 +236,7 @@ describe('Slider state binding', () => {
     const ctx = makeCtx({ volume: 75 })
     const node: ComponentNode = { type: 'Slider', name: 'volume', min: 0, max: 100 }
     const dom = renderNode(node, ctx) as HTMLElement
-    const input = dom.querySelector('input[type="range"]') as HTMLInputElement
+    const input = dom.querySelector('input[type="range"]')!
     expect(input.value).toBe('75')
   })
 
@@ -244,7 +244,7 @@ describe('Slider state binding', () => {
     const ctx = makeCtx({ volume: 50 })
     const node: ComponentNode = { type: 'Slider', name: 'volume', min: 0, max: 100 }
     const dom = renderNode(node, ctx) as HTMLElement
-    const input = dom.querySelector('input[type="range"]') as HTMLInputElement
+    const input = dom.querySelector('input[type="range"]')!
 
     input.value = '80'
     input.dispatchEvent(new Event('input', { bubbles: true }))
@@ -267,7 +267,7 @@ describe('Select state binding', () => {
       ],
     }
     const dom = renderNode(node, ctx) as HTMLElement
-    const select = dom.querySelector('select') as HTMLSelectElement
+    const select = dom.querySelector('select')!
     expect(select.value).toBe('blue')
   })
 
@@ -282,7 +282,7 @@ describe('Select state binding', () => {
       ],
     }
     const dom = renderNode(node, ctx) as HTMLElement
-    const select = dom.querySelector('select') as HTMLSelectElement
+    const select = dom.querySelector('select')!
 
     select.value = 'blue'
     select.dispatchEvent(new Event('change', { bubbles: true }))
@@ -301,7 +301,7 @@ describe('Select state binding', () => {
       ],
     }
     const dom = renderNode(node, ctx) as HTMLElement
-    const select = dom.querySelector('select') as HTMLSelectElement
+    const select = dom.querySelector('select')!
 
     select.value = 'blue'
     select.dispatchEvent(new Event('change', { bubbles: true }))

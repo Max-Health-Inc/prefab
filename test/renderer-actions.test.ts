@@ -26,12 +26,13 @@ function mockTransport(result: unknown = { ok: true }): McpTransport & { calls: 
   const t = {
     calls: [] as { name: string; args: Record<string, unknown> }[],
     messages: [] as string[],
-    callTool: async (name: string, args: Record<string, unknown>) => {
+    callTool: (name: string, args: Record<string, unknown>) => {
       t.calls.push({ name, args })
-      return result
+      return Promise.resolve(result)
     },
-    sendMessage: async (msg: string) => {
+    sendMessage: (msg: string) => {
       t.messages.push(msg)
+      return Promise.resolve()
     },
   }
   return t
@@ -87,8 +88,8 @@ describe('toolCall action', () => {
 
   it('triggers onError callback on failure', async () => {
     const transport: McpTransport = {
-      callTool: async () => { throw new Error('Network error') },
-      sendMessage: async () => {},
+      callTool: () => { throw new Error('Network error') },
+      sendMessage: () => Promise.resolve(),
     }
     const ctx = makeCtx({ status: '' }, transport)
 
@@ -179,8 +180,8 @@ describe('callHandler action', () => {
 
   it('calls onError on failure', async () => {
     const transport: McpTransport = {
-      callTool: async () => { throw new Error('fail') },
-      sendMessage: async () => {},
+      callTool: () => { throw new Error('fail') },
+      sendMessage: () => Promise.resolve(),
     }
     const ctx = makeCtx({ err: '' }, transport)
 
