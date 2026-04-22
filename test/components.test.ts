@@ -17,6 +17,9 @@ import {
 } from '../src/components/data'
 import {
   Form, Input, Button, Select, SelectOption, Checkbox, Slider,
+  Textarea, Switch, Radio, RadioGroup, Combobox, ComboboxOption,
+  Calendar, DatePicker, Field, FieldTitle, FieldDescription, FieldContent,
+  FieldError, ButtonGroup, ChoiceCard,
 } from '../src/components/form'
 import {
   Tabs, Tab, Accordion, AccordionItem, Dialog,
@@ -221,6 +224,131 @@ describe('Form', () => {
     expect(json.min).toBe(0)
     expect(json.max).toBe(100)
     expect(json.step).toBe(5)
+  })
+
+  it('Textarea with placeholder and rows', () => {
+    const json = Textarea({ name: 'bio', placeholder: 'Tell us about yourself', rows: 4 }).toJSON()
+    expect(json.type).toBe('Textarea')
+    expect(json.name).toBe('bio')
+    expect(json.placeholder).toBe('Tell us about yourself')
+    expect(json.rows).toBe(4)
+    expect(json.required).toBe(false)
+  })
+
+  it('Switch with label', () => {
+    const json = Switch({ name: 'darkMode', label: 'Dark mode' }).toJSON()
+    expect(json.type).toBe('Switch')
+    expect(json.name).toBe('darkMode')
+    expect(json.label).toBe('Dark mode')
+  })
+
+  it('Radio with value and label', () => {
+    const json = Radio({ value: 'option_a', label: 'Option A' }).toJSON()
+    expect(json.type).toBe('Radio')
+    expect(json.value).toBe('option_a')
+    expect(json.label).toBe('Option A')
+  })
+
+  it('RadioGroup with children', () => {
+    const group = RadioGroup({
+      name: 'color',
+      label: 'Pick a color',
+      children: [Radio({ value: 'red', label: 'Red' }), Radio({ value: 'blue', label: 'Blue' })],
+    })
+    const json = group.toJSON()
+    expect(json.type).toBe('RadioGroup')
+    expect(json.name).toBe('color')
+    expect(json.label).toBe('Pick a color')
+    expect(json.children).toHaveLength(2)
+  })
+
+  it('Combobox with options', () => {
+    const cb = Combobox({
+      name: 'country',
+      placeholder: 'Select country',
+      searchable: true,
+      children: [ComboboxOption('us', 'United States'), ComboboxOption('de', 'Germany')],
+    })
+    const json = cb.toJSON()
+    expect(json.type).toBe('Combobox')
+    expect(json.name).toBe('country')
+    expect(json.placeholder).toBe('Select country')
+    expect(json.searchable).toBe(true)
+    expect(json.children).toHaveLength(2)
+  })
+
+  it('Calendar with mode and date constraints', () => {
+    const json = Calendar({ name: 'startDate', mode: 'single', minDate: '2026-01-01', maxDate: '2026-12-31' }).toJSON()
+    expect(json.type).toBe('Calendar')
+    expect(json.name).toBe('startDate')
+    expect(json.mode).toBe('single')
+    expect(json.minDate).toBe('2026-01-01')
+    expect(json.maxDate).toBe('2026-12-31')
+  })
+
+  it('DatePicker with format and constraints', () => {
+    const json = DatePicker({ name: 'dob', placeholder: 'YYYY-MM-DD', format: 'iso', minDate: '1900-01-01' }).toJSON()
+    expect(json.type).toBe('DatePicker')
+    expect(json.name).toBe('dob')
+    expect(json.placeholder).toBe('YYYY-MM-DD')
+    expect(json.format).toBe('iso')
+    expect(json.minDate).toBe('1900-01-01')
+  })
+
+  it('Field compound component', () => {
+    const field = Field({
+      children: [
+        FieldTitle('Full Name'),
+        FieldDescription('Enter your legal name'),
+        FieldContent({ children: [Input({ name: 'fullName' })] }),
+        FieldError('Name is required'),
+      ],
+    })
+    const json = field.toJSON()
+    expect(json.type).toBe('Field')
+    expect(json.children).toHaveLength(4)
+    expect(json.children![0].type).toBe('FieldTitle')
+    expect(json.children![0].content).toBe('Full Name')
+    expect(json.children![1].type).toBe('FieldDescription')
+    expect(json.children![3].type).toBe('FieldError')
+    expect(json.children![3].content).toBe('Name is required')
+  })
+
+  it('ButtonGroup with children', () => {
+    const group = ButtonGroup({
+      children: [Button('Save'), Button('Cancel', { variant: 'secondary' })],
+    })
+    const json = group.toJSON()
+    expect(json.type).toBe('ButtonGroup')
+    expect(json.children).toHaveLength(2)
+  })
+
+  it('ChoiceCard with all props', () => {
+    const json = ChoiceCard({
+      value: 'plan_pro',
+      label: 'Pro Plan',
+      description: '$29/month',
+      selected: true,
+      onClick: new SetState('plan', 'pro'),
+    }).toJSON()
+    expect(json.type).toBe('ChoiceCard')
+    expect(json.value).toBe('plan_pro')
+    expect(json.label).toBe('Pro Plan')
+    expect(json.description).toBe('$29/month')
+    expect(json.selected).toBe(true)
+    expect((json.onClick as { action: string }).action).toBe('setState')
+  })
+
+  it('Button variant and size', () => {
+    const json = Button('Delete', { variant: 'destructive', size: 'lg' }).toJSON()
+    expect(json.variant).toBe('destructive')
+    expect(json.size).toBe('lg')
+    expect(json.disabled).toBe(false)
+  })
+
+  it('Button submit prop', () => {
+    const json = Button('Send', { submit: true }).toJSON()
+    expect(json.submit).toBe(true)
   })
 })
 
