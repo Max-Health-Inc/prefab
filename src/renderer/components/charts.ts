@@ -42,7 +42,7 @@ function renderBarChart(node: ComponentNode, ctx: RenderContext): HTMLElement {
   for (let di = 0; di < data.length; di++) {
     for (let si = 0; si < series.length; si++) {
       const val = Number(data[di][series[si].dataKey] ?? 0)
-      const h = (val / max) * (height - 40)
+      const h = Math.max(0, (val / max) * (height - 40))
       const x = di * barGroupWidth + si * barWidth + barWidth / 2
       const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect')
       rect.setAttribute('x', `${x}%`)
@@ -96,7 +96,7 @@ function renderLineChart(node: ComponentNode, ctx: RenderContext): HTMLElement {
 
   for (let si = 0; si < series.length; si++) {
     const points = data.map((d, i) => {
-      const x = (i / (data.length - 1)) * w
+      const x = data.length === 1 ? w / 2 : (i / (data.length - 1)) * w
       const y = height - 20 - (Number(d[series[si].dataKey] ?? 0) / max) * (height - 40)
       return { x, y }
     })
@@ -149,6 +149,12 @@ function renderPieChart(node: ComponentNode, ctx: RenderContext): HTMLElement {
   const key = series[0].dataKey
   const values = data.map(d => Number(d[key] ?? 0))
   const total = values.reduce((a, b) => a + b, 0)
+
+  if (total === 0) {
+    wrapper.textContent = 'No chart data'
+    wrapper.appendChild(svg)
+    return wrapper
+  }
 
   let startAngle = -Math.PI / 2
   for (let i = 0; i < values.length; i++) {

@@ -198,8 +198,10 @@ function validateAction(action: unknown, path: string, errors: ValidationError[]
   }
 
   const act = action as Record<string, unknown>
-  if (typeof act.type !== 'string' || act.type.length === 0) {
-    errors.push({ path: `${path}.type`, message: 'Action must have a non-empty "type" string' })
+  const hasType = typeof act.type === 'string' && act.type.length > 0
+  const hasAction = typeof act.action === 'string' && (act.action as string).length > 0
+  if (!hasType && !hasAction) {
+    errors.push({ path: `${path}.type`, message: 'Action must have a non-empty "type" or "action" string' })
   }
 }
 

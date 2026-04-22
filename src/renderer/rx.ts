@@ -97,7 +97,7 @@ function evaluateCore(expr: string, store: Store, scope?: EvalScope): unknown {
   }
 
   // Logical OR: a || b
-  const orIdx = expr.indexOf('||')
+  const orIdx = findArithOp(expr, '||')
   if (orIdx >= 0) {
     const left = evaluateCore(expr.slice(0, orIdx).trim(), store, scope)
     return left !== null && left !== undefined && left !== false && left !== 0 && left !== ''
@@ -106,7 +106,7 @@ function evaluateCore(expr: string, store: Store, scope?: EvalScope): unknown {
   }
 
   // Logical AND: a && b
-  const andIdx = expr.indexOf('&&')
+  const andIdx = findArithOp(expr, '&&')
   if (andIdx >= 0) {
     const left = evaluateCore(expr.slice(0, andIdx).trim(), store, scope)
     if (left === null || left === undefined || left === false || left === 0 || left === '') return left
@@ -115,7 +115,7 @@ function evaluateCore(expr: string, store: Store, scope?: EvalScope): unknown {
 
   // Comparisons
   for (const [op, fn] of COMPARISONS) {
-    const idx = expr.indexOf(op)
+    const idx = findArithOp(expr, op)
     if (idx >= 0) {
       const left = evaluateCore(expr.slice(0, idx).trim(), store, scope)
       const right = evaluateCore(expr.slice(idx + op.length).trim(), store, scope)
@@ -263,7 +263,7 @@ const ARITHMETIC: [string, (a: number, b: number) => number][] = [
   [' - ', (a, b) => a - b],
   [' * ', (a, b) => a * b],
   [' / ', (a, b) => b !== 0 ? a / b : 0],
-  [' % ', (a, b) => a % b],
+  [' % ', (a, b) => b !== 0 ? a % b : 0],
 ]
 
 function findArithOp(expr: string, op: string): number {
