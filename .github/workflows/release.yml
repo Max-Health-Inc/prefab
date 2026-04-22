@@ -89,22 +89,12 @@ jobs:
           name: v${{ steps.version.outputs.next }}
           generate_release_notes: true
 
-      # ── npm Publish ─────────────────────────────────
-      - name: Setup Node (npm registry auth)
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          registry-url: 'https://registry.npmjs.org'
-
-      - name: Publish to npm
-        run: npm publish --provenance --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      # npm publish is handled by publish.yml (triggered by the v* tag above)
 
       - name: Summary
         run: |
           NEXT="${{ steps.version.outputs.next }}"
           PACKAGE_NAME=$(jq -r .name package.json)
-          echo "### ✅ Published ${PACKAGE_NAME}@${NEXT}" >> "$GITHUB_STEP_SUMMARY"
-          echo "- npm: https://www.npmjs.com/package/${PACKAGE_NAME}/v/${NEXT}" >> "$GITHUB_STEP_SUMMARY"
+          echo "### ✅ Released ${PACKAGE_NAME}@${NEXT}" >> "$GITHUB_STEP_SUMMARY"
           echo "- Release: ${{ github.server_url }}/${{ github.repository }}/releases/tag/v${NEXT}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- npm publish will be triggered by publish.yml via the v${NEXT} tag" >> "$GITHUB_STEP_SUMMARY"
