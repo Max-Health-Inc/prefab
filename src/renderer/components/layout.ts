@@ -39,7 +39,7 @@ function renderRow(node: ComponentNode, ctx: RenderContext): HTMLElement {
   if (gap != null) e.style.gap = `${gap * 4}px`
   if (node.align != null) e.style.alignItems = mapAlign(node.align as string)
   if (node.justify != null) e.style.justifyContent = mapJustify(node.justify as string)
-  if (node.wrap != null) e.style.flexWrap = 'wrap'
+  if (node.wrap === true) e.style.flexWrap = 'wrap'
   renderChildren(node, e, ctx)
   return e
 }

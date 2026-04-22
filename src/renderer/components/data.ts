@@ -204,7 +204,7 @@ function renderProgress(node: ComponentNode, ctx: RenderContext): HTMLElement {
   e.setAttribute('role', 'progressbar')
   const value = Number(resolveValue(node.value, ctx) ?? 0)
   const max = (node.max as number | undefined) ?? 100
-  const pct = Math.min(100, (value / max) * 100)
+  const pct = max > 0 ? Math.max(0, Math.min(100, (value / max) * 100)) : 0
   e.setAttribute('aria-valuenow', String(value))
   e.setAttribute('aria-valuemin', '0')
   e.setAttribute('aria-valuemax', String(max))
