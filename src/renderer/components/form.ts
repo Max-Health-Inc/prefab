@@ -539,7 +539,7 @@ function renderChoiceCard(node: ComponentNode, ctx: RenderContext): HTMLElement 
   e.style.transition = 'border-color 0.2s'
   e.dataset.value = resolveStr(node.value, ctx)
 
-  if (node.selected != null) {
+  if (node.selected === true) {
     e.dataset.selected = 'true'
     e.style.borderColor = 'var(--primary, #3b82f6)'
     e.style.backgroundColor = 'var(--accent, #eff6ff)'

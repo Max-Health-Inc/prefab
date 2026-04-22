@@ -420,6 +420,14 @@ describe('ChoiceCard rendering', () => {
     expect(dom.dataset.selected).toBeUndefined()
   })
 
+  it('does not apply selected styling when selected=false', () => {
+    const ctx = makeCtx()
+    const dom = renderNode({
+      type: 'ChoiceCard', value: 'basic', selected: false,
+    } as ComponentNode, ctx) as HTMLElement
+    expect(dom.dataset.selected).toBeUndefined()
+  })
+
   it('dispatches onClick action', async () => {
     const ctx = makeCtx({ plan: '' })
     const dom = renderNode({
