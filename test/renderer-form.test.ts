@@ -566,3 +566,127 @@ describe('Form array onSubmit', () => {
     expect(ctx.store.get('count')).toBe(1)
   })
 })
+
+// ── Bug: missing onChange dispatch ───────────────────────────────────────────
+// These tests verify that onChange actions fire for all stateful components.
+// Input has onChange; Textarea, Checkbox, Switch, Slider were missing it.
+
+describe('Textarea onChange action', () => {
+  it('dispatches onChange action on input', () => {
+    const ctx = makeCtx({ bio: '', lastEvent: '' })
+    const node: ComponentNode = {
+      type: 'Textarea', name: 'bio',
+      onChange: { action: 'setState', key: 'lastEvent', value: 'changed' },
+    }
+    const dom = renderNode(node, ctx) as HTMLElement
+    const textarea = dom.querySelector('textarea')!
+    textarea.value = 'Hello'
+    textarea.dispatchEvent(new Event('input', { bubbles: true }))
+    expect(ctx.store.get('lastEvent')).toBe('changed')
+  })
+})
+
+describe('Checkbox onChange action', () => {
+  it('dispatches onChange action on change', () => {
+    const ctx = makeCtx({ agree: false, lastEvent: '' })
+    const node: ComponentNode = {
+      type: 'Checkbox', name: 'agree', label: 'I agree',
+      onChange: { action: 'setState', key: 'lastEvent', value: 'toggled' },
+    }
+    const dom = renderNode(node, ctx) as HTMLElement
+    const input = dom.querySelector('input[type="checkbox"]') as HTMLInputElement
+    input.checked = true
+    input.dispatchEvent(new Event('change', { bubbles: true }))
+    expect(ctx.store.get('lastEvent')).toBe('toggled')
+  })
+})
+
+describe('Switch onChange action', () => {
+  it('dispatches onChange action on change', () => {
+    const ctx = makeCtx({ darkMode: false, lastEvent: '' })
+    const node: ComponentNode = {
+      type: 'Switch', name: 'darkMode', label: 'Dark mode',
+      onChange: { action: 'setState', key: 'lastEvent', value: 'switched' },
+    }
+    const dom = renderNode(node, ctx) as HTMLElement
+    const input = dom.querySelector('input')!
+    input.checked = true
+    input.dispatchEvent(new Event('change', { bubbles: true }))
+    expect(ctx.store.get('lastEvent')).toBe('switched')
+  })
+})
+
+describe('Slider onChange action', () => {
+  it('dispatches onChange action on input', () => {
+    const ctx = makeCtx({ vol: 50, lastEvent: '' })
+    const node: ComponentNode = {
+      type: 'Slider', name: 'vol', min: 0, max: 100,
+      onChange: { action: 'setState', key: 'lastEvent', value: 'slid' },
+    }
+    const dom = renderNode(node, ctx) as HTMLElement
+    const input = dom.querySelector('input[type="range"]') as HTMLInputElement
+    input.value = '80'
+    input.dispatchEvent(new Event('input', { bubbles: true }))
+    expect(ctx.store.get('lastEvent')).toBe('slid')
+  })
+})
+
+describe('Combobox onChange action', () => {
+  it('dispatches onChange action on option select', () => {
+    const ctx = makeCtx({ lastEvent: '' })
+    const node: ComponentNode = {
+      type: 'Combobox', name: 'country',
+      onChange: { action: 'setState', key: 'lastEvent', value: 'selected' },
+      children: [
+        { type: 'ComboboxOption', value: 'us', label: 'United States' },
+      ],
+    }
+    const dom = renderNode(node, ctx) as HTMLElement
+    document.body.appendChild(dom)
+    const option = dom.querySelector('.pf-combobox-option') as HTMLElement
+    option.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }))
+    expect(ctx.store.get('lastEvent')).toBe('selected')
+    document.body.removeChild(dom)
+  })
+})
+
+// ── Bug: missing initial state for RadioGroup ────────────────────────────────
+
+describe('RadioGroup initial state', () => {
+  it('pre-selects radio matching state value', () => {
+    const ctx = makeCtx({ size: 'md' })
+    const node: ComponentNode = {
+      type: 'RadioGroup', name: 'size', label: 'Size',
+      children: [
+        { type: 'Radio', value: 'sm', label: 'Small' },
+        { type: 'Radio', value: 'md', label: 'Medium' },
+        { type: 'Radio', value: 'lg', label: 'Large' },
+      ],
+    }
+    const dom = renderNode(node, ctx) as HTMLElement
+    const radios = dom.querySelectorAll('input[type="radio"]') as NodeListOf<HTMLInputElement>
+    expect(radios[0].checked).toBe(false)
+    expect(radios[1].checked).toBe(true)  // 'md' should be pre-selected
+    expect(radios[2].checked).toBe(false)
+  })
+})
+
+// ── Bug: Calendar/DatePicker don't read initial value from state ─────────────
+
+describe('Calendar initial state', () => {
+  it('reads initial value from store', () => {
+    const ctx = makeCtx({ appt: '2026-06-15' })
+    const dom = renderNode({ type: 'Calendar', name: 'appt' } as ComponentNode, ctx) as HTMLElement
+    const input = dom.querySelector('input[type="date"]') as HTMLInputElement
+    expect(input.value).toBe('2026-06-15')
+  })
+})
+
+describe('DatePicker initial state', () => {
+  it('reads initial value from store', () => {
+    const ctx = makeCtx({ dob: '1990-05-20' })
+    const dom = renderNode({ type: 'DatePicker', name: 'dob' } as ComponentNode, ctx) as HTMLElement
+    const input = dom.querySelector('input[type="date"]') as HTMLInputElement
+    expect(input.value).toBe('1990-05-20')
+  })
+})

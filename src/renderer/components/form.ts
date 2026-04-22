@@ -125,7 +125,12 @@ function renderTextarea(node: ComponentNode, ctx: RenderContext): HTMLElement {
   if (name != null) {
     const stateVal = ctx.store.get(name)
     if (stateVal != null) textarea.value = String(stateVal as string | number)
-    textarea.addEventListener('input', () => ctx.store.set(name, textarea.value))
+    textarea.addEventListener('input', () => {
+      ctx.store.set(name, textarea.value)
+      if (node.onChange != null) {
+        void dispatchActions(node.onChange as ActionJSON | ActionJSON[], { ...makeDispatchCtx(ctx), scope: { ...ctx.scope, $event: textarea.value } })
+      }
+    })
   }
 
   applyInputStyle(textarea)
@@ -223,7 +228,12 @@ function renderCheckbox(node: ComponentNode, ctx: RenderContext): HTMLElement {
   if (name) {
     const stateVal = ctx.store.get(name)
     if (typeof stateVal === 'boolean') input.checked = stateVal
-    input.addEventListener('change', () => ctx.store.set(name, input.checked))
+    input.addEventListener('change', () => {
+      ctx.store.set(name, input.checked)
+      if (node.onChange != null) {
+        void dispatchActions(node.onChange as ActionJSON | ActionJSON[], { ...makeDispatchCtx(ctx), scope: { ...ctx.scope, $event: input.checked } })
+      }
+    })
   }
 
   wrapper.appendChild(input)
@@ -253,7 +263,12 @@ function renderSwitch(node: ComponentNode, ctx: RenderContext): HTMLElement {
   if (name) {
     const stateVal = ctx.store.get(name)
     if (typeof stateVal === 'boolean') input.checked = stateVal
-    input.addEventListener('change', () => ctx.store.set(name, input.checked))
+    input.addEventListener('change', () => {
+      ctx.store.set(name, input.checked)
+      if (node.onChange != null) {
+        void dispatchActions(node.onChange as ActionJSON | ActionJSON[], { ...makeDispatchCtx(ctx), scope: { ...ctx.scope, $event: input.checked } })
+      }
+    })
   }
 
   wrapper.appendChild(input)
@@ -281,7 +296,12 @@ function renderSlider(node: ComponentNode, ctx: RenderContext): HTMLElement {
   if (name) {
     const stateVal = ctx.store.get(name)
     if (stateVal != null) input.value = String(stateVal as string | number)
-    input.addEventListener('input', () => ctx.store.set(name, Number(input.value)))
+    input.addEventListener('input', () => {
+      ctx.store.set(name, Number(input.value))
+      if (node.onChange != null) {
+        void dispatchActions(node.onChange as ActionJSON | ActionJSON[], { ...makeDispatchCtx(ctx), scope: { ...ctx.scope, $event: Number(input.value) } })
+      }
+    })
   }
 
   wrapper.appendChild(input)
@@ -391,10 +411,14 @@ function renderRadioGroup(node: ComponentNode, ctx: RenderContext): HTMLElement 
 
   renderChildren(node, e, ctx)
 
-  // Wire up name attribute on child radios
+  // Wire up name attribute on child radios and pre-select from state
   const name = resolveStr(node.name, ctx)
+  const stateVal = ctx.store.get(name)
   for (const radio of Array.from(e.querySelectorAll('input[type="radio"]'))) {
     ;(radio as HTMLInputElement).name = name
+    if (stateVal != null && (radio as HTMLInputElement).value === String(stateVal)) {
+      ;(radio as HTMLInputElement).checked = true
+    }
   }
 
   e.addEventListener('change', (evt) => {
@@ -420,6 +444,10 @@ function renderCombobox(node: ComponentNode, ctx: RenderContext): HTMLElement {
   input.name = resolveStr(node.name, ctx)
   if (node.placeholder != null) input.placeholder = resolveStr(node.placeholder, ctx)
   if (node.value !== undefined) input.value = resolveStr(node.value, ctx)
+  // Read initial value from state
+  const cbName = input.name
+  const cbStateVal = ctx.store.get(cbName)
+  if (cbStateVal != null) input.value = String(cbStateVal)
 
   input.style.padding = '6px 12px'
   input.style.borderRadius = '6px'
@@ -452,6 +480,13 @@ function renderCombobox(node: ComponentNode, ctx: RenderContext): HTMLElement {
     })
   }
 
+  // Listen for option selection (custom event from ComboboxOption)
+  if (node.onChange != null) {
+    e.addEventListener('pf-combobox-select', () => {
+      void dispatchActions(node.onChange as ActionJSON | ActionJSON[], { ...makeDispatchCtx(ctx), scope: { ...ctx.scope, $event: input.value } })
+    })
+  }
+
   e.style.position = 'relative'
   e.appendChild(input)
   e.appendChild(dropdown)
@@ -470,6 +505,7 @@ function renderComboboxOption(node: ComponentNode, ctx: RenderContext): HTMLElem
     if (input) {
       input.value = e.dataset.value ?? ''
       ctx.store.set(input.name, input.value)
+      combobox?.dispatchEvent(new CustomEvent('pf-combobox-select', { bubbles: false }))
     }
   })
   return e
@@ -483,6 +519,10 @@ function renderCalendar(node: ComponentNode, ctx: RenderContext): HTMLElement {
   input.type = 'date'
   input.name = resolveStr(node.name, ctx)
   if (node.value !== undefined) input.value = resolveStr(node.value, ctx)
+  // Read initial value from state
+  const calName = input.name
+  const calStateVal = ctx.store.get(calName)
+  if (calStateVal != null) input.value = String(calStateVal)
   if (node.minDate != null) input.min = resolveStr(node.minDate, ctx)
   if (node.maxDate != null) input.max = resolveStr(node.maxDate, ctx)
   input.style.padding = '6px 12px'
@@ -509,6 +549,10 @@ function renderDatePicker(node: ComponentNode, ctx: RenderContext): HTMLElement 
   input.name = resolveStr(node.name, ctx)
   if (node.placeholder != null) input.placeholder = resolveStr(node.placeholder, ctx)
   if (node.value !== undefined) input.value = resolveStr(node.value, ctx)
+  // Read initial value from state
+  const dpName = input.name
+  const dpStateVal = ctx.store.get(dpName)
+  if (dpStateVal != null) input.value = String(dpStateVal)
   if (node.minDate != null) input.min = resolveStr(node.minDate, ctx)
   if (node.maxDate != null) input.max = resolveStr(node.maxDate, ctx)
   input.style.padding = '6px 12px'
