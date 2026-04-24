@@ -3,7 +3,8 @@
  */
 
 import { ContainerComponent, type Component } from '../../core/component.js'
-import type { ContainerProps } from '../../core/component.js'
+import type { ContainerProps, RxStr } from '../../core/component.js'
+import type { Ref } from '../../rx/collection.js'
 
 // ── Column ───────────────────────────────────────────────────────────────────
 
@@ -149,5 +150,61 @@ export interface PageProps extends ContainerProps {
 export function Page(props: PageProps): ContainerComponent {
   const c = new ContainerComponent('Page', props)
   c.getProps = () => ({ name: props.name })
+  return c
+}
+
+// ── Detail ───────────────────────────────────────────────────────────────────
+
+/**
+ * A detail pane that displays content from a Ref. Compiles to a conditional
+ * block: shows `children` when the ref resolves, shows `empty` otherwise.
+ *
+ * @example
+ * ```ts
+ * const detail = Detail({ of: selectedPatient })
+ * detail.add(Heading(selectedPatient.dot('name')))
+ * ```
+ */
+export interface DetailProps extends ContainerProps {
+  /** Reactive reference expression (e.g. from `collection.by(signal)`) */
+  of: Ref | RxStr
+  /** Component to show when ref resolves to null/undefined */
+  empty?: Component
+}
+
+export function Detail(props: DetailProps): ContainerComponent {
+  const c = new ContainerComponent('Detail', props)
+  c.getProps = () => ({
+    of: String(props.of),
+    ...(props.empty && { empty: props.empty }),
+  })
+  return c
+}
+
+// ── MasterDetail ─────────────────────────────────────────────────────────────
+
+/**
+ * Two-pane layout: master (list) on the left, detail on the right.
+ * Expects exactly two children: the master panel and the detail panel.
+ *
+ * @example
+ * ```ts
+ * const md = MasterDetail({ masterWidth: '350px' })
+ * md.add(table)    // master
+ * md.add(detail)   // detail
+ * ```
+ */
+export interface MasterDetailProps extends ContainerProps {
+  /** Width of the master pane. Defaults to '33%'. */
+  masterWidth?: string
+  gap?: number
+}
+
+export function MasterDetail(props?: MasterDetailProps): ContainerComponent {
+  const c = new ContainerComponent('MasterDetail', props)
+  c.getProps = () => ({
+    ...(props?.masterWidth && { masterWidth: props.masterWidth }),
+    ...(props?.gap !== undefined && { gap: props.gap }),
+  })
   return c
 }

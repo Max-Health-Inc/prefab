@@ -1,1 +1,7 @@
 export { Rx, rx, ITEM, INDEX, EVENT, ERROR, RESULT, STATE } from './rx.js'
+export { Signal, signal } from './signal.js'
+export type { SignalValue, SignalOptions } from './signal.js'
+export { Collection, collection, Ref } from './collection.js'
+export { registerPipe, unregisterPipe, listPipes } from './pipes.js'
+export type { PipeFn } from './pipes.js'
+export { resetAutoState } from './state-collector.js'

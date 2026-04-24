@@ -12,6 +12,7 @@
  */
 
 import type { Store } from './state.js'
+import { getCustomPipe } from '../rx/pipes.js'
 
 /** Scope for expression evaluation (loop variables, event data, etc.) */
 export interface EvalScope {
@@ -22,6 +23,14 @@ export interface EvalScope {
   $result?: unknown
   [key: string]: unknown
 }
+
+/**
+ * Per-array find index cache. Builds a field→key→row Map on first access,
+ * turning subsequent find calls from O(n) to O(1). Invalidated when the
+ * store's generation counter changes (any state mutation).
+ */
+let findCacheGeneration = -1
+let findFieldCache = new Map<unknown[], Map<string, Map<string, unknown>>>()
 
 const RX_PATTERN = /\{\{\s*(.+?)\s*\}\}/g
 
@@ -71,7 +80,7 @@ export function evaluateExpression(
 
   // Apply pipe filters
   for (const pipe of pipes) {
-    value = applyFilter(pipe.trim(), value)
+    value = applyFilter(pipe.trim(), value, store, scope)
   }
 
   return value
@@ -173,13 +182,84 @@ function evaluateCore(expr: string, store: Store, scope?: EvalScope): unknown {
 
 // ── Pipe filters ─────────────────────────────────────────────────────────────
 
-function applyFilter(filterStr: string, value: unknown): unknown {
+function applyFilter(filterStr: string, value: unknown, store?: Store, scope?: EvalScope): unknown {
   const colonIdx = filterStr.indexOf(':')
   const name = colonIdx >= 0 ? filterStr.slice(0, colonIdx).trim() : filterStr
   const argStr = colonIdx >= 0 ? filterStr.slice(colonIdx + 1).trim() : undefined
   const arg = argStr ? parseLiteral(argStr) : undefined
 
   switch (name) {
+    case 'find': {
+      // find:'keyField',stateRef — lookup row by key resolved from state
+      if (!Array.isArray(value) || !argStr) return undefined
+      const parts = splitFilterArgs(argStr)
+      if (parts.length < 2) return undefined
+      const field = parseLiteral(parts[0]) as string
+      const keyRef = parts[1].trim()
+      // Resolve keyRef: if it's a quoted literal use it, else resolve from store/scope
+      let keyVal: unknown
+      if ((keyRef.startsWith("'") && keyRef.endsWith("'")) || (keyRef.startsWith('"') && keyRef.endsWith('"'))) {
+        keyVal = keyRef.slice(1, -1)
+      } else if (store) {
+        // Resolve scope variables including dot-paths ($item.field)
+        if (scope && keyRef.startsWith('$')) {
+          const dotIdx = keyRef.indexOf('.')
+          if (dotIdx >= 0) {
+            const varName = keyRef.slice(0, dotIdx)
+            if (varName in scope) {
+              keyVal = resolveDeep(scope[varName], keyRef.slice(dotIdx + 1))
+            }
+          } else if (keyRef in scope) {
+            keyVal = scope[keyRef]
+          }
+        }
+        // Fall back to store if scope didn't resolve
+        if (keyVal === undefined && !(scope && keyRef.startsWith('$'))) {
+          if (scope) {
+            const topKey = keyRef.split('.')[0]
+            keyVal = topKey in scope
+              ? resolveDeep(scope[topKey], keyRef.includes('.') ? keyRef.slice(topKey.length + 1) : '')
+              : store.get(keyRef)
+          } else {
+            keyVal = store.get(keyRef)
+          }
+        }
+      } else {
+        keyVal = keyRef
+      }
+      if (keyVal == null) return undefined
+
+      // Invalidate cache if store has mutated since last build
+      const gen = store?.generation ?? 0
+      if (gen !== findCacheGeneration) {
+        findFieldCache = new Map()
+        findCacheGeneration = gen
+      }
+
+      // Use indexed cache: O(n) build on first access, O(1) thereafter
+      let fieldMap = findFieldCache.get(value)
+      if (!fieldMap) {
+        fieldMap = new Map()
+        findFieldCache.set(value, fieldMap)
+      }
+      let keyMap = fieldMap.get(field)
+      if (!keyMap) {
+        keyMap = new Map()
+        for (const item of value) {
+          if (item != null && typeof item === 'object') {
+            const fv = (item as Record<string, unknown>)[field]
+            if (fv != null) keyMap.set(String(fv as string | number), item)
+          }
+        }
+        fieldMap.set(field, keyMap)
+      }
+      return keyMap.get(String(keyVal as string | number))
+    }
+    case 'dot': {
+      // dot:'field' — extract a property from an object
+      if (value == null || typeof value !== 'object' || typeof arg !== 'string') return undefined
+      return (value as Record<string, unknown>)[arg]
+    }
     case 'length':
       return Array.isArray(value) ? value.length : typeof value === 'string' ? value.length : 0
     case 'upper':
@@ -242,8 +322,14 @@ function applyFilter(filterStr: string, value: unknown): unknown {
           return attr == null || attr === false || attr === 0 || attr === ''
         })
         : value
-    default:
+    default: {
+      const customPipe = getCustomPipe(name)
+      if (customPipe) {
+        const args = argStr ? splitFilterArgs(argStr).map(parseLiteral) : []
+        return customPipe(value, ...args)
+      }
       return value
+    }
   }
 }
 
@@ -349,6 +435,26 @@ function parseLiteral(s: string): string | number | boolean {
   if (trimmed === 'false') return false
   const n = Number(trimmed)
   return isNaN(n) ? trimmed : n
+}
+
+/** Split filter arguments on comma, respecting quoted strings. */
+function splitFilterArgs(argStr: string): string[] {
+  const parts: string[] = []
+  let current = ''
+  let inQuote: string | null = null
+  for (const ch of argStr) {
+    if (ch === "'" || ch === '"') {
+      inQuote = inQuote === ch ? null : (inQuote ?? ch)
+    }
+    if (ch === ',' && !inQuote) {
+      parts.push(current)
+      current = ''
+    } else {
+      current += ch
+    }
+  }
+  parts.push(current)
+  return parts
 }
 
 function resolveDeep(obj: unknown, path: string): unknown {

@@ -2,6 +2,62 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.8] — 2026-04-24
+
+### Reactive Primitives
+- `signal(key, initial)` — named reactive scalar for wire format, auto-registers state
+- `collection(key, rows, { key })` — named keyed array, auto-registers state
+- `Ref<T>` — lazy pipe expression referencing a row in a collection via `collection.by(signal)`
+- Typed `Ref.dot(field)` — returns `Ref<T[K]>` with autocomplete on `keyof T`
+- `Ref.formatted(field, pipe, ...args)` — sugar for `.dot(field).pipe(pipe)`
+- `Rx.pipe(name, ...args)` — public variadic pipe builder (was private single-arg)
+- `Ref.pipe(name, ...args)` — delegates to `Rx.pipe()`
+
+### Pipe Extension Point
+- `registerPipe(name, fn)` — global custom pipe registry for companion packages
+- `unregisterPipe(name)` — remove a pipe (tests)
+- `listPipes()` — list registered names (debugging)
+- Built-in pipes always shadow custom pipes (safety)
+- Re-registration warns and overwrites (HMR-friendly)
+- Custom pipes receive variadic parsed args (`| date:'long'`, `| between:1,10`)
+
+### Selection & Master-Detail
+- `DataTable({ from, selected })` — auto-wires `rowKey`, `onRowClick → SetState`, highlight
+- `Detail({ of, empty, children })` — conditional pane, shows children when ref resolves
+- `MasterDetail({ masterWidth, gap, children })` — two-pane flex layout
+- `col()` descriptor overload: `col({ key, header, format, accessor, sortable })`
+- `format` on columns applies pipe (built-in or custom) to cell values
+- `accessor` on columns resolves pipe expressions per cell (`name | humanName`)
+
+### Auto State Collection
+- `signal()` and `collection()` factories auto-register into a global collector
+- `PrefabApp` constructor drains collector — no more `state: { ...c.toState(), ...s.toState() }`
+- Explicit `state` overrides auto-collected on key conflicts
+- Duplicate state keys warn (`[prefab] state key "X" registered multiple times`)
+- `resetAutoState()` exported for test cleanup
+
+### Renderer
+- `find` pipe filter — O(1) keyed lookup with generation-aware cache
+- `dot` pipe filter — extract property from object
+- `Store.generation` counter — monotonically increasing, invalidates find cache on mutation
+- `applyFilter` falls through to custom pipe registry after built-ins
+- `RxStr` widened to `string | Rx | Ref` — Ref works in all component props
+
+### Bug Fixes (TDD)
+- `find` pipe: numeric key coercion (`'2' !== 2`) — fixed with `String()` on both sides
+- `find` pipe: scope dot-path resolution (`$item.managerId`) — walk scope object
+- `find` cache: stale after in-place mutation — fixed with generation counter
+- `Detail`: `0` treated as truthy — added explicit `!== 0` check
+- `col({ format })`: built-in pipes silently ignored — route through `applyFilter`
+- `col({ accessor, format })`: double-applied formatting — skip format when accessor present
+- Duplicate auto-state keys: silent overwrite — now warns
+
+### Tests
+- 829 tests passing across 24 files
+- New: `test/signal-collection.test.ts` (67 tests)
+- New: `test/pipes.test.ts` (17 tests)
+- New: `test/tdd-bugs.test.ts` (6 tests)
+
 ## [0.1.0] — 2026-04-20
 
 Initial release.

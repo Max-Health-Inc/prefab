@@ -13,11 +13,12 @@
 
 import type { Action, ActionJSON } from '../actions/types.js'
 import type { Rx } from '../rx/rx.js'
+import type { Ref } from '../rx/collection.js'
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
-/** Any value that can be a plain string or a reactive Rx expression */
-export type RxStr = string | Rx
+/** Any value that can be a plain string, a reactive Rx expression, or a Ref */
+export type RxStr = string | Rx | Ref
 
 /** Serialized component JSON */
 export interface ComponentJSON {

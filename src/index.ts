@@ -16,7 +16,8 @@ export { PrefabApp } from './app.js'
 export type { PrefabAppOptions, PrefabWireFormat, Theme } from './app.js'
 
 // ── Layout ───────────────────────────────────────────────────────────────────
-export { Column, Row, Grid, GridItem, Container, Div, Span, Dashboard, DashboardItem, Pages, Page } from './components/layout/index.js'
+export { Column, Row, Grid, GridItem, Container, Div, Span, Dashboard, DashboardItem, Pages, Page, Detail, MasterDetail } from './components/layout/index.js'
+export type { DetailProps, MasterDetailProps } from './components/layout/index.js'
 
 // ── Typography ───────────────────────────────────────────────────────────────
 export { Heading, H1, H2, H3, H4, Text, P, Lead, Large, Small, Muted, BlockQuote, Label, Link, Code, Markdown, Kbd } from './components/typography/index.js'
@@ -82,7 +83,8 @@ export type { DisplayOptions, DisplayFormOptions, DisplayErrorOptions, StateUpda
 export type { McpToolResult, McpContent, McpTextContent } from './mcp/types.js'
 
 // ── Re-export actions and rx for convenience ─────────────────────────────────
-export { rx, Rx, ITEM, INDEX, EVENT, ERROR, RESULT, STATE } from './rx/index.js'
+export { rx, Rx, ITEM, INDEX, EVENT, ERROR, RESULT, STATE, signal, Signal, collection, Collection, Ref, registerPipe, unregisterPipe, listPipes, resetAutoState } from './rx/index.js'
+export type { SignalValue, SignalOptions, PipeFn } from './rx/index.js'
 export { SetState, ToggleState, AppendState, PopState, ShowToast, CloseOverlay, OpenLink, SetInterval, Fetch, OpenFilePicker, CallHandler } from './actions/client.js'
 export { CallTool, SendMessage, UpdateContext, RequestDisplayMode } from './actions/mcp.js'
 export type { Action, ActionJSON } from './actions/types.js'

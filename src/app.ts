@@ -8,9 +8,10 @@
 import { type Component } from './core/component.js'
 import type { ComponentJSON } from './core/component.js'
 import type { Action, ActionJSON } from './actions/types.js'
+import { drainAutoState } from './rx/state-collector.js'
 
 /** Package version — injected by build script, updated at release time. */
-export const VERSION = '0.1.7'
+export const VERSION = '0.1.8'
 
 // ── Theme ────────────────────────────────────────────────────────────────────
 
@@ -62,7 +63,14 @@ export class PrefabApp {
   constructor(opts: PrefabAppOptions) {
     this.title = opts.title ?? 'Prefab'
     this.view = opts.view
-    this.state = opts.state
+    // Merge auto-collected state (from signal/collection factories) with explicit state.
+    // Explicit state wins on key conflicts.
+    const autoState = drainAutoState()
+    const explicit = opts.state
+    const merged = Object.keys(autoState).length > 0 || explicit
+      ? { ...autoState, ...explicit }
+      : undefined
+    this.state = merged
     this.theme = opts.theme
     this.defs = opts.defs
     this.stylesheets = opts.stylesheets

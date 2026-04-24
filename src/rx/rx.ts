@@ -199,10 +199,19 @@ export class Rx {
     return this.pipe('default', value)
   }
 
-  // ── Internal ─────────────────────────────────────────────────────────────
+  // ── Generic pipe ─────────────────────────────────────────────────────────
 
-  private pipe(name: string, arg?: unknown): Rx {
-    const pipeStr = arg !== undefined ? `${name}:${formatPipeArg(arg)}` : name
+  /**
+   * Append an arbitrary pipe filter: `rx('x').pipe('humanName')` → `{{ x | humanName }}`
+   *
+   * Supports variadic args: `.pipe('date', 'long')` → `{{ x | date:'long' }}`
+   * Use this for custom pipes registered via `registerPipe()`.
+   */
+  pipe(name: string, ...args: unknown[]): Rx {
+    const defined = args.filter((a) => a !== undefined)
+    const pipeStr = defined.length > 0
+      ? `${name}:${defined.map(formatPipeArg).join(',')}`
+      : name
     return new Rx(`${this.expr} | ${pipeStr}`)
   }
 }

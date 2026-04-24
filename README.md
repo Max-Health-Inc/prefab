@@ -72,7 +72,7 @@ async function listUsers(args: any) {
 ## Components
 
 ### Layout
-`Column`, `Row`, `Grid`, `GridItem`, `Container`, `Div`, `Span`, `Dashboard`, `DashboardItem`, `Pages`, `Page`
+`Column`, `Row`, `Grid`, `GridItem`, `Container`, `Div`, `Span`, `Dashboard`, `DashboardItem`, `Pages`, `Page`, `Detail`, `MasterDetail`
 
 ### Typography
 `Heading`, `H1`–`H4`, `Text`, `P`, `Lead`, `Large`, `Small`, `Muted`, `BlockQuote`, `Label`, `Link`, `Code`, `Markdown`, `Kbd`
@@ -135,7 +135,74 @@ Text(rx('name').upper().truncate(20)) // → "{{ name | upper | truncate:20 }}"
 Text(STATE.count)                    // → "{{ count }}"
 ```
 
-**Built-in pipes:** `upper`, `lower`, `capitalize`, `truncate`, `currency`, `number`, `percent`, `date`, `time`, `datetime`, `length`, `default`, `json`, `keys`, `values`, `first`, `last`
+**Built-in pipes:** `upper`, `lower`, `capitalize`, `truncate`, `currency`, `number`, `percent`, `date`, `time`, `datetime`, `length`, `default`, `json`, `keys`, `values`, `first`, `last`, `find`, `dot`, `join`, `abs`, `round`, `compact`, `pluralize`, `selectattr`, `rejectattr`
+
+## Signals, Collections & Selection
+
+Type-safe reactive primitives for master-detail patterns:
+
+```ts
+import {
+  signal, collection, DataTable, col, Detail, MasterDetail,
+  Heading, Text, Badge, PrefabApp,
+} from '@maxhealth.tech/prefab'
+
+const patients = collection('patients', data, { key: 'id' })
+const sel = signal('selectedPatientId', patients.firstKey())
+const ref = patients.by(sel)
+
+const app = new PrefabApp({
+  title: 'Patient Browser',
+  view: MasterDetail({
+    masterWidth: '350px',
+    children: [
+      DataTable({
+        from: patients,
+        selected: sel,
+        columns: [
+          col({ key: 'name', header: 'Name', format: 'humanName' }),
+          col('gender'),
+        ],
+      }),
+      Detail({
+        of: ref,
+        empty: Text('Select a patient'),
+        children: [
+          Heading(ref.dot('name')),
+          Badge(ref.dot('gender')),
+        ],
+      }),
+    ],
+  }),
+  // state auto-collected from signal() and collection() — no manual wiring
+})
+```
+
+- **`signal(key, initial)`** — named reactive scalar, auto-registers state
+- **`collection(key, rows, { key })`** — named keyed array with O(1) lookup
+- **`ref.dot(field)`** — typed property access (`Ref<T[K]>`)
+- **`ref.formatted(field, pipe)`** — dot + pipe shorthand for codegen
+- **Auto state collection** — `PrefabApp` gathers state from signal/collection factories
+
+## Custom Pipes
+
+Extend the pipe system for domain-specific formatting:
+
+```ts
+import { registerPipe } from '@maxhealth.tech/prefab'
+
+registerPipe('humanName', (names) => {
+  const hn = (names as { family: string; given: string[] }[])[0]
+  return hn ? `${hn.family}, ${hn.given.join(' ')}` : ''
+})
+
+registerPipe('quantity', (v, unit) => `${v} ${unit ?? ''}`)
+
+// Now usable in expressions: {{ patient.name | humanName }}
+// And in col descriptors:   col({ key: 'name', format: 'humanName' })
+```
+
+Built-in pipes always take precedence. Re-registration warns and overwrites (HMR-friendly).
 
 ## Actions
 
@@ -329,7 +396,7 @@ import { ... } from '@maxhealth.tech/prefab/renderer'   // Browser renderer
 
 ```bash
 bun install          # Install dependencies
-bun test             # Run tests (362 passing)
+bun test             # Run tests (829 passing)
 bun run build        # TypeScript compile + IIFE bundle
 bun run lint         # ESLint
 bun run typecheck    # Type check without emitting

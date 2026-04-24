@@ -13,6 +13,12 @@ export class Store {
   private subscribers = new Map<string, Set<Subscriber>>()
   private globalSubscribers = new Set<Subscriber>()
 
+  /**
+   * Monotonically increasing counter, bumped on every state mutation.
+   * Used by the find-filter cache to detect staleness.
+   */
+  generation = 0
+
   constructor(initial?: Record<string, unknown>) {
     if (initial) this.data = structuredClone(initial)
   }
@@ -96,6 +102,7 @@ export class Store {
   }
 
   private notify(path: string): void {
+    this.generation++
     // Notify exact key and any parent paths
     const parts = path.split('.')
     for (let i = 1; i <= parts.length; i++) {
