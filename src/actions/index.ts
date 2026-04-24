@@ -3,3 +3,5 @@ export { SetState, ToggleState, AppendState, PopState, ShowToast, CloseOverlay, 
 export type { SetStateOpts, ShowToastOpts, ToastVariant, FetchOpts, OpenFilePickerOpts, CallHandlerOpts } from './client.js'
 export { CallTool, SendMessage, UpdateContext, RequestDisplayMode } from './mcp.js'
 export type { CallToolOpts, DisplayMode } from './mcp.js'
+export { set, toggle, append, pop } from './sugar.js'
+export type { StateTarget } from './sugar.js'

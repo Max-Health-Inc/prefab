@@ -87,4 +87,6 @@ export { rx, Rx, ITEM, INDEX, EVENT, ERROR, RESULT, STATE, signal, Signal, colle
 export type { SignalValue, SignalOptions, PipeFn } from './rx/index.js'
 export { SetState, ToggleState, AppendState, PopState, ShowToast, CloseOverlay, OpenLink, SetInterval, Fetch, OpenFilePicker, CallHandler } from './actions/client.js'
 export { CallTool, SendMessage, UpdateContext, RequestDisplayMode } from './actions/mcp.js'
+export { set, toggle, append, pop } from './actions/sugar.js'
+export type { StateTarget } from './actions/sugar.js'
 export type { Action, ActionJSON } from './actions/types.js'

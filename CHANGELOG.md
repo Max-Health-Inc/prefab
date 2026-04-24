@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.10] — 2026-04-24
+
+### Action-Builder Sugar
+- `set(signal, value)` — ergonomic wrapper for `new SetState(signal.key, value)`
+- `toggle(signal)` — wrapper for `new ToggleState(signal.key)`
+- `append(collection, item, index?)` — wrapper for `new AppendState(collection.stateKey, item)`
+- `pop(collection, indexOrValue?)` — wrapper for `new PopState(collection.stateKey, indexOrValue)`, defaults to last element
+- All helpers accept `Signal`, `Collection`, or raw `string` key via `StateTarget` type
+- `set()` passes through `SetStateOpts` (onSuccess/onError callbacks)
+- 17 new tests in `test/sugar.test.ts` — **846 total tests**
+
 ## [0.1.8] — 2026-04-24
 
 ### Reactive Primitives
