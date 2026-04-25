@@ -20,11 +20,174 @@ export function registerChartComponents(): void {
 }
 
 const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899']
+const AXIS_COLOR = 'var(--muted-foreground, #6b7280)'
+const GRID_COLOR = 'var(--border, #e5e7eb)'
+const AXIS_FONT = '10'
+
+interface SeriesEntry {
+  dataKey: string
+  label?: string
+  color?: string
+  yAxisId?: 'left' | 'right'
+}
+
+// ── Shared axis / grid helpers ───────────────────────────────────────────────
+
+interface ChartLayout {
+  /** Usable plot area after axis padding */
+  plotLeft: number
+  plotRight: number
+  plotTop: number
+  plotBottom: number
+  plotWidth: number
+  plotHeight: number
+}
+
+/** Compute chart layout accounting for optional Y-axis label space. */
+function chartLayout(
+  svgWidth: number,
+  svgHeight: number,
+  hasYAxis: boolean,
+  hasYAxisRight = false,
+): ChartLayout {
+  const plotLeft = hasYAxis ? 44 : 0
+  const plotRight = svgWidth - (hasYAxisRight ? 44 : 0)
+  const plotTop = 10
+  const plotBottom = svgHeight - 24
+  return {
+    plotLeft,
+    plotRight,
+    plotTop,
+    plotBottom,
+    plotWidth: plotRight - plotLeft,
+    plotHeight: plotBottom - plotTop,
+  }
+}
+
+/** Nice round tick values for a 0..max range, returning ~tickCount values. */
+function niceYTicks(max: number, tickCount = 5): number[] {
+  if (max <= 0) return [0]
+  const rawStep = max / tickCount
+  const magnitude = Math.pow(10, Math.floor(Math.log10(rawStep)))
+  const residual = rawStep / magnitude
+  const niceStep =
+    residual <= 1.5 ? magnitude
+      : residual <= 3 ? 2 * magnitude
+        : residual <= 7 ? 5 * magnitude
+          : 10 * magnitude
+  const ticks: number[] = []
+  for (let v = 0; v <= max + niceStep * 0.01; v += niceStep) {
+    ticks.push(Math.round(v * 1000) / 1000)
+  }
+  return ticks
+}
+
+/** Draw Y-axis labels + optional horizontal grid lines into SVG. */
+function drawYAxis(
+  svg: SVGSVGElement,
+  layout: ChartLayout,
+  max: number,
+  showGrid: boolean,
+  format?: string,
+): void {
+  const ticks = niceYTicks(max)
+  for (const tick of ticks) {
+    const y = layout.plotBottom - (max > 0 ? (tick / max) * layout.plotHeight : 0)
+
+    // Y label
+    const label = document.createElementNS('http://www.w3.org/2000/svg', 'text')
+    label.setAttribute('x', String(layout.plotLeft - 6))
+    label.setAttribute('y', String(y + 3))
+    label.setAttribute('text-anchor', 'end')
+    label.setAttribute('font-size', AXIS_FONT)
+    label.setAttribute('fill', AXIS_COLOR)
+    label.textContent = formatYValue(tick, format)
+    svg.appendChild(label)
+
+    // Grid line
+    if (showGrid && tick > 0) {
+      const line = document.createElementNS('http://www.w3.org/2000/svg', 'line')
+      line.setAttribute('x1', String(layout.plotLeft))
+      line.setAttribute('y1', String(y))
+      line.setAttribute('x2', String(layout.plotRight))
+      line.setAttribute('y2', String(y))
+      line.setAttribute('stroke', GRID_COLOR)
+      line.setAttribute('stroke-width', '1')
+      line.setAttribute('stroke-dasharray', '4 3')
+      svg.appendChild(line)
+    }
+  }
+}
+
+/** Draw secondary Y-axis labels on the right side of the plot. */
+function drawYAxisRight(
+  svg: SVGSVGElement,
+  layout: ChartLayout,
+  max: number,
+  format?: string,
+): void {
+  const ticks = niceYTicks(max)
+  for (const tick of ticks) {
+    const y = layout.plotBottom - (max > 0 ? (tick / max) * layout.plotHeight : 0)
+    const label = document.createElementNS('http://www.w3.org/2000/svg', 'text')
+    label.setAttribute('x', String(layout.plotRight + 6))
+    label.setAttribute('y', String(y + 3))
+    label.setAttribute('text-anchor', 'start')
+    label.setAttribute('font-size', AXIS_FONT)
+    label.setAttribute('fill', AXIS_COLOR)
+    label.textContent = formatYValue(tick, format)
+    svg.appendChild(label)
+  }
+}
+
+/** Draw X-axis labels under the plot area. */
+function drawXAxisLabels(
+  svg: SVGSVGElement,
+  data: Record<string, unknown>[],
+  xAxisKey: string,
+  getX: (index: number) => number,
+  yBase: number,
+): void {
+  for (let i = 0; i < data.length; i++) {
+    const label = document.createElementNS('http://www.w3.org/2000/svg', 'text')
+    label.setAttribute('x', String(getX(i)))
+    label.setAttribute('y', String(yBase + 14))
+    label.setAttribute('text-anchor', 'middle')
+    label.setAttribute('font-size', AXIS_FONT)
+    label.setAttribute('fill', AXIS_COLOR)
+    const val = data[i][xAxisKey]
+    label.textContent = val == null ? '' : String(val as string | number)
+    svg.appendChild(label)
+  }
+}
+
+/** Draw a baseline (X-axis line) at the bottom of the plot. */
+function drawBaseline(
+  svg: SVGSVGElement,
+  layout: ChartLayout,
+): void {
+  const line = document.createElementNS('http://www.w3.org/2000/svg', 'line')
+  line.setAttribute('x1', String(layout.plotLeft))
+  line.setAttribute('y1', String(layout.plotBottom))
+  line.setAttribute('x2', String(layout.plotRight))
+  line.setAttribute('y2', String(layout.plotBottom))
+  line.setAttribute('stroke', AXIS_COLOR)
+  line.setAttribute('stroke-width', '1')
+  svg.appendChild(line)
+}
+
+function formatYValue(value: number, format?: string): string {
+  if (format === 'currency') return `$${value.toLocaleString()}`
+  if (format === 'percent') return `${value}%`
+  if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(1)}M`
+  if (value >= 1_000) return `${(value / 1_000).toFixed(1)}K`
+  return String(value)
+}
 
 function renderBarChart(node: ComponentNode, ctx: RenderContext): HTMLElement {
   const wrapper = el('div', 'pf-chart pf-bar-chart')
   const data = (resolveValue(node.data, ctx) as Record<string, unknown>[] | undefined) ?? []
-  const series = (node.series as { dataKey: string; label?: string; color?: string }[] | undefined) ?? []
+  const series = (node.series as SeriesEntry[] | undefined) ?? []
   const height = (node.height as number | undefined) ?? 300
 
   if (data.length === 0 || series.length === 0) {
@@ -32,43 +195,59 @@ function renderBarChart(node: ComponentNode, ctx: RenderContext): HTMLElement {
     return wrapper
   }
 
-  const values = data.flatMap(d => series.map(s => Number(d[s.dataKey] ?? 0)))
-  const max = Math.max(...values, 1)
-  const barGroupWidth = 100 / data.length
-  const barWidth = barGroupWidth / (series.length + 1)
+  const showYAxis = (node.showYAxis as boolean | undefined) !== false
+  const showGrid = (node.showGrid as boolean | undefined) === true
+  const showYAxisRight = (node.showYAxisRight as boolean | undefined) === true
+  const xAxisKey = node.xAxis as string | undefined
 
-  const svg = createSvg(400, height)
+  const leftSeries = series.filter(s => s.yAxisId !== 'right')
+  const rightSeries = series.filter(s => s.yAxisId === 'right')
+  const hasRight = showYAxisRight && rightSeries.length > 0
+
+  const leftMax = leftSeries.length > 0
+    ? Math.max(...data.flatMap(d => leftSeries.map(s => Number(d[s.dataKey] ?? 0))), 1)
+    : 1
+  const rightMax = hasRight
+    ? Math.max(...data.flatMap(d => rightSeries.map(s => Number(d[s.dataKey] ?? 0))), 1)
+    : 1
+
+  const w = 400
+  const layout = chartLayout(w, height, showYAxis, hasRight)
+  const svg = createSvg(w, height)
+
+  // Axes + grid (behind bars)
+  if (showYAxis) drawYAxis(svg, layout, leftMax, showGrid, node.yAxisFormat as string | undefined)
+  if (hasRight) drawYAxisRight(svg, layout, rightMax, node.yAxisRightFormat as string | undefined)
+  drawBaseline(svg, layout)
+
+  // Bars — use percentage-based X within the plot area
+  const barGroupWidth = layout.plotWidth / data.length
+  const barWidth = barGroupWidth / (series.length + 1)
 
   for (let di = 0; di < data.length; di++) {
     for (let si = 0; si < series.length; si++) {
-      const val = Number(data[di][series[si].dataKey] ?? 0)
-      const h = Math.max(0, (val / max) * (height - 40))
-      const x = di * barGroupWidth + si * barWidth + barWidth / 2
+      const s = series[si]
+      const isRight = s.yAxisId === 'right'
+      const max = isRight ? rightMax : leftMax
+      const val = Number(data[di][s.dataKey] ?? 0)
+      const h = Math.max(0, (val / max) * layout.plotHeight)
+      const x = layout.plotLeft + di * barGroupWidth + si * barWidth + barWidth / 2
       const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect')
-      rect.setAttribute('x', `${x}%`)
-      rect.setAttribute('y', String(height - h - 20))
-      rect.setAttribute('width', `${barWidth * 0.8}%`)
+      rect.setAttribute('x', String(x))
+      rect.setAttribute('y', String(layout.plotBottom - h))
+      rect.setAttribute('width', String(barWidth * 0.8))
       rect.setAttribute('height', String(h))
-      rect.setAttribute('fill', series[si].color ?? COLORS[si % COLORS.length])
+      rect.setAttribute('fill', s.color ?? COLORS[si % COLORS.length])
       rect.setAttribute('rx', '2')
       svg.appendChild(rect)
     }
   }
 
   // X-axis labels
-  const xAxis = node.xAxis as string | undefined
-  if (xAxis) {
-    for (let i = 0; i < data.length; i++) {
-      const label = document.createElementNS('http://www.w3.org/2000/svg', 'text')
-      label.setAttribute('x', `${i * barGroupWidth + barGroupWidth / 2}%`)
-      label.setAttribute('y', String(height - 2))
-      label.setAttribute('text-anchor', 'middle')
-      label.setAttribute('font-size', '10')
-      label.setAttribute('fill', 'var(--muted-foreground, #6b7280)')
-      const labelVal = data[i][xAxis]
-      label.textContent = labelVal == null ? '' : String(labelVal as string | number)
-      svg.appendChild(label)
-    }
+  if (xAxisKey) {
+    drawXAxisLabels(svg, data, xAxisKey, (i) => {
+      return layout.plotLeft + i * barGroupWidth + barGroupWidth / 2
+    }, layout.plotBottom)
   }
 
   addLegend(wrapper, series, node.showLegend as boolean | undefined)
@@ -79,34 +258,62 @@ function renderBarChart(node: ComponentNode, ctx: RenderContext): HTMLElement {
 function renderLineChart(node: ComponentNode, ctx: RenderContext): HTMLElement {
   const wrapper = el('div', `pf-chart pf-${node.type.toLowerCase()}-chart`)
   const data = (resolveValue(node.data, ctx) as Record<string, unknown>[] | undefined) ?? []
-  const series = (node.series as { dataKey: string; label?: string; color?: string }[] | undefined) ?? []
+  const allSeries = (node.series as SeriesEntry[] | undefined) ?? []
   const height = (node.height as number | undefined) ?? 300
 
-  if (data.length === 0 || series.length === 0) {
+  if (data.length === 0 || allSeries.length === 0) {
     wrapper.textContent = 'No chart data'
     return wrapper
   }
 
-  const allValues = data.flatMap(d => series.map(s => Number(d[s.dataKey] ?? 0)))
-  const max = Math.max(...allValues, 1)
-  const w = 400
+  const showYAxis = (node.showYAxis as boolean | undefined) !== false
+  const showGrid = (node.showGrid as boolean | undefined) === true
+  const showYAxisRight = (node.showYAxisRight as boolean | undefined) === true
+  const xAxisKey = node.xAxis as string | undefined
 
+  // Split series by axis
+  const leftSeries = allSeries.filter(s => s.yAxisId !== 'right')
+  const rightSeries = allSeries.filter(s => s.yAxisId === 'right')
+  const hasRight = showYAxisRight && rightSeries.length > 0
+
+  // Compute max for each axis independently
+  const leftMax = leftSeries.length > 0
+    ? Math.max(...data.flatMap(d => leftSeries.map(s => Number(d[s.dataKey] ?? 0))), 1)
+    : 1
+  const rightMax = hasRight
+    ? Math.max(...data.flatMap(d => rightSeries.map(s => Number(d[s.dataKey] ?? 0))), 1)
+    : 1
+
+  const w = 400
+  const layout = chartLayout(w, height, showYAxis, hasRight)
   const svg = createSvg(w, height)
   const isArea = node.type === 'AreaChart'
 
-  for (let si = 0; si < series.length; si++) {
+  // Draw grid + axes (behind data)
+  if (showYAxis) drawYAxis(svg, layout, leftMax, showGrid, node.yAxisFormat as string | undefined)
+  if (hasRight) drawYAxisRight(svg, layout, rightMax, node.yAxisRightFormat as string | undefined)
+  drawBaseline(svg, layout)
+
+  // Draw series
+  for (let si = 0; si < allSeries.length; si++) {
+    const s = allSeries[si]
+    const isRight = s.yAxisId === 'right'
+    const max = isRight ? rightMax : leftMax
+
     const points = data.map((d, i) => {
-      const x = data.length === 1 ? w / 2 : (i / (data.length - 1)) * w
-      const y = height - 20 - (Number(d[series[si].dataKey] ?? 0) / max) * (height - 40)
+      const x = data.length === 1
+        ? (layout.plotLeft + layout.plotRight) / 2
+        : layout.plotLeft + (i / (data.length - 1)) * layout.plotWidth
+      const y = layout.plotBottom - (Number(d[s.dataKey] ?? 0) / max) * layout.plotHeight
       return { x, y }
     })
 
-    const color = series[si].color ?? COLORS[si % COLORS.length]
+    const color = s.color ?? COLORS[si % COLORS.length]
 
     if (isArea && points.length > 0) {
-      const areaPath = `M ${points[0].x},${height - 20} ` +
+      const areaPath = `M ${points[0].x},${layout.plotBottom} ` +
         points.map(p => `L ${p.x},${p.y}`).join(' ') +
-        ` L ${points[points.length - 1].x},${height - 20} Z`
+        ` L ${points[points.length - 1].x},${layout.plotBottom} Z`
       const area = document.createElementNS('http://www.w3.org/2000/svg', 'path')
       area.setAttribute('d', areaPath)
       area.setAttribute('fill', color)
@@ -120,10 +327,20 @@ function renderLineChart(node: ComponentNode, ctx: RenderContext): HTMLElement {
     line.setAttribute('fill', 'none')
     line.setAttribute('stroke', color)
     line.setAttribute('stroke-width', '2')
+    if (isRight) line.setAttribute('stroke-dasharray', '6 3')
     svg.appendChild(line)
   }
 
-  addLegend(wrapper, series, node.showLegend as boolean | undefined)
+  // X-axis labels
+  if (xAxisKey) {
+    drawXAxisLabels(svg, data, xAxisKey, (i) => {
+      return data.length === 1
+        ? (layout.plotLeft + layout.plotRight) / 2
+        : layout.plotLeft + (i / (data.length - 1)) * layout.plotWidth
+    }, layout.plotBottom)
+  }
+
+  addLegend(wrapper, allSeries, node.showLegend as boolean | undefined)
   wrapper.appendChild(svg)
   return wrapper
 }
@@ -131,7 +348,7 @@ function renderLineChart(node: ComponentNode, ctx: RenderContext): HTMLElement {
 function renderPieChart(node: ComponentNode, ctx: RenderContext): HTMLElement {
   const wrapper = el('div', 'pf-chart pf-pie-chart')
   const data = (resolveValue(node.data, ctx) as Record<string, unknown>[] | undefined) ?? []
-  const series = (node.series as { dataKey: string; label?: string; color?: string }[] | undefined) ?? []
+  const series = (node.series as SeriesEntry[] | undefined) ?? []
   const height = (node.height as number | undefined) ?? 300
   const size = Math.min(height, 300)
 
@@ -202,7 +419,7 @@ function createSvg(width: number, height: number): SVGSVGElement {
 
 function addLegend(
   wrapper: HTMLElement,
-  series: { dataKey: string; label?: string; color?: string }[],
+  series: SeriesEntry[],
   show?: boolean,
 ): void {
   if (show === false || series.length <= 1) return

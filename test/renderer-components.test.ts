@@ -90,6 +90,197 @@ describe('LineChart', () => {
     const paths = svg!.querySelectorAll('path')
     expect(paths.length).toBeGreaterThan(0)
   })
+
+  it('renders X-axis labels when xAxis is set', () => {
+    const ctx = makeCtx()
+    const node: ComponentNode = {
+      type: 'LineChart',
+      data: [
+        { month: 'Jan', value: 10 },
+        { month: 'Feb', value: 20 },
+        { month: 'Mar', value: 15 },
+      ],
+      series: [{ dataKey: 'value' }],
+      xAxis: 'month',
+    }
+    const dom = renderNode(node, ctx) as HTMLElement
+    const svg = dom.querySelector('svg')!
+    const texts = svg.querySelectorAll('text')
+    const labels = [...texts].map(t => t.textContent).filter(t => ['Jan', 'Feb', 'Mar'].includes(t!))
+    expect(labels.length).toBe(3)
+  })
+
+  it('renders Y-axis labels by default', () => {
+    const ctx = makeCtx()
+    const node: ComponentNode = {
+      type: 'LineChart',
+      data: [{ v: 50 }, { v: 100 }],
+      series: [{ dataKey: 'v' }],
+    }
+    const dom = renderNode(node, ctx) as HTMLElement
+    const svg = dom.querySelector('svg')!
+    // Y-axis draws text elements with text-anchor=end (left side)
+    const yLabels = [...svg.querySelectorAll('text')].filter(
+      t => t.getAttribute('text-anchor') === 'end',
+    )
+    expect(yLabels.length).toBeGreaterThan(0)
+  })
+
+  it('draws baseline', () => {
+    const ctx = makeCtx()
+    const node: ComponentNode = {
+      type: 'LineChart',
+      data: [{ v: 10 }, { v: 20 }],
+      series: [{ dataKey: 'v' }],
+    }
+    const dom = renderNode(node, ctx) as HTMLElement
+    const svg = dom.querySelector('svg')!
+    const lines = svg.querySelectorAll('line')
+    expect(lines.length).toBeGreaterThan(0)
+  })
+
+  it('draws grid lines when showGrid is true', () => {
+    const ctx = makeCtx()
+    const node: ComponentNode = {
+      type: 'LineChart',
+      data: [{ v: 50 }, { v: 100 }],
+      series: [{ dataKey: 'v' }],
+      showGrid: true,
+    }
+    const dom = renderNode(node, ctx) as HTMLElement
+    const svg = dom.querySelector('svg')!
+    // Grid lines are dashed
+    const dashed = [...svg.querySelectorAll('line')].filter(
+      l => l.getAttribute('stroke-dasharray') != null,
+    )
+    expect(dashed.length).toBeGreaterThan(0)
+  })
+})
+
+describe('LineChart dual Y-axis', () => {
+  const dualData = [
+    { month: 'Jan', revenue: 10000, conversion: 2.1 },
+    { month: 'Feb', revenue: 15000, conversion: 3.4 },
+    { month: 'Mar', revenue: 12000, conversion: 2.8 },
+  ]
+
+  it('renders right Y-axis labels when showYAxisRight + right series', () => {
+    const ctx = makeCtx()
+    const node: ComponentNode = {
+      type: 'LineChart',
+      data: dualData,
+      series: [
+        { dataKey: 'revenue', label: 'Revenue' },
+        { dataKey: 'conversion', label: 'Conversion %', yAxisId: 'right' },
+      ],
+      showYAxisRight: true,
+      xAxis: 'month',
+    }
+    const dom = renderNode(node, ctx) as HTMLElement
+    const svg = dom.querySelector('svg')!
+    // Left Y-axis: text-anchor=end, Right Y-axis: text-anchor=start
+    const leftLabels = [...svg.querySelectorAll('text')].filter(
+      t => t.getAttribute('text-anchor') === 'end',
+    )
+    const rightLabels = [...svg.querySelectorAll('text')].filter(
+      t => t.getAttribute('text-anchor') === 'start',
+    )
+    expect(leftLabels.length).toBeGreaterThan(0)
+    expect(rightLabels.length).toBeGreaterThan(0)
+  })
+
+  it('uses dashed stroke for right-axis series', () => {
+    const ctx = makeCtx()
+    const node: ComponentNode = {
+      type: 'LineChart',
+      data: dualData,
+      series: [
+        { dataKey: 'revenue' },
+        { dataKey: 'conversion', yAxisId: 'right' },
+      ],
+      showYAxisRight: true,
+    }
+    const dom = renderNode(node, ctx) as HTMLElement
+    const svg = dom.querySelector('svg')!
+    const paths = svg.querySelectorAll('path')
+    const dashed = [...paths].filter(p => p.getAttribute('stroke-dasharray') != null)
+    expect(dashed.length).toBe(1) // only the right-axis series
+  })
+
+  it('scales right-axis series independently from left', () => {
+    const ctx = makeCtx()
+    const node: ComponentNode = {
+      type: 'LineChart',
+      data: [
+        { x: 'A', big: 1000, small: 1 },
+        { x: 'B', big: 2000, small: 2 },
+      ],
+      series: [
+        { dataKey: 'big', label: 'Big' },
+        { dataKey: 'small', label: 'Small', yAxisId: 'right' },
+      ],
+      showYAxisRight: true,
+    }
+    const dom = renderNode(node, ctx) as HTMLElement
+    const svg = dom.querySelector('svg')!
+    // Right axis ticks should be small numbers (not 1000s)
+    const rightLabels = [...svg.querySelectorAll('text')]
+      .filter(t => t.getAttribute('text-anchor') === 'start')
+      .map(t => t.textContent!)
+    // Verify we have small-scale ticks (0, 1, 2 range), not big-scale
+    const rightValues = rightLabels.map(Number).filter(n => !isNaN(n))
+    expect(rightValues.every(v => v <= 10)).toBe(true)
+  })
+
+  it('does not render right Y-axis when showYAxisRight is false', () => {
+    const ctx = makeCtx()
+    const node: ComponentNode = {
+      type: 'LineChart',
+      data: dualData,
+      series: [
+        { dataKey: 'revenue' },
+        { dataKey: 'conversion', yAxisId: 'right' },
+      ],
+      showYAxisRight: false,
+    }
+    const dom = renderNode(node, ctx) as HTMLElement
+    const svg = dom.querySelector('svg')!
+    const rightLabels = [...svg.querySelectorAll('text')].filter(
+      t => t.getAttribute('text-anchor') === 'start',
+    )
+    expect(rightLabels.length).toBe(0)
+  })
+})
+
+describe('BarChart axes', () => {
+  it('renders Y-axis labels by default', () => {
+    const ctx = makeCtx()
+    const node: ComponentNode = {
+      type: 'BarChart',
+      data: [{ m: 'Jan', v: 100 }, { m: 'Feb', v: 200 }],
+      series: [{ dataKey: 'v' }],
+      xAxis: 'm',
+    }
+    const dom = renderNode(node, ctx) as HTMLElement
+    const svg = dom.querySelector('svg')!
+    const yLabels = [...svg.querySelectorAll('text')].filter(
+      t => t.getAttribute('text-anchor') === 'end',
+    )
+    expect(yLabels.length).toBeGreaterThan(0)
+  })
+
+  it('draws baseline', () => {
+    const ctx = makeCtx()
+    const node: ComponentNode = {
+      type: 'BarChart',
+      data: [{ v: 10 }],
+      series: [{ dataKey: 'v' }],
+    }
+    const dom = renderNode(node, ctx) as HTMLElement
+    const svg = dom.querySelector('svg')!
+    const lines = svg.querySelectorAll('line')
+    expect(lines.length).toBeGreaterThan(0)
+  })
 })
 
 describe('PieChart', () => {

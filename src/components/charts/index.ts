@@ -11,6 +11,8 @@ export interface ChartSeries {
   dataKey: string
   label?: string
   color?: string
+  /** Which Y-axis this series binds to: 'left' (default) or 'right'. */
+  yAxisId?: 'left' | 'right'
 }
 
 // ── Common chart props ───────────────────────────────────────────────────────
@@ -25,6 +27,9 @@ export interface BaseChartProps extends ComponentProps {
   showGrid?: boolean
   showYAxis?: boolean
   yAxisFormat?: string
+  /** Show a secondary Y-axis on the right for series with yAxisId:'right'. */
+  showYAxisRight?: boolean
+  yAxisRightFormat?: string
   animate?: boolean
 }
 
@@ -39,6 +44,8 @@ function chartGetProps(props: BaseChartProps, extra?: Record<string, unknown>): 
     ...(props.showGrid !== undefined && { showGrid: props.showGrid }),
     ...(props.showYAxis !== undefined && { showYAxis: props.showYAxis }),
     ...(props.yAxisFormat && { yAxisFormat: props.yAxisFormat }),
+    ...(props.showYAxisRight !== undefined && { showYAxisRight: props.showYAxisRight }),
+    ...(props.yAxisRightFormat && { yAxisRightFormat: props.yAxisRightFormat }),
     ...(props.animate !== undefined && { animate: props.animate }),
     ...extra,
   }
