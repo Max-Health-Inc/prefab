@@ -4,7 +4,7 @@ layout: home
 hero:
   name: '@maxhealth.tech/prefab'
   text: Declarative UI for MCP Apps
-  tagline: 55+ components, reactive state, zero-framework renderer — from TypeScript or Python.
+  tagline: 115+ components, reactive state, zero-framework renderer — from TypeScript or Python.
   actions:
     - theme: brand
       text: Get Started
@@ -21,7 +21,7 @@ hero:
 
 features:
   - icon: 🧩
-    title: 55+ Components
+    title: 115+ Components
     details: Layout, typography, data tables, charts, forms, interactive tabs, accordions, dialogs — all declarative JSON.
   - icon: ⚡
     title: Reactive State
@@ -30,7 +30,7 @@ features:
     title: MCP-Native
     details: display() wraps your component tree as an MCP tool result. First-class CallTool, SendMessage, and UpdateContext actions.
   - icon: 🌐
-    title: 54KB Renderer
+    title: Zero-Dep Renderer
     details: Vanilla DOM renderer as a single IIFE script tag. Zero dependencies, zero build step for the browser.
   - icon: 🤖
     title: Auto-Renderers

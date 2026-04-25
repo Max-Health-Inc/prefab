@@ -527,9 +527,48 @@ BarChart({
 | Prop | Type | Description |
 |------|------|-------------|
 | `data` | `object[]` | Data array |
-| `series` | `ChartSeries[]` | `{ key, label?, color? }` |
-| `xAxis` | `string` | Key for X axis labels |
+| `series` | `ChartSeries[]` | Series definitions (see below) |
+| `xAxis` | `string` | Data key for X axis labels |
+| `xAxisFormat` | `string` | Pipe applied to X axis tick labels (e.g. `'date'`, `'truncate:10'`) |
+| `tooltipXKey` | `string` | Data key for tooltip category label (defaults to `xAxis`) |
+| `tooltipXFormat` | `string` | Pipe applied to tooltip category label (e.g. `'datetime'`, `'upper'`) |
 | `height` | `number` | Chart height in px |
+| `showTooltip` | `boolean` | Show tooltip on hover (default `true`) |
+| `showGrid` | `boolean` | Show horizontal grid lines |
+| `showYAxis` | `boolean` | Show Y axis labels (default `true`) |
+| `yAxisFormat` | `string` | Y axis label format: `'currency'`, `'percent'`, or auto-compact |
+| `showYAxisRight` | `boolean` | Show secondary Y axis on the right |
+| `yAxisRightFormat` | `string` | Format for the right Y axis |
+| `showLegend` | `boolean` | Show legend below chart |
+
+#### `ChartSeries`
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `dataKey` | `string` | **Required.** Key in data objects for this series |
+| `label` | `string` | Display label (defaults to `dataKey`) |
+| `color` | `string` | Series color (auto-assigned if omitted) |
+| `yAxisId` | `'left' \| 'right'` | Which Y axis this series binds to |
+| `tooltipFormat` | `string` | Pipe for this series' value in the tooltip (overrides `yAxisFormat`) |
+
+#### Formatting Example
+
+Same timestamp field, different presentation on axis vs tooltip:
+
+```ts
+LineChart({
+  data: timeseries,
+  xAxis: 'timestamp',
+  xAxisFormat: 'date',          // axis: "4/25/2026"
+  tooltipXFormat: 'datetime',   // tooltip: "4/25/2026, 2:30:00 PM"
+  series: [
+    { dataKey: 'revenue', label: 'Revenue', tooltipFormat: 'currency' },
+    { dataKey: 'growth', label: 'Growth', tooltipFormat: 'percent' },
+  ],
+})
+```
+
+All built-in pipes work: `upper`, `lower`, `truncate`, `currency`, `percent`, `compact`, `date`, `time`, `datetime`, `number`, `round`, plus custom wire pipes.
 
 ### `RadarChart(props)` / `ScatterChart(props)`
 

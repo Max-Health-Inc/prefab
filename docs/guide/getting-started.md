@@ -21,7 +21,7 @@ import '@maxhealth.tech/prefab/prefab.css'
 **CDN:**
 
 ```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@maxhealth.tech/prefab@0.2.1/dist/prefab.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@maxhealth.tech/prefab@latest/dist/prefab.css">
 ```
 
 When using `toHTML()`, the base CSS is injected automatically. Pass `{ includeStyles: false }` to opt out.
@@ -90,11 +90,11 @@ Load the renderer bundle and use the `app()` factory:
 <html>
 <head>
   <title>My App</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@maxhealth.tech/prefab@0.2.1/dist/prefab.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@maxhealth.tech/prefab@latest/dist/prefab.css">
 </head>
 <body>
   <div id="root"></div>
-  <script src="https://cdn.jsdelivr.net/npm/@maxhealth.tech/prefab@0.2.1/dist/renderer.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@maxhealth.tech/prefab@latest/dist/renderer.min.js"></script>
   <script>
     (async () => {
       const ui = await prefab.app();
@@ -114,7 +114,7 @@ Load the renderer bundle and use the `app()` factory:
 ```
 
 ::: tip Use versioned CDN URLs
-Always pin a version (e.g. `@0.2.1`) in production to prevent breaking changes.
+Always pin a version (e.g. `@0.2.7`) in production to prevent breaking changes.
 :::
 
 The `app()` factory:
@@ -161,7 +161,7 @@ import '@maxhealth.tech/prefab/prefab.css'              // Base theme CSS
 
 ## Next Steps
 
-- [Components](./components) — full reference for all 55+ components
+- [Components](./components) — full reference for all 115+ components
 - [Signals & Collections](./rx#signals--collections) — reactive data layer
 - [Actions](./actions) — client-side and MCP actions
 - [Reactive Expressions](./rx) — dynamic values with `rx()`

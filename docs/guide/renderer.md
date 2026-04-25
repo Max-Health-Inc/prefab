@@ -1,14 +1,14 @@
 # Browser Renderer
 
-The prefab renderer is a 54KB IIFE bundle (`dist/renderer.min.js`) that renders `$prefab` wire JSON into vanilla DOM. Zero framework dependencies.
+The prefab renderer is an IIFE bundle (`dist/renderer.min.js`) that renders `$prefab` wire JSON into vanilla DOM. Zero framework dependencies.
 
 ## Loading
 
 ### Script Tag (CDN)
 
 ```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@maxhealth.tech/prefab@0.2.1/dist/prefab.css">
-<script src="https://cdn.jsdelivr.net/npm/@maxhealth.tech/prefab@0.2.1/dist/renderer.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@maxhealth.tech/prefab@latest/dist/prefab.css">
+<script src="https://cdn.jsdelivr.net/npm/@maxhealth.tech/prefab@latest/dist/renderer.min.js"></script>
 ```
 
 This creates the `window.PrefabRenderer` global and (in ext-app mode) `window.prefab`.
@@ -113,7 +113,7 @@ The renderer selects the theme variant based on `prefers-color-scheme` or `data-
 
 ## Component Registry
 
-The renderer has 55+ built-in component renderers. Each `type` string maps to a render function:
+The renderer has 115+ built-in component renderers. Each `type` string maps to a render function:
 
 ```
 Layout:      Column, Row, Grid, GridItem, Container, Div, Span, MasterDetail, Detail, ...
