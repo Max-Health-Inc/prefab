@@ -42,6 +42,9 @@ const registry = new Map<string, RenderFn>()
 
 /** Register a render function for a component type */
 export function registerComponent(type: string, fn: RenderFn): void {
+  if (registry.has(type)) {
+    console.warn(`[prefab] overriding existing renderer for "${type}"`)
+  }
   registry.set(type, fn)
 }
 

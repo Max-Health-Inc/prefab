@@ -14,7 +14,9 @@
 import { describe, it, expect, beforeEach } from 'bun:test'
 import { PrefabApp } from '../src/app'
 import { Column, Text } from '../src/index'
-import { PrefabRenderer } from '../src/renderer/index'
+import { PrefabRenderer, registerComponent } from '../src/renderer/index'
+import { getRenderer } from '../src/renderer/engine'
+import type { ComponentNode, RenderFn } from '../src/renderer/engine'
 import { unregisterPipe, listPipes, type PipeFn } from '../src/rx/pipes'
 import type { PrefabWireFormat } from '../src/app'
 
@@ -243,5 +245,69 @@ describe('E2E: pipe round-trip Node → wire → browser', () => {
     expect(root.textContent).not.toContain('[object Object]')
 
     mounted.destroy()
+  })
+})
+
+// ── 5. registerComponent exposure ────────────────────────────────────────────
+
+describe('registerComponent', () => {
+  it('is exported from the renderer module', () => {
+    const mod = require('../src/renderer/index') as Record<string, unknown>
+    expect(typeof mod.registerComponent).toBe('function')
+  })
+
+  it('registers a custom component that renderNode uses', () => {
+    const customRender: RenderFn = (node: ComponentNode) => {
+      const el = document.createElement('div')
+      el.setAttribute('data-custom', 'true')
+      el.textContent = typeof node.label === 'string' ? node.label : ''
+      return el
+    }
+
+    registerComponent('CustomWidget', customRender)
+    expect(getRenderer('CustomWidget')).toBe(customRender)
+  })
+
+  it('custom component renders via PrefabRenderer.mount', () => {
+    const customRender: RenderFn = (node: ComponentNode) => {
+      const el = document.createElement('span')
+      el.className = 'my-widget'
+      el.textContent = typeof node.message === 'string' ? node.message : ''
+      return el
+    }
+    registerComponent('MyWidget', customRender)
+
+    const wire = {
+      $prefab: { version: '0.2' },
+      view: { type: 'MyWidget', message: 'Hello from custom!' },
+      state: {},
+    }
+
+    const root = document.createElement('div')
+    const mounted = PrefabRenderer.mount(root, wire as never)
+    expect(root.querySelector('.my-widget')).not.toBeNull()
+    expect(root.textContent).toContain('Hello from custom!')
+    mounted.destroy()
+  })
+
+  it('warns when overriding an existing component', () => {
+    const warn = console.warn
+    const warnings: string[] = []
+    console.warn = (msg: string) => warnings.push(msg)
+
+    try {
+      const fn1: RenderFn = () => document.createElement('div')
+      const fn2: RenderFn = () => document.createElement('span')
+
+      registerComponent('OverrideTest', fn1)
+      warnings.length = 0 // clear any prior warnings
+      registerComponent('OverrideTest', fn2)
+
+      expect(warnings.length).toBe(1)
+      expect(warnings[0]).toContain('OverrideTest')
+      expect(getRenderer('OverrideTest')).toBe(fn2)
+    } finally {
+      console.warn = warn
+    }
   })
 })

@@ -40,6 +40,7 @@ import { app } from './app.js'
 import { Bridge, isIframe } from './bridge.js'
 import { registerPipe, unregisterPipe, listPipes } from '../rx/pipes.js'
 import type { PipeFn } from '../rx/pipes.js'
+import { registerComponent } from './engine.js'
 
 // Re-export new APIs
 export { app } from './app.js'
@@ -47,6 +48,8 @@ export type { AppOptions, PrefabApp, MountHandle } from './app.js'
 export { Bridge, isIframe, applyHostTheme } from './bridge.js'
 export { registerPipe, unregisterPipe, listPipes } from '../rx/pipes.js'
 export type { PipeFn } from '../rx/pipes.js'
+export { registerComponent } from './engine.js'
+export type { RenderFn, ComponentNode, RenderContext } from './engine.js'
 export type {
   AppCapabilities,
   HostCapabilities,
@@ -329,6 +332,7 @@ if (typeof window !== 'undefined') {
     registerPipe,
     unregisterPipe,
     listPipes,
+    registerComponent,
   }
 
   // Auto-mount if data is available
