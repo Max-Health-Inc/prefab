@@ -7,6 +7,7 @@
 
 import { registerComponent, resolveValue, el } from '../engine.js'
 import type { ComponentNode, RenderContext } from '../engine.js'
+import { createTooltip, addBarTooltipZones, addLineTooltipZones, showTooltipAt } from './chart-tooltip.js'
 
 export function registerChartComponents(): void {
   registerComponent('BarChart', renderBarChart)
@@ -24,7 +25,7 @@ const AXIS_COLOR = 'var(--muted-foreground, #6b7280)'
 const GRID_COLOR = 'var(--border, #e5e7eb)'
 const AXIS_FONT = '10'
 
-interface SeriesEntry {
+export interface SeriesEntry {
   dataKey: string
   label?: string
   color?: string
@@ -33,7 +34,7 @@ interface SeriesEntry {
 
 // ── Shared axis / grid helpers ───────────────────────────────────────────────
 
-interface ChartLayout {
+export interface ChartLayout {
   /** Usable plot area after axis padding */
   plotLeft: number
   plotRight: number
@@ -176,12 +177,24 @@ function drawBaseline(
   svg.appendChild(line)
 }
 
-function formatYValue(value: number, format?: string): string {
+export function formatYValue(value: number, format?: string): string {
   if (format === 'currency') return `$${value.toLocaleString()}`
   if (format === 'percent') return `${value}%`
   if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(1)}M`
   if (value >= 1_000) return `${(value / 1_000).toFixed(1)}K`
   return String(value)
+}
+
+/** Create a format callback for tooltip entries that handles per-axis formats + null. */
+function makeTooltipFormatter(
+  yAxisFormat?: string,
+  yAxisRightFormat?: string,
+): (raw: unknown, s: SeriesEntry) => string {
+  return (raw, s) => {
+    if (raw === null || raw === undefined) return '—'
+    const fmt = s.yAxisId === 'right' ? yAxisRightFormat : yAxisFormat
+    return formatYValue(Number(raw), fmt)
+  }
 }
 
 function renderBarChart(node: ComponentNode, ctx: RenderContext): HTMLElement {
@@ -198,6 +211,7 @@ function renderBarChart(node: ComponentNode, ctx: RenderContext): HTMLElement {
   const showYAxis = (node.showYAxis as boolean | undefined) !== false
   const showGrid = (node.showGrid as boolean | undefined) === true
   const showYAxisRight = (node.showYAxisRight as boolean | undefined) === true
+  const showTooltipProp = (node.showTooltip as boolean | undefined) !== false
   const xAxisKey = node.xAxis as string | undefined
 
   const leftSeries = series.filter(s => s.yAxisId !== 'right')
@@ -213,7 +227,7 @@ function renderBarChart(node: ComponentNode, ctx: RenderContext): HTMLElement {
 
   const w = 400
   const layout = chartLayout(w, height, showYAxis, hasRight)
-  const svg = createSvg(w, height)
+  const svg = createSvg(w, height, 'Bar')
 
   // Axes + grid (behind bars)
   if (showYAxis) drawYAxis(svg, layout, leftMax, showGrid, node.yAxisFormat as string | undefined)
@@ -227,9 +241,11 @@ function renderBarChart(node: ComponentNode, ctx: RenderContext): HTMLElement {
   for (let di = 0; di < data.length; di++) {
     for (let si = 0; si < series.length; si++) {
       const s = series[si]
+      const raw = data[di][s.dataKey]
+      if (raw === null || raw === undefined) continue // skip null bars
       const isRight = s.yAxisId === 'right'
       const max = isRight ? rightMax : leftMax
-      const val = Number(data[di][s.dataKey] ?? 0)
+      const val = Number(raw)
       const h = Math.max(0, (val / max) * layout.plotHeight)
       const x = layout.plotLeft + di * barGroupWidth + si * barWidth + barWidth / 2
       const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect')
@@ -248,6 +264,16 @@ function renderBarChart(node: ComponentNode, ctx: RenderContext): HTMLElement {
     drawXAxisLabels(svg, data, xAxisKey, (i) => {
       return layout.plotLeft + i * barGroupWidth + barGroupWidth / 2
     }, layout.plotBottom)
+  }
+
+  // Tooltip hit-zones (on top of bars)
+  if (showTooltipProp) {
+    const ttCtx = createTooltip(wrapper, svg)
+    const fmt = makeTooltipFormatter(
+      node.yAxisFormat as string | undefined,
+      node.yAxisRightFormat as string | undefined,
+    )
+    addBarTooltipZones(ttCtx, svg, data, series, layout, xAxisKey, fmt)
   }
 
   addLegend(wrapper, series, node.showLegend as boolean | undefined)
@@ -269,6 +295,7 @@ function renderLineChart(node: ComponentNode, ctx: RenderContext): HTMLElement {
   const showYAxis = (node.showYAxis as boolean | undefined) !== false
   const showGrid = (node.showGrid as boolean | undefined) === true
   const showYAxisRight = (node.showYAxisRight as boolean | undefined) === true
+  const showTooltipProp = (node.showTooltip as boolean | undefined) !== false
   const xAxisKey = node.xAxis as string | undefined
 
   // Split series by axis
@@ -286,7 +313,7 @@ function renderLineChart(node: ComponentNode, ctx: RenderContext): HTMLElement {
 
   const w = 400
   const layout = chartLayout(w, height, showYAxis, hasRight)
-  const svg = createSvg(w, height)
+  const svg = createSvg(w, height, node.type === 'AreaChart' ? 'Area' : 'Line')
   const isArea = node.type === 'AreaChart'
 
   // Draw grid + axes (behind data)
@@ -294,42 +321,96 @@ function renderLineChart(node: ComponentNode, ctx: RenderContext): HTMLElement {
   if (hasRight) drawYAxisRight(svg, layout, rightMax, node.yAxisRightFormat as string | undefined)
   drawBaseline(svg, layout)
 
-  // Draw series
+  // Draw series (with null-gap handling)
+  const dotGroups: SVGCircleElement[][] = [] // one array of dots per series
   for (let si = 0; si < allSeries.length; si++) {
     const s = allSeries[si]
     const isRight = s.yAxisId === 'right'
     const max = isRight ? rightMax : leftMax
+    const color = s.color ?? COLORS[si % COLORS.length]
 
-    const points = data.map((d, i) => {
+    interface Pt { x: number; y: number; isNull: boolean }
+    const points: Pt[] = data.map((d, i) => {
+      const raw = d[s.dataKey]
+      const isNull = raw === null || raw === undefined
       const x = data.length === 1
         ? (layout.plotLeft + layout.plotRight) / 2
         : layout.plotLeft + (i / (data.length - 1)) * layout.plotWidth
-      const y = layout.plotBottom - (Number(d[s.dataKey] ?? 0) / max) * layout.plotHeight
-      return { x, y }
+      const y = isNull ? layout.plotBottom : layout.plotBottom - (Number(raw) / max) * layout.plotHeight
+      return { x, y, isNull }
     })
 
-    const color = s.color ?? COLORS[si % COLORS.length]
-
-    if (isArea && points.length > 0) {
-      const areaPath = `M ${points[0].x},${layout.plotBottom} ` +
-        points.map(p => `L ${p.x},${p.y}`).join(' ') +
-        ` L ${points[points.length - 1].x},${layout.plotBottom} Z`
-      const area = document.createElementNS('http://www.w3.org/2000/svg', 'path')
-      area.setAttribute('d', areaPath)
-      area.setAttribute('fill', color)
-      area.setAttribute('opacity', '0.15')
-      svg.appendChild(area)
+    // Area fill (skip null segments)
+    if (isArea) {
+      let seg: Pt[] = []
+      const flushArea = (): void => {
+        if (seg.length < 2) { seg = []; return }
+        const d = `M ${seg[0].x},${layout.plotBottom} ` +
+          seg.map(p => `L ${p.x},${p.y}`).join(' ') +
+          ` L ${seg[seg.length - 1].x},${layout.plotBottom} Z`
+        const area = document.createElementNS('http://www.w3.org/2000/svg', 'path')
+        area.setAttribute('d', d)
+        area.setAttribute('fill', color)
+        area.setAttribute('opacity', '0.15')
+        svg.appendChild(area)
+        seg = []
+      }
+      for (const p of points) {
+        if (p.isNull) { flushArea(); continue }
+        seg.push(p)
+      }
+      flushArea()
     }
 
-    const linePath = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x},${p.y}`).join(' ')
-    const line = document.createElementNS('http://www.w3.org/2000/svg', 'path')
-    line.setAttribute('d', linePath)
-    line.setAttribute('fill', 'none')
-    line.setAttribute('stroke', color)
-    line.setAttribute('stroke-width', '2')
-    if (isRight) line.setAttribute('stroke-dasharray', '6 3')
-    svg.appendChild(line)
+    // Line path with gap handling: break into segments on null
+    let linePath = ''
+    for (const p of points) {
+      if (p.isNull) { /* gap — next valid point starts a new M */ continue }
+      // Check if previous point was null → start new segment
+      const idx = points.indexOf(p)
+      const prevNull = idx === 0 || points[idx - 1].isNull
+      linePath += `${prevNull ? 'M' : 'L'} ${p.x},${p.y} `
+    }
+    if (linePath) {
+      const line = document.createElementNS('http://www.w3.org/2000/svg', 'path')
+      line.setAttribute('d', linePath.trim())
+      line.setAttribute('fill', 'none')
+      line.setAttribute('stroke', color)
+      line.setAttribute('stroke-width', '2')
+      if (isRight) line.setAttribute('stroke-dasharray', '6 3')
+      svg.appendChild(line)
+    }
+
+    // Data-point dots (hidden by default, shown on hover)
+    const seriesDots: SVGCircleElement[] = []
+    for (const p of points) {
+      const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle')
+      dot.setAttribute('cx', String(p.x))
+      dot.setAttribute('cy', String(p.y))
+      dot.setAttribute('r', '4')
+      dot.setAttribute('fill', color)
+      dot.setAttribute('class', 'pf-data-dot')
+      dot.setAttribute('data-visible', 'false')
+      dot.style.pointerEvents = 'none'
+      if (p.isNull) dot.style.display = 'none'
+      svg.appendChild(dot)
+      seriesDots.push(dot)
+    }
+    dotGroups.push(seriesDots)
   }
+
+  // Crosshair line (hidden by default)
+  const crosshair = document.createElementNS('http://www.w3.org/2000/svg', 'line')
+  crosshair.setAttribute('class', 'pf-crosshair')
+  crosshair.setAttribute('x1', String(layout.plotLeft))
+  crosshair.setAttribute('x2', String(layout.plotLeft))
+  crosshair.setAttribute('y1', String(layout.plotTop))
+  crosshair.setAttribute('y2', String(layout.plotBottom))
+  crosshair.setAttribute('stroke', AXIS_COLOR)
+  crosshair.setAttribute('stroke-width', '1')
+  crosshair.setAttribute('stroke-dasharray', '3 3')
+  crosshair.setAttribute('opacity', '0')
+  svg.appendChild(crosshair)
 
   // X-axis labels
   if (xAxisKey) {
@@ -338,6 +419,16 @@ function renderLineChart(node: ComponentNode, ctx: RenderContext): HTMLElement {
         ? (layout.plotLeft + layout.plotRight) / 2
         : layout.plotLeft + (i / (data.length - 1)) * layout.plotWidth
     }, layout.plotBottom)
+  }
+
+  // Tooltip hit-zones (on top of lines)
+  if (showTooltipProp) {
+    const ttCtx = createTooltip(wrapper, svg)
+    const fmt = makeTooltipFormatter(
+      node.yAxisFormat as string | undefined,
+      node.yAxisRightFormat as string | undefined,
+    )
+    addLineTooltipZones(ttCtx, svg, data, allSeries, layout, xAxisKey, fmt, crosshair, dotGroups)
   }
 
   addLegend(wrapper, allSeries, node.showLegend as boolean | undefined)
@@ -351,19 +442,21 @@ function renderPieChart(node: ComponentNode, ctx: RenderContext): HTMLElement {
   const series = (node.series as SeriesEntry[] | undefined) ?? []
   const height = (node.height as number | undefined) ?? 300
   const size = Math.min(height, 300)
+  const showTooltipProp = (node.showTooltip as boolean | undefined) !== false
 
   if (data.length === 0 || series.length === 0) {
     wrapper.textContent = 'No chart data'
     return wrapper
   }
 
-  const svg = createSvg(size, size)
+  const svg = createSvg(size, size, 'Pie')
   const cx = size / 2
   const cy = size / 2
   const r = size / 2 - 10
 
   // Use first series key, each data point is a slice
   const key = series[0].dataKey
+  const xAxisKey = node.xAxis as string | undefined
   const values = data.map(d => Number(d[key] ?? 0))
   const total = values.reduce((a, b) => a + b, 0)
 
@@ -372,6 +465,8 @@ function renderPieChart(node: ComponentNode, ctx: RenderContext): HTMLElement {
     wrapper.appendChild(svg)
     return wrapper
   }
+
+  const ttCtx = showTooltipProp ? createTooltip(wrapper, svg) : undefined
 
   let startAngle = -Math.PI / 2
   for (let i = 0; i < values.length; i++) {
@@ -384,11 +479,37 @@ function renderPieChart(node: ComponentNode, ctx: RenderContext): HTMLElement {
     const x2 = cx + r * Math.cos(endAngle)
     const y2 = cy + r * Math.sin(endAngle)
 
+    const color = COLORS[i % COLORS.length]
     const path = document.createElementNS('http://www.w3.org/2000/svg', 'path')
     path.setAttribute('d', `M ${cx},${cy} L ${x1},${y1} A ${r},${r} 0 ${largeArc} 1 ${x2},${y2} Z`)
-    path.setAttribute('fill', COLORS[i % COLORS.length])
-    svg.appendChild(path)
+    path.setAttribute('fill', color)
+    path.style.cursor = 'default'
 
+    if (ttCtx) {
+      const rawSlice = xAxisKey ? data[i][xAxisKey] : undefined
+      const sliceLabel = rawSlice != null ? String(rawSlice as string | number) : `Slice ${i + 1}`
+      const pct = `${((values[i] / total) * 100).toFixed(1)}%`
+      const midAngle = startAngle + angle / 2
+      const tipX = cx + (r * 0.6) * Math.cos(midAngle)
+      path.addEventListener('mouseenter', () => {
+        showTooltipAt(ttCtx, tipX, cy, sliceLabel, [
+          { label: series[0].label ?? key, value: `${values[i]} (${pct})`, color },
+        ])
+      })
+      path.addEventListener('mouseleave', () => {
+        ttCtx.tooltip.classList.remove('pf-visible')
+      })
+      path.addEventListener('touchstart', () => {
+        showTooltipAt(ttCtx, tipX, cy, sliceLabel, [
+          { label: series[0].label ?? key, value: `${values[i]} (${pct})`, color },
+        ])
+      }, { passive: true })
+      path.addEventListener('touchend', () => {
+        ttCtx.tooltip.classList.remove('pf-visible')
+      }, { passive: true })
+    }
+
+    svg.appendChild(path)
     startAngle = endAngle
   }
 
@@ -408,11 +529,15 @@ function renderFallbackChart(node: ComponentNode, _ctx: RenderContext): HTMLElem
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
-function createSvg(width: number, height: number): SVGSVGElement {
+function createSvg(width: number, height: number, chartType?: string): SVGSVGElement {
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
   svg.setAttribute('width', '100%')
   svg.setAttribute('height', String(height))
   svg.setAttribute('viewBox', `0 0 ${width} ${height}`)
+  svg.setAttribute('role', 'img')
+  if (chartType) {
+    svg.setAttribute('aria-label', `${chartType} chart`)
+  }
   svg.style.overflow = 'visible'
   return svg
 }
@@ -480,15 +605,11 @@ function renderHistogram(node: ComponentNode, ctx: RenderContext): HTMLElement {
   const H = height
   const barW = W / binCount
 
-  const ns = 'http://www.w3.org/2000/svg'
-  const svg = document.createElementNS(ns, 'svg')
-  svg.setAttribute('viewBox', `0 0 ${W} ${H}`)
-  svg.setAttribute('width', '100%')
-  svg.setAttribute('height', String(H))
+  const svg = createSvg(W, H, 'Histogram')
 
   for (let i = 0; i < binCount; i++) {
     const barH = maxBin > 0 ? (bins[i] / maxBin) * H : 0
-    const rect = document.createElementNS(ns, 'rect')
+    const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect')
     rect.setAttribute('x', String(i * barW))
     rect.setAttribute('y', String(H - barH))
     rect.setAttribute('width', String(barW - 1))

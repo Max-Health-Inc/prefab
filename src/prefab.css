@@ -736,6 +736,27 @@
 .pf-chart { position: relative; }
 .pf-chart svg { display: block; width: 100%; height: auto; }
 
+.pf-chart-tooltip {
+  position: absolute;
+  pointer-events: none;
+  z-index: 50;
+  background: var(--popover, #fff);
+  color: var(--popover-foreground, #09090b);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: var(--radius, 0.375rem);
+  padding: 0.375rem 0.625rem;
+  font-size: 0.75rem;
+  line-height: 1.25rem;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.12);
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+.pf-chart-tooltip.pf-visible { opacity: 1; }
+.pf-chart-tooltip-label { font-weight: 500; margin-bottom: 0.125rem; }
+.pf-chart-tooltip-row { display: flex; align-items: center; gap: 0.375rem; }
+.pf-chart-tooltip-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
 .pf-chart-legend { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 0.75rem; font-size: 0.75rem; }
 .pf-chart-legend-item { display: flex; align-items: center; gap: 0.375rem; }
 

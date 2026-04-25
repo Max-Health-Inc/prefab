@@ -40,7 +40,9 @@ describe('BarChart', () => {
     const dom = renderNode(node, ctx) as HTMLElement
     const svg = dom.querySelector('svg')
     expect(svg).toBeTruthy()
-    const rects = svg!.querySelectorAll('rect')
+    const rects = Array.from(svg!.querySelectorAll('rect')).filter(
+      r => r.getAttribute('fill') !== 'transparent',
+    )
     expect(rects.length).toBe(3)
   })
 
@@ -67,7 +69,9 @@ describe('BarChart', () => {
     const dom = renderNode(node, ctx) as HTMLElement
     const svg = dom.querySelector('svg')
     expect(svg).toBeTruthy()
-    const rects = svg!.querySelectorAll('rect')
+    const rects = Array.from(svg!.querySelectorAll('rect')).filter(
+      r => r.getAttribute('fill') !== 'transparent',
+    )
     expect(rects.length).toBe(2)
   })
 })
@@ -318,6 +322,202 @@ describe('Histogram', () => {
     const dom = renderNode(node, ctx) as HTMLElement
     const svg = dom.querySelector('svg')
     expect(svg).toBeTruthy()
+  })
+})
+
+// ── Chart tooltips ───────────────────────────────────────────────────────────
+
+describe('Chart tooltips', () => {
+  const chartData = [
+    { month: 'Jan', sales: 100, cost: 40 },
+    { month: 'Feb', sales: 200, cost: 80 },
+    { month: 'Mar', sales: 150, cost: 60 },
+  ]
+
+  it('BarChart creates tooltip div when showTooltip is true (default)', () => {
+    const ctx = makeCtx()
+    const node: ComponentNode = {
+      type: 'BarChart',
+      data: chartData,
+      series: [{ dataKey: 'sales' }],
+      xAxis: 'month',
+    }
+    const dom = renderNode(node, ctx) as HTMLElement
+    const tooltip = dom.querySelector('.pf-chart-tooltip')
+    expect(tooltip).not.toBeNull()
+  })
+
+  it('BarChart omits tooltip div when showTooltip is false', () => {
+    const ctx = makeCtx()
+    const node: ComponentNode = {
+      type: 'BarChart',
+      data: chartData,
+      series: [{ dataKey: 'sales' }],
+      xAxis: 'month',
+      showTooltip: false,
+    }
+    const dom = renderNode(node, ctx) as HTMLElement
+    const tooltip = dom.querySelector('.pf-chart-tooltip')
+    expect(tooltip).toBeNull()
+  })
+
+  it('BarChart adds transparent hit-zone rects for each data point', () => {
+    const ctx = makeCtx()
+    const node: ComponentNode = {
+      type: 'BarChart',
+      data: chartData,
+      series: [{ dataKey: 'sales' }],
+      xAxis: 'month',
+    }
+    const dom = renderNode(node, ctx) as HTMLElement
+    const svg = dom.querySelector('svg')!
+    // Hit zones are transparent rects (not the colored bar rects)
+    const rects = Array.from(svg.querySelectorAll('rect'))
+    const hitZones = rects.filter(r => r.getAttribute('fill') === 'transparent')
+    expect(hitZones.length).toBe(3) // one per data point
+  })
+
+  it('LineChart creates tooltip div when showTooltip is true (default)', () => {
+    const ctx = makeCtx()
+    const node: ComponentNode = {
+      type: 'LineChart',
+      data: chartData,
+      series: [{ dataKey: 'sales' }, { dataKey: 'cost' }],
+      xAxis: 'month',
+    }
+    const dom = renderNode(node, ctx) as HTMLElement
+    const tooltip = dom.querySelector('.pf-chart-tooltip')
+    expect(tooltip).not.toBeNull()
+  })
+
+  it('LineChart omits tooltip when showTooltip is false', () => {
+    const ctx = makeCtx()
+    const node: ComponentNode = {
+      type: 'LineChart',
+      data: chartData,
+      series: [{ dataKey: 'sales' }],
+      showTooltip: false,
+    }
+    const dom = renderNode(node, ctx) as HTMLElement
+    expect(dom.querySelector('.pf-chart-tooltip')).toBeNull()
+  })
+
+  it('LineChart adds transparent hit-zone rects for each data point', () => {
+    const ctx = makeCtx()
+    const node: ComponentNode = {
+      type: 'LineChart',
+      data: chartData,
+      series: [{ dataKey: 'sales' }],
+      xAxis: 'month',
+    }
+    const dom = renderNode(node, ctx) as HTMLElement
+    const svg = dom.querySelector('svg')!
+    const hitZones = Array.from(svg.querySelectorAll('rect')).filter(
+      r => r.getAttribute('fill') === 'transparent',
+    )
+    expect(hitZones.length).toBe(3)
+  })
+
+  it('PieChart creates tooltip div and each slice has cursor style', () => {
+    const ctx = makeCtx()
+    const node: ComponentNode = {
+      type: 'PieChart',
+      data: [
+        { name: 'A', value: 60 },
+        { name: 'B', value: 40 },
+      ],
+      series: [{ dataKey: 'value' }],
+      xAxis: 'name',
+    }
+    const dom = renderNode(node, ctx) as HTMLElement
+    const tooltip = dom.querySelector('.pf-chart-tooltip')
+    expect(tooltip).not.toBeNull()
+    // Each pie slice path should have cursor set
+    const paths = dom.querySelectorAll('svg path')
+    expect(paths.length).toBe(2)
+  })
+
+  it('AreaChart inherits tooltip from LineChart renderer', () => {
+    const ctx = makeCtx()
+    const node: ComponentNode = {
+      type: 'AreaChart',
+      data: chartData,
+      series: [{ dataKey: 'sales' }],
+      xAxis: 'month',
+    }
+    const dom = renderNode(node, ctx) as HTMLElement
+    expect(dom.querySelector('.pf-chart-tooltip')).not.toBeNull()
+  })
+
+  it('tooltip div starts hidden (no pf-visible class)', () => {
+    const ctx = makeCtx()
+    const node: ComponentNode = {
+      type: 'BarChart',
+      data: chartData,
+      series: [{ dataKey: 'sales' }],
+    }
+    const dom = renderNode(node, ctx) as HTMLElement
+    const tooltip = dom.querySelector('.pf-chart-tooltip')!
+    expect(tooltip.classList.contains('pf-visible')).toBe(false)
+  })
+
+  it('mouseenter on hit-zone shows tooltip with pf-visible class', () => {
+    const ctx = makeCtx()
+    const node: ComponentNode = {
+      type: 'BarChart',
+      data: chartData,
+      series: [{ dataKey: 'sales', label: 'Sales' }],
+      xAxis: 'month',
+    }
+    const dom = renderNode(node, ctx) as HTMLElement
+    const tooltip = dom.querySelector('.pf-chart-tooltip')!
+    const svg = dom.querySelector('svg')!
+    const hitZone = Array.from(svg.querySelectorAll('rect')).find(
+      r => r.getAttribute('fill') === 'transparent',
+    )!
+    hitZone.dispatchEvent(new Event('mouseenter'))
+    expect(tooltip.classList.contains('pf-visible')).toBe(true)
+    // Should contain series label and value
+    expect(tooltip.textContent).toContain('Sales')
+    expect(tooltip.textContent).toContain('100')
+  })
+
+  it('mouseleave on hit-zone hides tooltip', () => {
+    const ctx = makeCtx()
+    const node: ComponentNode = {
+      type: 'BarChart',
+      data: chartData,
+      series: [{ dataKey: 'sales' }],
+    }
+    const dom = renderNode(node, ctx) as HTMLElement
+    const tooltip = dom.querySelector('.pf-chart-tooltip')!
+    const svg = dom.querySelector('svg')!
+    const hitZone = Array.from(svg.querySelectorAll('rect')).find(
+      r => r.getAttribute('fill') === 'transparent',
+    )!
+    hitZone.dispatchEvent(new Event('mouseenter'))
+    expect(tooltip.classList.contains('pf-visible')).toBe(true)
+    hitZone.dispatchEvent(new Event('mouseleave'))
+    expect(tooltip.classList.contains('pf-visible')).toBe(false)
+  })
+
+  it('tooltip content escapes HTML to prevent XSS', () => {
+    const ctx = makeCtx()
+    const node: ComponentNode = {
+      type: 'BarChart',
+      data: [{ name: '<script>alert("xss")</script>', val: 42 }],
+      series: [{ dataKey: 'val' }],
+      xAxis: 'name',
+    }
+    const dom = renderNode(node, ctx) as HTMLElement
+    const svg = dom.querySelector('svg')!
+    const hitZone = Array.from(svg.querySelectorAll('rect')).find(
+      r => r.getAttribute('fill') === 'transparent',
+    )!
+    hitZone.dispatchEvent(new Event('mouseenter'))
+    const tooltip = dom.querySelector('.pf-chart-tooltip')!
+    expect(tooltip.innerHTML).not.toContain('<script>')
+    expect(tooltip.innerHTML).toContain('&lt;script&gt;')
   })
 })
 
