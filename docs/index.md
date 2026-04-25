@@ -37,5 +37,5 @@ features:
     details: autoTable, autoChart, autoForm, autoMetrics — generate full UIs from raw data in one call.
   - icon: 🐍
     title: Wire-Compatible
-    details: Identical $prefab JSON wire format between TypeScript and Python prefab-ui. Mix and match.
+    details: Same $prefab v0.2 wire protocol as the Python prefab-ui. TS is a superset — chart formatting extensions are TS-only.
 ---

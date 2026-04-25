@@ -2,6 +2,8 @@
 
 The `$prefab` wire format is the JSON protocol that connects server-side component builders to client-side renderers. Both the TypeScript and Python libraries produce this format.
 
+> **Note:** This TypeScript library is a superset of the Python `prefab-ui` (v0.19.1). Core components and the v0.2 protocol are identical. Chart formatting props (`xAxisFormat`, `tooltipXFormat`, `tooltipXKey`, per-series `tooltipFormat`, dual Y-axis) are TS-only extensions. The renderer handles both payloads seamlessly.
+
 ## Envelope
 
 Every prefab UI is wrapped in a top-level envelope:

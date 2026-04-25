@@ -5,11 +5,13 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-6.0-blue?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-TypeScript declarative UI component library for MCP apps. Wire-compatible with PrefectHQ's Python [prefab-ui](https://github.com/PrefectHQ/prefab) — **same `$prefab` JSON, two languages**.
+TypeScript declarative UI component library for MCP apps. Wire-compatible with PrefectHQ's Python [prefab-ui](https://github.com/PrefectHQ/prefab) — **same `$prefab` v0.2 wire protocol**.
 
-Write MCP servers in **TypeScript/Bun** and generate the exact same wire format that Python servers produce. Render the output in **any web app** with the included vanilla DOM renderer. Full circle: server-side DSL → JSON → browser UI.
+Write MCP servers in **TypeScript/Bun** and generate the same wire format that Python servers produce. Render the output in **any web app** with the included vanilla DOM renderer. Full circle: server-side DSL → JSON → browser UI.
 
-- **55+ components** — layout, form, data, charts, media, interactive, control flow
+> **Note:** This library is a superset of the Python `prefab-ui` (v0.19.1). Core components and the wire protocol are identical. Chart formatting features (`xAxisFormat`, `tooltipXFormat`, `tooltipXKey`, per-series `tooltipFormat`, dual Y-axis) are TS-only extensions — the Python lib does not yet emit them. The renderer handles both payloads seamlessly.
+
+- **115+ components** — layout, form, data, charts, media, interactive, control flow
 - **Reactive state** — `rx()` expressions, `SetState`/`ToggleState`/`AppendState` actions
 - **MCP-native** — `display()`, `display_form()`, `CallTool`, `SendMessage` built in
 - **Browser renderer** — zero dependencies, vanilla DOM (optional separate import)
@@ -96,6 +98,8 @@ async function listUsers(args: any) {
 `BarChart`, `LineChart`, `AreaChart`, `PieChart`, `RadarChart`, `ScatterChart`, `Sparkline`, `RadialChart`, `Histogram`
 
 #### Chart Formatting (Pipe Integration)
+
+> **TS-only extension** — these props are not yet supported by the Python `prefab-ui` library. The renderer gracefully ignores them if absent, so Python-generated charts still render fine.
 
 Charts use the same pipe system as `{{ value | pipe }}` expressions — all formatting is declarative JSON:
 
