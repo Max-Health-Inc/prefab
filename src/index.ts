@@ -78,7 +78,7 @@ export type { AutoTimelineEvent, AutoTimelineOptions } from './auto/timeline.js'
 export type { AutoProgressStep, AutoProgressOptions } from './auto/progress.js'
 
 // ── MCP Display Helpers ──────────────────────────────────────────────────────
-export { display, display_form, display_update, display_error } from './mcp/display.js'
+export { display, display_form, display_update, display_error, displayForm, displayUpdate, displayError } from './mcp/display.js'
 export type { DisplayOptions, DisplayFormOptions, DisplayErrorOptions, StateUpdate, PrefabUpdateWire } from './mcp/display.js'
 export type { McpToolResult, McpContent, McpTextContent } from './mcp/types.js'
 

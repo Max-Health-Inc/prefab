@@ -84,12 +84,152 @@ function renderCode(node: ComponentNode, ctx: RenderContext): HTMLElement {
 
 function renderMarkdown(node: ComponentNode, ctx: RenderContext): HTMLElement {
   const e = el('div', 'pf-markdown')
-  // Basic markdown rendering — just set innerHTML with escaped content
-  // A real implementation would use a markdown parser
   const content = resolveStr(node.content, ctx)
-  e.textContent = content
+  e.innerHTML = renderMarkdownToHtml(content)
   e.setAttribute('data-markdown', 'true')
   return e
+}
+
+// ── Lightweight Markdown → HTML ──────────────────────────────────────────────
+
+/** Blocked URL schemes that can execute code (reused from renderLink). */
+const MD_UNSAFE_SCHEMES = /^\s*(javascript|vbscript|data):/i
+
+/** Escape HTML special chars to prevent XSS from raw markdown content. */
+function escapeHtml(s: string): string {
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+}
+
+/** Render inline markdown: bold, italic, code, links, images, strikethrough. */
+function renderInline(line: string): string {
+  let out = escapeHtml(line)
+
+  // Inline code (must come first to protect contents from further parsing)
+  out = out.replace(/`([^`]+)`/g, '<code>$1</code>')
+
+  // Images: ![alt](src)
+  out = out.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (_m, alt: string, src: string) => {
+    if (MD_UNSAFE_SCHEMES.test(src)) return escapeHtml(alt)
+    return `<img src="${src}" alt="${alt}" />`
+  })
+
+  // Links: [text](url)
+  out = out.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_m, text: string, href: string) => {
+    if (MD_UNSAFE_SCHEMES.test(href)) return text
+    return `<a href="${href}">${text}</a>`
+  })
+
+  // Bold + italic: ***text*** or ___text___
+  out = out.replace(/\*{3}(.+?)\*{3}/g, '<strong><em>$1</em></strong>')
+  out = out.replace(/_{3}(.+?)_{3}/g, '<strong><em>$1</em></strong>')
+
+  // Bold: **text** or __text__
+  out = out.replace(/\*{2}(.+?)\*{2}/g, '<strong>$1</strong>')
+  out = out.replace(/_{2}(.+?)_{2}/g, '<strong>$1</strong>')
+
+  // Italic: *text* or _text_
+  out = out.replace(/\*(.+?)\*/g, '<em>$1</em>')
+  out = out.replace(/(?<!\w)_(.+?)_(?!\w)/g, '<em>$1</em>')
+
+  // Strikethrough: ~~text~~
+  out = out.replace(/~~(.+?)~~/g, '<del>$1</del>')
+
+  return out
+}
+
+/** Convert a markdown string to sanitized HTML. */
+function renderMarkdownToHtml(md: string): string {
+  const lines = md.split('\n')
+  const html: string[] = []
+  let i = 0
+
+  while (i < lines.length) {
+    const line = lines[i]
+
+    // Fenced code block: ```
+    if (line.trimStart().startsWith('```')) {
+      const lang = line.trimStart().slice(3).trim()
+      const codeLines: string[] = []
+      i++
+      while (i < lines.length && !lines[i].trimStart().startsWith('```')) {
+        codeLines.push(escapeHtml(lines[i]))
+        i++
+      }
+      i++ // skip closing ```
+      const langAttr = lang ? ` data-language="${escapeHtml(lang)}"` : ''
+      html.push(`<pre class="pf-code"><code${langAttr}>${codeLines.join('\n')}</code></pre>`)
+      continue
+    }
+
+    // Horizontal rule: ---, ***, ___
+    if (/^(\s*[-*_]\s*){3,}$/.test(line)) {
+      html.push('<hr />')
+      i++
+      continue
+    }
+
+    // Heading: # ... ######
+    const headingMatch = line.match(/^(#{1,6})\s+(.+)$/)
+    if (headingMatch) {
+      const level = headingMatch[1].length
+      html.push(`<h${level}>${renderInline(headingMatch[2])}</h${level}>`)
+      i++
+      continue
+    }
+
+    // Blockquote: > text
+    if (line.startsWith('> ') || line === '>') {
+      const quoteLines: string[] = []
+      while (i < lines.length && (lines[i].startsWith('> ') || lines[i] === '>')) {
+        quoteLines.push(lines[i].replace(/^>\s?/, ''))
+        i++
+      }
+      html.push(`<blockquote>${renderMarkdownToHtml(quoteLines.join('\n'))}</blockquote>`)
+      continue
+    }
+
+    // Unordered list: - item, * item, + item
+    if (/^[\s]*[-*+]\s+/.test(line)) {
+      html.push('<ul>')
+      while (i < lines.length && /^[\s]*[-*+]\s+/.test(lines[i])) {
+        html.push(`<li>${renderInline(lines[i].replace(/^[\s]*[-*+]\s+/, ''))}</li>`)
+        i++
+      }
+      html.push('</ul>')
+      continue
+    }
+
+    // Ordered list: 1. item
+    if (/^[\s]*\d+\.\s+/.test(line)) {
+      html.push('<ol>')
+      while (i < lines.length && /^[\s]*\d+\.\s+/.test(lines[i])) {
+        html.push(`<li>${renderInline(lines[i].replace(/^[\s]*\d+\.\s+/, ''))}</li>`)
+        i++
+      }
+      html.push('</ol>')
+      continue
+    }
+
+    // Empty line
+    if (line.trim() === '') {
+      i++
+      continue
+    }
+
+    // Paragraph — collect consecutive non-empty lines
+    const paraLines: string[] = []
+    while (i < lines.length && lines[i].trim() !== '' && !/^#{1,6}\s/.test(lines[i]) && !/^[-*+]\s/.test(lines[i]) && !/^\d+\.\s/.test(lines[i]) && !lines[i].startsWith('> ') && !lines[i].trimStart().startsWith('```') && !/^(\s*[-*_]\s*){3,}$/.test(lines[i])) {
+      paraLines.push(lines[i])
+      i++
+    }
+    html.push(`<p>${paraLines.map(renderInline).join('<br />')}</p>`)
+  }
+
+  return html.join('\n')
 }
 
 function renderKbd(node: ComponentNode, ctx: RenderContext): HTMLElement {

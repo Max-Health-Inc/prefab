@@ -15,3 +15,8 @@ export interface ActionJSON {
 export interface Action {
   toJSON(): ActionJSON
 }
+
+/** Serialize one or more actions to their JSON form. */
+export function serializeCallbacks(actions: Action | Action[]): ActionJSON | ActionJSON[] {
+  return Array.isArray(actions) ? actions.map(a => a.toJSON()) : actions.toJSON()
+}

@@ -1,4 +1,5 @@
 export type { Action, ActionJSON } from './types.js'
+export { serializeCallbacks } from './types.js'
 export { SetState, ToggleState, AppendState, PopState, ShowToast, CloseOverlay, OpenLink, SetInterval, Fetch, OpenFilePicker, CallHandler } from './client.js'
 export type { SetStateOpts, ShowToastOpts, ToastVariant, FetchOpts, OpenFilePickerOpts, CallHandlerOpts } from './client.js'
 export { CallTool, SendMessage, UpdateContext, RequestDisplayMode } from './mcp.js'

@@ -3,6 +3,7 @@
  */
 
 import type { Action, ActionJSON } from './types.js'
+import { serializeCallbacks } from './types.js'
 import { serializeValue } from '../core/component.js'
 
 // ── CallTool ─────────────────────────────────────────────────────────────────
@@ -28,16 +29,8 @@ export class CallTool implements Action {
     const json: ActionJSON = { action: 'toolCall', tool: this.tool }
     if (this.opts?.arguments) json.arguments = serializeValue(this.opts.arguments)
     if (this.opts?.resultKey) json.resultKey = this.opts.resultKey
-    if (this.opts?.onSuccess) {
-      json.onSuccess = Array.isArray(this.opts.onSuccess)
-        ? this.opts.onSuccess.map(a => a.toJSON())
-        : this.opts.onSuccess.toJSON()
-    }
-    if (this.opts?.onError) {
-      json.onError = Array.isArray(this.opts.onError)
-        ? this.opts.onError.map(a => a.toJSON())
-        : this.opts.onError.toJSON()
-    }
+    if (this.opts?.onSuccess) json.onSuccess = serializeCallbacks(this.opts.onSuccess)
+    if (this.opts?.onError) json.onError = serializeCallbacks(this.opts.onError)
     return json
   }
 }

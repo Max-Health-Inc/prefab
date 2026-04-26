@@ -3,6 +3,7 @@
  */
 
 import type { Action, ActionJSON } from './types.js'
+import { serializeCallbacks } from './types.js'
 import { serializeValue } from '../core/component.js'
 
 // ── SetState ─────────────────────────────────────────────────────────────────
@@ -213,8 +214,3 @@ export class CallHandler implements Action {
   }
 }
 
-// ── Helpers ──────────────────────────────────────────────────────────────────
-
-function serializeCallbacks(actions: Action | Action[]): ActionJSON | ActionJSON[] {
-  return Array.isArray(actions) ? actions.map(a => a.toJSON()) : actions.toJSON()
-}

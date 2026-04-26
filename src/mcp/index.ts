@@ -2,7 +2,7 @@
  * MCP display helpers — return prefab UIs as MCP tool results.
  */
 
-export { display, display_form, display_update, display_error } from './display.js'
+export { display, display_form, display_update, display_error, displayForm, displayUpdate, displayError } from './display.js'
 export type {
   DisplayOptions,
   DisplayFormOptions,

@@ -991,6 +991,149 @@ describe('DataTable with search', () => {
   })
 })
 
+// ── Markdown renderer ────────────────────────────────────────────────────────
+
+describe('Markdown component', () => {
+  it('renders headings', () => {
+    const ctx = makeCtx()
+    const node: ComponentNode = { type: 'Markdown', content: '# Hello\n## World' }
+    const dom = renderNode(node, ctx) as HTMLElement
+    expect(dom.querySelector('h1')?.textContent).toBe('Hello')
+    expect(dom.querySelector('h2')?.textContent).toBe('World')
+  })
+
+  it('renders paragraphs', () => {
+    const ctx = makeCtx()
+    const node: ComponentNode = { type: 'Markdown', content: 'First paragraph\n\nSecond paragraph' }
+    const dom = renderNode(node, ctx) as HTMLElement
+    const ps = dom.querySelectorAll('p')
+    expect(ps.length).toBe(2)
+    expect(ps[0].textContent).toBe('First paragraph')
+    expect(ps[1].textContent).toBe('Second paragraph')
+  })
+
+  it('renders bold and italic inline', () => {
+    const ctx = makeCtx()
+    const node: ComponentNode = { type: 'Markdown', content: '**bold** and *italic*' }
+    const dom = renderNode(node, ctx) as HTMLElement
+    expect(dom.querySelector('strong')?.textContent).toBe('bold')
+    expect(dom.querySelector('em')?.textContent).toBe('italic')
+  })
+
+  it('renders inline code', () => {
+    const ctx = makeCtx()
+    const node: ComponentNode = { type: 'Markdown', content: 'Use `npm install` to install' }
+    const dom = renderNode(node, ctx) as HTMLElement
+    expect(dom.querySelector('code')?.textContent).toBe('npm install')
+  })
+
+  it('renders fenced code blocks', () => {
+    const ctx = makeCtx()
+    const node: ComponentNode = { type: 'Markdown', content: '```ts\nconst x = 1\n```' }
+    const dom = renderNode(node, ctx) as HTMLElement
+    const code = dom.querySelector('code')!
+    expect(code.textContent).toBe('const x = 1')
+    expect(code.getAttribute('data-language')).toBe('ts')
+  })
+
+  it('renders links', () => {
+    const ctx = makeCtx()
+    const node: ComponentNode = { type: 'Markdown', content: '[Click here](https://example.com)' }
+    const dom = renderNode(node, ctx) as HTMLElement
+    const a = dom.querySelector('a')!
+    expect(a.textContent).toBe('Click here')
+    expect(a.getAttribute('href')).toBe('https://example.com')
+  })
+
+  it('sanitizes javascript: links', () => {
+    const ctx = makeCtx()
+    const node: ComponentNode = { type: 'Markdown', content: '[xss](javascript:alert(1))' }
+    const dom = renderNode(node, ctx) as HTMLElement
+    const a = dom.querySelector('a')
+    expect(a).toBeNull()
+  })
+
+  it('renders unordered lists', () => {
+    const ctx = makeCtx()
+    const node: ComponentNode = { type: 'Markdown', content: '- Item 1\n- Item 2\n- Item 3' }
+    const dom = renderNode(node, ctx) as HTMLElement
+    const items = dom.querySelectorAll('li')
+    expect(items.length).toBe(3)
+    expect(items[0].textContent).toBe('Item 1')
+  })
+
+  it('renders ordered lists', () => {
+    const ctx = makeCtx()
+    const node: ComponentNode = { type: 'Markdown', content: '1. First\n2. Second' }
+    const dom = renderNode(node, ctx) as HTMLElement
+    expect(dom.querySelector('ol')).toBeTruthy()
+    expect(dom.querySelectorAll('li').length).toBe(2)
+  })
+
+  it('renders blockquotes', () => {
+    const ctx = makeCtx()
+    const node: ComponentNode = { type: 'Markdown', content: '> Quote text' }
+    const dom = renderNode(node, ctx) as HTMLElement
+    expect(dom.querySelector('blockquote')).toBeTruthy()
+    expect(dom.querySelector('blockquote')?.textContent).toContain('Quote text')
+  })
+
+  it('renders horizontal rules', () => {
+    const ctx = makeCtx()
+    const node: ComponentNode = { type: 'Markdown', content: 'Above\n\n---\n\nBelow' }
+    const dom = renderNode(node, ctx) as HTMLElement
+    expect(dom.querySelector('hr')).toBeTruthy()
+  })
+
+  it('renders strikethrough', () => {
+    const ctx = makeCtx()
+    const node: ComponentNode = { type: 'Markdown', content: '~~deleted~~' }
+    const dom = renderNode(node, ctx) as HTMLElement
+    expect(dom.querySelector('del')?.textContent).toBe('deleted')
+  })
+
+  it('renders images', () => {
+    const ctx = makeCtx()
+    const node: ComponentNode = { type: 'Markdown', content: '![alt text](https://example.com/img.png)' }
+    const dom = renderNode(node, ctx) as HTMLElement
+    const img = dom.querySelector('img')!
+    expect(img.getAttribute('src')).toBe('https://example.com/img.png')
+    expect(img.getAttribute('alt')).toBe('alt text')
+  })
+
+  it('escapes HTML to prevent XSS', () => {
+    const ctx = makeCtx()
+    const node: ComponentNode = { type: 'Markdown', content: '<script>alert("xss")</script>' }
+    const dom = renderNode(node, ctx) as HTMLElement
+    expect(dom.querySelector('script')).toBeNull()
+    expect(dom.innerHTML).toContain('&lt;script&gt;')
+  })
+
+  it('renders complex mixed content', () => {
+    const ctx = makeCtx()
+    const md = `# Title
+
+A **bold** paragraph with [a link](https://example.com).
+
+- Item 1
+- Item 2
+
+\`\`\`js
+console.log('hello')
+\`\`\`
+
+> A quote`
+    const node: ComponentNode = { type: 'Markdown', content: md }
+    const dom = renderNode(node, ctx) as HTMLElement
+    expect(dom.querySelector('h1')).toBeTruthy()
+    expect(dom.querySelector('strong')).toBeTruthy()
+    expect(dom.querySelector('a')).toBeTruthy()
+    expect(dom.querySelector('ul')).toBeTruthy()
+    expect(dom.querySelector('pre')).toBeTruthy()
+    expect(dom.querySelector('blockquote')).toBeTruthy()
+  })
+})
+
 // ── Layout components ────────────────────────────────────────────────────────
 
 describe('Layout components', () => {

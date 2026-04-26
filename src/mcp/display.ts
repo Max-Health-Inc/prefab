@@ -205,3 +205,9 @@ export function display_error(
     isError: true,
   }
 }
+
+// ── camelCase aliases (TS convention) ────────────────────────────────────────
+
+export const displayForm = display_form
+export const displayUpdate = display_update
+export const displayError = display_error
