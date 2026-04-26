@@ -192,11 +192,19 @@ Methods (per the MCP Apps spec):
 > After receiving the response to `ui/initialize`, the View must send
 > `ui/notifications/initialized` to signal readiness.
 
-## Working adapter — minimal renderer HTML
+## Working adapter — renderer HTML
 
-This is the renderer used by `@babelfhir-ts/mcp` to render
-`@maxhealth.tech/prefab` `$prefab` JSON. Drop in any other rendering
-library — the JSON-RPC adapter is what matters.
+Two options for rendering `@maxhealth.tech/prefab` `$prefab` JSON
+inside a `ui://` resource. Both work in VS Code, Claude Desktop,
+ChatGPT, MistralOS, and any other MCP Apps host.
+
+### Option A: `renderer.auto.min.js` (recommended)
+
+Since **v0.2.0**, the auto-mount bundle handles all three bridge
+protocols (`prefab:*`, `ui/*` JSON-RPC, `ext-apps`) with zero inline
+script. It races the handshakes in parallel, buffers tool results
+that arrive before the handler is wired, and defers boot until the DOM
+is interactive.
 
 ```html
 <!doctype html>
@@ -206,14 +214,49 @@ library — the JSON-RPC adapter is what matters.
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Prefab</title>
   <link rel="stylesheet" crossorigin
-        href="https://cdn.jsdelivr.net/npm/@maxhealth.tech/prefab@0.2.2/dist/prefab.css">
+        href="https://cdn.jsdelivr.net/npm/@maxhealth.tech/prefab@0.2.0/dist/prefab.css">
 </head>
 <body>
   <div id="root"></div>
-  <!-- Use renderer.min.js (library only). renderer.auto.min.js self-boots
-       prefab.app() which crashes on VS Code's JSON-RPC envelope. -->
   <script crossorigin
-          src="https://cdn.jsdelivr.net/npm/@maxhealth.tech/prefab@0.2.2/dist/renderer.min.js"></script>
+          src="https://cdn.jsdelivr.net/npm/@maxhealth.tech/prefab@0.2.0/dist/renderer.auto.min.js"></script>
+</body>
+</html>
+```
+
+That's the entire file. No inline `<script>`, no adapter code. The
+auto bundle:
+
+1. Waits for `DOMContentLoaded` (or microtask if already loaded)
+2. Calls `app()` which races `prefab:init` and `ui/initialize` in
+   parallel — whichever protocol responds first wins
+3. Registers `onToolResult` and `onToolInput` handlers
+4. Mounts `$prefab` wire data into `#root` when a tool result arrives
+
+> **Requires `≥ 0.2.0`.** Earlier versions used a sequential waterfall
+> (prefab → JSON-RPC → ext-apps) that wasted 1.5s on every JSON-RPC
+> host and could miss early tool results.
+
+### Option B: `renderer.min.js` + inline adapter
+
+If you need full control over the JSON-RPC handshake, or you're using
+a pre-0.2.0 version, load the library-only bundle and wire the
+protocol yourself:
+
+```html
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prefab</title>
+  <link rel="stylesheet" crossorigin
+        href="https://cdn.jsdelivr.net/npm/@maxhealth.tech/prefab@0.2.0/dist/prefab.css">
+</head>
+<body>
+  <div id="root"></div>
+  <script crossorigin
+          src="https://cdn.jsdelivr.net/npm/@maxhealth.tech/prefab@0.2.0/dist/renderer.min.js"></script>
   <script>
     (function () {
       var api = typeof acquireVsCodeApi === 'function' ? acquireVsCodeApi() : null;
@@ -258,14 +301,12 @@ library — the JSON-RPC adapter is what matters.
         var msg = e.data;
         if (!msg || typeof msg !== 'object' || msg.jsonrpc !== '2.0') return;
 
-        // Response to our ui/initialize → send the initialized notification.
         if (msg.id === INIT_ID && !msg.method && !initialized) {
           initialized = true;
           post({ jsonrpc: '2.0', method: 'ui/notifications/initialized', params: {} });
           return;
         }
 
-        // Acknowledge any host requests so we don't deadlock the bridge.
         if (msg.method && typeof msg.id !== 'undefined') {
           post({ jsonrpc: '2.0', id: msg.id, result: {} });
         }
@@ -279,13 +320,12 @@ library — the JSON-RPC adapter is what matters.
         }
       });
 
-      // Handshake request.
       post({
         jsonrpc: '2.0', id: INIT_ID, method: 'ui/initialize',
         params: {
           protocolVersion: '2026-01-26',
           capabilities: {},
-          clientInfo: { name: 'prefab-renderer', version: '0.2.2' }
+          clientInfo: { name: 'prefab-renderer', version: '0.2.0' }
         }
       });
     })();
@@ -307,20 +347,17 @@ Fix: add `_meta` to each entry of the `contents` array returned by
 
 ### `Cannot read properties of undefined (reading 'startsWith')`
 
-Cause: you imported `@maxhealth.tech/prefab`'s `renderer.auto.min.js`,
-which self-executes `boot()` \u2192 `app()`. That bridge tries to handshake
-using the legacy `prefab:*` protocol or the ext-apps SDK, neither of
-which VS Code speaks, and it races against your own listener.
+Cause: you're using `renderer.auto.min.js` **before v0.2.0**. Older
+versions used a sequential handshake waterfall that races against
+VS Code's own initialization.
 
-Fix: load `renderer.min.js` instead (library only \u2014 defines
-`window.prefab` without booting), listen for `ui/*` JSON-RPC messages
-yourself and call `window.prefab.mount(root, data)` directly when a
-`tool-result` arrives.
+Fix: upgrade to `@maxhealth.tech/prefab@0.2.0` or later. The auto
+bundle now works correctly in VS Code.
 
 ### `prefab:init timeout` followed by `ext-apps init timeout`
 
-Same root cause as above — `app()` is trying to do a handshake VS Code
-doesn't understand. Bypass it.
+Same root cause — pre-0.2.0 `app()` tried protocols sequentially.
+Upgrade to v0.2.0+ which races them in parallel.
 
 ### Iframe loads but shows raw JSON
 

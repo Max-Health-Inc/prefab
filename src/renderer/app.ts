@@ -139,6 +139,10 @@ export async function app(options?: AppOptions): Promise<PrefabApp> {
   // Buffer initial tool input — delivered when onToolInput is registered
   let pendingToolInput: Record<string, unknown> | undefined = hostContext.toolInput
 
+  // Buffer tool result — delivered when onToolResult is registered
+  // (host may send tool-result before the handler is wired up, e.g. VS Code)
+  let pendingToolResult: unknown
+
   // Wire up bridge lifecycle events
   if (bridge) {
     bridge.on('prefab:tool-input', (payload) => {
@@ -150,7 +154,12 @@ export async function app(options?: AppOptions): Promise<PrefabApp> {
       }
     })
     bridge.on('prefab:tool-result', (payload) => {
-      toolResultHandler?.(payload.result ?? payload)
+      const result = payload.result ?? payload
+      if (toolResultHandler) {
+        toolResultHandler(result)
+      } else {
+        pendingToolResult = result
+      }
     })
     bridge.on('prefab:tool-cancelled', () => {
       toolCancelledHandler?.()
@@ -207,7 +216,15 @@ export async function app(options?: AppOptions): Promise<PrefabApp> {
         queueMicrotask(() => handler(args))
       }
     },
-    onToolResult: (handler) => { toolResultHandler = handler },
+    onToolResult: (handler) => {
+      toolResultHandler = handler
+      // Flush buffered tool result
+      if (pendingToolResult !== undefined) {
+        const result = pendingToolResult
+        pendingToolResult = undefined
+        queueMicrotask(() => handler(result))
+      }
+    },
     onToolCancelled: (handler) => { toolCancelledHandler = handler },
     onToolInputPartial: (handler) => { toolInputPartialHandler = handler },
     render,

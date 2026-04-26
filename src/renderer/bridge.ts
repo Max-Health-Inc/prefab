@@ -7,8 +7,9 @@
  *   2. ui/*       — MCP Apps JSON-RPC 2.0 (VS Code, Claude, ChatGPT, Goose)
  *   3. ext-apps   — @modelcontextprotocol/ext-apps SDK (legacy fallback)
  *
- * Protocol detection: tries prefab:init first (1s timeout),
- * then ui/initialize JSON-RPC (1.5s), then ext-apps SDK.
+ * Protocol detection: races prefab:init and ui/initialize JSON-RPC
+ * in parallel — whichever responds first wins. Falls back to ext-apps
+ * SDK only if both time out (2s).
  *
  * prefab:* messages:
  *   App  → Host: prefab:init, prefab:tool-call, prefab:send-message,
@@ -174,18 +175,20 @@ export class Bridge {
   }
 
   /**
-   * Init handshake. Tries prefab:init first, then ui/initialize JSON-RPC,
-   * then falls back to ext-apps SDK.
+   * Init handshake. Races prefab:init and ui/initialize JSON-RPC in parallel.
+   * Whichever protocol responds first wins. Falls back to ext-apps SDK
+   * only if both time out.
    */
   async initialize(appCapabilities: AppCapabilities): Promise<HostContext> {
+    // Race prefab:* and JSON-RPC in parallel — first response wins
     try {
-      return await this.initPrefab(appCapabilities)
+      return await Promise.any([
+        this.initPrefab(appCapabilities),
+        this.initJsonRpc(appCapabilities),
+      ])
     } catch {
-      try {
-        return await this.initJsonRpc(appCapabilities)
-      } catch {
-        return this.initExtApps(appCapabilities)
-      }
+      // Both timed out — fall back to ext-apps SDK
+      return this.initExtApps(appCapabilities)
     }
   }
 
@@ -284,14 +287,14 @@ export class Bridge {
       this.on('prefab:init-response', onResponse)
       this.sendPrefab('prefab:init', { capabilities: appCapabilities })
 
-      // If no prefab:init-response within 1.5s, reject to trigger ext-apps fallback
+      // Timeout — loses the race, the other protocol may still win
       setTimeout(() => {
         if (!settled) {
           settled = true
           this.off('prefab:init-response', onResponse)
           reject(new Error('prefab:init timeout'))
         }
-      }, 1500)
+      }, 2000)
     })
   }
 
@@ -461,14 +464,14 @@ export class Bridge {
         },
       })
 
-      // Timeout — fall through to ext-apps
+      // Timeout — loses the race, the other protocol may still win
       setTimeout(() => {
         if (!settled) {
           settled = true
           this.rpcPending.delete(id)
           reject(new Error('ui/initialize timeout'))
         }
-      }, 1500)
+      }, 2000)
     })
   }
 

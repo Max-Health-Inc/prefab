@@ -546,4 +546,143 @@ describe('Bridge (JSON-RPC ui/* protocol)', () => {
       window.removeEventListener('message', respondToToolCall)
     })
   })
+
+  it('parallel race — JSON-RPC wins without waiting for prefab:init timeout', async () => {
+    bridge.connect()
+
+    // Respond ONLY to ui/initialize (no prefab:init-response ever)
+    const respondToJsonRpc = (event: MessageEvent): void => {
+      const msg = event.data
+      if (msg?.jsonrpc === '2.0' && msg.method === 'ui/initialize' && msg.id != null) {
+        // Respond immediately — should not need to wait 1.5s
+        window.postMessage({
+          jsonrpc: '2.0',
+          id: msg.id,
+          result: {
+            protocolVersion: '2026-01-26',
+            hostInfo: { name: 'ChatGPT', version: '4.0' },
+            hostCapabilities: {},
+            hostContext: {},
+          },
+        }, '*')
+      }
+    }
+    window.addEventListener('message', respondToJsonRpc)
+
+    const start = Date.now()
+    const context = await bridge.initialize({ toolInput: true })
+    const elapsed = Date.now() - start
+
+    expect(bridge.activeProtocol).toBe('jsonrpc')
+    expect(context.hostName).toBe('ChatGPT')
+    // Must resolve faster than the old 1.5s prefab:init timeout
+    expect(elapsed).toBeLessThan(500)
+
+    window.removeEventListener('message', respondToJsonRpc)
+  })
+
+  it('parallel race — prefab:init wins over JSON-RPC', async () => {
+    bridge.connect()
+
+    // Respond ONLY to prefab:init (ignore ui/initialize)
+    const respondToPrefab = (event: MessageEvent): void => {
+      const msg = event.data as BridgeMessage | undefined
+      if (msg?.type === 'prefab:init') {
+        window.postMessage({
+          type: 'prefab:init-response',
+          payload: {
+            capabilities: { toast: true },
+            hostName: 'MistralOS',
+          },
+        } satisfies BridgeMessage, '*')
+      }
+    }
+    window.addEventListener('message', respondToPrefab)
+
+    const start = Date.now()
+    const context = await bridge.initialize({ toolInput: true })
+    const elapsed = Date.now() - start
+
+    expect(bridge.activeProtocol).toBe('prefab')
+    expect(context.hostName).toBe('MistralOS')
+    expect(elapsed).toBeLessThan(500)
+
+    window.removeEventListener('message', respondToPrefab)
+  })
+})
+
+// ── app() tool-result buffering ──────────────────────────────────────────────
+
+describe('app() tool-result buffering', () => {
+  it('buffers tool-result received before onToolResult is registered', async () => {
+    // Respond to prefab:init so app() completes fast
+    const respondToInit = (event: MessageEvent): void => {
+      const msg = event.data as BridgeMessage
+      if (msg?.type === 'prefab:init') {
+        window.postMessage({
+          type: 'prefab:init-response',
+          payload: { capabilities: {} } as unknown as Record<string, unknown>,
+        } satisfies BridgeMessage, '*')
+      }
+    }
+    window.addEventListener('message', respondToInit)
+
+    const ui = await app({ mode: 'bridge', hostOrigin: '*' })
+
+    // Simulate host sending tool-result BEFORE onToolResult is registered
+    window.postMessage({
+      type: 'prefab:tool-result',
+      payload: {
+        result: {
+          structuredContent: { $prefab: { version: '0.2' }, view: { type: 'Text', content: 'buffered' } },
+        },
+      },
+    } satisfies BridgeMessage, '*')
+
+    // Wait for message to be processed
+    await new Promise((r) => setTimeout(r, 50))
+
+    // NOW register the handler — should receive the buffered result
+    let received: unknown
+    ui.onToolResult((result) => { received = result })
+
+    await new Promise((r) => setTimeout(r, 50))
+    expect(received).toBeDefined()
+    expect((received as Record<string, unknown>).structuredContent).toBeDefined()
+
+    ui.destroy()
+    window.removeEventListener('message', respondToInit)
+  })
+
+  it('delivers tool-result immediately when handler is already registered', async () => {
+    const respondToInit = (event: MessageEvent): void => {
+      const msg = event.data as BridgeMessage
+      if (msg?.type === 'prefab:init') {
+        window.postMessage({
+          type: 'prefab:init-response',
+          payload: { capabilities: {} } as unknown as Record<string, unknown>,
+        } satisfies BridgeMessage, '*')
+      }
+    }
+    window.addEventListener('message', respondToInit)
+
+    const ui = await app({ mode: 'bridge', hostOrigin: '*' })
+
+    // Register handler FIRST
+    let received: unknown
+    ui.onToolResult((result) => { received = result })
+
+    // Then send tool-result
+    window.postMessage({
+      type: 'prefab:tool-result',
+      payload: { result: { data: 'direct' } },
+    } satisfies BridgeMessage, '*')
+
+    await new Promise((r) => setTimeout(r, 50))
+    expect(received).toBeDefined()
+    expect((received as Record<string, unknown>).data).toBe('direct')
+
+    ui.destroy()
+    window.removeEventListener('message', respondToInit)
+  })
 })

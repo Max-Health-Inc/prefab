@@ -105,6 +105,28 @@ async function boot(): Promise<void> {
   })
 }
 
-boot().catch((err: unknown) => {
-  console.error('[prefab:auto] Boot failed:', err)
-})
+/**
+ * Defer boot until the DOM is interactive.
+ * In VS Code webviews, the sandbox proxy may not be wired when scripts execute.
+ * Waiting for DOMContentLoaded (or running immediately if already loaded)
+ * ensures postMessage listeners are in place before we send ui/initialize.
+ */
+function deferBoot(): void {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      boot().catch((err: unknown) => {
+        console.error('[prefab:auto] Boot failed:', err)
+      })
+    }, { once: true })
+  } else {
+    // DOM already interactive/complete — boot on next microtask to let
+    // any synchronous host setup finish
+    queueMicrotask(() => {
+      boot().catch((err: unknown) => {
+        console.error('[prefab:auto] Boot failed:', err)
+      })
+    })
+  }
+}
+
+deferBoot()
