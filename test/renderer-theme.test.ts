@@ -504,31 +504,32 @@ describe('Theme: Tooltip', () => {
 })
 
 // ── Ring (SVG) ───────────────────────────────────────────────────────────────
+// SVG presentation attributes (setAttribute) cascade correctly with CSS custom
+// properties — unlike HTML inline styles, they DON'T override class selectors.
+// So using var(--primary) etc. in SVG stroke attributes is the correct approach.
 
 describe('Theme: Ring', () => {
-  it('should not use theme vars in SVG stroke attributes', () => {
+  it('should use theme vars in SVG stroke for theme awareness', () => {
     const ctx = makeCtx()
     const node: ComponentNode = { type: 'Ring', value: 75 }
     const dom = renderNode(node, ctx) as HTMLElement
     const circles = dom.querySelectorAll('circle')
-    for (const circle of circles) {
-      const stroke = circle.getAttribute('stroke') ?? ''
-      expect(hasThemeVariable(stroke)).toBe(false)
-    }
+    expect(circles.length).toBe(2)
+    // bg circle uses --muted, fg circle uses --primary
+    expect(circles[0].getAttribute('stroke')).toContain('var(--muted')
+    expect(circles[1].getAttribute('stroke')).toContain('var(--primary')
   })
 })
 
 // ── Sparkline (SVG) ──────────────────────────────────────────────────────────
 
 describe('Theme: Sparkline', () => {
-  it('should not use theme vars in SVG stroke attributes', () => {
+  it('should use theme vars in SVG stroke for theme awareness', () => {
     const ctx = makeCtx()
     const node: ComponentNode = { type: 'Sparkline', data: [10, 20, 30, 25, 40] }
     const dom = renderNode(node, ctx) as HTMLElement
     const polylines = dom.querySelectorAll('polyline')
-    for (const pl of polylines) {
-      const stroke = pl.getAttribute('stroke') ?? ''
-      expect(hasThemeVariable(stroke)).toBe(false)
-    }
+    expect(polylines.length).toBe(1)
+    expect(polylines[0].getAttribute('stroke')).toContain('var(--primary')
   })
 })

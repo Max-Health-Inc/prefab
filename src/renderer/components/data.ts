@@ -201,6 +201,7 @@ function renderRing(node: ComponentNode, ctx: RenderContext): HTMLElement {
   bgCircle.setAttribute('cy', String(size / 2))
   bgCircle.setAttribute('r', String(radius))
   bgCircle.setAttribute('fill', 'none')
+  bgCircle.setAttribute('stroke', 'var(--muted, #e5e7eb)')
   bgCircle.setAttribute('stroke-width', String(thickness))
 
   const fgCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle')
@@ -208,6 +209,7 @@ function renderRing(node: ComponentNode, ctx: RenderContext): HTMLElement {
   fgCircle.setAttribute('cy', String(size / 2))
   fgCircle.setAttribute('r', String(radius))
   fgCircle.setAttribute('fill', 'none')
+  fgCircle.setAttribute('stroke', 'var(--primary, #3b82f6)')
   fgCircle.setAttribute('stroke-width', String(thickness))
   fgCircle.setAttribute('stroke-dasharray', String(circumference))
   fgCircle.setAttribute('stroke-dashoffset', String(offset))
@@ -302,6 +304,7 @@ function renderSparkline(node: ComponentNode, _ctx: RenderContext): HTMLElement 
   const polyline = document.createElementNS('http://www.w3.org/2000/svg', 'polyline')
   polyline.setAttribute('points', points)
   polyline.setAttribute('fill', 'none')
+  polyline.setAttribute('stroke', 'var(--primary, #3b82f6)')
   polyline.setAttribute('stroke-width', '1.5')
   svg.appendChild(polyline)
   e.appendChild(svg)
