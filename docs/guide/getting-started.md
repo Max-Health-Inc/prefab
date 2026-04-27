@@ -35,9 +35,9 @@ prefab has four usage modes:
 | Mode | Where | Import |
 |------|-------|--------|
 | **Server-side** | MCP tool handlers (Python/TS) | `@maxhealth.tech/prefab` |
-| **Client-side** | Browser (ext-app iframe) | `dist/renderer.min.js` script tag |
+| **Client-side** | Browser (MCP Apps iframe) | `dist/renderer.min.js` script tag |
 | **Hybrid** | Node/Bun backend → HTML response | `PrefabApp.toHTML()` |
-| **Remote** | Any MCP client (VS Code, Claude, etc.) | `https://maxhealth.tech/prefab/mcp` |
+| **Remote** | Any MCP client (VS Code, Claude, etc.) | See [Remote section](#remote-use-the-hosted-mcp-server) |
 
 ::: tip See it in action
 The [interactive demo](/demo/) shows how an LLM prompt becomes a fully rendered UI — dashboards, forms, charts, and more — powered by the client-side renderer.
@@ -156,6 +156,10 @@ Options:
 
 The fastest way to use prefab — no installation needed. Point any MCP client at the hosted renderer server:
 
+> **Important:** Claude Code / Claude Desktop require `/mcp` as the
+> first path segment. VS Code accepts any path. Use the appropriate
+> URL for your client.
+
 **VS Code (`settings.json` or `.vscode/mcp.json`):**
 
 ```json
@@ -169,14 +173,14 @@ The fastest way to use prefab — no installation needed. Point any MCP client a
 }
 ```
 
-**Claude Desktop (`claude_desktop_config.json`):**
+**Claude Desktop / Claude Code (`claude_desktop_config.json`):**
 
 ```json
 {
   "mcpServers": {
     "prefab-renderer": {
       "type": "http",
-      "url": "https://maxhealth.tech/prefab/mcp"
+      "url": "https://maxhealth.tech/mcp/prefab"
     }
   }
 }
