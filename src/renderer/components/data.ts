@@ -313,7 +313,7 @@ function renderSparkline(node: ComponentNode, _ctx: RenderContext): HTMLElement 
 
 function applyBadgeStyle(e: HTMLElement, variant: string): void {
   // Non-theme fallback colors for variants without CSS class coverage
-  const staticStyles: Record<string, { bg: string; fg: string }> = {
+  const staticStyles: Partial<Record<string, { bg: string; fg: string }>> = {
     success: { bg: '#10b981', fg: '#fff' },
     warning: { bg: '#f59e0b', fg: '#fff' },
     info: { bg: '#3b82f6', fg: '#fff' },
