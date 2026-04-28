@@ -2,35 +2,144 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.2.0] — 2026-04-25
+## [0.2.17] — 2026-04-28
+
+### Auto-Resize
+- `Bridge.setupAutoResize(el)` — `ResizeObserver` on the target element, notifies the host whenever the content dimensions change via `ui/notifications/size-changed` (JSON-RPC) or `prefab:size-changed` (prefab protocol). Mirrors the ext-apps SDK `autoResize: true` behaviour without the SDK dependency.
+- `sendRpcNotification()` — fire-and-forget JSON-RPC notification (no `id`, no response expected)
+- `PrefabApp.setupAutoResize(target)` — public API accepting selector or element
+- `renderer.auto.min.js` now auto-observes `#root` after boot — hosts get size updates out of the box
+- Deduplicates identical dimensions, fires initial notification immediately
+- 4 new tests — **1130 total tests**
+
+## [0.2.16] — 2026-04-28
+
+### Docs
+- Added `appInfo` vs `clientInfo` Common Pitfall section to `mcp-apps.md`
+- Added ext-apps SDK vs native `ui/*` JSON-RPC comparison table
+- Added ext-apps SDK source references to Reference section
+
+## [0.2.15] — 2026-04-28
+
+### Bug Fix: Claude Desktop / ChatGPT Breakage
+- **Fixed**: `ui/initialize` handshake sent `clientInfo` instead of `appInfo` — hosts validate with Zod schema that requires `appInfo`, causing silent handshake failure (blank iframe, no error). The ext-apps SDK fallback in v0.2.11 masked this; removing the SDK in v0.2.12 exposed it.
+- `Bridge.initialize()` error handling: `Promise.any` wrapped in try/catch, rethrows as descriptive `Error('Bridge init failed — no host responded')` with `{ cause }` preserving the `AggregateError`
+- 2 new tests: `appInfo` field validation, clear error on dual-protocol failure — **1126 total tests**
+
+## [0.2.14] — 2026-04-28
+
+### Built-in Theme Toggle
+- `createThemeToggle(root, options?)` — renders a floating sun/moon toggle button with two-way sync to `data-theme` attribute via `MutationObserver`
+- `PrefabRenderer.mount()` auto-attaches toggle by default (opt out with `themeToggle: false`)
+- Toggle preserved across re-renders
+
+### Bug Fixes
+- `appendState` action: support `item` alias (Python SDK compat)
+- Charts: restore CSS custom properties in SVG presentation attributes for dark mode
+
+## [0.2.13] — 2026-04-27
+
+### Bug Fixes
+- Renderer: remove all inline `theme-variable` styles, rely on CSS classes (CSP compliance)
+- Badge: use `Partial<Record>` to satisfy `strict-boolean-expressions` lint rule
+- Demo: fix theme toggle, favicon 404, copy-MCP-button styling
+- Docs: inject CDN version from `package.json` at build time
+
+## [0.2.12] — 2026-04-27
+
+### Bundle Size Reduction
+- **Removed** `@modelcontextprotocol/ext-apps` SDK dependency — 405 KB → 80 KB bundle
+- Bridge now speaks native `ui/*` JSON-RPC without the SDK wrapper
+- Docs updated to remove ext-apps references
+- ⚠️ **Regression**: `clientInfo` field name broke Claude Desktop / ChatGPT (fixed in v0.2.15)
+
+## [0.2.11] — 2026-04-27
+
+### Theming
+- `data-theme` attribute support in `prefab.css` — light/dark mode via attribute selector
+- MCP agent skill: attach `prefab-skill.zip` to GitHub releases
+
+## [0.2.10] — 2026-04-27
+
+### Docs & Polish
+- Select options shorthand syntax
+- Remote usage mode documentation
+- Brand assets, favicon, logo paths
+- Playground: dark preview background
+- Lint fixes: `Array<T>` → `T[]`, control char regex, `RegExp.exec`
+- Markdown renderer: protect inline code from formatting, fix CRLF infinite loop
+- DRY: `serializeCallbacks`, camelCase display aliases
+
+## [0.2.9] — 2026-04-26
+
+### Bug Fix
+- `autoTable` column keys now match serialized row keys
+
+## [0.2.8] — 2026-04-26
 
 ### Universal MCP Apps Bridge
 - **Fixed**: `renderer.auto.min.js` now works in VS Code, Claude Desktop, ChatGPT, and all MCP Apps hosts without any inline adapter code
-- `Bridge.initialize()` races `prefab:init` and `ui/initialize` JSON-RPC **in parallel** — whichever host protocol responds first wins. Eliminates the 1.5s dead time on JSON-RPC hosts (VS Code, Claude, ChatGPT)
-- `app()` now buffers `tool-result` events (same as existing `tool-input` buffering) — host can send results before `onToolResult` is registered without data loss
-- `auto.ts` defers `boot()` to `DOMContentLoaded` (or microtask if already loaded), ensuring the sandbox proxy is wired before sending `ui/initialize`
-- 4 new tests in `test/bridge.test.ts` — **1000 total tests**
+- `Bridge.initialize()` races `prefab:init` and `ui/initialize` JSON-RPC **in parallel** — whichever host protocol responds first wins. Eliminates the 1.5s dead time on JSON-RPC hosts
+- `app()` now buffers `tool-result` events — host can send results before `onToolResult` is registered without data loss
+- `auto.ts` defers `boot()` to `DOMContentLoaded` (or microtask if already loaded)
+
+## [0.2.7] — 2026-04-25
+
+### Chart Formatting
+- Generic pipe formatting for chart axes and tooltips
+- `tooltipXKey` — separate data key for tooltip vs x-axis labels
+- Fix: remove non-null assertion in PieChart tooltip key lookup (lint)
+
+## [0.2.6] — 2026-04-25
+
+### Chart Tooltips
+- Production-quality tooltips with crosshair, data dots, null gaps, a11y, touch support
+
+## [0.2.5] — 2026-04-25
+
+### Custom Renderers
+- `registerComponent(type, renderFn)` exposed on `window.prefab` for custom component renderers
+
+## [0.2.4] — 2026-04-25
+
+### Chart Axes
+- Y-axis, X-axis labels, grid lines, dual Y-axis support
+
+## [0.2.3] — 2026-04-25
+
+### JSON-RPC Protocol
+- Native `ui/*` JSON-RPC protocol — zero-adapter VS Code support
+
+## [0.2.2] — 2026-04-25
+
+### Auto-Mount Bundle
+- `renderer.auto.min.js` — CSP-safe self-executing bundle
+- CI: attach `renderer.auto.min.js` + `prefab.css` to GitHub releases
+- Wire compat: `callTool` action alias + `Condition` component
+
+### Docs
+- Signal, Collection, Ref, sugar actions, find/dot pipes, Detail/MasterDetail, CSS theme, versioned CDN
+- Live playground (Monaco editor + shareable URLs + AI prompt)
+
+## [0.2.1] — 2026-04-25
 
 ### Bug Fix: If/Elif/Else Conditional Chains
-- **Fixed**: `Elif` and `Else` nodes rendered independently instead of being consumed by the preceding `If` chain. All branches in an `If/Elif/Else` sequence now render—only the first matching branch renders; the rest are skipped.
-- New `renderChildArray()` in the render engine detects `If/Elif/Else` sibling sequences and evaluates them as a single conditional chain
-- Orphaned `Elif`/`Else` nodes (not adjacent to an `If`) are silently skipped
-- `ForEach`, `If`, and `Else` body rendering now uses chain-aware iteration for nested chains
-- 55 new tests in `test/tdd-bugs-r2.test.ts` — **913 total tests**
+- **Fixed**: `Elif` and `Else` nodes rendered independently instead of being consumed by the preceding `If` chain
+- New `renderChildArray()` detects `If/Elif/Else` sibling sequences as a single conditional chain
+- 55 new tests — **913 total tests**
 
 ### Bug Fix: Browser Pipe Registration
-
-### Bug Fix: Browser Pipe Registration
-- **Fixed**: Custom pipes registered in Node (via `registerPipe()`) were not available in the browser renderer bundle. Pipes are functions — they can't be serialized as JSON. The renderer loaded a fresh instance with zero custom pipes, causing `{{ name | humanName }}` to fall through to `[object Object]`.
-- `PrefabApp({ pipes: { humanName: fn } })` — accepts pipe functions and serializes their source code into the wire format
-- `PrefabWireFormat.pipes` — new optional field carrying pipe source strings
+- **Fixed**: Custom pipes registered in Node were not available in the browser renderer bundle
+- `PrefabApp({ pipes })` accepts pipe functions, serializes source into wire format
 - Renderer `mount()` hydrates wire pipes via `new Function()` before first render
-- `destroy()` cleans up wire-hydrated pipes (scoped to mount lifetime)
-- `window.prefab` global now exposes `registerPipe`, `unregisterPipe`, `listPipes`
-- Renderer module re-exports `registerPipe`, `unregisterPipe`, `listPipes`, `PipeFn`
 - Built-in pipes cannot be shadowed by wire pipes (security)
-- Invalid pipe source is caught gracefully (warning, no throw)
-- 12 new tests in `test/pipe-wire.test.ts` — **858 total tests**
+- 12 new tests — **858 total tests**
+
+## [0.2.0] — 2026-04-25
+
+### Breaking: Wire Format v0.2
+- `$prefab.version` bumped to `0.2`
+- Initial release of the `0.2.x` series with all v0.1.x features plus the universal MCP Apps bridge
 
 ## [0.1.10] — 2026-04-24
 
