@@ -387,6 +387,77 @@ It must be exactly `text/html;profile=mcp-app`. Other MIME types are
 treated as ordinary `ui://` resources and won't trigger the iframe
 loader.
 
+### `appInfo` vs `clientInfo` in `ui/initialize` (Claude Desktop / ChatGPT)
+
+Cause: the `ui/initialize` request uses `appInfo` (per the MCP Apps
+spec and the `@modelcontextprotocol/ext-apps` SDK Zod schema), **not**
+`clientInfo`. If you send `clientInfo`, the host's schema validation
+fails silently — the handshake never completes, the iframe stays blank,
+and the only clue is a timeout.
+
+This was the root cause of the Claude Desktop breakage between v0.2.11
+and v0.2.12. In v0.2.11 the ext-apps SDK fallback masked the bug
+because the SDK sent the correct field. When we removed the SDK in
+v0.2.12 to cut bundle size (405 KB → 80 KB), our native JSON-RPC
+handshake was exposed — and it was sending `clientInfo`.
+
+Correct:
+
+```js
+{
+  jsonrpc: '2.0', id: 1, method: 'ui/initialize',
+  params: {
+    protocolVersion: '2026-01-26',
+    appInfo: { name: 'my-app', version: '1.0' },  // ← correct
+    appCapabilities: {}
+  }
+}
+```
+
+Wrong (will timeout on Claude Desktop / ChatGPT):
+
+```js
+{
+  jsonrpc: '2.0', id: 1, method: 'ui/initialize',
+  params: {
+    protocolVersion: '2026-01-26',
+    capabilities: {},                               // ← ignored
+    clientInfo: { name: 'my-app', version: '1.0' }, // ← wrong field name
+    appCapabilities: {}
+  }
+}
+```
+
+Fixed in **v0.2.15**.
+
+## `@modelcontextprotocol/ext-apps` SDK vs native `ui/*` JSON-RPC
+
+The ext-apps SDK and the `ui/*` JSON-RPC protocol are **the same wire
+protocol**. The SDK is a convenience wrapper — under the hood it sends
+identical JSON-RPC 2.0 messages over `postMessage`.
+
+| Aspect | ext-apps SDK (`App` class) | Native `ui/*` JSON-RPC |
+|--------|---------------------------|------------------------|
+| Wire format | JSON-RPC 2.0 over `postMessage` | JSON-RPC 2.0 over `postMessage` |
+| Handshake | `App.connect()` → sends `ui/initialize` | Send `ui/initialize` manually |
+| Init params | `{ appInfo, appCapabilities, protocolVersion }` | Same |
+| Tool input | `addEventListener('toolinput', fn)` | Listen for `ui/notifications/tool-input` |
+| Tool result | `addEventListener('toolresult', fn)` | Listen for `ui/notifications/tool-result` |
+| Tool calls | `app.callServerTool({ name, arguments })` | Send `tools/call` JSON-RPC request |
+| Open link | `app.openLink({ url })` | Send `ui/open-link` JSON-RPC request |
+| Size reporting | Auto via `ResizeObserver` (`autoResize: true`) | Send `ui/notifications/size-changed` manually |
+| Bundle size | ~325 KB (SDK + `@modelcontextprotocol/sdk` + zod) | 0 KB (native) |
+| Dependencies | `@modelcontextprotocol/sdk`, `zod/v4` | None |
+
+**Recommendation:** use `renderer.auto.min.js` which implements the
+native `ui/*` JSON-RPC protocol without the SDK dependency. The SDK
+adds no capabilities that aren't available via raw JSON-RPC — it just
+adds 325 KB of bundle weight.
+
+If you need the SDK for its React hooks (`useHostStyleVariables`,
+`useDocumentTheme`) or `App.setupSizeChangedNotifications()`, install
+`@modelcontextprotocol/ext-apps` separately.
+
 ## Reference
 
 - **MCP Apps spec**: Protocol version `2026-01-26` — `ui/*` JSON-RPC 2.0 over `postMessage`
@@ -395,6 +466,11 @@ loader.
     `acquireVsCodeApi()` shim.
   - `loadResource(uri)` — reads the resource, returns
     `{ ...n._meta?.ui, html, mimeType }`.
+- **ext-apps SDK source**: `@modelcontextprotocol/ext-apps` on npm
+  - `App.connect()` in `dist/src/app.js` — sends `ui/initialize`
+    with `{ appInfo, appCapabilities, protocolVersion }`
+  - `AppBridge._oninitialize()` in `dist/src/app-bridge.js` — host
+    side, validates via Zod schema (requires `appInfo`, not `clientInfo`)
 - **Reference implementations**:
   - TypeScript: `@maxhealth.tech/prefab` on npm
   - Python: `prefab_ui` and `fastmcp` on PyPI
