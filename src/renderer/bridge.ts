@@ -168,10 +168,18 @@ export class Bridge {
    * Whichever protocol responds first wins.
    */
   async initialize(appCapabilities: AppCapabilities): Promise<HostContext> {
-    return Promise.any([
-      this.initPrefab(appCapabilities),
-      this.initJsonRpc(appCapabilities),
-    ])
+    try {
+      return await Promise.any([
+        this.initPrefab(appCapabilities),
+        this.initJsonRpc(appCapabilities),
+      ])
+    } catch (err) {
+      // All protocols failed — provide a clear diagnostic instead of raw AggregateError
+      const reasons = err instanceof AggregateError
+        ? err.errors.map((e: Error) => e.message).join('; ')
+        : String(err)
+      throw new Error(`Bridge init failed — no host responded. Tried: ${reasons}`, { cause: err })
+    }
   }
 
   /** Create an McpTransport that routes through the active protocol. */
@@ -419,15 +427,14 @@ export class Bridge {
         },
       })
 
-      // Send ui/initialize request
+      // Send ui/initialize request (matches MCP Apps spec 2026-01-26 / ext-apps SDK schema)
       this.postJsonRpc({
         jsonrpc: '2.0',
         id,
         method: 'ui/initialize',
         params: {
           protocolVersion: '2026-01-26',
-          capabilities: {},
-          clientInfo: { name: 'prefab', version: '0.2' },
+          appInfo: { name: 'prefab', version: '0.2' },
           appCapabilities: {
             ...(appCapabilities.displayModes && {
               availableDisplayModes: appCapabilities.displayModes,

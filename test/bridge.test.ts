@@ -609,6 +609,53 @@ describe('Bridge (JSON-RPC ui/* protocol)', () => {
 
     window.removeEventListener('message', respondToPrefab)
   })
+
+  it('sends appInfo (not clientInfo) in ui/initialize params', async () => {
+    bridge.connect()
+
+    let capturedParams: Record<string, unknown> | undefined
+    const respondToJsonRpc = (event: MessageEvent): void => {
+      const msg = event.data
+      if (msg?.jsonrpc === '2.0' && msg.method === 'ui/initialize' && msg.id != null) {
+        capturedParams = msg.params
+        window.postMessage({
+          jsonrpc: '2.0',
+          id: msg.id,
+          result: {
+            protocolVersion: '2026-01-26',
+            hostInfo: { name: 'TestHost', version: '1.0' },
+            hostCapabilities: {},
+            hostContext: {},
+          },
+        }, '*')
+      }
+    }
+    window.addEventListener('message', respondToJsonRpc)
+
+    await bridge.initialize({ toolInput: true })
+
+    expect(capturedParams).toBeDefined()
+    // Must use appInfo (ext-apps SDK schema), NOT clientInfo
+    expect(capturedParams!.appInfo).toEqual({ name: 'prefab', version: '0.2' })
+    expect(capturedParams!.clientInfo).toBeUndefined()
+    expect(capturedParams!.protocolVersion).toBe('2026-01-26')
+
+    window.removeEventListener('message', respondToJsonRpc)
+  })
+
+  it('throws clear error when both protocols fail', async () => {
+    bridge.connect()
+    // Don't respond to anything — both protocols will timeout
+    // Override timeout to be fast for test (access private via cast)
+    try {
+      await bridge.initialize({ toolInput: true })
+      expect(true).toBe(false) // should not reach
+    } catch (err) {
+      expect(err).toBeInstanceOf(Error)
+      expect((err as Error).message).toContain('Bridge init failed')
+      expect((err as Error).message).toContain('no host responded')
+    }
+  }, 10000)
 })
 
 // ── app() tool-result buffering ──────────────────────────────────────────────

@@ -344,8 +344,8 @@ protocol yourself:
         jsonrpc: '2.0', id: INIT_ID, method: 'ui/initialize',
         params: {
           protocolVersion: '2026-01-26',
-          capabilities: {},
-          clientInfo: { name: 'prefab-renderer', version: '0.2' }
+          appInfo: { name: 'prefab-renderer', version: '0.2' },
+          appCapabilities: {}
         }
       });
     })();

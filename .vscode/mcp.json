@@ -1,0 +1,9 @@
+{
+	"servers": {
+		"Prefab": {
+			"url": "https://prefab.maxhealth.tech/mcp",
+			"type": "http"
+		}
+	},
+	"inputs": []
+}
