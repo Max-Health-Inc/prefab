@@ -146,6 +146,53 @@ Inline `<script>` works (`'unsafe-inline'`), but external
 `<script src="https://...">` requires the origin to be listed in
 `resourceDomains`.
 
+### 4. Permission Policy — requesting browser capabilities
+
+MCP Apps can request browser permissions (camera, microphone,
+geolocation, clipboard) via `_meta.ui.permissions`. This is part of
+the **official MCP Apps spec** (not host-specific) — though host
+support varies.
+
+```ts
+const RESOURCE_META = {
+  ui: {
+    csp: {
+      resourceDomains: ['https://cdn.jsdelivr.net'],
+      connectDomains: [],
+      frameDomains: [],
+      baseUriDomains: [],
+    },
+    permissions: {
+      camera: true,           // Request camera access
+      microphone: true,       // Request microphone access
+      geolocation: true,      // Request geolocation access
+      clipboardWrite: true,   // Request clipboard write access
+    },
+  },
+};
+```
+
+| Permission | Permission Policy Feature | Use Case |
+|------------|--------------------------|----------|
+| `camera` | `camera` | Video capture, QR scanning |
+| `microphone` | `microphone` | Audio recording, voice input |
+| `geolocation` | `geolocation` | Location-aware apps, maps |
+| `clipboardWrite` | `clipboard-write` | Copy-to-clipboard |
+
+All default to `false`. Hosts that support Permission Policy will
+set the `allow` attribute on the iframe accordingly. The browser
+still prompts the user for consent — permissions are requests, not
+guarantees.
+
+**Host support status:**
+
+| Host | Supports `permissions`? |
+|------|------------------------|
+| **Goose** | Yes (documented, enforced) |
+| **VS Code** | Partial (may ignore unknown permissions) |
+| **Claude Desktop** | Not yet observed |
+| **ChatGPT** | Not yet observed |
+
 ## Client-side: the `ui/*` JSON-RPC protocol
 
 Inside the iframe, communication with the host happens via

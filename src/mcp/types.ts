@@ -35,5 +35,7 @@ export type McpContent = McpTextContent | McpImageContent | McpResourceContent
 /** MCP tool result — returned from tool handlers */
 export interface McpToolResult {
   content: McpContent[]
+  /** Structured payload forwarded to MCP Apps iframes via ui/notifications/tool-result. */
+  structuredContent?: Record<string, unknown>
   isError?: boolean
 }

@@ -10,11 +10,27 @@ export interface ImageProps extends ComponentProps {
   alt?: string
 }
 
-export function Image(props: ImageProps): Component {
-  const c = new Component('Image', props)
+/**
+ * Image component.
+ *
+ * @example Positional (consistent with Audio, Video, Embed):
+ * ```ts
+ * Image('https://example.com/photo.jpg', { alt: 'Photo' })
+ * ```
+ *
+ * @example Props form:
+ * ```ts
+ * Image({ src: 'https://example.com/photo.jpg', alt: 'Photo' })
+ * ```
+ */
+export function Image(srcOrProps: string | ImageProps, opts?: Omit<ImageProps, 'src'>): Component {
+  const src = typeof srcOrProps === 'string' ? srcOrProps : srcOrProps.src
+  const alt = typeof srcOrProps === 'string' ? opts?.alt : srcOrProps.alt
+  const baseProps = typeof srcOrProps === 'string' ? opts : srcOrProps
+  const c = new Component('Image', baseProps)
   c.getProps = () => ({
-    src: props.src,
-    ...(props.alt && { alt: props.alt }),
+    src,
+    ...(alt && { alt }),
   })
   return c
 }

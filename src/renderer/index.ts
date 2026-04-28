@@ -285,13 +285,9 @@ function defaultToastHandler(toast: ToastEvent): void {
 
   const container = getOrCreateToastContainer()
   const toastEl = document.createElement('div')
-  toastEl.className = 'pf-toast'
-  toastEl.setAttribute('data-variant', toast.variant ?? 'default')
-  toastEl.style.padding = '12px 16px'
-  toastEl.style.borderRadius = '8px'
-  toastEl.style.backgroundColor = 'var(--card, #fff)'
-  toastEl.style.border = '1px solid var(--border, #e5e7eb)'
-  toastEl.style.boxShadow = '0 4px 12px rgb(0 0 0 / 0.15)'
+  const variant = toast.variant ?? 'default'
+  toastEl.className = `pf-toast${variant !== 'default' ? ` pf-toast--${variant}` : ''}`
+  toastEl.setAttribute('data-variant', variant)
   toastEl.style.marginBottom = '8px'
   toastEl.style.transition = 'opacity 0.3s ease'
 

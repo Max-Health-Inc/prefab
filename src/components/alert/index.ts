@@ -5,7 +5,7 @@
 import { ContainerComponent, Component } from '../../core/component.js'
 import type { ContainerProps, ComponentProps, RxStr } from '../../core/component.js'
 
-export type AlertVariant = 'default' | 'destructive'
+export type AlertVariant = 'default' | 'destructive' | 'success' | 'warning'
 
 export interface AlertProps extends ContainerProps {
   variant?: AlertVariant

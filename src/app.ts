@@ -142,6 +142,25 @@ export class PrefabApp {
   }
 
   /**
+   * Serialize as a ready-to-return MCP tool result.
+   *
+   * Includes both `content` (LLM text fallback) and `structuredContent`
+   * (forwarded to MCP Apps iframes via `ui/notifications/tool-result`).
+   *
+   * @example
+   * ```ts
+   * mcp.registerTool('browse', schema, async (args) => app.toMcpResult())
+   * ```
+   */
+  toMcpResult(): { content: { type: 'text'; text: string }[]; structuredContent: Record<string, unknown> } {
+    const wire = this.toJSON()
+    return {
+      content: [{ type: 'text', text: JSON.stringify(wire) }],
+      structuredContent: wire as unknown as Record<string, unknown>,
+    }
+  }
+
+  /**
    * Serialize to a self-contained HTML page.
    * The page embeds the JSON wire format and a script tag
    * that loads the prefab renderer from a CDN.

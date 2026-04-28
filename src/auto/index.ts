@@ -18,7 +18,7 @@ import type { DataTableColumnDef, BadgeVariant } from '../components/data/index.
 
 export { autoChart } from './chart.js'
 export type { AutoChartOptions, ChartType } from './chart.js'
-export { autoForm } from './form.js'
+export { autoForm, QuickForm, QuickFormBuilder } from './form.js'
 export type { AutoFormField, AutoFormOptions } from './form.js'
 export { autoComparison } from './comparison.js'
 export type { AutoComparisonOptions } from './comparison.js'

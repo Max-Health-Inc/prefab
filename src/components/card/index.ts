@@ -14,8 +14,20 @@ class CardTextComponent extends Component {
   }
 }
 
-export function Card(props?: ContainerProps): ContainerComponent {
-  return new ContainerComponent('Card', props)
+// ── Card variants ────────────────────────────────────────────────────────────
+
+export type CardVariant = 'default' | 'outline' | 'ghost' | 'elevated' | 'destructive'
+
+export interface CardProps extends ContainerProps {
+  variant?: CardVariant
+}
+
+export function Card(props?: CardProps): ContainerComponent {
+  const c = new ContainerComponent('Card', props)
+  if (props?.variant && props.variant !== 'default') {
+    c.getProps = () => ({ variant: props.variant })
+  }
+  return c
 }
 
 export function CardHeader(props?: ContainerProps): ContainerComponent {

@@ -6,16 +6,40 @@ import { ContainerComponent, type Component } from '../../core/component.js'
 import type { ContainerProps, RxStr } from '../../core/component.js'
 import type { Ref } from '../../rx/collection.js'
 
+// ── Gap token resolution ─────────────────────────────────────────────────────
+
+/** Semantic gap tokens → numeric values (matching Tailwind spacing scale). */
+export type GapToken = 'none' | 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl'
+
+const GAP_MAP: Record<GapToken, number> = {
+  none: 0,
+  xs: 1,
+  sm: 2,
+  md: 3,
+  lg: 4,
+  xl: 6,
+  '2xl': 8,
+}
+
+/** Accepts a numeric gap OR a semantic token. Resolves to a number. */
+export type Gap = number | GapToken
+
+function resolveGap(gap: Gap | undefined): number | undefined {
+  if (gap === undefined) return undefined
+  if (typeof gap === 'number') return gap
+  return GAP_MAP[gap]
+}
+
 // ── Column ───────────────────────────────────────────────────────────────────
 
 export interface ColumnProps extends ContainerProps {
-  gap?: number
+  gap?: Gap
   align?: string
 }
 
 export function Column(props: ColumnProps & { children?: Component[] }): ContainerComponent {
-  // Compile gap into cssClass to match Python wire format
-  const gapClass = props.gap !== undefined ? `gap-${props.gap}` : undefined
+  const numGap = resolveGap(props.gap)
+  const gapClass = numGap !== undefined ? `gap-${numGap}` : undefined
   const mergedCss = [props.cssClass, gapClass].filter(Boolean).join(' ') || undefined
   const c = new ContainerComponent('Column', { ...props, cssClass: mergedCss })
   Object.assign(c, { _gap: props.gap, _align: props.align })
@@ -30,13 +54,13 @@ export function Column(props: ColumnProps & { children?: Component[] }): Contain
 // ── Row ──────────────────────────────────────────────────────────────────────
 
 export interface RowProps extends ContainerProps {
-  gap?: number
+  gap?: Gap
   align?: string
 }
 
 export function Row(props: RowProps & { children?: Component[] }): ContainerComponent {
-  // Compile gap into cssClass to match Python wire format
-  const gapClass = props.gap !== undefined ? `gap-${props.gap}` : undefined
+  const numGap = resolveGap(props.gap)
+  const gapClass = numGap !== undefined ? `gap-${numGap}` : undefined
   const mergedCss = [props.cssClass, gapClass].filter(Boolean).join(' ') || undefined
   const c = new ContainerComponent('Row', { ...props, cssClass: mergedCss })
   c.getProps = () => ({
@@ -49,16 +73,17 @@ export function Row(props: RowProps & { children?: Component[] }): ContainerComp
 
 export interface GridProps extends ContainerProps {
   columns?: number | Record<string, number>
-  gap?: number
+  gap?: Gap
   minColumnWidth?: string
   align?: string
 }
 
 export function Grid(props: GridProps & { children?: Component[] }): ContainerComponent {
+  const numGap = resolveGap(props.gap)
   const c = new ContainerComponent('Grid', props)
   c.getProps = () => ({
     ...(props.columns !== undefined && { columns: props.columns }),
-    ...(props.gap !== undefined && { gap: props.gap }),
+    ...(numGap !== undefined && { gap: numGap }),
     ...(props.minColumnWidth && { minColumnWidth: props.minColumnWidth }),
     ...(props.align && { align: props.align }),
   })

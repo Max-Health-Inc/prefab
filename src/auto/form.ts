@@ -98,6 +98,96 @@ export function autoForm(
   return Column({ gap: 5, cssClass: 'p-6 max-w-2xl', children })
 }
 
+// ── QuickForm — Composable builder ──────────────────────────────────────────
+
+/**
+ * Chainable form builder for rapid MCP tool UI generation.
+ *
+ * @example
+ * ```ts
+ * const ui = QuickForm('create_user')
+ *   .title('Create User')
+ *   .text('name', { required: true })
+ *   .email('email', { required: true })
+ *   .submit('Create')
+ *   .build()
+ * ```
+ */
+export class QuickFormBuilder {
+  private _fields: AutoFormField[] = []
+  private _title?: string
+  private _subtitle?: string
+  private _submitLabel = 'Submit'
+  private _onSubmit?: Action | Action[]
+  private _successMessage?: string
+  private _errorMessage?: string
+  private _toolName: string
+
+  constructor(toolName: string) {
+    this._toolName = toolName
+  }
+
+  title(t: string): this { this._title = t; return this }
+  subtitle(s: string): this { this._subtitle = s; return this }
+  submit(label: string): this { this._submitLabel = label; return this }
+  onSubmit(action: Action | Action[]): this { this._onSubmit = action; return this }
+  successMessage(msg: string): this { this._successMessage = msg; return this }
+  errorMessage(msg: string): this { this._errorMessage = msg; return this }
+
+  /** Add a field with explicit type. */
+  field(name: string, opts?: Omit<AutoFormField, 'name'>): this {
+    this._fields.push({ name, ...opts })
+    return this
+  }
+
+  /** Shorthand for type: 'text'. */
+  text(name: string, opts?: Omit<AutoFormField, 'name' | 'type'>): this {
+    return this.field(name, { ...opts, type: 'text' })
+  }
+
+  /** Shorthand for type: 'email'. */
+  email(name: string, opts?: Omit<AutoFormField, 'name' | 'type'>): this {
+    return this.field(name, { ...opts, type: 'email' })
+  }
+
+  /** Shorthand for type: 'number'. */
+  number(name: string, opts?: Omit<AutoFormField, 'name' | 'type'>): this {
+    return this.field(name, { ...opts, type: 'number' })
+  }
+
+  /** Shorthand for type: 'password'. */
+  password(name: string, opts?: Omit<AutoFormField, 'name' | 'type'>): this {
+    return this.field(name, { ...opts, type: 'password' })
+  }
+
+  /** Shorthand for type: 'url'. */
+  url(name: string, opts?: Omit<AutoFormField, 'name' | 'type'>): this {
+    return this.field(name, { ...opts, type: 'url' })
+  }
+
+  /** Shorthand for type: 'tel'. */
+  tel(name: string, opts?: Omit<AutoFormField, 'name' | 'type'>): this {
+    return this.field(name, { ...opts, type: 'tel' })
+  }
+
+  /** Build the form component tree. */
+  build(): ContainerComponent {
+    return autoForm(this._fields, this._toolName, {
+      title: this._title,
+      subtitle: this._subtitle,
+      submitLabel: this._submitLabel,
+      onSubmit: this._onSubmit,
+      successMessage: this._successMessage,
+      errorMessage: this._errorMessage,
+    })
+  }
+}
+
+/** Factory function for the chainable QuickForm builder. */
+export function QuickForm(toolName: string): QuickFormBuilder {
+  return new QuickFormBuilder(toolName)
+}
+
 function humanizeFieldName(name: string): string {
   return name
     .replace(/([A-Z])/g, ' $1')

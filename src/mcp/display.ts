@@ -67,8 +67,10 @@ export function display(
         cssClass: options?.cssClass,
       })
 
+  const wire = app.toJSON()
   return {
-    content: [{ type: 'text', text: JSON.stringify(app.toJSON()) }],
+    content: [{ type: 'text', text: JSON.stringify(wire) }],
+    structuredContent: wire as unknown as Record<string, unknown>,
   }
 }
 
@@ -106,8 +108,10 @@ export function display_form(
     theme: options?.theme,
   })
 
+  const wire = app.toJSON()
   return {
-    content: [{ type: 'text', text: JSON.stringify(app.toJSON()) }],
+    content: [{ type: 'text', text: JSON.stringify(wire) }],
+    structuredContent: wire as unknown as Record<string, unknown>,
   }
 }
 
@@ -141,6 +145,7 @@ export function display_update(
 
   return {
     content: [{ type: 'text', text: JSON.stringify(payload) }],
+    structuredContent: payload as unknown as Record<string, unknown>,
   }
 }
 
@@ -200,9 +205,60 @@ export function display_error(
     theme: options?.theme,
   })
 
+  const wire = app.toJSON()
   return {
-    content: [{ type: 'text', text: JSON.stringify(app.toJSON()) }],
+    content: [{ type: 'text', text: JSON.stringify(wire) }],
+    structuredContent: wire as unknown as Record<string, unknown>,
     isError: true,
+  }
+}
+
+// ── display_success() ────────────────────────────────────────────────────────
+
+export interface DisplaySuccessOptions {
+  /** Additional detail text below the message. */
+  detail?: string
+  /** Theme overrides. */
+  theme?: Theme
+}
+
+/**
+ * Return a standardized success view as an MCP tool result.
+ *
+ * Renders a success Alert with title + message, optional detail text.
+ *
+ * @returns MCP tool result with success UI.
+ */
+export function display_success(
+  title: string,
+  message: string,
+  options?: DisplaySuccessOptions,
+): McpToolResult {
+  const alertChildren: Component[] = [
+    AlertTitle(title),
+    AlertDescription(message),
+  ]
+
+  const bodyChildren: Component[] = [
+    Alert({ variant: 'success', icon: 'CheckCircle', children: alertChildren }),
+  ]
+
+  if (options?.detail) {
+    bodyChildren.push(Muted(options.detail))
+  }
+
+  const view = Column({ gap: 4, cssClass: 'p-6 max-w-2xl', children: bodyChildren })
+
+  const app = new PrefabApp({
+    title: 'Success',
+    view,
+    theme: options?.theme,
+  })
+
+  const wire = app.toJSON()
+  return {
+    content: [{ type: 'text', text: JSON.stringify(wire) }],
+    structuredContent: wire as unknown as Record<string, unknown>,
   }
 }
 
@@ -211,3 +267,87 @@ export function display_error(
 export const displayForm = display_form
 export const displayUpdate = display_update
 export const displayError = display_error
+export const displaySuccess = display_success
+
+// ── resourceMeta() — generate _meta for ui:// resource registration ─────────
+
+/** CSP configuration for MCP Apps resources. */
+export interface McpAppCsp {
+  /** Origins allowed for scripts, styles, images, fonts, media. */
+  resourceDomains?: string[]
+  /** Origins allowed for fetch/XHR/WebSocket. */
+  connectDomains?: string[]
+  /** Origins allowed for nested iframes. */
+  frameDomains?: string[]
+  /** Additional allowed base URIs. */
+  baseUriDomains?: string[]
+}
+
+/** Permission Policy requests for MCP Apps resources. */
+export interface McpAppPermissions {
+  /** Request camera access (video capture, QR scanning). */
+  camera?: boolean
+  /** Request microphone access (audio recording, voice input). */
+  microphone?: boolean
+  /** Request geolocation access (location-aware apps, maps). */
+  geolocation?: boolean
+  /** Request clipboard write access (copy-to-clipboard). */
+  clipboardWrite?: boolean
+}
+
+export interface ResourceMetaOptions {
+  /** CSP domains configuration. */
+  csp?: McpAppCsp
+  /** Permission Policy requests (camera, mic, etc.). */
+  permissions?: McpAppPermissions
+}
+
+/**
+ * Generate the `_meta` object for MCP Apps `ui://` resource registration.
+ *
+ * Includes CSP and Permission Policy configuration per the MCP Apps spec.
+ * Use on both the resource listing AND the content item (VS Code reads
+ * only the content item; other hosts may read either).
+ *
+ * @example
+ * ```ts
+ * const meta = resourceMeta({
+ *   csp: { resourceDomains: ['https://cdn.jsdelivr.net'] },
+ *   permissions: { camera: true },
+ * })
+ *
+ * mcp.resource('viewer', 'ui://my/viewer', {
+ *   mimeType: 'text/html;profile=mcp-app',
+ *   _meta: meta,
+ * }, async (uri) => ({
+ *   contents: [{ uri: uri.toString(), mimeType: 'text/html;profile=mcp-app', text: html, _meta: meta }],
+ * }))
+ * ```
+ */
+export function resourceMeta(options?: ResourceMetaOptions): { ui: { csp?: McpAppCsp; permissions?: McpAppPermissions } } {
+  const ui: { csp?: McpAppCsp; permissions?: McpAppPermissions } = {}
+
+  if (options?.csp) {
+    ui.csp = {
+      resourceDomains: options.csp.resourceDomains ?? [],
+      connectDomains: options.csp.connectDomains ?? [],
+      frameDomains: options.csp.frameDomains ?? [],
+      baseUriDomains: options.csp.baseUriDomains ?? [],
+    }
+  }
+
+  if (options?.permissions) {
+    ui.permissions = {}
+    if (options.permissions.camera) ui.permissions.camera = true
+    if (options.permissions.microphone) ui.permissions.microphone = true
+    if (options.permissions.geolocation) ui.permissions.geolocation = true
+    if (options.permissions.clipboardWrite) ui.permissions.clipboardWrite = true
+  }
+
+  return { ui }
+}
+
+/** Default CSP meta for prefab apps using jsDelivr CDN. */
+export const PREFAB_CDN_META = resourceMeta({
+  csp: { resourceDomains: ['https://cdn.jsdelivr.net'] },
+})

@@ -27,13 +27,48 @@ export interface ConditionProps extends ContainerProps {
   condition: RxStr
 }
 
-export function If(props: ConditionProps): ContainerComponent {
+/**
+ * Conditional rendering.
+ *
+ * @example Full props form:
+ * ```ts
+ * If({ condition: '$count > 0', children: [Text({ text: 'Has items' })] })
+ * ```
+ *
+ * @example Shorthand (condition + children):
+ * ```ts
+ * If('$count > 0', [Text({ text: 'Has items' })])
+ * ```
+ */
+export function If(propsOrCondition: ConditionProps | RxStr, children?: Component[]): ContainerComponent {
+  if (typeof propsOrCondition === 'string' || typeof propsOrCondition === 'object' && 'subscribe' in propsOrCondition) {
+    const c = new ContainerComponent('If', { children })
+    const condition = propsOrCondition as RxStr
+    c.getProps = () => ({ condition: String(condition) })
+    return c
+  }
+  const props = propsOrCondition as ConditionProps
   const c = new ContainerComponent('If', props)
   c.getProps = () => ({ condition: String(props.condition) })
   return c
 }
 
-export function Elif(props: ConditionProps): ContainerComponent {
+/**
+ * Else-if conditional rendering.
+ *
+ * @example Shorthand:
+ * ```ts
+ * Elif('$count === 0', [Text({ text: 'Empty' })])
+ * ```
+ */
+export function Elif(propsOrCondition: ConditionProps | RxStr, children?: Component[]): ContainerComponent {
+  if (typeof propsOrCondition === 'string' || typeof propsOrCondition === 'object' && 'subscribe' in propsOrCondition) {
+    const c = new ContainerComponent('Elif', { children })
+    const condition = propsOrCondition as RxStr
+    c.getProps = () => ({ condition: String(condition) })
+    return c
+  }
+  const props = propsOrCondition as ConditionProps
   const c = new ContainerComponent('Elif', props)
   c.getProps = () => ({ condition: String(props.condition) })
   return c
