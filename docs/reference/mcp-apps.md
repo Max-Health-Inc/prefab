@@ -428,7 +428,7 @@ Wrong (will timeout on Claude Desktop / ChatGPT):
 }
 ```
 
-Fixed in **v0.2.16**.
+Fixed in **v0.2.15**.
 
 ## `@modelcontextprotocol/ext-apps` SDK vs native `ui/*` JSON-RPC
 
