@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.2.18] — 2026-04-29
+## [Unreleased] — v0.2.19
 
 ### SDK Type Compatibility
 - `McpToolResult` now structurally assignable to `@modelcontextprotocol/sdk` `CallToolResult` — no cast needed when returning `display()` from SDK tool handlers
@@ -17,6 +17,8 @@ All notable changes to this project will be documented in this file.
 - Added `--shadow-sm/md/lg` and `--border-radius-*` → `--radius` mapping from MCP Apps spec
 - `applyHostTheme()` now injects host-provided `@font-face` / `@import` CSS from `styles.css.fonts` (idempotent `<style>` tag)
 - `HostTheme.fontCss` field added; extracted from both `ui/initialize` and `ui/notifications/host-context-changed`
+
+## [0.2.18] — 2026-04-29
 
 ### Builder API Improvements
 - `display_success(title, body?)` — success-variant alert helper
