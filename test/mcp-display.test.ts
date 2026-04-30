@@ -120,6 +120,24 @@ describe('display()', () => {
     const wire = parsePrefab(result) as PrefabWireFormat
     expect(wire.layout).toBeUndefined()
   })
+
+  it('preserves layout when passing PrefabApp directly', () => {
+    const app = new PrefabApp({
+      title: 'Direct',
+      view: Text('Hi'),
+      layout: { preferredHeight: 500 },
+    })
+    const result = display(app)
+    const wire = parsePrefab(result) as PrefabWireFormat
+    expect(wire.layout).toEqual({ preferredHeight: 500 })
+  })
+
+  it('includes layout in structuredContent', () => {
+    const result = display(Text('x'), {
+      layout: { maxHeight: 400 },
+    })
+    expect((result.structuredContent as Record<string, unknown>).layout).toEqual({ maxHeight: 400 })
+  })
 })
 
 // ── display_form() ───────────────────────────────────────────────────────────

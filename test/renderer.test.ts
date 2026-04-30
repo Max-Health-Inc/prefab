@@ -608,4 +608,43 @@ describe('PrefabRenderer', () => {
     expect(root.style.maxHeight).toBe('')
     app.destroy()
   })
+
+  it('applies maxHeight alone with overflow auto', () => {
+    const data: PrefabWireData = {
+      $prefab: { version: '0.2' },
+      view: { type: 'Text', content: 'Hi' },
+      layout: { maxHeight: 600 },
+    }
+    const app = PrefabRenderer.mount(root, data)
+    expect(root.style.height).toBe('')
+    expect(root.style.maxHeight).toBe('600px')
+    expect(root.style.overflow).toBe('auto')
+    app.destroy()
+  })
+
+  it('applies preferredHeight + maxHeight together', () => {
+    const data: PrefabWireData = {
+      $prefab: { version: '0.2' },
+      view: { type: 'Text', content: 'Hi' },
+      layout: { preferredHeight: 400, maxHeight: 800 },
+    }
+    const app = PrefabRenderer.mount(root, data)
+    expect(root.style.height).toBe('400px')
+    expect(root.style.maxHeight).toBe('800px')
+    expect(root.style.overflow).toBe('auto')
+    app.destroy()
+  })
+
+  it('applies minHeight alone without overflow', () => {
+    const data: PrefabWireData = {
+      $prefab: { version: '0.2' },
+      view: { type: 'Text', content: 'Hi' },
+      layout: { minHeight: 300 },
+    }
+    const app = PrefabRenderer.mount(root, data)
+    expect(root.style.minHeight).toBe('300px')
+    expect(root.style.maxHeight).toBe('')
+    expect(root.style.overflow).toBe('')
+    app.destroy()
+  })
 })

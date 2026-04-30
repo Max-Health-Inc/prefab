@@ -942,3 +942,94 @@ describe('Bridge.setupAutoResize', () => {
     window.removeEventListener('message', capture)
   })
 })
+
+// ── Bridge.notifyPreferredSize ───────────────────────────────────────────────
+
+describe('Bridge.notifyPreferredSize', () => {
+  let bridge: Bridge
+
+  beforeEach(() => {
+    bridge = new Bridge('*')
+    bridge.connect()
+  })
+
+  afterEach(() => {
+    bridge.disconnect()
+  })
+
+  it('sends ui/notifications/preferred-size via JSON-RPC', async () => {
+    const respond = (event: MessageEvent): void => {
+      const msg = event.data
+      if (msg?.jsonrpc === '2.0' && msg.method === 'ui/initialize' && msg.id != null) {
+        window.postMessage({
+          jsonrpc: '2.0',
+          id: msg.id,
+          result: {
+            protocolVersion: '2026-01-26',
+            hostInfo: { name: 'TestHost', version: '1.0' },
+            hostCapabilities: {},
+            hostContext: {},
+          },
+        }, '*')
+      }
+    }
+    window.addEventListener('message', respond)
+    await bridge.initialize({ toolInput: true })
+    window.removeEventListener('message', respond)
+
+    expect(bridge.activeProtocol).toBe('jsonrpc')
+
+    const received: Record<string, unknown>[] = []
+    const capture = (event: MessageEvent): void => {
+      const msg = event.data
+      if (msg?.jsonrpc === '2.0' && msg.method === 'ui/notifications/preferred-size') {
+        received.push(msg.params as Record<string, unknown>)
+      }
+    }
+    window.addEventListener('message', capture)
+
+    bridge.notifyPreferredSize({ preferredHeight: 600, minHeight: 200, maxHeight: 900 })
+
+    await new Promise((r) => setTimeout(r, 50))
+
+    expect(received.length).toBe(1)
+    expect(received[0]).toEqual({ preferredHeight: 600, minHeight: 200, maxHeight: 900 })
+
+    window.removeEventListener('message', capture)
+  })
+
+  it('sends prefab:preferred-size via prefab protocol', async () => {
+    const respond = (event: MessageEvent): void => {
+      const msg = event.data as BridgeMessage
+      if (msg?.type === 'prefab:init') {
+        window.postMessage({
+          type: 'prefab:init-response',
+          payload: { capabilities: {} } as unknown as Record<string, unknown>,
+        } satisfies BridgeMessage, '*')
+      }
+    }
+    window.addEventListener('message', respond)
+    await bridge.initialize({ toolInput: true })
+    window.removeEventListener('message', respond)
+
+    expect(bridge.activeProtocol).toBe('prefab')
+
+    const received: Record<string, unknown>[] = []
+    const capture = (event: MessageEvent): void => {
+      const msg = event.data as BridgeMessage
+      if (msg?.type === 'prefab:preferred-size') {
+        received.push(msg.payload ?? {})
+      }
+    }
+    window.addEventListener('message', capture)
+
+    bridge.notifyPreferredSize({ preferredHeight: 500 })
+
+    await new Promise((r) => setTimeout(r, 50))
+
+    expect(received.length).toBe(1)
+    expect(received[0].preferredHeight).toBe(500)
+
+    window.removeEventListener('message', capture)
+  })
+})

@@ -93,6 +93,26 @@ describe('PrefabApp', () => {
     expect(json.layout).toEqual({ preferredHeight: 400 })
   })
 
+  it('embeds layout in toHTML output', () => {
+    const app = new PrefabApp({
+      view: Heading('Dashboard'),
+      layout: { preferredHeight: 600 },
+    })
+    const html = app.toHTML()
+    expect(html).toContain('"preferredHeight":600')
+  })
+
+  it('embeds layout in toMcpResult structuredContent', () => {
+    const app = new PrefabApp({
+      view: Heading('Dashboard'),
+      layout: { minHeight: 200, maxHeight: 800 },
+    })
+    const result = app.toMcpResult()
+    const wire = JSON.parse(result.content[0].text)
+    expect(wire.layout).toEqual({ minHeight: 200, maxHeight: 800 })
+    expect((result.structuredContent as Record<string, unknown>).layout).toEqual({ minHeight: 200, maxHeight: 800 })
+  })
+
   it('generates valid HTML', () => {
     const app = new PrefabApp({
       title: 'Test App',
