@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.2.23] — 2026-04-30
+## [0.2.24] — 2026-04-30
 
 ### Utility Classes
 - **Added**: ~200 Tailwind-compatible utility classes in `prefab.css` — auto-renderers no longer require Tailwind CSS
