@@ -2,6 +2,31 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.27] — 2026-05-02
+
+### Bug Fixes
+- **Fixed**: `resourceMeta()` now serializes permissions as `{}` (empty objects) per the MCP Apps spec, not `true`. The DX-facing input type stays `boolean` for ergonomics; the wire output is now spec-compliant with `McpUiResourcePermissions`
+
+## [0.2.26] — 2026-05-02
+
+### New Features
+- **`rendererHtml(opts?)`** — generates the viewer HTML page string for MCP Apps resources (loads `prefab.css` + `renderer.auto.min.js` from CDN, with optional extra scripts/stylesheets)
+- **`registerViewerResource(server, opts?)`** — one-liner to register a `ui://` viewer resource with correct MIME type, CSP (auto-merged with jsdelivr default + script origins), Permission Policy, and `_meta` on both listing and content item
+- **`PREFAB_RESOURCE_URI`** — default URI constant (`'ui://prefab/viewer'`)
+- All three exported from both `@maxhealth.tech/prefab/mcp` and the main barrel
+
+### Documentation
+- Corrected CSP/permissions claims about Claude Desktop (it DOES enforce CSP via HTTP headers on `{hash}.claudemcpcontent.com`)
+- Corrected cross-server tool call claim (spec says `"app": Tool callable by the app from this server only`)
+- Updated host compatibility table (all hosts enforce CSP)
+- Added `registerViewerResource()` shortcut section to `docs/reference/mcp-apps.md`
+- Added `rendererHtml()`, `registerViewerResource()`, `PREFAB_RESOURCE_URI` reference docs to `docs/reference/mcp-display.md`
+
+### Tests
+- 15 new tests for `rendererHtml()`, `registerViewerResource()`, `PREFAB_RESOURCE_URI` (security escaping, CSP merging, handler invocation)
+- Comprehensive layout hints test coverage (bridge, renderer combos, passthrough, HTML/MCP round-trip)
+- **1174 tests** passing across 32 files
+
 ## [0.2.25] — 2026-04-30
 
 ### Layout Hints
