@@ -6,6 +6,7 @@ These functions wrap prefab component trees as MCP tool result content arrays. U
 import {
   display, display_form, display_update, display_error, display_success,
   resourceMeta, PREFAB_CDN_META,
+  rendererHtml, registerViewerResource, PREFAB_RESOURCE_URI,
 } from '@maxhealth.tech/prefab/mcp'
 ```
 
@@ -287,3 +288,75 @@ async function editPatientForm(args: { id: string }) {
   ], 'save_patient', { title: `Edit ${patient.name}` })
 }
 ```
+
+---
+
+## `PREFAB_RESOURCE_URI`
+
+Default URI constant for the prefab viewer resource.
+
+```ts
+PREFAB_RESOURCE_URI // → 'ui://prefab/viewer'
+```
+
+---
+
+## `rendererHtml(opts?)`
+
+Generate the HTML page string for a prefab MCP Apps viewer resource. This is the content you return from `readResource`.
+
+```ts
+const html = rendererHtml()
+// → <!doctype html>... loads prefab.css + renderer.auto.min.js from CDN
+```
+
+### Options
+
+| Option | Type | Description |
+|--------|------|-------------|
+| `title` | `string` | Page `<title>`. Default: `'Prefab'` |
+| `scripts` | `string[]` | Additional `<script>` URLs after the renderer |
+| `stylesheets` | `string[]` | Additional `<link rel="stylesheet">` URLs |
+| `cdnBase` | `string` | Override CDN base URL (no trailing slash) |
+
+---
+
+## `registerViewerResource(server, opts?)`
+
+One-liner to register a `ui://` viewer resource on an MCP server. Handles MIME type, CSP, HTML generation, and the `_meta` placement that trips everyone up.
+
+```ts
+import { registerViewerResource, PREFAB_RESOURCE_URI } from '@maxhealth.tech/prefab/mcp'
+
+// Minimal — registers ui://prefab/viewer with default CSP
+registerViewerResource(server)
+
+// Custom — your own URI, extra APIs, clipboard access
+registerViewerResource(server, {
+  uri: 'ui://myapp/dashboard',
+  title: 'My Dashboard',
+  csp: { connectDomains: ['https://api.example.com'] },
+  permissions: { clipboardWrite: true },
+  scripts: ['https://cdn.example.com/plugin.js'],
+})
+```
+
+### Options
+
+| Option | Type | Description |
+|--------|------|-------------|
+| `uri` | `string` | Resource URI. Default: `PREFAB_RESOURCE_URI` |
+| `title` | `string` | Resource title. Default: `'Prefab Viewer'` |
+| `csp` | `McpAppCsp` | CSP config (merged with jsdelivr default) |
+| `permissions` | `McpAppPermissions` | Permission Policy requests |
+| `scripts` | `string[]` | Extra `<script>` URLs (origins auto-added to CSP) |
+| `stylesheets` | `string[]` | Extra `<link>` URLs |
+| `cdnBase` | `string` | Override CDN base URL |
+
+### What it does
+
+1. Generates HTML via `rendererHtml()`
+2. Merges your CSP with the jsdelivr CDN default
+3. Auto-adds script origins to `resourceDomains`
+4. Sets `_meta.ui.csp` on both the listing and content item
+5. Registers with the correct MIME type `text/html;profile=mcp-app`

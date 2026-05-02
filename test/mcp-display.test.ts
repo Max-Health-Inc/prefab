@@ -19,6 +19,9 @@ import {
   autoDetail,
   SetState,
   CallTool,
+  PREFAB_RESOURCE_URI,
+  rendererHtml,
+  registerViewerResource,
 } from '../src/index'
 import type { McpToolResult, PrefabWireFormat, PrefabUpdateWire } from '../src/index'
 
@@ -344,5 +347,161 @@ describe('mock MCP tool handler integration', () => {
     const updateResult = display_update({ loading: false, total: 1 })
     const payload = parsePrefab(updateResult) as PrefabUpdateWire
     expect(payload.update.state.total).toBe(1)
+  })
+})
+
+// ── PREFAB_RESOURCE_URI ──────────────────────────────────────────────────────
+
+describe('PREFAB_RESOURCE_URI', () => {
+  it('is a ui:// URI', () => {
+    expect(PREFAB_RESOURCE_URI).toBe('ui://prefab/viewer')
+  })
+})
+
+// ── rendererHtml() ───────────────────────────────────────────────────────────
+
+describe('rendererHtml()', () => {
+  it('returns an HTML page with CDN links', () => {
+    const html = rendererHtml()
+    expect(html).toContain('<!doctype html>')
+    expect(html).toContain('prefab.css')
+    expect(html).toContain('renderer.auto.min.js')
+    expect(html).toContain('cdn.jsdelivr.net')
+    expect(html).toContain('<div id="root"></div>')
+  })
+
+  it('uses custom title', () => {
+    const html = rendererHtml({ title: 'My Dashboard' })
+    expect(html).toContain('<title>My Dashboard</title>')
+  })
+
+  it('includes extra scripts', () => {
+    const html = rendererHtml({ scripts: ['https://cdn.example.com/plugin.js'] })
+    expect(html).toContain('src="https://cdn.example.com/plugin.js"')
+    expect(html).toContain('crossorigin')
+  })
+
+  it('includes extra stylesheets', () => {
+    const html = rendererHtml({ stylesheets: ['https://cdn.example.com/theme.css'] })
+    expect(html).toContain('href="https://cdn.example.com/theme.css"')
+  })
+
+  it('allows overriding cdnBase', () => {
+    const html = rendererHtml({ cdnBase: 'https://my-cdn.com/prefab' })
+    expect(html).toContain('https://my-cdn.com/prefab/prefab.css')
+    expect(html).toContain('https://my-cdn.com/prefab/renderer.auto.min.js')
+    expect(html).not.toContain('jsdelivr')
+  })
+
+  it('escapes HTML in title', () => {
+    const html = rendererHtml({ title: '<script>alert("xss")</script>' })
+    expect(html).not.toContain('<script>alert')
+    expect(html).toContain('&lt;script&gt;')
+  })
+
+  it('escapes quotes in script URLs', () => {
+    const html = rendererHtml({ scripts: ['https://evil.com/a"onload="alert(1)'] })
+    expect(html).toContain('&quot;')
+    expect(html).not.toContain('"onload="')
+  })
+})
+
+// ── registerViewerResource() ─────────────────────────────────────────────────
+
+describe('registerViewerResource()', () => {
+  function createMockServer() {
+    const registered: {
+      name: string
+      uri: string
+      options: Record<string, unknown>
+      handler: (uri: URL) => Promise<unknown>
+    }[] = []
+
+    return {
+      registered,
+      resource(name: string, uri: string, options: Record<string, unknown>, handler: (uri: URL) => Promise<unknown>) {
+        registered.push({ name, uri, options, handler })
+      },
+    }
+  }
+
+  it('registers with default URI and title', () => {
+    const server = createMockServer()
+    registerViewerResource(server)
+
+    expect(server.registered).toHaveLength(1)
+    const [reg] = server.registered
+    expect(reg.uri).toBe('ui://prefab/viewer')
+    expect(reg.options.title).toBe('Prefab Viewer')
+    expect(reg.options.mimeType).toBe('text/html;profile=mcp-app')
+  })
+
+  it('generates name from URI', () => {
+    const server = createMockServer()
+    registerViewerResource(server, { uri: 'ui://myapp/dashboard' })
+
+    expect(server.registered[0].name).toBe('myapp-dashboard')
+  })
+
+  it('includes _meta with CSP on listing', () => {
+    const server = createMockServer()
+    registerViewerResource(server)
+
+    const meta = server.registered[0].options._meta as { ui: { csp: Record<string, string[]> } }
+    expect(meta.ui.csp.resourceDomains).toContain('https://cdn.jsdelivr.net')
+  })
+
+  it('handler returns HTML with _meta on content', async () => {
+    const server = createMockServer()
+    registerViewerResource(server)
+
+    const result = await server.registered[0].handler(new URL('ui://prefab/viewer')) as { contents: { uri: string; mimeType: string; text: string; _meta?: unknown }[] }
+    expect(result.contents).toHaveLength(1)
+    expect(result.contents[0].mimeType).toBe('text/html;profile=mcp-app')
+    expect(result.contents[0].text).toContain('<!doctype html>')
+    expect(result.contents[0]._meta).toBeDefined()
+  })
+
+  it('merges custom CSP with jsdelivr default', () => {
+    const server = createMockServer()
+    registerViewerResource(server, {
+      csp: { connectDomains: ['https://api.example.com'] },
+    })
+
+    const meta = server.registered[0].options._meta as { ui: { csp: Record<string, string[]> } }
+    expect(meta.ui.csp.resourceDomains).toContain('https://cdn.jsdelivr.net')
+    expect(meta.ui.csp.connectDomains).toContain('https://api.example.com')
+  })
+
+  it('adds script origins to CSP resourceDomains', () => {
+    const server = createMockServer()
+    registerViewerResource(server, {
+      scripts: ['https://cdn.example.com/plugin.js'],
+    })
+
+    const meta = server.registered[0].options._meta as { ui: { csp: Record<string, string[]> } }
+    expect(meta.ui.csp.resourceDomains).toContain('https://cdn.example.com')
+  })
+
+  it('includes permissions when specified', () => {
+    const server = createMockServer()
+    registerViewerResource(server, {
+      permissions: { clipboardWrite: true },
+    })
+
+    const meta = server.registered[0].options._meta as { ui: { permissions: Record<string, boolean> } }
+    expect(meta.ui.permissions.clipboardWrite).toBe(true)
+  })
+
+  it('custom options pass through to HTML', async () => {
+    const server = createMockServer()
+    registerViewerResource(server, {
+      title: 'My Custom App',
+      scripts: ['https://cdn.example.com/extra.js'],
+    })
+
+    const result = await server.registered[0].handler(new URL('ui://prefab/viewer')) as { contents: { text: string }[] }
+    expect(result.contents[0].text).toContain('<title>My Custom App</title>')
+    expect(result.contents[0].text).toContain('https://cdn.example.com/extra.js')
   })
 })

@@ -4,7 +4,7 @@
  *
  * Dual protocol:
  *   1. prefab:*   — custom protocol (self-hosted, any postMessage host)
- *   2. ui/*       — MCP Apps JSON-RPC 2.0 (VS Code, Claude, ChatGPT, Goose)
+ *   2. ui/*       — MCP Apps JSON-RPC 2.0 (VS Code, Claude, ChatGPT)
  *
  * Protocol detection: races prefab:init and ui/initialize JSON-RPC
  * in parallel — whichever responds first wins.

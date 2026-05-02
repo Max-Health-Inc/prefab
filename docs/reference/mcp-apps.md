@@ -2,7 +2,7 @@
 
 How to make an MCP server return interactive `$prefab` UIs that render
 inside any MCP Apps host — VS Code Copilot Chat, Claude Desktop,
-ChatGPT, Goose, and others.
+ChatGPT, and others.
 
 This guide documents the **MCP Apps UI protocol** (`ui/*` JSON-RPC 2.0
 over `postMessage`), the server-side wire format, and the host-specific
@@ -21,7 +21,7 @@ gotchas that cost us several hours of debugging.
 ┌─────────────────────────┐  stdio   ┌──────────────────────────┐
 │  MCP Apps host           │◄────────►│   your MCP server        │
 │  (VS Code / Claude /    │  MCP     │   (Node, Python, etc.)   │
-│   ChatGPT / Goose / …) │          └──────────────────────────┘
+│   ChatGPT / …)          │          └──────────────────────────┘
 └──────────┬──────────────┘
            │
            │  sandboxed iframe
@@ -46,10 +46,9 @@ The flow:
 
 | Host | Transport | CSP handling | Notes |
 |------|-----------|-------------|-------|
-| **VS Code** | `acquireVsCodeApi().postMessage()` | Reads `_meta.ui.csp` from content item | Injects CSP meta tag + shim automatically |
-| **Claude Desktop** | `window.parent.postMessage()` | N/A (no CSP restriction) | Sends tool result before `ui/initialize` response — buffering is critical |
-| **ChatGPT** | `window.parent.postMessage()` | N/A | Similar to Claude Desktop |
-| **Goose** | `window.parent.postMessage()` | N/A | Follows MCP Apps spec |
+| **VS Code** | `acquireVsCodeApi().postMessage()` | Reads `_meta.ui.csp` from content item | Injects CSP via `<meta>` tag + `acquireVsCodeApi()` shim |
+| **Claude Desktop** | `window.parent.postMessage()` | Reads `_meta.ui.csp` from content item | Enforces CSP via HTTP headers; assigns stable origin (`{hash}.claudemcpcontent.com`). Sends tool result before `ui/initialize` response — buffering is critical |
+| **ChatGPT** | `window.parent.postMessage()` | Reads `_meta.ui.csp` from content item | Enforces CSP via HTTP headers; assigns stable origin (`{slug}.oaiusercontent.com`) |
 
 ## Server-side wire format
 
@@ -78,12 +77,14 @@ fallback for hosts without UI rendering.
 
 ### 2. Renderer resource — CSP belongs on the content item
 
-> **VS Code-specific.** Other hosts (Claude, ChatGPT) don't enforce CSP
-> on `ui://` resources, so this section only matters for VS Code.
+> **All hosts** read `_meta.ui.csp` from the content item returned by
+> `readResource`. VS Code injects it as a `<meta>` tag; Claude Desktop
+> and ChatGPT enforce it via HTTP headers on a sandboxed origin. Always
+> declare your CSP on the content item.
 
 This is the bug that wastes everyone's afternoon. `_meta` on the
-resource **listing** is ignored by VS Code's iframe loader. CSP must
-appear on the **individual content item** returned by `readResource`.
+resource **listing** is ignored by most hosts. CSP must appear on
+the **individual content item** returned by `readResource`.
 
 ```ts
 const CSP_META = {
@@ -119,13 +120,34 @@ mcp.resource(
 );
 ```
 
+**Shortcut:** if you're using prefab's TypeScript SDK, `registerViewerResource()` handles all of the above in one call:
+
+```ts
+import { registerViewerResource, PREFAB_RESOURCE_URI } from '@maxhealth.tech/prefab/mcp'
+
+// Registers ui://prefab/viewer with correct MIME, CSP, and HTML
+registerViewerResource(server)
+
+// With custom options:
+registerViewerResource(server, {
+  uri: 'ui://myapp/dashboard',
+  title: 'My Dashboard',
+  csp: { connectDomains: ['https://api.example.com'] },
+  permissions: { clipboardWrite: true },
+  scripts: ['https://cdn.example.com/plugin.js'],
+})
+```
+
 The MIME type is exactly `text/html;profile=mcp-app` (with no space
 around the semicolon). Plain `text/html` is silently treated as a
 non-app resource.
 
-### 3. The CSP that VS Code ends up applying
+### 3. CSP template (VS Code example)
 
-> **VS Code-specific.** Other hosts may not enforce CSP at all.
+> All spec-compliant hosts enforce CSP. The exact directives vary by
+> host, but the shape of `_meta.ui.csp` is the same everywhere. Below
+> is the template VS Code uses; Claude Desktop and ChatGPT apply a
+> similar policy via HTTP `Content-Security-Policy` headers.
 
 VS Code merges your `_meta.ui.csp` into this template:
 
@@ -188,10 +210,14 @@ guarantees.
 
 | Host | Supports `permissions`? |
 |------|------------------------|
-| **Goose** | Yes (documented, enforced) |
 | **VS Code** | Partial (may ignore unknown permissions) |
-| **Claude Desktop** | Not yet observed |
-| **ChatGPT** | Not yet observed |
+| **Claude Desktop** | Yes (reported via `hostCapabilities.sandbox.permissions`) |
+| **ChatGPT** | Yes (reported via `hostCapabilities.sandbox.permissions`) |
+
+Hosts report the permissions and CSP they actually applied in the
+`ui/initialize` response under `hostCapabilities.sandbox`. Apps
+should use JS feature detection as a fallback since hosts MAY ignore
+permissions they don't support.
 
 ## Client-side: the `ui/*` JSON-RPC protocol
 
@@ -262,7 +288,7 @@ Methods (per the MCP Apps spec):
 
 Two options for rendering `@maxhealth.tech/prefab` `$prefab` JSON
 inside a `ui://` resource. Both work in **every MCP Apps host** — VS Code,
-Claude Desktop, ChatGPT, Goose, and any other host that speaks the
+Claude Desktop, ChatGPT, and any other host that speaks the
 `ui/*` JSON-RPC protocol.
 
 ### Option A: `renderer.auto.min.js` (recommended)
@@ -405,13 +431,13 @@ protocol yourself:
 
 ### "Black iframe" / nothing renders (VS Code)
 
-Cause: CSP is blocking the external script load. VS Code only adds your
+Cause: CSP is blocking the external script load. Hosts only add your
 `resourceDomains` to `script-src` if `_meta.ui.csp` is present on the
-**content item**, not on the resource listing. Other hosts don't
-enforce CSP this way.
+**content item**, not on the resource listing.
 
 Fix: add `_meta` to each entry of the `contents` array returned by
-`readResource`.
+`readResource`. This applies to all hosts (VS Code, Claude Desktop,
+ChatGPT).
 
 ### `Cannot read properties of undefined (reading 'startsWith')`
 

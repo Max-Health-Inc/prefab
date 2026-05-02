@@ -354,3 +354,173 @@ export function resourceMeta(options?: ResourceMetaOptions): { ui: { csp?: McpAp
 export const PREFAB_CDN_META = resourceMeta({
   csp: { resourceDomains: ['https://cdn.jsdelivr.net'] },
 })
+
+// ── rendererHtml() — generate the viewer HTML page ──────────────────────────
+
+/** Default URI for the prefab viewer resource. */
+export const PREFAB_RESOURCE_URI = 'ui://prefab/viewer'
+
+/** MIME type required by MCP Apps hosts. */
+const MCP_APP_MIME = 'text/html;profile=mcp-app'
+
+/** CDN base for the @maxhealth.tech/prefab package (major.minor pinned). */
+const CDN_BASE = 'https://cdn.jsdelivr.net/npm/@maxhealth.tech/prefab@0.2/dist'
+
+export interface RendererHtmlOptions {
+  /** Page title. @default 'Prefab' */
+  title?: string
+  /** Additional `<script>` URLs to load after the renderer. */
+  scripts?: string[]
+  /** Additional `<link rel="stylesheet">` URLs. */
+  stylesheets?: string[]
+  /** Override CDN base URL (no trailing slash). @default jsdelivr CDN */
+  cdnBase?: string
+}
+
+/**
+ * Generate the HTML page for a prefab MCP Apps viewer resource.
+ *
+ * Returns the minimal HTML that loads `prefab.css` and `renderer.auto.min.js`
+ * from the CDN, plus any additional scripts/stylesheets you specify.
+ *
+ * @example
+ * ```ts
+ * import { rendererHtml } from '@maxhealth.tech/prefab/mcp'
+ * const html = rendererHtml()
+ * // or with extra scripts:
+ * const html = rendererHtml({ scripts: ['https://cdn.example.com/plugin.js'] })
+ * ```
+ */
+export function rendererHtml(options?: RendererHtmlOptions): string {
+  const title = options?.title ?? 'Prefab'
+  const base = options?.cdnBase ?? CDN_BASE
+  const extraStyles = (options?.stylesheets ?? [])
+    .map(url => `  <link rel="stylesheet" crossorigin href="${escapeAttr(url)}">`)
+    .join('\n')
+  const extraScripts = (options?.scripts ?? [])
+    .map(url => `  <script crossorigin src="${escapeAttr(url)}"></script>`)
+    .join('\n')
+
+  return `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${escapeHtml(title)}</title>
+  <link rel="stylesheet" crossorigin href="${base}/prefab.css">
+${extraStyles}</head>
+<body>
+  <div id="root"></div>
+  <script crossorigin src="${base}/renderer.auto.min.js"></script>
+${extraScripts}</body>
+</html>`
+}
+
+// ── registerViewerResource() — one-liner resource registration ──────────────
+
+export interface ViewerResourceOptions {
+  /** Resource URI. @default PREFAB_RESOURCE_URI */
+  uri?: string
+  /** Resource title. @default 'Prefab Viewer' */
+  title?: string
+  /** CSP configuration. @default { resourceDomains: ['https://cdn.jsdelivr.net'] } */
+  csp?: McpAppCsp
+  /** Permission Policy requests. */
+  permissions?: McpAppPermissions
+  /** Additional `<script>` URLs to load after the renderer. */
+  scripts?: string[]
+  /** Additional `<link rel="stylesheet">` URLs. */
+  stylesheets?: string[]
+  /** Override CDN base URL (no trailing slash). */
+  cdnBase?: string
+}
+
+/**
+ * MCP server interface expected by registerViewerResource.
+ * Compatible with @modelcontextprotocol/sdk McpServer and fastmcp Server.
+ */
+interface McpServerLike {
+  resource(
+    name: string,
+    uri: string,
+    options: { title?: string; mimeType: string; description?: string; _meta?: Record<string, unknown> },
+    handler: (uri: URL) => Promise<{ contents: { uri: string; mimeType: string; text: string; _meta?: Record<string, unknown> }[] }>,
+  ): void
+}
+
+/**
+ * Register the prefab viewer as a `ui://` resource on an MCP server.
+ *
+ * Handles MIME type, CSP on both listing and content item, and HTML generation.
+ * Eliminates the three most common registration mistakes in one call.
+ *
+ * @example
+ * ```ts
+ * import { registerViewerResource, PREFAB_RESOURCE_URI } from '@maxhealth.tech/prefab/mcp'
+ *
+ * registerViewerResource(server)
+ *
+ * server.tool('browse', schema, async (args) => ({
+ *   content: [{ type: 'text', text: JSON.stringify(data) }],
+ *   structuredContent: data,
+ *   _meta: { ui: { resourceUri: PREFAB_RESOURCE_URI } },
+ * }))
+ * ```
+ */
+export function registerViewerResource(server: McpServerLike, options?: ViewerResourceOptions): void {
+  const uri = options?.uri ?? PREFAB_RESOURCE_URI
+  const title = options?.title ?? 'Prefab Viewer'
+
+  // Merge CSP: always include jsdelivr for the default renderer
+  const csp: McpAppCsp = options?.csp
+    ? {
+        resourceDomains: [...new Set([...(options.csp.resourceDomains ?? []), 'https://cdn.jsdelivr.net'])],
+        connectDomains: options.csp.connectDomains ?? [],
+        frameDomains: options.csp.frameDomains ?? [],
+        baseUriDomains: options.csp.baseUriDomains ?? [],
+      }
+    : { resourceDomains: ['https://cdn.jsdelivr.net'] }
+
+  // Add script origins to CSP resourceDomains
+  if (options?.scripts && options.scripts.length > 0) {
+    const scriptOrigins = options.scripts
+      .map(url => { try { return new URL(url).origin } catch { return null } })
+      .filter((o): o is string => o !== null)
+    csp.resourceDomains = [...new Set([...(csp.resourceDomains ?? []), ...scriptOrigins])]
+  }
+
+  const meta = resourceMeta({ csp, permissions: options?.permissions })
+  const html = rendererHtml({
+    title,
+    scripts: options?.scripts,
+    stylesheets: options?.stylesheets,
+    cdnBase: options?.cdnBase,
+  })
+
+  // Extract name from URI: 'ui://prefab/viewer' -> 'prefab-viewer'
+  const name = uri.replace(/^ui:\/\//, '').replace(/\//g, '-')
+
+  server.resource(
+    name,
+    uri,
+    { title, mimeType: MCP_APP_MIME, _meta: meta },
+    (resourceUri) => Promise.resolve({
+      contents: [{
+        uri: resourceUri.toString(),
+        mimeType: MCP_APP_MIME,
+        text: html,
+        _meta: meta,
+      }],
+    }),
+  )
+}
+
+// ── HTML escaping helpers ────────────────────────────────────────────────────
+
+function escapeHtml(s: string): string {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+}
+
+function escapeAttr(s: string): string {
+  return s.replace(/&/g, '&amp;').replace(/"/g, '&quot;')
+}
