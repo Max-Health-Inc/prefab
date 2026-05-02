@@ -327,8 +327,16 @@ export interface ResourceMetaOptions {
  * }))
  * ```
  */
-export function resourceMeta(options?: ResourceMetaOptions): { ui: { csp?: McpAppCsp; permissions?: McpAppPermissions } } {
-  const ui: { csp?: McpAppCsp; permissions?: McpAppPermissions } = {}
+/** Spec-compliant permissions shape: each granted permission is `{}`. */
+interface McpAppPermissionsWire {
+  camera?: Record<string, never>
+  microphone?: Record<string, never>
+  geolocation?: Record<string, never>
+  clipboardWrite?: Record<string, never>
+}
+
+export function resourceMeta(options?: ResourceMetaOptions): { ui: { csp?: McpAppCsp; permissions?: McpAppPermissionsWire } } {
+  const ui: { csp?: McpAppCsp; permissions?: McpAppPermissionsWire } = {}
 
   if (options?.csp) {
     ui.csp = {
@@ -341,10 +349,10 @@ export function resourceMeta(options?: ResourceMetaOptions): { ui: { csp?: McpAp
 
   if (options?.permissions) {
     ui.permissions = {}
-    if (options.permissions.camera) ui.permissions.camera = true
-    if (options.permissions.microphone) ui.permissions.microphone = true
-    if (options.permissions.geolocation) ui.permissions.geolocation = true
-    if (options.permissions.clipboardWrite) ui.permissions.clipboardWrite = true
+    if (options.permissions.camera) ui.permissions.camera = {}
+    if (options.permissions.microphone) ui.permissions.microphone = {}
+    if (options.permissions.geolocation) ui.permissions.geolocation = {}
+    if (options.permissions.clipboardWrite) ui.permissions.clipboardWrite = {}
   }
 
   return { ui }

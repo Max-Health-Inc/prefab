@@ -489,8 +489,8 @@ describe('registerViewerResource()', () => {
       permissions: { clipboardWrite: true },
     })
 
-    const meta = server.registered[0].options._meta as { ui: { permissions: Record<string, boolean> } }
-    expect(meta.ui.permissions.clipboardWrite).toBe(true)
+    const meta = server.registered[0].options._meta as { ui: { permissions: Record<string, Record<string, never>> } }
+    expect(meta.ui.permissions.clipboardWrite).toEqual({})
   })
 
   it('custom options pass through to HTML', async () => {
