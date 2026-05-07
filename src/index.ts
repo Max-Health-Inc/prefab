@@ -57,6 +57,10 @@ export { Alert, AlertTitle, AlertDescription } from './components/alert/index.js
 // ── Media ────────────────────────────────────────────────────────────────────
 export { Image, Audio, Video, Embed, Svg, DropZone, Mermaid } from './components/media/index.js'
 
+// ── PDF ──────────────────────────────────────────────────────────────────────
+export { PdfViewer } from './components/pdf/index.js'
+export type { PdfViewerProps, PdfZoom } from './components/pdf/index.js'
+
 // ── Charts ───────────────────────────────────────────────────────────────────
 export { BarChart, LineChart, AreaChart, PieChart, RadarChart, ScatterChart, Sparkline, RadialChart, Histogram } from './components/charts/index.js'
 export type { ChartSeries, BaseChartProps, BarChartProps, SparklineProps, RadialChartProps, HistogramProps } from './components/charts/index.js'

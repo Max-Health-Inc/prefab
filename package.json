@@ -35,6 +35,10 @@
       "import": "./dist/auto/index.js",
       "types": "./dist/auto/index.d.ts"
     },
+    "./pdf": {
+      "import": "./dist/components/pdf/index.js",
+      "types": "./dist/components/pdf/index.d.ts"
+    },
     "./prefab.css": "./dist/prefab.css"
   },
   "sideEffects": false,
