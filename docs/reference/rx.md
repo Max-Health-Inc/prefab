@@ -1,3 +1,7 @@
+---
+description: API reference for rx() expressions, 20+ built-in pipes, signals, and reactive collections in prefab's state system.
+---
+
 # Reactive Expressions (`rx`)
 
 Reactive expressions are template strings evaluated client-side by the renderer. They reference state values, loop variables, and event data — and update automatically when state changes.

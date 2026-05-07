@@ -1,3 +1,7 @@
+---
+description: Mount $prefab wire JSON into the browser with the vanilla DOM renderer. Zero dependencies, works in any iframe or web page.
+---
+
 # Browser Renderer
 
 The prefab renderer is an IIFE bundle (`dist/renderer.min.js`) that renders `$prefab` wire JSON into vanilla DOM. Zero framework dependencies.

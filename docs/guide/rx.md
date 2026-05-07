@@ -1,3 +1,7 @@
+---
+description: Reactive template expressions, pipes, signals, and collections — prefab's client-side state system with auto-updating UI bindings.
+---
+
 # Reactive Expressions (`rx`)
 
 Reactive expressions are template strings evaluated client-side by the renderer. They reference state values, loop variables, and event data — and update automatically when state changes.

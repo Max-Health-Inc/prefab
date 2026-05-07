@@ -1,3 +1,7 @@
+---
+description: API reference for autoTable, autoChart, autoForm, autoMetrics, autoTimeline, autoProgress, and autoComparison auto-rendering functions.
+---
+
 # Auto-Renderers
 
 Auto-renderers generate complete UI components from raw data — no manual component wiring needed. They're ideal for MCP tool handlers that return API responses.

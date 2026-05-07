@@ -1,3 +1,7 @@
+---
+description: Complete API reference for all 115+ prefab components — props, signatures, and wire format examples for layout, forms, data, media, and charts.
+---
+
 # Components Reference
 
 All components are functions that return a `Component` instance. They serialize to JSON via `.toJSON()` and compose as children of container components.

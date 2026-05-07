@@ -1,3 +1,7 @@
+---
+description: $prefab v0.2 wire format specification — JSON structure, component nodes, state, actions, pipes, defs, and template slots.
+---
+
 # Wire Format Specification
 
 The `$prefab` wire format is the JSON protocol that connects server-side component builders to client-side renderers. Both the TypeScript and Python libraries produce this format.

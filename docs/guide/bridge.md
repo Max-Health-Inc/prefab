@@ -1,3 +1,7 @@
+---
+description: PostMessage bridge connecting prefab iframes to MCP Apps hosts (VS Code, Claude, ChatGPT) via prefab:* and ui/* JSON-RPC protocols.
+---
+
 # PostMessage Bridge
 
 The bridge enables prefab apps running in iframes to communicate with their host via PostMessage. It supports two protocols — `prefab:*` (custom) and `ui/*` JSON-RPC (MCP Apps spec) — and works in VS Code, Claude, ChatGPT, or any MCP Apps host.
