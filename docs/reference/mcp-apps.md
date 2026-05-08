@@ -1,3 +1,7 @@
+---
+description: Complete guide to rendering prefab UIs inside MCP Apps hosts (VS Code, Claude Desktop, ChatGPT). Covers CSP, ui/* JSON-RPC protocol, and common pitfalls.
+---
+
 # Rendering Prefab UIs in MCP Apps Hosts
 
 How to make an MCP server return interactive `$prefab` UIs that render

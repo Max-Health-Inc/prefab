@@ -1,3 +1,7 @@
+---
+description: Install @maxhealth.tech/prefab and build your first MCP App UI in minutes. Covers npm setup, display() helpers, and browser rendering.
+---
+
 # Getting Started
 
 ## Installation

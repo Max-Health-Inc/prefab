@@ -1,3 +1,7 @@
+---
+description: API reference for prefab actions — CallTool, SetState, ShowToast, Navigate, OpenLink, Validate, and all serializable event handlers.
+---
+
 # Actions Reference
 
 Actions are serializable commands attached to component events (`onClick`, `onChange`, `onSubmit`, `onMount`). They execute either client-side (no server roundtrip) or via MCP transport.

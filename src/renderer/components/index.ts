@@ -11,6 +11,7 @@ import { registerInteractiveComponents } from './interactive.js'
 import { registerControlComponents } from './control.js'
 import { registerAlertComponents } from './alert.js'
 import { registerMediaComponents } from './media.js'
+import { registerPdfComponents } from './pdf.js'
 import { registerChartComponents } from './charts.js'
 import { registerTableComponents } from './table.js'
 
@@ -29,6 +30,7 @@ export function registerAllComponents(): void {
   registerControlComponents()
   registerAlertComponents()
   registerMediaComponents()
+  registerPdfComponents()
   registerChartComponents()
   registerTableComponents()
 }

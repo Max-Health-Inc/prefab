@@ -1,3 +1,7 @@
+---
+description: Guide to prefab's 115+ declarative UI components — layout, typography, forms, data tables, charts, media, and interactive elements.
+---
+
 # Components Reference
 
 All components are functions that return a `Component` instance. They serialize to JSON via `.toJSON()` and compose as children of container components.

@@ -1,3 +1,7 @@
+---
+description: API reference for the prefab browser renderer — mount(), destroy(), registerComponent(), theme configuration, and custom component renderers.
+---
+
 # Browser Renderer
 
 The prefab renderer is an IIFE bundle (`dist/renderer.min.js`) that renders `$prefab` wire JSON into vanilla DOM. Zero framework dependencies.

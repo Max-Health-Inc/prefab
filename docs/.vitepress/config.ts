@@ -1,13 +1,20 @@
 import { defineConfig } from 'vitepress'
+import llmstxt from 'vitepress-plugin-llms'
+
+const SITE_URL = 'https://max-health-inc.github.io'
+const SITE_BASE = '/prefab/'
 
 export default defineConfig({
   title: '@maxhealth.tech/prefab',
   description:
     'TypeScript declarative UI component library for MCP apps. Wire-compatible with Python prefab-ui.',
 
-  base: '/prefab/',
+  base: SITE_BASE,
   cleanUrls: true,
   lastUpdated: true,
+
+  // ── SEO ──────────────────────────────────────────────────────────────────
+  sitemap: { hostname: `${SITE_URL}${SITE_BASE}` },
 
   // Add v-pre to inline <code> so {{ }} isn't parsed as Vue interpolation.
   // Fenced code blocks already get v-pre via Shiki, but inline code does not.
@@ -23,24 +30,54 @@ export default defineConfig({
   head: [
     ['link', { rel: 'icon', href: '/prefab/favicon.ico' }],
     ['link', { rel: 'icon', type: 'image/svg+xml', href: '/prefab/brand/logo.svg' }],
+    // Open Graph
+    ['meta', { property: 'og:type', content: 'website' }],
+    ['meta', { property: 'og:site_name', content: '@maxhealth.tech/prefab' }],
+    ['meta', { property: 'og:title', content: '@maxhealth.tech/prefab — Declarative UI for MCP Apps' }],
+    ['meta', { property: 'og:description', content: '115+ TypeScript components, reactive state, zero-framework renderer for MCP Apps. Wire-compatible with Python prefab-ui.' }],
+    ['meta', { property: 'og:url', content: `${SITE_URL}${SITE_BASE}` }],
+    // Twitter
+    ['meta', { name: 'twitter:card', content: 'summary' }],
+    ['meta', { name: 'twitter:title', content: '@maxhealth.tech/prefab — Declarative UI for MCP Apps' }],
+    ['meta', { name: 'twitter:description', content: '115+ TypeScript components, reactive state, zero-framework renderer for MCP Apps.' }],
   ],
+
+  // ── Transformations ──────────────────────────────────────────────────────
+  transformPageData(pageData) {
+    // Canonical URL for every page
+    const canonicalUrl = `${SITE_URL}${SITE_BASE}${pageData.relativePath}`
+      .replace(/index\.md$/, '')
+      .replace(/\.md$/, '')
+    pageData.frontmatter.head ??= []
+    pageData.frontmatter.head.push(['link', { rel: 'canonical', href: canonicalUrl }])
+
+    // Per-page OG tags from frontmatter description
+    if (pageData.frontmatter.description) {
+      pageData.frontmatter.head.push(
+        ['meta', { property: 'og:description', content: pageData.frontmatter.description }],
+      )
+    }
+  },
 
   // Ensure static public/ apps (demo, playground) are served in dev mode.
   // VitePress's SPA router intercepts /demo/ and /playground/ as client routes;
   // this middleware rewrites them to the actual index.html before that happens.
   vite: {
-    plugins: [{
-      name: 'serve-public-apps',
-      configureServer(server) {
-        server.middlewares.use((req, _res, next) => {
-          const publicApps = ['/prefab/demo/', '/prefab/playground/']
-          if (req.url && publicApps.includes(req.url)) {
-            req.url = req.url.replace(/\/$/, '/index.html')
-          }
-          next()
-        })
+    plugins: [
+      llmstxt(),
+      {
+        name: 'serve-public-apps',
+        configureServer(server) {
+          server.middlewares.use((req, _res, next) => {
+            const publicApps = ['/prefab/demo/', '/prefab/playground/']
+            if (req.url && publicApps.includes(req.url)) {
+              req.url = req.url.replace(/\/$/, '/index.html')
+            }
+            next()
+          })
+        },
       },
-    }],
+    ],
   },
 
   themeConfig: {

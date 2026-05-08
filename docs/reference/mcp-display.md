@@ -1,3 +1,7 @@
+---
+description: API reference for display(), displayForm(), rendererHtml(), registerViewerResource(), PREFAB_RESOURCE_URI, and MCP display helper types.
+---
+
 # MCP Display Helpers
 
 These functions wrap prefab component trees as MCP tool result content arrays. Use them in MCP tool handlers to return rich UIs.

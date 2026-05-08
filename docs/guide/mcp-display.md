@@ -1,3 +1,7 @@
+---
+description: display(), displayForm(), rendererHtml(), and registerViewerResource() — server-side helpers to return prefab UIs from MCP tools.
+---
+
 # MCP Display Helpers
 
 These functions wrap prefab component trees as MCP tool result content arrays. Use them in MCP tool handlers to return rich UIs.

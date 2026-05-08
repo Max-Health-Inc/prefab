@@ -35,6 +35,10 @@
       "import": "./dist/auto/index.js",
       "types": "./dist/auto/index.d.ts"
     },
+    "./pdf": {
+      "import": "./dist/components/pdf/index.js",
+      "types": "./dist/components/pdf/index.d.ts"
+    },
     "./prefab.css": "./dist/prefab.css"
   },
   "sideEffects": false,
@@ -82,7 +86,8 @@
     "jiti": "^2.6.1",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.58.2",
-    "vitepress": "1.6.4"
+    "vitepress": "1.6.4",
+    "vitepress-plugin-llms": "^1.12.2"
   },
   "dependencies": {}
 }

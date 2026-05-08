@@ -1,3 +1,7 @@
+---
+description: How to attach actions to components — CallTool, SetState, ShowToast, Navigate, and other serializable event handlers for MCP Apps.
+---
+
 # Actions Reference
 
 Actions are serializable commands attached to component events (`onClick`, `onChange`, `onSubmit`, `onMount`). They execute either client-side (no server roundtrip) or via MCP transport.
