@@ -1,0 +1,39 @@
+# <span style="white-space:nowrap">@maxhealth.tech/prefab</span>
+
+> Declarative UI for MCP Apps
+
+115+ components, reactive state, zero-framework renderer — from TypeScript or Python.
+
+## Table of Contents
+
+### Introduction
+
+- [Getting Started](/prefab/guide/getting-started.md): Install @maxhealth.tech/prefab and build your first MCP App UI in minutes. Covers npm setup, display() helpers, and browser rendering.
+
+### Concepts
+
+- [Components Reference](/prefab/guide/components.md): Guide to prefab's 115+ declarative UI components — layout, typography, forms, data tables, charts, media, and interactive elements.
+- [Actions Reference](/prefab/guide/actions.md): How to attach actions to components — CallTool, SetState, ShowToast, Navigate, and other serializable event handlers for MCP Apps.
+- [Reactive Expressions (`rx`)](/prefab/guide/rx.md): Reactive template expressions, pipes, signals, and collections — prefab's client-side state system with auto-updating UI bindings.
+- [Auto-Renderers](/prefab/guide/auto-renderers.md): Auto-generate tables, charts, forms, metrics, and timelines from raw data with autoTable, autoChart, autoForm, and autoMetrics.
+
+### Integration
+
+- [MCP Display Helpers](/prefab/guide/mcp-display.md): display(), displayForm(), rendererHtml(), and registerViewerResource() — server-side helpers to return prefab UIs from MCP tools.
+- [Browser Renderer](/prefab/guide/renderer.md): Mount $prefab wire JSON into the browser with the vanilla DOM renderer. Zero dependencies, works in any iframe or web page.
+- [PostMessage Bridge](/prefab/guide/bridge.md): PostMessage bridge connecting prefab iframes to MCP Apps hosts (VS Code, Claude, ChatGPT) via prefab:* and ui/* JSON-RPC protocols.
+
+### Reference
+
+- [Components Reference](/prefab/reference/components.md): Complete API reference for all 115+ prefab components — props, signatures, and wire format examples for layout, forms, data, media, and charts.
+- [Actions Reference](/prefab/reference/actions.md): API reference for prefab actions — CallTool, SetState, ShowToast, Navigate, OpenLink, Validate, and all serializable event handlers.
+- [Reactive Expressions (`rx`)](/prefab/reference/rx.md): API reference for rx() expressions, 20+ built-in pipes, signals, and reactive collections in prefab's state system.
+- [Auto-Renderers](/prefab/reference/auto-renderers.md): API reference for autoTable, autoChart, autoForm, autoMetrics, autoTimeline, autoProgress, and autoComparison auto-rendering functions.
+- [MCP Display Helpers](/prefab/reference/mcp-display.md): API reference for display(), displayForm(), rendererHtml(), registerViewerResource(), PREFAB_RESOURCE_URI, and MCP display helper types.
+- [Browser Renderer](/prefab/reference/renderer.md): API reference for the prefab browser renderer — mount(), destroy(), registerComponent(), theme configuration, and custom component renderers.
+- [PostMessage Bridge](/prefab/reference/bridge.md): API reference for the PostMessage bridge — app(), onToolResult, onToolInput, prefab:* and ui/* JSON-RPC dual-protocol support.
+- [Wire Format Specification](/prefab/reference/wire-format.md): $prefab v0.2 wire format specification — JSON structure, component nodes, state, actions, pipes, defs, and template slots.
+
+### Other
+
+- [Rendering Prefab UIs in MCP Apps Hosts](/prefab/reference/mcp-apps.md): Complete guide to rendering prefab UIs inside MCP Apps hosts (VS Code, Claude Desktop, ChatGPT). Covers CSP, ui/* JSON-RPC protocol, and common pitfalls.
