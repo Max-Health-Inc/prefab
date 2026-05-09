@@ -207,6 +207,63 @@ Button('Fullscreen', { onClick: new RequestDisplayMode('fullscreen') })
 
 ***
 
+## Real-Time Subscriptions
+
+### `Subscribe(uri, opts)`
+
+Subscribe to a resource URI for real-time updates. Uses native MCP push when available, falls back to polling via `SetInterval` + `CallTool` otherwise.
+
+```ts
+new Subscribe('chess://game/abc123', {
+  stateKey: '$game',
+  fallbackInterval: 2000,
+  fallbackTool: '_action',
+  fallbackArgs: { action: 'refresh' },
+  onData: new ShowToast('Game updated'),
+})
+```
+
+| Param | Type | Description |
+|-------|------|-------------|
+| `uri` | `string` | Resource URI to subscribe to |
+| `opts.stateKey` | `string` | Store key where incoming data is written |
+| `opts.fallbackInterval` | `number` | Poll interval in ms (default `2000`, minimum `100`) |
+| `opts.fallbackTool` | `string` | Tool to call when polling |
+| `opts.fallbackArgs` | `Record<string, unknown>` | Arguments for the fallback tool |
+| `opts.onData` | `Action \| Action[]` | Callback on new data |
+| `opts.onError` | `Action \| Action[]` | Callback on error |
+
+**Wire JSON:**
+
+```json
+{
+  "action": "subscribe",
+  "uri": "chess://game/abc123",
+  "stateKey": "$game",
+  "fallbackInterval": 2000,
+  "fallbackTool": "_action",
+  "fallbackArgs": { "action": "refresh" }
+}
+```
+
+**Response handling:**
+
+* Full `$prefab` view → `remount()` (replaces entire UI)
+* `display_update()` delta → state merge via `store.merge()`
+* Plain data → `store.set(stateKey, data)`
+
+### `Unsubscribe(uri)`
+
+Stop receiving updates from a previously subscribed resource.
+
+```ts
+Button('Leave', { onClick: new Unsubscribe('chess://game/abc123') })
+```
+
+**Wire JSON:** `{ "action": "unsubscribe", "uri": "chess://game/abc123" }`
+
+***
+
 ## Action Chaining
 
 Actions can be chained via `onSuccess` / `onError`:

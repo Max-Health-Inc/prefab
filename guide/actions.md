@@ -207,6 +207,83 @@ Button('Fullscreen', { onClick: new RequestDisplayMode('fullscreen') })
 
 ***
 
+## Real-Time Subscriptions
+
+Subscribe to a resource URI for live updates. The renderer uses native MCP push when the host supports it, and automatically falls back to periodic polling otherwise.
+
+### `Subscribe(uri, opts)`
+
+Start receiving updates from a resource.
+
+```ts
+import { Subscribe, Unsubscribe, ShowToast } from '@maxhealth.tech/prefab'
+
+// Basic — push with polling fallback
+new Subscribe('chess://game/abc123', {
+  stateKey: '$game',
+  fallbackInterval: 2000,
+  fallbackTool: '_action',
+  fallbackArgs: { action: 'refresh' },
+})
+
+// With callbacks
+new Subscribe('data://stream', {
+  stateKey: '$stream',
+  fallbackInterval: 5000,
+  fallbackTool: 'poll_stream',
+  onData: new ShowToast('Updated', { variant: 'info' }),
+  onError: new ShowToast('Connection lost', { variant: 'error' }),
+})
+```
+
+| Param | Type | Description |
+|-------|------|-------------|
+| `uri` | `string` | Resource URI to subscribe to |
+| `opts.stateKey` | `string` | Store key where incoming data is written |
+| `opts.fallbackInterval` | `number` | Poll interval (ms) when host lacks push support. Default `2000` |
+| `opts.fallbackTool` | `string` | Tool to call when polling in fallback mode |
+| `opts.fallbackArgs` | `Record<string, unknown>` | Arguments passed to the fallback tool |
+| `opts.onData` | `Action \| Action[]` | Runs whenever new data arrives (push or poll) |
+| `opts.onError` | `Action \| Action[]` | Runs on subscription or poll error |
+
+**How it works:**
+
+1. **Push path** — If `transport.subscribe` exists and `capabilities.subscriptions` is true, the renderer subscribes natively. Data arrives via push and is stored at `stateKey`.
+2. **Fallback path** — Otherwise, a `SetInterval` + `CallTool` loop polls at `fallbackInterval`. The tool response is handled identically to a `toolCall` action: full `$prefab` views trigger `remount()`, `display_update()` deltas merge into state, and plain data is stored at `stateKey`.
+
+### `Unsubscribe(uri)`
+
+Stop receiving updates. Cleans up both push subscriptions and polling intervals.
+
+```ts
+Button('Leave', { onClick: new Unsubscribe('chess://game/abc123') })
+```
+
+::: tip
+Subscriptions are automatically cleaned up when the renderer is destroyed. Use `Unsubscribe` explicitly only when you need to stop updates mid-session (e.g. leaving a game lobby).
+:::
+
+### Typical pattern: `onMount` + Subscribe
+
+```ts
+display(
+  Column({ children: [
+    H1('Live Dashboard'),
+    Text(rx('$data.status')),
+  ] }),
+  {
+    state: { $data: {} },
+    onMount: new Subscribe('app://dashboard/live', {
+      stateKey: '$data',
+      fallbackInterval: 5000,
+      fallbackTool: 'refresh_dashboard',
+    }),
+  },
+)
+```
+
+***
+
 ## Action Builder Sugar
 
 Ergonomic wrappers that accept `Signal` or `Collection` instead of raw string keys. These produce the same wire-format actions but keep your code type-safe and DRY.
