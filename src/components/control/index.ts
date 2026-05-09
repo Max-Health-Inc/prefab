@@ -5,6 +5,16 @@
 import { Component, ContainerComponent } from '../../core/component.js'
 import type { ContainerProps, ComponentProps, RxStr } from '../../core/component.js'
 
+/** Runtime check: is the value an RxStr (string | Rx | Ref) rather than a props object? */
+function isRxStr(v: unknown): v is RxStr {
+  if (typeof v === 'string') return true
+  if (typeof v === 'object' && v !== null) {
+    // Rx has 'expression', Ref has 'subscribe' — neither has 'condition'
+    return 'expression' in v || 'subscribe' in v
+  }
+  return false
+}
+
 // ── ForEach ──────────────────────────────────────────────────────────────────
 
 export interface ForEachProps extends ContainerProps {
@@ -41,9 +51,9 @@ export interface ConditionProps extends ContainerProps {
  * ```
  */
 export function If(propsOrCondition: ConditionProps | RxStr, children?: Component[]): ContainerComponent {
-  if (typeof propsOrCondition === 'string' || typeof propsOrCondition === 'object' && 'subscribe' in propsOrCondition) {
+  if (isRxStr(propsOrCondition)) {
     const c = new ContainerComponent('If', { children })
-    const condition = propsOrCondition as RxStr
+    const condition = propsOrCondition
     c.getProps = () => ({ condition: String(condition) })
     return c
   }
@@ -62,9 +72,9 @@ export function If(propsOrCondition: ConditionProps | RxStr, children?: Componen
  * ```
  */
 export function Elif(propsOrCondition: ConditionProps | RxStr, children?: Component[]): ContainerComponent {
-  if (typeof propsOrCondition === 'string' || typeof propsOrCondition === 'object' && 'subscribe' in propsOrCondition) {
+  if (isRxStr(propsOrCondition)) {
     const c = new ContainerComponent('Elif', { children })
-    const condition = propsOrCondition as RxStr
+    const condition = propsOrCondition
     c.getProps = () => ({ condition: String(condition) })
     return c
   }
