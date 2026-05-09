@@ -13,6 +13,10 @@ import { evaluateTemplate, isRxExpression } from './rx.js'
 export interface McpTransport {
   callTool(name: string, args: Record<string, unknown>): Promise<unknown>
   sendMessage(message: string): Promise<void>
+  /** Subscribe to a resource URI for push updates. Returns an unsubscribe function. */
+  subscribe?(uri: string, onData: (data: unknown) => void): () => void
+  /** Transport capabilities discovered during handshake. */
+  readonly capabilities?: { subscriptions?: boolean }
 }
 
 /** Toast event — emitted for showToast actions */
@@ -81,6 +85,10 @@ async function dispatchOne(action: ActionJSON, ctx: DispatchContext): Promise<vo
       return handleCallHandler(action, ctx)
     case 'requestDisplayMode':
       { handleRequestDisplayMode(action, ctx); return; }
+    case 'subscribe':
+      { handleSubscribe(action, ctx); return; }
+    case 'unsubscribe':
+      { handleUnsubscribe(action); return; }
     default:
       console.warn(`[prefab] Unknown action: ${type}`)
   }
@@ -286,6 +294,96 @@ function handleRequestDisplayMode(action: ActionJSON, _ctx: DispatchContext): vo
       detail: { mode: action.mode },
     }))
   }
+}
+
+// ── Subscriptions ────────────────────────────────────────────────────────────
+
+/** Active subscription cleanups keyed by resource URI. */
+const activeSubscriptions = new Map<string, () => void>()
+const MAX_SUBSCRIPTIONS = 50
+const DEFAULT_FALLBACK_INTERVAL = 2000
+
+function handleSubscribe(action: ActionJSON, ctx: DispatchContext): void {
+  const uri = action.uri as string
+  const stateKey = action.stateKey as string
+
+  if (!uri || !stateKey) {
+    console.warn('[prefab] subscribe: missing uri or stateKey')
+    return
+  }
+
+  // Prevent duplicate subscriptions to the same URI
+  if (activeSubscriptions.has(uri)) {
+    return
+  }
+
+  if (activeSubscriptions.size >= MAX_SUBSCRIPTIONS) {
+    console.warn('[prefab] Max subscriptions reached, ignoring new subscribe')
+    return
+  }
+
+  const onDataCallback = (data: unknown): void => {
+    ctx.store.set(stateKey, data)
+    ctx.rerender()
+    void runCallbacks(action.onData, ctx, { $data: data })
+  }
+
+  // Push path: transport supports native subscriptions
+  if (ctx.transport?.subscribe && ctx.transport.capabilities?.subscriptions) {
+    const unsubscribe = ctx.transport.subscribe(uri, onDataCallback)
+    activeSubscriptions.set(uri, unsubscribe)
+    return
+  }
+
+  // Fallback path: poll via SetInterval + CallTool
+  const fallbackTool = action.fallbackTool as string | undefined
+  const fallbackInterval = (action.fallbackInterval as number | undefined) ?? DEFAULT_FALLBACK_INTERVAL
+
+  if (!fallbackTool) {
+    console.warn('[prefab] subscribe: host lacks subscriptions and no fallbackTool specified')
+    return
+  }
+
+  if (!ctx.transport) {
+    console.warn('[prefab] No MCP transport configured for subscribe fallback')
+    return
+  }
+
+  const fallbackArgs = (action.fallbackArgs as Record<string, unknown> | undefined) ?? {}
+  const ms = Math.max(fallbackInterval, MIN_INTERVAL_MS)
+  const transport = ctx.transport
+
+  const id = globalThis.setInterval(() => {
+    void (async () => {
+      try {
+        const result = await transport.callTool(fallbackTool, fallbackArgs)
+        onDataCallback(result)
+      } catch (err) {
+        void runCallbacks(action.onError, ctx, { $error: err })
+      }
+    })()
+  }, ms)
+
+  activeSubscriptions.set(uri, () => globalThis.clearInterval(id))
+}
+
+function handleUnsubscribe(action: ActionJSON): void {
+  const uri = action.uri as string
+  if (!uri) {
+    console.warn('[prefab] unsubscribe: missing uri')
+    return
+  }
+  const cleanup = activeSubscriptions.get(uri)
+  if (cleanup) {
+    cleanup()
+    activeSubscriptions.delete(uri)
+  }
+}
+
+/** Clear all active subscriptions (called on destroy). */
+export function clearAllSubscriptions(): void {
+  for (const [, cleanup] of activeSubscriptions) cleanup()
+  activeSubscriptions.clear()
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────

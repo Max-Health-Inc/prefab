@@ -34,7 +34,7 @@ import { DestroyRegistry } from './engine.js'
 import { registerAllComponents } from './components/index.js'
 import { applyTheme, applyKeyBindings, createThemeToggle } from './theme.js'
 import type { ThemeToggleOptions } from './theme.js'
-import { dispatchActions, clearAllIntervals } from './actions.js'
+import { dispatchActions, clearAllIntervals, clearAllSubscriptions } from './actions.js'
 import type { McpTransport, ToastEvent, ActionJSON } from './actions.js'
 import { createHttpTransport, createNoopTransport } from './transport.js'
 import type { McpTransportOptions } from './transport.js'
@@ -235,6 +235,7 @@ export const PrefabRenderer = {
         cleanupToggle?.()
         cleanupKeys?.()
         clearAllIntervals()
+        clearAllSubscriptions()
         for (const s of styleEls) s.remove()
         // Unregister wire-hydrated pipes (scoped to this mount)
         for (const name of wirePipeNames) unregisterPipe(name)
