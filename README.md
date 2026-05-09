@@ -275,6 +275,24 @@ Button('Save', { onClick: new ShowToast('Saved!', { variant: 'success' }) })
 
 **MCP actions:** `CallTool`, `SendMessage`, `UpdateContext`, `RequestDisplayMode`
 
+**Real-time:** `Subscribe`, `Unsubscribe` — resource subscriptions with automatic polling fallback
+
+```ts
+import { Subscribe, Unsubscribe, ShowToast } from '@maxhealth.tech/prefab'
+
+// Live updates — uses native push when available, polls otherwise
+new Subscribe('chess://game/abc123', {
+  stateKey: '$game',
+  fallbackInterval: 2000,
+  fallbackTool: '_action',
+  fallbackArgs: { action: 'refresh' },
+  onData: new ShowToast('Game updated'),
+})
+
+// Cleanup
+Button('Leave', { onClick: new Unsubscribe('chess://game/abc123') })
+```
+
 ## Auto-Renderers
 
 Generate complete UIs from raw data — no manual component wiring:
@@ -338,6 +356,29 @@ return display_update({ count: 42, status: 'complete' })
 // Error display
 return display_error('User not found', { code: 404 })
 ```
+
+### `rendererHtml()` — Viewer HTML Shell
+
+Generate the complete HTML page for an MCP Apps viewer resource. Loads `prefab.css` + `renderer.auto.min.js` from the CDN automatically — no manual script wiring needed:
+
+```ts
+import { rendererHtml, registerViewerResource } from '@maxhealth.tech/prefab/mcp'
+
+// Minimal — just works
+const html = rendererHtml()
+
+// With extras
+const html = rendererHtml({
+  title: 'My App',
+  stylesheets: ['https://cdn.example.com/theme.css'],
+  scripts: ['https://cdn.example.com/plugin.js'],
+})
+
+// One-liner resource registration on your MCP server
+registerViewerResource(server, { title: 'Patient Browser' })
+```
+
+Options: `title`, `scripts`, `stylesheets`, `cdnBase` (override CDN URL).
 
 ## Browser Renderer
 
