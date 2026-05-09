@@ -141,6 +141,30 @@ describe('display()', () => {
     })
     expect((result.structuredContent as Record<string, unknown>).layout).toEqual({ maxHeight: 400 })
   })
+
+  it('forwards stylesheets to wire format', () => {
+    const result = display(Text('styled'), {
+      stylesheets: ['.custom { color: red; }'],
+    })
+    const wire = parsePrefab(result) as PrefabWireFormat
+    expect(wire.stylesheets).toEqual(['.custom { color: red; }'])
+  })
+
+  it('forwards pipes to wire format', () => {
+    const result = display(Text('piped'), {
+      pipes: { double: (v: unknown) => Number(v) * 2 },
+    })
+    const wire = parsePrefab(result) as PrefabWireFormat
+    expect(wire.pipes).toBeDefined()
+    expect(wire.pipes!.double).toContain('* 2')
+  })
+
+  it('omits stylesheets and pipes when not provided', () => {
+    const result = display(Text('plain'))
+    const wire = parsePrefab(result) as PrefabWireFormat
+    expect(wire.stylesheets).toBeUndefined()
+    expect(wire.pipes).toBeUndefined()
+  })
 })
 
 // ── display_form() ───────────────────────────────────────────────────────────

@@ -21,6 +21,7 @@ import { type Component } from '../core/component.js'
 import { PrefabApp, VERSION } from '../app.js'
 import type { Theme, LayoutHints } from '../app.js'
 import type { Action } from '../actions/types.js'
+import type { PipeFn } from '../rx/pipes.js'
 import type { McpToolResult } from './types.js'
 
 // ── display() ────────────────────────────────────────────────────────────────
@@ -42,6 +43,10 @@ export interface DisplayOptions {
   cssClass?: string
   /** Size hints for the host container (iframe, panel, etc.). */
   layout?: LayoutHints
+  /** Custom CSS stylesheets to inject into the renderer. */
+  stylesheets?: string[]
+  /** Custom pipe functions for reactive expressions. */
+  pipes?: Record<string, PipeFn>
 }
 
 /**
@@ -68,6 +73,8 @@ export function display(
         keyBindings: options?.keyBindings,
         cssClass: options?.cssClass,
         layout: options?.layout,
+        stylesheets: options?.stylesheets,
+        pipes: options?.pipes,
       })
 
   const wire = app.toJSON()
