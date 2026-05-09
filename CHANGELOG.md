@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.32] — 2026-05-09
+
+### Bug Fixes
+- **Fixed**: `If()` / `Elif()` shorthand now correctly detects `Rx` expression objects — the previous inline type check only matched strings and `Ref` (subscribe), silently treating `Rx({ expression })` as a props object
+- **Fixed**: Action handlers (`toolCall`, `callHandler`, `fetch`) now handle `display_update()` state delta payloads (`{ $prefab, update: { state } }`) by merging into the store — previously these were silently dropped while `onToolResult` in auto-mount already handled them correctly (closes #7)
+
+## [0.2.31] — 2026-05-09
+
+### New Features
+- **CallTool structuredContent remount** — when a `toolCall`, `callHandler`, or `fetch` action returns a full prefab view (`{ $prefab, view }`), the renderer remounts with the new view instead of just storing the raw result (#7)
+  - Supports direct payloads, MCP `structuredContent` wrappers, and `content[].text` JSON blocks
+  - Preserves existing store state across remounts
+  - Handles pipes, stylesheets, layout hints, key bindings, defs, and theme on remount
+
 ## [0.2.30] — 2026-05-09
 
 ### Bug Fixes
