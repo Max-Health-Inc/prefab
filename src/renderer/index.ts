@@ -116,9 +116,12 @@ export const PrefabRenderer = {
    * @param options - Optional transport and toast handler.
    * @returns A MountedApp handle for updates and cleanup.
    */
-  mount(root: HTMLElement, data: PrefabWireData, options?: MountOptions): MountedApp {
+  mount(root: HTMLElement, initialData: PrefabWireData, options?: MountOptions): MountedApp {
     // Register all built-in components (idempotent)
     registerAllComponents()
+
+    // Mutable reference — remount() replaces this with new wire data
+    let data = initialData
 
     // Hydrate custom pipes from wire format (before any rendering)
     const wirePipeNames: string[] = []
@@ -147,12 +150,62 @@ export const PrefabRenderer = {
     // Destroy registry — tracks component cleanup callbacks
     const destroyRegistry = new DestroyRegistry()
 
+    // Remount function — replaces current view with a new wire payload
+    function remount(wireData: Record<string, unknown>): void {
+      const newData = wireData as unknown as PrefabWireData
+      // Update the mutable reference so render() uses the new view
+      data = newData
+      // Merge new state into existing store (preserves transport-set keys)
+      if (newData.state) store.merge(newData.state)
+      // Update defs if provided
+      if (newData.defs) ctx.defs = newData.defs
+      // Re-apply theme if changed
+      if (newData.theme) applyTheme(root, newData.theme)
+
+      // Hydrate new pipes (if any)
+      if (newData.pipes) {
+        for (const [name, source] of Object.entries(newData.pipes)) {
+          hydratePipe(name, source, wirePipeNames)
+        }
+      }
+
+      // Swap stylesheets: remove old, inject new
+      for (const s of styleEls) s.remove()
+      styleEls.length = 0
+      if (newData.stylesheets) {
+        for (const css of newData.stylesheets) {
+          const style = document.createElement('style')
+          style.textContent = css
+          style.dataset.prefab = 'injected'
+          document.head.appendChild(style)
+          styleEls.push(style)
+        }
+      }
+
+      // Update layout hints
+      applyLayout(root, newData.layout)
+
+      // Update key bindings
+      cleanupKeys?.()
+      cleanupKeys = undefined
+      if (newData.keyBindings) {
+        cleanupKeys = applyKeyBindings(newData.keyBindings, async (actions) => {
+          await dispatchActions(actions as ActionJSON | ActionJSON[], {
+            store, transport, scope: {}, rerender: () => render(), remount, onToast,
+          })
+        })
+      }
+
+      render()
+    }
+
     // Build render context
     const ctx: RenderContext = {
       store,
       scope: {},
       transport,
       rerender: () => render(),
+      remount,
       onToast,
       defs: data.defs,
       destroyRegistry,
@@ -161,15 +214,8 @@ export const PrefabRenderer = {
     // Apply theme
     applyTheme(root, data.theme)
 
-    // Apply layout hints as inline styles on the root element
-    if (data.layout) {
-      if (data.layout.preferredHeight != null) root.style.height = `${data.layout.preferredHeight}px`
-      if (data.layout.minHeight != null) root.style.minHeight = `${data.layout.minHeight}px`
-      if (data.layout.maxHeight != null) {
-        root.style.maxHeight = `${data.layout.maxHeight}px`
-        root.style.overflow = 'auto'
-      }
-    }
+    // Apply layout hints
+    applyLayout(root, data.layout)
 
     // Inject stylesheets
     const styleEls: HTMLStyleElement[] = []
@@ -192,6 +238,7 @@ export const PrefabRenderer = {
           transport,
           scope: {},
           rerender: () => render(),
+          remount,
           onToast,
         })
       })
@@ -333,6 +380,25 @@ function defaultToastHandler(toast: ToastEvent): void {
     toastEl.style.opacity = '0'
     setTimeout(() => toastEl.remove(), 300)
   }, duration)
+}
+
+// ── Layout helpers ───────────────────────────────────────────────────────────
+
+/** Apply layout hints as inline styles on the root element. Clears previous hints. */
+function applyLayout(root: HTMLElement, layout?: PrefabWireData['layout']): void {
+  // Clear previous layout styles
+  root.style.height = ''
+  root.style.minHeight = ''
+  root.style.maxHeight = ''
+  root.style.overflow = ''
+
+  if (!layout) return
+  if (layout.preferredHeight != null) root.style.height = `${layout.preferredHeight}px`
+  if (layout.minHeight != null) root.style.minHeight = `${layout.minHeight}px`
+  if (layout.maxHeight != null) {
+    root.style.maxHeight = `${layout.maxHeight}px`
+    root.style.overflow = 'auto'
+  }
 }
 
 function getOrCreateToastContainer(): HTMLElement {

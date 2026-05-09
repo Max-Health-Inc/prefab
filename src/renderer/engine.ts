@@ -56,6 +56,8 @@ export interface RenderContext {
   transport?: McpTransport
   rerender: () => void
   onToast?: (toast: ToastEvent) => void
+  /** Replace the current view with a new prefab wire payload (server-rendered pattern). */
+  remount?: (data: Record<string, unknown>) => void
   defs?: Record<string, ComponentNode>
   templates?: Record<string, ComponentNode[]>
   slots?: Record<string, ComponentNode[]>
@@ -299,6 +301,7 @@ export function makeDispatchCtx(ctx: RenderContext): DispatchContext {
     scope: ctx.scope,
     rerender: ctx.rerender,
     onToast: ctx.onToast,
+    remount: ctx.remount,
   }
 }
 

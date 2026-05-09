@@ -58,6 +58,8 @@ export interface DispatchContext {
   scope?: EvalScope
   rerender: () => void
   onToast?: (toast: ToastEvent) => void
+  /** Replace the current view with a new prefab wire payload (server-rendered pattern). */
+  remount?: (data: Record<string, unknown>) => void
 }
 
 export type ActionJSON = Record<string, unknown>
@@ -221,7 +223,17 @@ async function handleToolCall(action: ActionJSON, ctx: DispatchContext): Promise
     if (action.resultKey != null) {
       ctx.store.set(action.resultKey as string, result)
     }
-    ctx.rerender()
+
+    // Server-rendered pattern: if the result contains a new prefab view, remount it
+    const wireData = extractPrefabPayload(result)
+    if (wireData && ctx.remount) {
+      ctx.remount(wireData)
+    } else {
+      // State delta pattern: if the result is a display_update(), merge state
+      applyPrefabUpdate(result, ctx)
+      ctx.rerender()
+    }
+
     await runCallbacks(action.onSuccess, ctx, { $result: result })
   } catch (err) {
     await runCallbacks(action.onError, ctx, { $error: err })
@@ -265,7 +277,17 @@ async function handleFetch(action: ActionJSON, ctx: DispatchContext): Promise<vo
     if (action.resultKey != null) {
       ctx.store.set(action.resultKey as string, result)
     }
-    ctx.rerender()
+
+    // Server-rendered pattern: if the response contains a new prefab view, remount it
+    const wireData = extractPrefabPayload(result)
+    if (wireData && ctx.remount) {
+      ctx.remount(wireData)
+    } else {
+      // State delta pattern: if the result is a display_update(), merge state
+      applyPrefabUpdate(result, ctx)
+      ctx.rerender()
+    }
+
     await runCallbacks(action.onSuccess, ctx, { $result: result })
   } catch (err) {
     await runCallbacks(action.onError, ctx, { $error: err })
@@ -306,7 +328,17 @@ async function handleCallHandler(action: ActionJSON, ctx: DispatchContext): Prom
     if (action.resultKey != null) {
       ctx.store.set(action.resultKey as string, result)
     }
-    ctx.rerender()
+
+    // Server-rendered pattern: if the result contains a new prefab view, remount it
+    const wireData = extractPrefabPayload(result)
+    if (wireData && ctx.remount) {
+      ctx.remount(wireData)
+    } else {
+      // State delta pattern: if the result is a display_update(), merge state
+      applyPrefabUpdate(result, ctx)
+      ctx.rerender()
+    }
+
     await runCallbacks(action.onSuccess, ctx, { $result: result })
   } catch (err) {
     await runCallbacks(action.onError, ctx, { $error: err })
@@ -419,6 +451,98 @@ export function clearAllSubscriptions(): void {
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
+
+/**
+ * Extract a prefab wire payload from a tool call result.
+ *
+ * Checks both the result itself and `structuredContent` for a `$prefab` marker.
+ * Also inspects MCP content arrays for JSON text blocks containing `$prefab`.
+ */
+export function extractPrefabPayload(result: unknown): Record<string, unknown> | null {
+  if (result == null || typeof result !== 'object') return null
+  const obj = result as Record<string, unknown>
+
+  // Direct prefab payload (e.g. HTTP transport already parsed it)
+  if ('$prefab' in obj && 'view' in obj) return obj
+
+  // structuredContent wrapper (MCP tool result envelope)
+  if ('structuredContent' in obj) {
+    const sc = obj.structuredContent
+    if (sc != null && typeof sc === 'object') {
+      const sco = sc as Record<string, unknown>
+      if ('$prefab' in sco && 'view' in sco) return sco
+    }
+  }
+
+  // MCP content array — scan text blocks for JSON with $prefab + view
+  if ('content' in obj && Array.isArray(obj.content)) {
+    for (const block of obj.content as Record<string, unknown>[]) {
+      if (block.type === 'text' && typeof block.text === 'string') {
+        try {
+          const parsed = JSON.parse(block.text) as unknown
+          if (parsed != null && typeof parsed === 'object') {
+            const po = parsed as Record<string, unknown>
+            if ('$prefab' in po && 'view' in po) return po
+          }
+        } catch { /* not JSON */ }
+      }
+    }
+  }
+
+  return null
+}
+
+/**
+ * Extract a prefab state-update payload from a tool call result.
+ *
+ * Mirrors extractPrefabPayload but matches `{ $prefab, update: { state } }`
+ * (the shape produced by `display_update()`).
+ */
+export function extractPrefabUpdate(result: unknown): Record<string, unknown> | null {
+  if (result == null || typeof result !== 'object') return null
+  const obj = result as Record<string, unknown>
+
+  if (isPrefabUpdate(obj)) return obj
+
+  // structuredContent wrapper
+  if ('structuredContent' in obj) {
+    const sc = obj.structuredContent
+    if (sc != null && typeof sc === 'object' && isPrefabUpdate(sc as Record<string, unknown>)) {
+      return sc as Record<string, unknown>
+    }
+  }
+
+  // MCP content array
+  if ('content' in obj && Array.isArray(obj.content)) {
+    for (const block of obj.content as Record<string, unknown>[]) {
+      if (block.type === 'text' && typeof block.text === 'string') {
+        try {
+          const parsed = JSON.parse(block.text) as unknown
+          if (parsed != null && typeof parsed === 'object' && isPrefabUpdate(parsed as Record<string, unknown>)) {
+            return parsed as Record<string, unknown>
+          }
+        } catch { /* not JSON */ }
+      }
+    }
+  }
+
+  return null
+}
+
+/** Check if an object is a prefab state-update payload (`{ $prefab, update: { state } }`). */
+function isPrefabUpdate(obj: Record<string, unknown>): boolean {
+  if (!('$prefab' in obj) || !('update' in obj)) return false
+  const update = obj.update
+  return update != null && typeof update === 'object' && 'state' in (update as Record<string, unknown>)
+}
+
+/** If a result contains a display_update() payload, merge its state into the store. */
+function applyPrefabUpdate(result: unknown, ctx: DispatchContext): void {
+  const updateData = extractPrefabUpdate(result)
+  if (!updateData) return
+  const update = (updateData as { update: { state: Record<string, unknown> } }).update
+  ctx.store.merge(update.state)
+}
 
 /** Blocked URL schemes that can execute code. */
 const UNSAFE_SCHEME_RE = /^\s*(javascript|vbscript|data):/i
