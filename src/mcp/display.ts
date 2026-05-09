@@ -89,12 +89,7 @@ export function display(
 import { autoForm } from '../auto/form.js'
 import type { AutoFormField, AutoFormOptions } from '../auto/form.js'
 
-export interface DisplayFormOptions extends AutoFormOptions {
-  /** Initial state values for form fields. */
-  state?: Record<string, unknown>
-  /** Theme overrides. */
-  theme?: Theme
-}
+export interface DisplayFormOptions extends AutoFormOptions, DisplayOptions {}
 
 /**
  * Return a form UI as an MCP tool result.
@@ -116,6 +111,13 @@ export function display_form(
     view,
     state: options?.state,
     theme: options?.theme,
+    defs: options?.defs,
+    onMount: options?.onMount,
+    keyBindings: options?.keyBindings,
+    cssClass: options?.cssClass,
+    layout: options?.layout,
+    stylesheets: options?.stylesheets,
+    pipes: options?.pipes,
   })
 
   const wire = app.toJSON()

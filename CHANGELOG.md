@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.35] — 2026-05-09
+
+### Bug Fixes
+- **Fixed**: `display_form()` now forwards all `DisplayOptions` — `layout`, `cssClass`, `stylesheets`, `pipes`, `onMount`, `keyBindings`, and `defs` were silently dropped (only `state` and `theme` worked). `DisplayFormOptions` now extends `DisplayOptions`
+- **Fixed**: `display_success` / `displaySuccess` and `DisplaySuccessOptions` are now exported from the package entry point
+
 ## [0.2.34] — 2026-05-09
 
 ### Bug Fixes
