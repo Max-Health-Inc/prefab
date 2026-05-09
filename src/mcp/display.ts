@@ -371,10 +371,9 @@ export const PREFAB_RESOURCE_URI = 'ui://prefab/viewer'
 /** MIME type required by MCP Apps hosts. */
 const MCP_APP_MIME = 'text/html;profile=mcp-app'
 
-/** CDN base for the @maxhealth.tech/prefab package (major.minor derived from VERSION). */
+/** CDN base for the @maxhealth.tech/prefab package (exact version, never stale). */
 function cdnBase(): string {
-  const [major, minor] = VERSION.split('.')
-  return `https://cdn.jsdelivr.net/npm/@maxhealth.tech/prefab@${major}.${minor}/dist`
+  return `https://cdn.jsdelivr.net/npm/@maxhealth.tech/prefab@${VERSION}/dist`
 }
 
 export interface RendererHtmlOptions {

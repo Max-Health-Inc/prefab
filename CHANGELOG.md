@@ -8,6 +8,7 @@ All notable changes to this project will be documented in this file.
 - **Fixed**: Reverted serializer output back to **camelCase** (`cssClass`, `onMount`, `onClick`, `resultKey`, etc.), matching the upstream PrefectHQ/prefab wire format (`by_alias=True`). The snake_case serializer in v0.2.28 was a breaking change based on an incorrect assumption about the wire spec.
 - **Kept**: Renderer normalization layer — `renderNode()` and `dispatchOne()` accept **both** snake_case and camelCase input, so Python-SDK-generated wire data still renders correctly.
 - **Fixed**: `autoTable` column keys now match raw data keys (no `toCamelCase` conversion) — snake_case row keys like `proposed_start` render correctly without column/key mismatch.
+- **Fixed**: `cdnBase()` now uses the **exact** version (`@0.2.30`) instead of a semver range (`@0.2`) — eliminates stale jsDelivr cache serving old renderer bundles after a new patch publish (closes #6)
 
 ## [0.2.29] — 2026-05-09 *(unpublished — included the faulty snake_case serializer from v0.2.28)*
 
