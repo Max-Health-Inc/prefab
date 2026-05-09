@@ -2,9 +2,9 @@
  * TDD tests for issue #4 — camelCase vs snake_case wire format.
  *
  * Tests that:
- *   1. TS serializer outputs snake_case field names (matching Python)
+ *   1. TS serializer outputs camelCase field names (matching PrefectHQ/prefab by_alias=True)
  *   2. Renderer accepts both snake_case and camelCase input
- *   3. Actions serialize with snake_case field names
+ *   3. Actions serialize with camelCase field names
  *
  * @happy-dom
  */
@@ -58,154 +58,152 @@ function makeCtx(
 // PART 1: Serializer should output snake_case
 // ═════════════════════════════════════════════════════════════════════════════
 
-describe('Serializer outputs snake_case field names', () => {
+describe('Serializer outputs camelCase field names', () => {
 
-  it('Button: onClick → on_click', () => {
+  it('Button: onClick stays camelCase', () => {
     const btn = Button('Refresh', {
       onClick: new CallTool('_action', { arguments: { action: 'refresh' } }),
     })
     const json = btn.toJSON()
-    expect(json.on_click).toBeDefined()
-    expect(json.onClick).toBeUndefined()
+    expect(json.onClick).toBeDefined()
+    expect(json.on_click).toBeUndefined()
   })
 
-  it('Form: onSubmit → on_submit', () => {
+  it('Form: onSubmit stays camelCase', () => {
     const form = Form({
       onSubmit: new CallTool('submit'),
       children: [],
     })
     const json = form.toJSON()
-    expect(json.on_submit).toBeDefined()
-    expect(json.onSubmit).toBeUndefined()
+    expect(json.onSubmit).toBeDefined()
+    expect(json.on_submit).toBeUndefined()
   })
 
-  it('Component: cssClass → css_class', () => {
+  it('Component: cssClass stays camelCase', () => {
     const col = Column({ cssClass: 'my-class', children: [] })
     const json = col.toJSON()
-    expect(json.css_class).toBe('my-class')
-    expect(json.cssClass).toBeUndefined()
+    expect(json.cssClass).toBe('my-class')
+    expect(json.css_class).toBeUndefined()
   })
 
-  it('Component: onMount → on_mount', () => {
+  it('Component: onMount stays camelCase', () => {
     const col = Column({
       onMount: new SetState('x', 1),
       children: [],
     })
     const json = col.toJSON()
-    expect(json.on_mount).toBeDefined()
-    expect(json.onMount).toBeUndefined()
+    expect(json.onMount).toBeDefined()
+    expect(json.on_mount).toBeUndefined()
   })
 
-  it('Input: inputType → input_type, readOnly → read_only', () => {
+  it('Input: inputType stays camelCase', () => {
     const input = Input({ name: 'email', inputType: 'email' })
     const json = input.toJSON()
-    expect(json.input_type).toBe('email')
-    expect(json.inputType).toBeUndefined()
-    expect(json.read_only).toBe(false)
-    expect(json.readOnly).toBeUndefined()
+    expect(json.inputType).toBe('email')
+    expect(json.input_type).toBeUndefined()
   })
 
-  it('StatefulComponent: onChange → on_change', () => {
+  it('StatefulComponent: onChange stays camelCase', () => {
     const sel = Select({
       name: 'choice',
       onChange: new SetState('x', 1),
       children: [SelectOption('a')],
     })
     const json = sel.toJSON()
-    expect(json.on_change).toBeDefined()
-    expect(json.onChange).toBeUndefined()
+    expect(json.onChange).toBeDefined()
+    expect(json.on_change).toBeUndefined()
   })
 
-  it('Metric: trendSentiment → trend_sentiment', () => {
+  it('Metric: trendSentiment stays camelCase', () => {
     const m = Metric({ label: 'Users', value: '100', trendSentiment: 'positive' })
     const json = m.toJSON()
-    expect(json.trend_sentiment).toBe('positive')
-    expect(json.trendSentiment).toBeUndefined()
+    expect(json.trendSentiment).toBe('positive')
+    expect(json.trend_sentiment).toBeUndefined()
   })
 
-  it('GridItem: colSpan → col_span, rowSpan → row_span', () => {
+  it('GridItem: colSpan/rowSpan stay camelCase', () => {
     const gi = GridItem({ colSpan: 2, rowSpan: 3, children: [] })
     const json = gi.toJSON()
-    expect(json.col_span).toBe(2)
-    expect(json.colSpan).toBeUndefined()
-    expect(json.row_span).toBe(3)
-    expect(json.rowSpan).toBeUndefined()
+    expect(json.colSpan).toBe(2)
+    expect(json.col_span).toBeUndefined()
+    expect(json.rowSpan).toBe(3)
+    expect(json.row_span).toBeUndefined()
   })
 })
 
-describe('Action serialization outputs snake_case', () => {
+describe('Action serialization outputs camelCase', () => {
 
-  it('SetInterval: intervalMs → interval_ms, onTick → on_tick', () => {
+  it('SetInterval: intervalMs/onTick stay camelCase', () => {
     const action = new SetInterval(1000, new SetState('x', 1))
     const json = action.toJSON()
-    expect(json.interval_ms).toBe(1000)
-    expect(json.intervalMs).toBeUndefined()
-    expect(json.on_tick).toBeDefined()
-    expect(json.onTick).toBeUndefined()
+    expect(json.intervalMs).toBe(1000)
+    expect(json.interval_ms).toBeUndefined()
+    expect(json.onTick).toBeDefined()
+    expect(json.on_tick).toBeUndefined()
   })
 
-  it('CallTool: resultKey → result_key, onSuccess/onError → on_success/on_error', () => {
+  it('CallTool: resultKey/onSuccess/onError stay camelCase', () => {
     const action = new CallTool('get_data', {
       resultKey: '$data',
       onSuccess: new ShowToast('Done'),
       onError: new ShowToast('Failed'),
     })
     const json = action.toJSON()
-    expect(json.result_key).toBe('$data')
-    expect(json.resultKey).toBeUndefined()
-    expect(json.on_success).toBeDefined()
-    expect(json.onSuccess).toBeUndefined()
-    expect(json.on_error).toBeDefined()
-    expect(json.onError).toBeUndefined()
+    expect(json.resultKey).toBe('$data')
+    expect(json.result_key).toBeUndefined()
+    expect(json.onSuccess).toBeDefined()
+    expect(json.on_success).toBeUndefined()
+    expect(json.onError).toBeDefined()
+    expect(json.on_error).toBeUndefined()
   })
 
-  it('SetState: onSuccess/onError → on_success/on_error', () => {
+  it('SetState: onSuccess/onError stay camelCase', () => {
     const action = new SetState('x', 1, {
       onSuccess: new ShowToast('OK'),
       onError: new ShowToast('Err'),
     })
     const json = action.toJSON()
-    expect(json.on_success).toBeDefined()
-    expect(json.onSuccess).toBeUndefined()
-    expect(json.on_error).toBeDefined()
-    expect(json.onError).toBeUndefined()
+    expect(json.onSuccess).toBeDefined()
+    expect(json.on_success).toBeUndefined()
+    expect(json.onError).toBeDefined()
+    expect(json.on_error).toBeUndefined()
   })
 
-  it('Fetch: resultKey → result_key', () => {
+  it('Fetch: resultKey stays camelCase', () => {
     const action = new Fetch('https://api.example.com', {
       resultKey: '$data',
       onSuccess: new ShowToast('OK'),
     })
     const json = action.toJSON()
-    expect(json.result_key).toBe('$data')
-    expect(json.resultKey).toBeUndefined()
-    expect(json.on_success).toBeDefined()
-    expect(json.onSuccess).toBeUndefined()
+    expect(json.resultKey).toBe('$data')
+    expect(json.result_key).toBeUndefined()
+    expect(json.onSuccess).toBeDefined()
+    expect(json.on_success).toBeUndefined()
   })
 
-  it('OpenFilePicker: resultKey → result_key, onSuccess → on_success', () => {
+  it('OpenFilePicker: resultKey/onSuccess stay camelCase', () => {
     const action = new OpenFilePicker({
       resultKey: '$files',
       onSuccess: new ShowToast('Uploaded'),
     })
     const json = action.toJSON()
-    expect(json.result_key).toBe('$files')
-    expect(json.on_success).toBeDefined()
+    expect(json.resultKey).toBe('$files')
+    expect(json.onSuccess).toBeDefined()
   })
 
-  it('CallHandler: resultKey → result_key, onSuccess/onError → on_success/on_error', () => {
+  it('CallHandler: resultKey/onSuccess/onError stay camelCase', () => {
     const action = new CallHandler('handler', {
       resultKey: '$result',
       onSuccess: new ShowToast('OK'),
       onError: new ShowToast('Err'),
     })
     const json = action.toJSON()
-    expect(json.result_key).toBe('$result')
-    expect(json.on_success).toBeDefined()
-    expect(json.on_error).toBeDefined()
+    expect(json.resultKey).toBe('$result')
+    expect(json.onSuccess).toBeDefined()
+    expect(json.onError).toBeDefined()
   })
 
-  it('Subscribe: stateKey → state_key, fallbackInterval → fallback_interval, etc.', () => {
+  it('Subscribe: stateKey/fallbackInterval/etc. stay camelCase', () => {
     const action = new Subscribe('chess://game', {
       stateKey: '$game',
       fallbackInterval: 2000,
@@ -215,18 +213,18 @@ describe('Action serialization outputs snake_case', () => {
       onError: new ShowToast('Error'),
     })
     const json = action.toJSON()
-    expect(json.state_key).toBe('$game')
-    expect(json.stateKey).toBeUndefined()
-    expect(json.fallback_interval).toBe(2000)
-    expect(json.fallbackInterval).toBeUndefined()
-    expect(json.fallback_tool).toBe('_action')
-    expect(json.fallbackTool).toBeUndefined()
-    expect(json.fallback_args).toBeDefined()
-    expect(json.fallbackArgs).toBeUndefined()
-    expect(json.on_data).toBeDefined()
-    expect(json.onData).toBeUndefined()
-    expect(json.on_error).toBeDefined()
-    expect(json.onError).toBeUndefined()
+    expect(json.stateKey).toBe('$game')
+    expect(json.state_key).toBeUndefined()
+    expect(json.fallbackInterval).toBe(2000)
+    expect(json.fallback_interval).toBeUndefined()
+    expect(json.fallbackTool).toBe('_action')
+    expect(json.fallback_tool).toBeUndefined()
+    expect(json.fallbackArgs).toBeDefined()
+    expect(json.fallback_args).toBeUndefined()
+    expect(json.onData).toBeDefined()
+    expect(json.on_data).toBeUndefined()
+    expect(json.onError).toBeDefined()
+    expect(json.on_error).toBeUndefined()
   })
 })
 

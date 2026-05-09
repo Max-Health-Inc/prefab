@@ -3,11 +3,11 @@
     "version": "0.2"
   },
   "view": {
-    "css_class": "pf-app-root",
+    "cssClass": "pf-app-root",
     "type": "Div",
     "children": [
       {
-        "css_class": "gap-4",
+        "cssClass": "gap-4",
         "type": "Column",
         "children": [
           {
@@ -18,10 +18,10 @@
           {
             "name": "email",
             "type": "Input",
-            "input_type": "text",
+            "inputType": "text",
             "placeholder": "you@example.com",
             "disabled": false,
-            "read_only": false,
+            "readOnly": false,
             "required": false
           },
           {
@@ -37,7 +37,7 @@
             "variant": "default",
             "size": "default",
             "disabled": false,
-            "on_click": {
+            "onClick": {
               "action": "callHandler",
               "handler": "submit_form"
             }

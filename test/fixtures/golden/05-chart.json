@@ -3,11 +3,11 @@
     "version": "0.2"
   },
   "view": {
-    "css_class": "pf-app-root",
+    "cssClass": "pf-app-root",
     "type": "Div",
     "children": [
       {
-        "css_class": "gap-4",
+        "cssClass": "gap-4",
         "type": "Column",
         "children": [
           {
@@ -41,27 +41,27 @@
             ],
             "series": [
               {
-                "data_key": "revenue",
+                "dataKey": "revenue",
                 "label": "Revenue",
                 "color": "#4f46e5"
               },
               {
-                "data_key": "costs",
+                "dataKey": "costs",
                 "label": "Costs",
                 "color": "#ef4444"
               }
             ],
-            "x_axis": "month",
+            "xAxis": "month",
             "height": 300,
             "stacked": false,
             "horizontal": false,
-            "bar_radius": 4,
-            "show_legend": true,
-            "show_tooltip": true,
+            "barRadius": 4,
+            "showLegend": true,
+            "showTooltip": true,
             "animate": true,
-            "show_grid": true,
-            "show_y_axis": true,
-            "y_axis_format": "auto"
+            "showGrid": true,
+            "showYAxis": true,
+            "yAxisFormat": "auto"
           }
         ]
       }

@@ -3,11 +3,11 @@
     "version": "0.2"
   },
   "view": {
-    "css_class": "pf-app-root",
+    "cssClass": "pf-app-root",
     "type": "Div",
     "children": [
       {
-        "css_class": "gap-4",
+        "cssClass": "gap-4",
         "type": "Column",
         "children": [
           {
@@ -30,7 +30,7 @@
             "variant": "default",
             "size": "default",
             "disabled": false,
-            "on_click": {
+            "onClick": {
               "action": "toggleState",
               "key": "darkMode"
             }
@@ -41,7 +41,7 @@
   },
   "defs": {
     "greeting": {
-      "css_class": "gap-2",
+      "cssClass": "gap-2",
       "type": "Column",
       "children": [
         {

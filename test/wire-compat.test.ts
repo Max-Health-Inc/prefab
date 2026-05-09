@@ -131,7 +131,7 @@ describe('Wire compat: Golden fixture parsing', () => {
 
       it('root view has pf-app-root cssClass', () => {
         const view = data.view as Record<string, unknown>
-        expect(view.css_class).toContain('pf-app-root')
+        expect(view.cssClass).toContain('pf-app-root')
       })
 
       it('all nodes have a type field', () => {
@@ -209,7 +209,7 @@ describe('Wire compat: TS builder structural equivalence', () => {
     it('envelope matches', () => {
       expect(tsWire.$prefab).toEqual({ version: '0.2' })
       expect((tsWire.view as ComponentJSON).type).toBe('Div')
-      expect((tsWire.view as ComponentJSON).css_class).toContain('pf-app-root')
+      expect((tsWire.view as ComponentJSON).cssClass).toContain('pf-app-root')
     })
 
     it('root component type matches', () => {
@@ -319,10 +319,10 @@ describe('Wire compat: TS builder structural equivalence', () => {
     it('action format matches', () => {
       const goldenBtn = (goldenInner.children as Record<string, unknown>[])[3]
       const tsBtn = (tsInner.children as Record<string, unknown>[])[3]
-      expect((tsBtn.on_click as Record<string, unknown>).action)
-        .toBe((goldenBtn.on_click as Record<string, unknown>).action)
-      expect((tsBtn.on_click as Record<string, unknown>).handler)
-        .toBe((goldenBtn.on_click as Record<string, unknown>).handler)
+      expect((tsBtn.onClick as Record<string, unknown>).action)
+        .toBe((goldenBtn.onClick as Record<string, unknown>).action)
+      expect((tsBtn.onClick as Record<string, unknown>).handler)
+        .toBe((goldenBtn.onClick as Record<string, unknown>).handler)
     })
 
     it('state matches', () => {
@@ -438,7 +438,7 @@ describe('Wire compat: TS builder structural equivalence', () => {
     it('chart xAxis matches', () => {
       const goldenChart = (goldenInner.children as Record<string, unknown>[])[1]
       const tsChart = (tsInner.children as Record<string, unknown>[])[1]
-      expect(tsChart.x_axis).toBe(goldenChart.x_axis)
+      expect(tsChart.xAxis).toBe(goldenChart.xAxis)
     })
   })
 
@@ -480,15 +480,15 @@ describe('Wire compat: TS builder structural equivalence', () => {
       const goldenButtons = goldenRow.children as Record<string, unknown>[]
 
       // +1 button
-      const tsAction = tsButtons[0].on_click as Record<string, unknown>
-      const _goldenAction = goldenButtons[0].on_click as Record<string, unknown>
+      const tsAction = tsButtons[0].onClick as Record<string, unknown>
+      const _goldenAction = goldenButtons[0].onClick as Record<string, unknown>
       expect(tsAction.action).toBe('setState')
       expect(tsAction.key).toBe('count')
       expect(String(tsAction.value)).toContain('count')
 
       // Reset button — value should be 0
-      const tsReset = tsButtons[2].on_click as Record<string, unknown>
-      const goldenReset = goldenButtons[2].on_click as Record<string, unknown>
+      const tsReset = tsButtons[2].onClick as Record<string, unknown>
+      const goldenReset = goldenButtons[2].onClick as Record<string, unknown>
       expect(tsReset.value).toBe(goldenReset.value) // 0
     })
 
@@ -644,10 +644,10 @@ describe('Wire compat: TS builder structural equivalence', () => {
       const goldenInner = innerView(golden)
       const tsBtn = (tsInner.children as Record<string, unknown>[])[1]
       const goldenBtn = (goldenInner.children as Record<string, unknown>[])[1]
-      expect((tsBtn.on_click as Record<string, unknown>).action)
-        .toBe((goldenBtn.on_click as Record<string, unknown>).action)
-      expect((tsBtn.on_click as Record<string, unknown>).key)
-        .toBe((goldenBtn.on_click as Record<string, unknown>).key)
+      expect((tsBtn.onClick as Record<string, unknown>).action)
+        .toBe((goldenBtn.onClick as Record<string, unknown>).action)
+      expect((tsBtn.onClick as Record<string, unknown>).key)
+        .toBe((goldenBtn.onClick as Record<string, unknown>).key)
     })
   })
 })

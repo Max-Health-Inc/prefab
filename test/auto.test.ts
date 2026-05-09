@@ -62,7 +62,7 @@ describe('autoDetail', () => {
     const json = result.toJSON()
 
     expect(json.type).toBe('Column')
-    expect(json.css_class).toContain('max-w-2xl')
+    expect(json.cssClass).toContain('max-w-2xl')
 
     // Should have Heading (auto-detected from name field)
     const heading = json.children!.find(c => c.type === 'Heading')
@@ -240,12 +240,12 @@ describe('autoTable', () => {
     const columns = table.columns as { key: string; header: string }[]
     const rowData = table.rows as Record<string, unknown>[]
 
-    // After serialization, row keys stay as-is (no conversion)
+    // Row keys stay as-is (snake_case preserved)
     expect(rowData[0]).toHaveProperty('proposed_start')
     expect(rowData[0]).toHaveProperty('duration_minutes')
     expect(rowData[0]).toHaveProperty('patient_name')
 
-    // Column keys must match the serialized row keys
+    // Column keys must match the raw row keys
     const colKeys = columns.map(c => c.key)
     expect(colKeys).toContain('proposed_start')
     expect(colKeys).toContain('duration_minutes')
@@ -283,7 +283,7 @@ describe('autoTable', () => {
     const columns = table.columns as { key: string }[]
     const rowData = table.rows as Record<string, unknown>[]
 
-    // All keys stay as-is after serialization (no conversion)
+    // Keys stay as-is (no conversion)
     const rowKeys = Object.keys(rowData[0])
     const colKeys = columns.map(c => c.key)
 

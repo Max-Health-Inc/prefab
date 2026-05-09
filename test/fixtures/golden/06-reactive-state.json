@@ -3,11 +3,11 @@
     "version": "0.2"
   },
   "view": {
-    "css_class": "pf-app-root",
+    "cssClass": "pf-app-root",
     "type": "Div",
     "children": [
       {
-        "css_class": "gap-4",
+        "cssClass": "gap-4",
         "type": "Column",
         "children": [
           {
@@ -20,7 +20,7 @@
             "type": "Text"
           },
           {
-            "css_class": "gap-2",
+            "cssClass": "gap-2",
             "type": "Row",
             "children": [
               {
@@ -29,7 +29,7 @@
                 "variant": "default",
                 "size": "default",
                 "disabled": false,
-                "on_click": {
+                "onClick": {
                   "action": "setState",
                   "key": "count",
                   "value": "{{ count + 1 }}"
@@ -41,7 +41,7 @@
                 "variant": "default",
                 "size": "default",
                 "disabled": false,
-                "on_click": {
+                "onClick": {
                   "action": "setState",
                   "key": "count",
                   "value": "{{ count - 1 }}"
@@ -53,7 +53,7 @@
                 "variant": "default",
                 "size": "default",
                 "disabled": false,
-                "on_click": {
+                "onClick": {
                   "action": "setState",
                   "key": "count",
                   "value": 0

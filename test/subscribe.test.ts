@@ -81,7 +81,7 @@ describe('Subscribe action class', () => {
     expect(action.toJSON()).toEqual({
       action: 'subscribe',
       uri: 'chess://game/abc',
-      state_key: '$game',
+      stateKey: '$game',
     })
   })
 
@@ -95,10 +95,10 @@ describe('Subscribe action class', () => {
     const json = action.toJSON()
     expect(json.action).toBe('subscribe')
     expect(json.uri).toBe('chess://game/abc')
-    expect(json.state_key).toBe('$game')
-    expect(json.fallback_interval).toBe(2000)
-    expect(json.fallback_tool).toBe('_action')
-    expect(json.fallback_args).toEqual({ action: 'refresh' })
+    expect(json.stateKey).toBe('$game')
+    expect(json.fallbackInterval).toBe(2000)
+    expect(json.fallbackTool).toBe('_action')
+    expect(json.fallbackArgs).toEqual({ action: 'refresh' })
   })
 
   it('serializes onData callback', () => {
@@ -108,7 +108,7 @@ describe('Subscribe action class', () => {
       onData: new ShowToast('Updated'),
     })
     const json = action.toJSON()
-    expect(json.on_data).toEqual({ action: 'showToast', message: 'Updated' })
+    expect(json.onData).toEqual({ action: 'showToast', message: 'Updated' })
   })
 
   it('serializes onError callback', () => {
@@ -118,7 +118,7 @@ describe('Subscribe action class', () => {
       onError: new ShowToast('Error', { variant: 'error' }),
     })
     const json = action.toJSON()
-    expect(json.on_error).toEqual({ action: 'showToast', message: 'Error', variant: 'error' })
+    expect(json.onError).toEqual({ action: 'showToast', message: 'Error', variant: 'error' })
   })
 })
 

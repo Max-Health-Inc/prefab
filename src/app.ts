@@ -114,7 +114,7 @@ export class PrefabApp {
     const rootCssClass = this.cssClass ? `pf-app-root ${this.cssClass}` : 'pf-app-root'
     const rootView: ComponentJSON = {
       type: 'Div',
-      css_class: rootCssClass,
+      cssClass: rootCssClass,
       children: [this.view.toJSON()],
     }
 

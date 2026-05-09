@@ -3,7 +3,7 @@
     "version": "0.2"
   },
   "view": {
-    "css_class": "pf-app-root",
+    "cssClass": "pf-app-root",
     "type": "Div",
     "children": [
       {
@@ -26,11 +26,11 @@
             "type": "CardContent",
             "children": [
               {
-                "css_class": "gap-3",
+                "cssClass": "gap-3",
                 "type": "Column",
                 "children": [
                   {
-                    "css_class": "gap-4",
+                    "cssClass": "gap-4",
                     "type": "Row",
                     "children": [
                       {
@@ -46,7 +46,7 @@
                       {
                         "type": "Metric",
                         "label": "Temperature",
-                        "value": "98.6°F"
+                        "value": "98.6\u00b0F"
                       }
                     ]
                   },

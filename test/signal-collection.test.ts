@@ -224,11 +224,11 @@ describe('DataTable with selection', () => {
     const json = table.toJSON()
     expect(json.type).toBe('DataTable')
     expect(json.rows).toBe('{{ patients }}')
-    expect(json.row_key).toBe('id')
+    expect(json.rowKey).toBe('id')
     expect(json.selected).toBe('{{ selectedPatientId }}')
-    expect(json.on_row_click).toBeDefined()
-    expect(Array.isArray(json.on_row_click)).toBe(true)
-    const action = (json.on_row_click as unknown[])[0] as { action: string; key: string; value: string }
+    expect(json.onRowClick).toBeDefined()
+    expect(Array.isArray(json.onRowClick)).toBe(true)
+    const action = (json.onRowClick as unknown[])[0] as { action: string; key: string; value: string }
     expect(action.action).toBe('setState')
     expect(action.key).toBe('selectedPatientId')
     expect(action.value).toBe('{{ $item.id }}')
@@ -241,9 +241,9 @@ describe('DataTable with selection', () => {
     })
     const json = table.toJSON()
     expect(json.type).toBe('DataTable')
-    expect(json.row_key).toBeUndefined()
+    expect(json.rowKey).toBeUndefined()
     expect(json.selected).toBeUndefined()
-    expect(json.on_row_click).toBeUndefined()
+    expect(json.onRowClick).toBeUndefined()
   })
 })
 
@@ -287,7 +287,7 @@ describe('MasterDetail', () => {
 
     const json = md.toJSON()
     expect(json.type).toBe('MasterDetail')
-    expect(json.master_width).toBe('350px')
+    expect(json.masterWidth).toBe('350px')
     expect(json.gap).toBe(4)
     expect(json.children).toHaveLength(2)
   })
@@ -296,7 +296,7 @@ describe('MasterDetail', () => {
     const md = MasterDetail()
     const json = md.toJSON()
     expect(json.type).toBe('MasterDetail')
-    expect(json.master_width).toBeUndefined()
+    expect(json.masterWidth).toBeUndefined()
   })
 })
 
@@ -512,8 +512,8 @@ describe('DataTable: edge cases', () => {
       // NOTE: no 'from' — selected has no effect
     })
     const json = table.toJSON()
-    expect(json.row_key).toBeUndefined()
-    expect(json.on_row_click).toBeUndefined()
+    expect(json.rowKey).toBeUndefined()
+    expect(json.onRowClick).toBeUndefined()
     expect(json.selected).toBeUndefined()
   })
 
@@ -523,7 +523,7 @@ describe('DataTable: edge cases', () => {
     const table = DataTable({ columns: [col('name')], from: c, selected: s })
     const json = table.toJSON()
     expect(json.rows).toBe('{{ items }}')
-    expect(json.row_key).toBe('id')
+    expect(json.rowKey).toBe('id')
   })
 })
 

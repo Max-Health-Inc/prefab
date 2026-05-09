@@ -92,9 +92,9 @@ export class Component {
     const json: ComponentJSON = { type: this.componentType }
 
     if (this.id) json.id = this.id
-    if (this.cssClass) json.css_class = this.cssClass
+    if (this.cssClass) json.cssClass = this.cssClass
     if (this.onMount) {
-      json.on_mount = Array.isArray(this.onMount)
+      json.onMount = Array.isArray(this.onMount)
         ? this.onMount.map(a => a.toJSON())
         : this.onMount.toJSON()
     }
@@ -104,7 +104,7 @@ export class Component {
     for (const [key, value] of Object.entries(props)) {
       const serialized = serializeValue(value)
       if (serialized !== undefined) {
-        json[toSnakeCase(key)] = serialized
+        json[key] = serialized
       }
     }
 

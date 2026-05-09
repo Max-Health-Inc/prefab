@@ -85,10 +85,10 @@ describe('validateWireFormat', () => {
   test('validates action props', () => {
     const result = validateWireFormat({
       $prefab: { version: '0.2' },
-      view: { type: 'Button', on_click: 'not-an-object' },
+      view: { type: 'Button', onClick: 'not-an-object' },
     })
     expect(result.valid).toBe(false)
-    expect(result.errors.some(e => e.path.includes('on_click'))).toBe(true)
+    expect(result.errors.some(e => e.path.includes('onClick'))).toBe(true)
   })
 
   test('validates action arrays', () => {
@@ -96,7 +96,7 @@ describe('validateWireFormat', () => {
       $prefab: { version: '0.2' },
       view: {
         type: 'Button',
-        on_click: [
+        onClick: [
           { type: 'SetState', key: 'x', value: 1 },
           { type: 'ShowToast', message: 'ok' },
         ],
@@ -216,7 +216,7 @@ describe('form extensions', () => {
     const c = Calendar({ name: 'date', minDate: '2024-01-01' })
     const json = c.toJSON()
     expect(json.type).toBe('Calendar')
-    expect(json.min_date).toBe('2024-01-01')
+    expect(json.minDate).toBe('2024-01-01')
   })
 
   test('DatePicker serializes', () => {
@@ -249,7 +249,7 @@ describe('chart extensions', () => {
     const r = RadialChart({ data: [1, 2, 3], series: [{ dataKey: 'val' }], innerRadius: 40 })
     const json = r.toJSON()
     expect(json.type).toBe('RadialChart')
-    expect(json.inner_radius).toBe(40)
+    expect(json.innerRadius).toBe(40)
   })
 
   test('Histogram serializes', () => {
@@ -295,7 +295,7 @@ describe('new actions', () => {
     expect(json.action).toBe('fetch')
     expect(json.url).toBe('https://api.example.com/data')
     expect(json.method).toBe('POST')
-    expect(json.result_key).toBe('result')
+    expect(json.resultKey).toBe('result')
   })
 
   test('OpenFilePicker serializes', () => {

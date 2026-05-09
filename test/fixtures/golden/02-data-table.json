@@ -3,11 +3,11 @@
     "version": "0.2"
   },
   "view": {
-    "css_class": "pf-app-root",
+    "cssClass": "pf-app-root",
     "type": "Div",
     "children": [
       {
-        "css_class": "gap-4",
+        "cssClass": "gap-4",
         "type": "Column",
         "children": [
           {
@@ -53,7 +53,7 @@
             ],
             "search": false,
             "paginated": false,
-            "page_size": 10
+            "pageSize": 10
           }
         ]
       }
