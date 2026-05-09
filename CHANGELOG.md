@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.29] — 2026-05-09
+
+### Bug Fixes
+- **Fixed**: `rendererHtml()` CDN URL now derives major.minor from `VERSION` automatically — no more hardcoded `@0.2` constant that would go stale on a minor/major bump
+
 ## [0.2.28] — 2026-05-09
 
 ### New Features
