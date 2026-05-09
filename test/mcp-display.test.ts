@@ -55,7 +55,7 @@ describe('display()', () => {
     const wire = parsePrefab(result) as PrefabWireFormat
     expect(wire.$prefab.version).toBe('0.2')
     expect(wire.view.type).toBe('Div')
-    expect(wire.view.cssClass).toContain('pf-app-root')
+    expect(wire.view.css_class).toContain('pf-app-root')
   })
 
   it('passes through PrefabApp directly', () => {

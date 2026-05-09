@@ -8,6 +8,30 @@
 import type { Store } from './state.js'
 import type { EvalScope } from './rx.js'
 import { evaluateTemplate, isRxExpression } from './rx.js'
+import { toCamelCase } from '../core/component.js'
+
+/**
+ * Recursively normalise action JSON keys from snake_case to camelCase.
+ * Keys starting with '$' are left unchanged.
+ */
+function normalizeAction(action: ActionJSON): ActionJSON {
+  const result: ActionJSON = {}
+  for (const [k, v] of Object.entries(action)) {
+    const key = k.startsWith('$') ? k : toCamelCase(k)
+    if (Array.isArray(v)) {
+      result[key] = v.map((item: unknown) =>
+        item != null && typeof item === 'object' && !Array.isArray(item)
+          ? normalizeAction(item as ActionJSON)
+          : item,
+      )
+    } else if (v != null && typeof v === 'object' && !Array.isArray(v)) {
+      result[key] = normalizeAction(v as ActionJSON)
+    } else {
+      result[key] = v
+    }
+  }
+  return result
+}
 
 /** MCP transport interface — injected at mount time */
 export interface McpTransport {
@@ -51,7 +75,8 @@ export async function dispatchActions(
   }
 }
 
-async function dispatchOne(action: ActionJSON, ctx: DispatchContext): Promise<void> {
+async function dispatchOne(raw: ActionJSON, ctx: DispatchContext): Promise<void> {
+  const action = normalizeAction(raw)
   const type = action.action as string
   switch (type) {
     case 'setState':

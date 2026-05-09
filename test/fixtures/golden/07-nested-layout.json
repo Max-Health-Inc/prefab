@@ -3,11 +3,11 @@
     "version": "0.2"
   },
   "view": {
-    "cssClass": "pf-app-root",
+    "css_class": "pf-app-root",
     "type": "Div",
     "children": [
       {
-        "cssClass": "gap-4",
+        "css_class": "gap-4",
         "type": "Column",
         "children": [
           {
@@ -17,11 +17,11 @@
                 "type": "CardContent",
                 "children": [
                   {
-                    "cssClass": "gap-4",
+                    "css_class": "gap-4",
                     "type": "Row",
                     "children": [
                       {
-                        "cssClass": "gap-2",
+                        "css_class": "gap-2",
                         "type": "Column",
                         "children": [
                           {
@@ -36,7 +36,7 @@
                         ]
                       },
                       {
-                        "cssClass": "gap-2",
+                        "css_class": "gap-2",
                         "type": "Column",
                         "children": [
                           {

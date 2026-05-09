@@ -26,8 +26,8 @@ export class SetState implements Action {
       key: this.key,
       value: serializeValue(this.value),
     }
-    if (this.opts?.onSuccess) json.onSuccess = serializeCallbacks(this.opts.onSuccess)
-    if (this.opts?.onError) json.onError = serializeCallbacks(this.opts.onError)
+    if (this.opts?.onSuccess) json.on_success = serializeCallbacks(this.opts.onSuccess)
+    if (this.opts?.onError) json.on_error = serializeCallbacks(this.opts.onError)
     return json
   }
 }
@@ -132,8 +132,8 @@ export class SetInterval implements Action {
   toJSON(): ActionJSON {
     return {
       action: 'setInterval',
-      intervalMs: this.intervalMs,
-      onTick: serializeCallbacks(this.onTick),
+      interval_ms: this.intervalMs,
+      on_tick: serializeCallbacks(this.onTick),
     }
   }
 }
@@ -160,9 +160,9 @@ export class Fetch implements Action {
     if (this.opts?.method) json.method = this.opts.method
     if (this.opts?.headers) json.headers = this.opts.headers
     if (this.opts?.body !== undefined) json.body = serializeValue(this.opts.body)
-    if (this.opts?.resultKey) json.resultKey = this.opts.resultKey
-    if (this.opts?.onSuccess) json.onSuccess = serializeCallbacks(this.opts.onSuccess)
-    if (this.opts?.onError) json.onError = serializeCallbacks(this.opts.onError)
+    if (this.opts?.resultKey) json.result_key = this.opts.resultKey
+    if (this.opts?.onSuccess) json.on_success = serializeCallbacks(this.opts.onSuccess)
+    if (this.opts?.onError) json.on_error = serializeCallbacks(this.opts.onError)
     return json
   }
 }
@@ -183,8 +183,8 @@ export class OpenFilePicker implements Action {
     const json: ActionJSON = { action: 'openFilePicker' }
     if (this.opts?.accept) json.accept = this.opts.accept
     if (this.opts?.multiple) json.multiple = true
-    if (this.opts?.resultKey) json.resultKey = this.opts.resultKey
-    if (this.opts?.onSuccess) json.onSuccess = serializeCallbacks(this.opts.onSuccess)
+    if (this.opts?.resultKey) json.result_key = this.opts.resultKey
+    if (this.opts?.onSuccess) json.on_success = serializeCallbacks(this.opts.onSuccess)
     return json
   }
 }
@@ -207,9 +207,9 @@ export class CallHandler implements Action {
   toJSON(): ActionJSON {
     const json: ActionJSON = { action: 'callHandler', handler: this.handler }
     if (this.opts?.arguments) json.arguments = serializeValue(this.opts.arguments)
-    if (this.opts?.resultKey) json.resultKey = this.opts.resultKey
-    if (this.opts?.onSuccess) json.onSuccess = serializeCallbacks(this.opts.onSuccess)
-    if (this.opts?.onError) json.onError = serializeCallbacks(this.opts.onError)
+    if (this.opts?.resultKey) json.result_key = this.opts.resultKey
+    if (this.opts?.onSuccess) json.on_success = serializeCallbacks(this.opts.onSuccess)
+    if (this.opts?.onError) json.on_error = serializeCallbacks(this.opts.onError)
     return json
   }
 }

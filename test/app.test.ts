@@ -22,7 +22,7 @@ describe('PrefabApp', () => {
 
     expect(json.$prefab).toEqual({ version: '0.2' })
     expect(json.view.type).toBe('Div')
-    expect(json.view.cssClass).toBe('pf-app-root')
+    expect(json.view.css_class).toBe('pf-app-root')
     expect(json.view.children).toHaveLength(1)
     expect(json.view.children![0].type).toBe('Column')
     expect(json.state).toEqual({ count: 0 })
@@ -33,7 +33,7 @@ describe('PrefabApp', () => {
       view: Heading('Hi'),
       cssClass: 'p-6 max-w-4xl',
     })
-    expect(app.toJSON().view.cssClass).toBe('pf-app-root p-6 max-w-4xl')
+    expect(app.toJSON().view.css_class).toBe('pf-app-root p-6 max-w-4xl')
   })
 
   it('includes theme', () => {
@@ -161,7 +161,7 @@ describe('PrefabApp', () => {
 
     const columnView = json.view.children![0]
     expect(columnView.type).toBe('Column')
-    expect(columnView.cssClass).toContain('gap-6')
+    expect(columnView.css_class).toContain('gap-6')
     expect(columnView.children).toHaveLength(3)
 
     // Heading
@@ -176,7 +176,7 @@ describe('PrefabApp', () => {
     // Form
     const form = columnView.children![2]
     expect(form.type).toBe('Form')
-    expect((form.onSubmit as { action: string }).action).toBe('toolCall')
+    expect((form.on_submit as { action: string }).action).toBe('toolCall')
     expect(form.children).toHaveLength(3)
   })
 })

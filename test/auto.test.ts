@@ -62,7 +62,7 @@ describe('autoDetail', () => {
     const json = result.toJSON()
 
     expect(json.type).toBe('Column')
-    expect(json.cssClass).toContain('max-w-2xl')
+    expect(json.css_class).toContain('max-w-2xl')
 
     // Should have Heading (auto-detected from name field)
     const heading = json.children!.find(c => c.type === 'Heading')
@@ -240,16 +240,16 @@ describe('autoTable', () => {
     const columns = table.columns as { key: string; header: string }[]
     const rowData = table.rows as Record<string, unknown>[]
 
-    // After serialization, row keys are camelCase
-    expect(rowData[0]).toHaveProperty('proposedStart')
-    expect(rowData[0]).toHaveProperty('durationMinutes')
-    expect(rowData[0]).toHaveProperty('patientName')
+    // After serialization, row keys stay as-is (no conversion)
+    expect(rowData[0]).toHaveProperty('proposed_start')
+    expect(rowData[0]).toHaveProperty('duration_minutes')
+    expect(rowData[0]).toHaveProperty('patient_name')
 
     // Column keys must match the serialized row keys
     const colKeys = columns.map(c => c.key)
-    expect(colKeys).toContain('proposedStart')
-    expect(colKeys).toContain('durationMinutes')
-    expect(colKeys).toContain('patientName')
+    expect(colKeys).toContain('proposed_start')
+    expect(colKeys).toContain('duration_minutes')
+    expect(colKeys).toContain('patient_name')
 
     // Headers should still be humanized
     const headers = columns.map(c => c.header)
@@ -283,7 +283,7 @@ describe('autoTable', () => {
     const columns = table.columns as { key: string }[]
     const rowData = table.rows as Record<string, unknown>[]
 
-    // All keys should be camelCase after serialization
+    // All keys stay as-is after serialization (no conversion)
     const rowKeys = Object.keys(rowData[0])
     const colKeys = columns.map(c => c.key)
 

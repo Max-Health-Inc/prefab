@@ -29,7 +29,7 @@ describe('autoChart', () => {
     const content = card.children![0]
     const chart = content.children![0]
     expect(chart.type).toBe('BarChart')
-    expect(chart.showLegend).toBe(true)
+    expect(chart.show_legend).toBe(true)
   })
 
   it('supports line chart type', () => {
@@ -69,7 +69,7 @@ describe('autoForm', () => {
     const card = json.children!.find(c => c.type === 'Card')!
     const form = card.children![0].children![0]
     expect(form.type).toBe('Form')
-    expect((form.onSubmit as { action: string }).action).toBe('toolCall')
+    expect((form.on_submit as { action: string }).action).toBe('toolCall')
   })
 
   it('has correct number of inputs + button', () => {

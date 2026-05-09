@@ -28,9 +28,9 @@ export class CallTool implements Action {
   toJSON(): ActionJSON {
     const json: ActionJSON = { action: 'toolCall', tool: this.tool }
     if (this.opts?.arguments) json.arguments = serializeValue(this.opts.arguments)
-    if (this.opts?.resultKey) json.resultKey = this.opts.resultKey
-    if (this.opts?.onSuccess) json.onSuccess = serializeCallbacks(this.opts.onSuccess)
-    if (this.opts?.onError) json.onError = serializeCallbacks(this.opts.onError)
+    if (this.opts?.resultKey) json.result_key = this.opts.resultKey
+    if (this.opts?.onSuccess) json.on_success = serializeCallbacks(this.opts.onSuccess)
+    if (this.opts?.onError) json.on_error = serializeCallbacks(this.opts.onError)
     return json
   }
 }

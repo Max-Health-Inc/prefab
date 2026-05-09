@@ -4,6 +4,7 @@
 
 import { Component } from '../../core/component.js'
 import type { ComponentProps } from '../../core/component.js'
+import { toSnakeCase } from '../../core/component.js'
 
 // ── ChartSeries ──────────────────────────────────────────────────────────────
 
@@ -41,10 +42,19 @@ export interface BaseChartProps extends ComponentProps {
   animate?: boolean
 }
 
+/** Convert structural object keys (like series definitions) to snake_case */
+function snakeCaseObj(obj: Record<string, unknown>): Record<string, unknown> {
+  const result: Record<string, unknown> = {}
+  for (const [k, v] of Object.entries(obj)) {
+    result[toSnakeCase(k)] = v
+  }
+  return result
+}
+
 function chartGetProps(props: BaseChartProps, extra?: Record<string, unknown>): Record<string, unknown> {
   return {
     data: props.data,
-    series: props.series,
+    series: props.series.map(s => snakeCaseObj(s as unknown as Record<string, unknown>)),
     ...(props.xAxis && { xAxis: props.xAxis }),
     ...(props.tooltipXKey && { tooltipXKey: props.tooltipXKey }),
     ...(props.xAxisFormat && { xAxisFormat: props.xAxisFormat }),

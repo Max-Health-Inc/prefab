@@ -61,8 +61,8 @@ describe('Client actions', () => {
     const a = new SetInterval(1000, tick)
     expect(a.toJSON()).toEqual({
       action: 'setInterval',
-      intervalMs: 1000,
-      onTick: { action: 'setState', key: 'count', value: 0 },
+      interval_ms: 1000,
+      on_tick: { action: 'setState', key: 'count', value: 0 },
     })
   })
 })
@@ -85,9 +85,9 @@ describe('MCP actions', () => {
     const json = a.toJSON()
     expect(json.action).toBe('toolCall')
     expect(json.tool).toBe('save_item')
-    expect(Array.isArray(json.onSuccess)).toBe(true)
-    expect((json.onSuccess as unknown[])).toHaveLength(2)
-    expect((json.onError as { action: string }).action).toBe('showToast')
+    expect(Array.isArray(json.on_success)).toBe(true)
+    expect((json.on_success as unknown[])).toHaveLength(2)
+    expect((json.on_error as { action: string }).action).toBe('showToast')
   })
 
   it('SendMessage', () => {

@@ -54,7 +54,7 @@ describe('set()', () => {
       onSuccess: set('msg', 'done'),
     })
     const json = action.toJSON()
-    expect(json.onSuccess).toEqual({ action: 'setState', key: 'msg', value: 'done' })
+    expect(json.on_success).toEqual({ action: 'setState', key: 'msg', value: 'done' })
   })
 })
 
@@ -152,8 +152,8 @@ describe('sugar composition', () => {
       action: 'setState',
       key: 'count',
       value: 1,
-      onSuccess: { action: 'setState', key: 'message', value: 'Updated' },
-      onError: { action: 'setState', key: 'message', value: 'Failed' },
+      on_success: { action: 'setState', key: 'message', value: 'Updated' },
+      on_error: { action: 'setState', key: 'message', value: 'Failed' },
     })
   })
 

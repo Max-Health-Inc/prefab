@@ -176,8 +176,15 @@ function validateComponent(
     }
   }
 
-  // Validate action props
-  for (const prop of ['onClick', 'onChange', 'onSubmit', 'onMount', 'onClose']) {
+  // Validate action props (both camelCase and snake_case accepted)
+  const actionProps = [
+    'onClick', 'on_click',
+    'onChange', 'on_change',
+    'onSubmit', 'on_submit',
+    'onMount', 'on_mount',
+    'onClose', 'on_close',
+  ]
+  for (const prop of actionProps) {
     if (comp[prop] !== undefined) {
       validateAction(comp[prop], `${path}.${prop}`, errors)
     }

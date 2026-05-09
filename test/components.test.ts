@@ -36,7 +36,7 @@ describe('Layout', () => {
     const c = Column({ gap: 6, children: [Heading('Hi')] })
     const json = c.toJSON()
     expect(json.type).toBe('Column')
-    expect(json.cssClass).toContain('gap-6')
+    expect(json.css_class).toContain('gap-6')
     expect(json.children).toHaveLength(1)
     expect(json.children![0].type).toBe('Heading')
   })
@@ -49,8 +49,8 @@ describe('Layout', () => {
 
   it('GridItem with span', () => {
     const json = GridItem({ colSpan: 2, rowSpan: 1 }).toJSON()
-    expect(json.colSpan).toBe(2)
-    expect(json.rowSpan).toBe(1)
+    expect(json.col_span).toBe(2)
+    expect(json.row_span).toBe(1)
   })
 
   it('Div / Span / Container produce correct types', () => {
@@ -184,7 +184,7 @@ describe('Form', () => {
     })
     const json = form.toJSON()
     expect(json.type).toBe('Form')
-    expect((json.onSubmit as { action: string }).action).toBe('toolCall')
+    expect((json.on_submit as { action: string }).action).toBe('toolCall')
     expect(json.children).toHaveLength(2)
   })
 
@@ -192,14 +192,14 @@ describe('Form', () => {
     const json = Input({ name: 'email', label: 'Email', inputType: 'email', required: true }).toJSON()
     expect(json.name).toBe('email')
     expect(json.label).toBe('Email')
-    expect(json.inputType).toBe('email')
+    expect(json.input_type).toBe('email')
     expect(json.required).toBe(true)
   })
 
   it('Button with onClick', () => {
     const json = Button('Click', { onClick: new SetState('count', 0) }).toJSON()
     expect(json.label).toBe('Click')
-    expect((json.onClick as { action: string }).action).toBe('setState')
+    expect((json.on_click as { action: string }).action).toBe('setState')
   })
 
   it('Select with options', () => {
@@ -282,8 +282,8 @@ describe('Form', () => {
     expect(json.type).toBe('Calendar')
     expect(json.name).toBe('startDate')
     expect(json.mode).toBe('single')
-    expect(json.minDate).toBe('2026-01-01')
-    expect(json.maxDate).toBe('2026-12-31')
+    expect(json.min_date).toBe('2026-01-01')
+    expect(json.max_date).toBe('2026-12-31')
   })
 
   it('DatePicker with format and constraints', () => {
@@ -292,7 +292,7 @@ describe('Form', () => {
     expect(json.name).toBe('dob')
     expect(json.placeholder).toBe('YYYY-MM-DD')
     expect(json.format).toBe('iso')
-    expect(json.minDate).toBe('1900-01-01')
+    expect(json.min_date).toBe('1900-01-01')
   })
 
   it('Field compound component', () => {
@@ -336,7 +336,7 @@ describe('Form', () => {
     expect(json.label).toBe('Pro Plan')
     expect(json.description).toBe('$29/month')
     expect(json.selected).toBe(true)
-    expect((json.onClick as { action: string }).action).toBe('setState')
+    expect((json.on_click as { action: string }).action).toBe('setState')
   })
 
   it('Button variant and size', () => {

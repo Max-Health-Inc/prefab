@@ -13,14 +13,14 @@ describe('Component', () => {
 
   it('includes id and cssClass when set', () => {
     const c = new Component('Badge', { id: 'b1', cssClass: 'my-badge' })
-    expect(c.toJSON()).toEqual({ type: 'Badge', id: 'b1', cssClass: 'my-badge' })
+    expect(c.toJSON()).toEqual({ type: 'Badge', id: 'b1', css_class: 'my-badge' })
   })
 
   it('omits undefined optional props', () => {
     const c = new Component('Separator', {})
     const json = c.toJSON()
     expect(json.id).toBeUndefined()
-    expect(json.cssClass).toBeUndefined()
+    expect(json.css_class).toBeUndefined()
   })
 })
 

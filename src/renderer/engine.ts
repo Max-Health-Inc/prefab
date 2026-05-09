@@ -11,6 +11,33 @@ import type { EvalScope } from './rx.js'
 import type { DispatchContext, McpTransport, ToastEvent, ActionJSON } from './actions.js'
 import { evaluateTemplate, isRxExpression } from './rx.js'
 import { dispatchActions } from './actions.js'
+import { toCamelCase } from '../core/component.js'
+
+// ── Key normalisation ────────────────────────────────────────────────────────
+
+/**
+ * Recursively normalise object keys from snake_case to camelCase.
+ * Accepts both formats so the renderer works with TS and Python output.
+ * Keys starting with '$' are left unchanged.
+ */
+export function normalizeNode<T extends Record<string, unknown>>(node: T): T {
+  const result: Record<string, unknown> = {}
+  for (const [k, v] of Object.entries(node)) {
+    const key = k.startsWith('$') ? k : toCamelCase(k)
+    if (Array.isArray(v)) {
+      result[key] = v.map((item: unknown) =>
+        item != null && typeof item === 'object' && !Array.isArray(item)
+          ? normalizeNode(item as Record<string, unknown>)
+          : item,
+      )
+    } else if (v != null && typeof v === 'object' && !Array.isArray(v)) {
+      result[key] = normalizeNode(v as Record<string, unknown>)
+    } else {
+      result[key] = v
+    }
+  }
+  return result as T
+}
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -99,17 +126,20 @@ export function getRenderer(type: string): RenderFn | undefined {
  * Looks up the renderer by type; falls back to a generic div.
  */
 export function renderNode(node: ComponentNode, ctx: RenderContext): HTMLElement | DocumentFragment {
+  // Normalise keys (snake_case → camelCase) so renderer works with both formats
+  const n = normalizeNode(node)
+
   // Resolve defs: if node.type matches a def, substitute
-  if (ctx.defs?.[node.type]) {
-    const defNode = { ...ctx.defs[node.type], ...node, type: ctx.defs[node.type].type }
+  if (ctx.defs?.[n.type]) {
+    const defNode = { ...ctx.defs[n.type], ...n, type: ctx.defs[n.type].type }
     return renderNode(defNode, ctx)
   }
 
-  const renderFn = registry.get(node.type)
+  const renderFn = registry.get(n.type)
   let el: HTMLElement | DocumentFragment
 
   if (renderFn) {
-    const result = renderFn(node, ctx)
+    const result = renderFn(n, ctx)
     if (isRenderResult(result)) {
       el = result.element
       ctx.destroyRegistry?.track(result.destroy)
@@ -119,9 +149,9 @@ export function renderNode(node: ComponentNode, ctx: RenderContext): HTMLElement
   } else {
     // Fallback: generic div with data-type
     el = document.createElement('div')
-    ;(el).setAttribute('data-prefab-type', node.type)
-    if (node.children) {
-      for (const child of node.children) {
+    ;(el).setAttribute('data-prefab-type', n.type)
+    if (n.children) {
+      for (const child of n.children) {
         el.appendChild(renderNode(child, ctx))
       }
     }
@@ -129,16 +159,16 @@ export function renderNode(node: ComponentNode, ctx: RenderContext): HTMLElement
 
   // Apply common props
   if (el instanceof HTMLElement) {
-    if (node.id) el.id = node.id
-    if (node.cssClass) {
-      const cls = resolveStr(node.cssClass, ctx)
+    if (n.id) el.id = n.id
+    if (n.cssClass) {
+      const cls = resolveStr(n.cssClass, ctx)
       if (cls) el.className = (el.className ? el.className + ' ' : '') + cls
     }
   }
 
   // Run onMount actions
-  if (node.onMount) {
-    const onMount = node.onMount
+  if (n.onMount) {
+    const onMount = n.onMount
     const dispCtx = makeDispatchCtx(ctx)
     queueMicrotask(() => void dispatchActions(onMount, dispCtx))
   }

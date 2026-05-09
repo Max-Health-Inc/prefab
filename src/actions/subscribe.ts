@@ -52,13 +52,13 @@ export class Subscribe implements Action {
     const json: ActionJSON = {
       action: 'subscribe',
       uri: this.uri,
-      stateKey: this.opts.stateKey,
+      state_key: this.opts.stateKey,
     }
-    if (this.opts.fallbackInterval != null) json.fallbackInterval = this.opts.fallbackInterval
-    if (this.opts.fallbackTool) json.fallbackTool = this.opts.fallbackTool
-    if (this.opts.fallbackArgs) json.fallbackArgs = serializeValue(this.opts.fallbackArgs)
-    if (this.opts.onData) json.onData = serializeCallbacks(this.opts.onData)
-    if (this.opts.onError) json.onError = serializeCallbacks(this.opts.onError)
+    if (this.opts.fallbackInterval != null) json.fallback_interval = this.opts.fallbackInterval
+    if (this.opts.fallbackTool) json.fallback_tool = this.opts.fallbackTool
+    if (this.opts.fallbackArgs) json.fallback_args = serializeValue(this.opts.fallbackArgs)
+    if (this.opts.onData) json.on_data = serializeCallbacks(this.opts.onData)
+    if (this.opts.onError) json.on_error = serializeCallbacks(this.opts.onError)
     return json
   }
 }
