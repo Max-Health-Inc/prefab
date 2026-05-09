@@ -349,14 +349,15 @@ function handleSubscribe(action: ActionJSON, ctx: DispatchContext): void {
     return
   }
 
-  const fallbackArgs = (action.fallbackArgs as Record<string, unknown> | undefined) ?? {}
+  const rawFallbackArgs = (action.fallbackArgs as Record<string, unknown> | undefined) ?? {}
   const ms = Math.max(fallbackInterval, MIN_INTERVAL_MS)
   const transport = ctx.transport
 
   const id = globalThis.setInterval(() => {
     void (async () => {
       try {
-        const result = await transport.callTool(fallbackTool, fallbackArgs)
+        const resolvedArgs = resolveArgs(rawFallbackArgs, ctx)
+        const result = await transport.callTool(fallbackTool, resolvedArgs)
         onDataCallback(result)
       } catch (err) {
         void runCallbacks(action.onError, ctx, { $error: err })
@@ -382,7 +383,13 @@ function handleUnsubscribe(action: ActionJSON): void {
 
 /** Clear all active subscriptions (called on destroy). */
 export function clearAllSubscriptions(): void {
-  for (const [, cleanup] of activeSubscriptions) cleanup()
+  for (const [uri, cleanup] of activeSubscriptions) {
+    try {
+      cleanup()
+    } catch (err) {
+      console.warn(`[prefab] Error cleaning up subscription '${uri}':`, err)
+    }
+  }
   activeSubscriptions.clear()
 }
 
