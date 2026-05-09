@@ -2,11 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.2.36] — 2026-05-09
+## [0.2.37] — 2026-05-09
 
 ### New Features
 - **Reactive `cssClass`** — `cssClass` now accepts `RxStr` (reactive expressions) on all components. Use `rx()` to dynamically set CSS classes based on state (closes #11 part 1)
 - **`onClick` on all components** — `Div`, `Span`, `Column`, `Row`, `Grid`, `GridItem`, `Container`, and all other components now support `onClick` actions. Non-button elements automatically get `role="button"`, `tabindex="0"`, and keyboard (Enter/Space) support for accessibility (closes #11 part 2)
+
+## [0.2.36] — 2026-05-09
 
 ### Bug Fixes
 - **Fixed**: Subscribe `onDataCallback` no longer clobbers merged state with raw response data — when `display_update()` merges a state delta via `applyPrefabUpdate()`, `store.set(stateKey, data)` is now skipped, preventing `stateKey` collision with delta keys (closes #10)
