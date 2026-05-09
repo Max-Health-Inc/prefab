@@ -2,6 +2,34 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.28] — 2026-05-09
+
+### New Features
+- **`Subscribe` action** — real-time resource updates via `subscribe(uri, stateKey, opts)` with automatic fallback polling when the host doesn't support MCP `notifications/resources/updated` (#3)
+  - Supports `fallbackInterval`, `fallbackTool`, `fallbackArgs` for polling-based hosts
+  - `onData` / `onError` callbacks for reactive state binding
+- **`PdfViewer` component** — embed PDF documents with `pdfViewer(src, opts)` (#2)
+
+### Wire Format (Breaking)
+- **snake_case wire format** — all structural keys in the `$prefab` JSON output are now snake_case (`css_class`, `on_mount`, `on_click`, `interval_ms`, `result_key`, `on_success`, `on_error`, `state_key`, `data_key`, etc.), aligning with the Python `prefab_ui` SDK (#4)
+- Renderer normalizes incoming JSON at entry points (`renderNode`, `dispatchOne`), accepting both snake_case and camelCase input for backwards compatibility
+- User-data containers (`state`, `arguments`, `context`, `overrides`) are **not** converted — keys inside them are preserved as-is
+
+### Bug Fixes
+- **Fixed**: `fallbackArgs` reactive expressions now resolve correctly in Subscribe action
+- **Fixed**: resilient cleanup for Subscribe timers and listeners
+- **Fixed**: chart series structural keys (`dataKey` → `data_key`) now correctly serialized
+- **Fixed**: `PrefabApp.toJSON()` root view outputs `css_class` (was bypassing `Component.toJSON()`)
+- **Fixed**: wire format validator accepts both camelCase and snake_case action prop names
+
+### Documentation
+- SEO & LLM visibility improvements for documentation site
+
+### Tests
+- 22 new TDD tests for snake_case serialization and renderer normalization
+- All 10 golden fixtures updated to snake_case wire format
+- **1237 tests** passing across 36 files
+
 ## [0.2.27] — 2026-05-02
 
 ### Bug Fixes
