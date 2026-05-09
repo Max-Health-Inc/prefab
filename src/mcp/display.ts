@@ -18,7 +18,7 @@
  */
 
 import { type Component } from '../core/component.js'
-import { PrefabApp } from '../app.js'
+import { PrefabApp, VERSION } from '../app.js'
 import type { Theme, LayoutHints } from '../app.js'
 import type { Action } from '../actions/types.js'
 import type { McpToolResult } from './types.js'
@@ -371,8 +371,11 @@ export const PREFAB_RESOURCE_URI = 'ui://prefab/viewer'
 /** MIME type required by MCP Apps hosts. */
 const MCP_APP_MIME = 'text/html;profile=mcp-app'
 
-/** CDN base for the @maxhealth.tech/prefab package (major.minor pinned). */
-const CDN_BASE = 'https://cdn.jsdelivr.net/npm/@maxhealth.tech/prefab@0.2/dist'
+/** CDN base for the @maxhealth.tech/prefab package (major.minor derived from VERSION). */
+function cdnBase(): string {
+  const [major, minor] = VERSION.split('.')
+  return `https://cdn.jsdelivr.net/npm/@maxhealth.tech/prefab@${major}.${minor}/dist`
+}
 
 export interface RendererHtmlOptions {
   /** Page title. @default 'Prefab' */
@@ -401,7 +404,7 @@ export interface RendererHtmlOptions {
  */
 export function rendererHtml(options?: RendererHtmlOptions): string {
   const title = options?.title ?? 'Prefab'
-  const base = options?.cdnBase ?? CDN_BASE
+  const base = options?.cdnBase ?? cdnBase()
   const extraStyles = (options?.stylesheets ?? [])
     .map(url => `  <link rel="stylesheet" crossorigin href="${escapeAttr(url)}">`)
     .join('\n')
