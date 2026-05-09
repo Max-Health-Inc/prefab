@@ -249,18 +249,18 @@ describe('subscribe native push path with $prefab', () => {
 // 3. display() with PrefabApp + options — options should be ignored
 // ═══════════════════════════════════════════════════════════════════════════════
 
-describe('display() with PrefabApp ignores options', () => {
-  it('uses PrefabApp as-is even when options are provided', () => {
+describe('display() with PrefabApp merges options (Issue #12)', () => {
+  it('merges options into existing PrefabApp', () => {
     const app = new PrefabApp({
       title: 'Original',
       view: Text('Hello'),
       state: { x: 1 },
     })
-    // Passing options alongside a PrefabApp — options should be ignored
+    // Passing options alongside a PrefabApp — options should be merged
     const result = display(app, { title: 'Overridden', state: { x: 2 } })
     const wire = parsePrefab(result) as PrefabWireFormat
-    // PrefabApp state should win
-    expect(wire.state).toEqual({ x: 1 })
+    // Options state overrides PrefabApp state on conflict
+    expect(wire.state).toEqual({ x: 2 })
   })
 })
 

@@ -165,6 +165,114 @@ describe('display()', () => {
     expect(wire.stylesheets).toBeUndefined()
     expect(wire.pipes).toBeUndefined()
   })
+
+  // ── Issue #12: display() with PrefabApp + options merge ──────────────────
+
+  it('merges options into existing PrefabApp (closes #12)', () => {
+    const app = new PrefabApp({
+      title: 'Original',
+      view: Text('Hi'),
+      state: { existing: 1 },
+    })
+    const result = display(app, {
+      state: { added: 2 },
+      stylesheets: ['.injected { color: red; }'],
+    })
+    const wire = parsePrefab(result) as PrefabWireFormat
+    // State is merged — both original and added keys present
+    expect(wire.state).toEqual({ existing: 1, added: 2 })
+    // Stylesheets from options are included
+    expect(wire.stylesheets).toEqual(['.injected { color: red; }'])
+  })
+
+  it('options state overrides PrefabApp state on conflict', () => {
+    const app = new PrefabApp({
+      title: 'App',
+      view: Text('x'),
+      state: { count: 0, name: 'old' },
+    })
+    const result = display(app, { state: { count: 99 } })
+    const wire = parsePrefab(result) as PrefabWireFormat
+    expect(wire.state).toEqual({ count: 99, name: 'old' })
+  })
+
+  it('concatenates stylesheets from PrefabApp and options', () => {
+    const app = new PrefabApp({
+      title: 'Styled',
+      view: Text('x'),
+      stylesheets: ['.base { margin: 0; }'],
+    })
+    const result = display(app, {
+      stylesheets: ['.extra { padding: 4px; }'],
+    })
+    const wire = parsePrefab(result) as PrefabWireFormat
+    expect(wire.stylesheets).toEqual([
+      '.base { margin: 0; }',
+      '.extra { padding: 4px; }',
+    ])
+  })
+
+  it('options theme overrides PrefabApp theme', () => {
+    const app = new PrefabApp({
+      title: 'Themed',
+      view: Text('x'),
+      theme: { light: { primary: '#000' } },
+    })
+    const result = display(app, {
+      theme: { dark: { primary: '#fff' } },
+    })
+    const wire = parsePrefab(result) as PrefabWireFormat
+    // options.theme overrides entirely (not deep merged)
+    expect(wire.theme).toEqual({ dark: { primary: '#fff' } })
+  })
+
+  it('PrefabApp without options is passed through unchanged', () => {
+    const app = new PrefabApp({
+      title: 'Direct',
+      view: Text('x'),
+      stylesheets: ['.keep { color: blue; }'],
+      state: { ok: true },
+    })
+    const result = display(app)
+    const wire = parsePrefab(result) as PrefabWireFormat
+    expect(wire.state).toEqual({ ok: true })
+    expect(wire.stylesheets).toEqual(['.keep { color: blue; }'])
+  })
+
+  it('merges layout from options into PrefabApp', () => {
+    const app = new PrefabApp({
+      title: 'App',
+      view: Text('x'),
+    })
+    const result = display(app, { layout: { preferredHeight: 600 } })
+    const wire = parsePrefab(result) as PrefabWireFormat
+    expect(wire.layout).toEqual({ preferredHeight: 600 })
+  })
+
+  it('merges pipes from PrefabApp and options', () => {
+    const app = new PrefabApp({
+      title: 'App',
+      view: Text('x'),
+      pipes: { upper: (v: unknown) => String(v).toUpperCase() },
+    })
+    const result = display(app, {
+      pipes: { lower: (v: unknown) => String(v).toLowerCase() },
+    })
+    const wire = parsePrefab(result) as PrefabWireFormat
+    expect(wire.pipes!.upper).toBeDefined()
+    expect(wire.pipes!.lower).toBeDefined()
+  })
+
+  it('empty options object does not alter PrefabApp', () => {
+    const app = new PrefabApp({
+      title: 'Direct',
+      view: Text('x'),
+      state: { kept: true },
+    })
+    const result = display(app, {})
+    const wire = parsePrefab(result) as PrefabWireFormat
+    expect(wire.state).toEqual({ kept: true })
+  })
 })
 
 // ── display_form() ───────────────────────────────────────────────────────────

@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.38] — 2026-05-09
+
+### Bug Fixes
+- **Fixed**: `display()` now merges options into an existing `PrefabApp` instance — previously `state`, `stylesheets`, `theme`, `layout`, `pipes`, and all other options were silently discarded when a `PrefabApp` was passed. State and defs are shallow-merged (options win on conflict), stylesheets are concatenated, and scalar options (theme, layout, cssClass, onMount) fall back to the app's value (closes #12)
+
 ## [0.2.37] — 2026-05-09
 
 ### New Features

@@ -26,6 +26,12 @@ import type { McpToolResult } from './types.js'
 
 // ── display() ────────────────────────────────────────────────────────────────
 
+/** Concatenate two optional arrays, returning undefined when both are empty/absent. */
+function concatArrays<T>(a?: T[], b?: T[]): T[] | undefined {
+  if (a == null && b == null) return undefined
+  return [...(a ?? []), ...(b ?? [])]
+}
+
 export interface DisplayOptions {
   /** Page / app title. */
   title?: string
@@ -61,21 +67,51 @@ export function display(
   viewOrApp: Component | PrefabApp,
   options?: DisplayOptions,
 ): McpToolResult {
-  const app = viewOrApp instanceof PrefabApp
-    ? viewOrApp
-    : new PrefabApp({
-        title: options?.title ?? 'Prefab',
-        view: viewOrApp,
-        state: options?.state,
-        theme: options?.theme,
-        defs: options?.defs,
-        onMount: options?.onMount,
-        keyBindings: options?.keyBindings,
-        cssClass: options?.cssClass,
-        layout: options?.layout,
-        stylesheets: options?.stylesheets,
-        pipes: options?.pipes,
+  let app: PrefabApp
+
+  if (viewOrApp instanceof PrefabApp) {
+    if (options != null && Object.keys(options).length > 0) {
+      // Merge options into a new PrefabApp wrapping the same view.
+      // Options override the existing app's values; arrays (stylesheets) are concatenated.
+      app = new PrefabApp({
+        title: options.title ?? viewOrApp.title,
+        view: viewOrApp.view,
+        state: viewOrApp.state || options.state
+          ? { ...viewOrApp.state, ...options.state }
+          : undefined,
+        theme: options.theme ?? viewOrApp.theme,
+        defs: viewOrApp.defs || options.defs
+          ? { ...viewOrApp.defs, ...options.defs }
+          : undefined,
+        onMount: options.onMount ?? viewOrApp.onMount,
+        keyBindings: viewOrApp.keyBindings || options.keyBindings
+          ? { ...viewOrApp.keyBindings, ...options.keyBindings }
+          : undefined,
+        cssClass: options.cssClass ?? viewOrApp.cssClass,
+        layout: options.layout ?? viewOrApp.layout,
+        stylesheets: concatArrays(viewOrApp.stylesheets, options.stylesheets),
+        pipes: viewOrApp.pipes || options.pipes
+          ? { ...viewOrApp.pipes, ...options.pipes }
+          : undefined,
       })
+    } else {
+      app = viewOrApp
+    }
+  } else {
+    app = new PrefabApp({
+      title: options?.title ?? 'Prefab',
+      view: viewOrApp,
+      state: options?.state,
+      theme: options?.theme,
+      defs: options?.defs,
+      onMount: options?.onMount,
+      keyBindings: options?.keyBindings,
+      cssClass: options?.cssClass,
+      layout: options?.layout,
+      stylesheets: options?.stylesheets,
+      pipes: options?.pipes,
+    })
+  }
 
   const wire = app.toJSON()
   return {
