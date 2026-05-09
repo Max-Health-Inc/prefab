@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.36] — 2026-05-09
+
+### Bug Fixes
+- **Fixed**: Subscribe `onDataCallback` no longer clobbers merged state with raw response data — when `display_update()` merges a state delta via `applyPrefabUpdate()`, `store.set(stateKey, data)` is now skipped, preventing `stateKey` collision with delta keys (closes #10)
+- **Fixed**: ESLint config now ignores `docs/` (VitePress cache/dist) and `eslint.config.ts` — previously caused 60 spurious parsing errors
+
 ## [0.2.35] — 2026-05-09
 
 ### Bug Fixes

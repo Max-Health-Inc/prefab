@@ -232,6 +232,29 @@ describe('subscribe action dispatch — push path', () => {
 
     expect(transport.subscriptions.size).toBe(2)
   })
+
+  it('does not clobber merged state on push when stateKey collides with delta key (Issue #10)', async () => {
+    const transport = mockSubscriptionTransport()
+    const ctx = makeCtx({ view: 'init' }, transport)
+    ;(ctx as DispatchContext).remount = () => {}
+
+    await dispatchActions({
+      action: 'subscribe',
+      uri: 'chess://lobby/alice',
+      stateKey: 'view',       // ← collides with state delta key
+    }, ctx)
+
+    // Simulate push with display_update payload
+    const onData = transport.subscriptions.get('chess://lobby/alice')!
+    onData({
+      $prefab: { version: '0.2' },
+      update: { state: { view: 'lobby', players: ['alice'] } },
+    })
+
+    // Merged value should survive, not be overwritten by raw envelope
+    expect(ctx.store.get('view')).toBe('lobby')
+    expect(ctx.store.get('players')).toEqual(['alice'])
+  })
 })
 
 // ── Subscribe dispatch — polling fallback path ───────────────────────────────
@@ -409,6 +432,36 @@ describe('subscribe action dispatch — polling fallback', () => {
     // State delta should be merged
     expect(ctx.store.get('score')).toBe(42)
     expect(ctx.store.get('other')).toBe('keep')
+    // stateKey should NOT contain the raw envelope (Issue #10)
+    expect(ctx.store.get('$game')).toBeUndefined()
+  })
+
+  it('does not clobber merged state when stateKey collides with delta key (Issue #10)', async () => {
+    // Reproduces the exact scenario from Issue #10:
+    // stateKey='view' collides with update.state.view='lobby'
+    const updateResponse = {
+      $prefab: { version: '0.2' },
+      update: { state: { view: 'lobby', 'lobby.players': ['alice', 'bob'] } },
+    }
+    const transport = mockTransport(updateResponse)
+    const ctx = makeCtx({ view: 'connecting' }, transport)
+    ;(ctx as DispatchContext).remount = () => {}
+
+    await dispatchActions({
+      action: 'subscribe',
+      uri: 'chess://lobby/alice',
+      stateKey: 'view',       // ← collides with state delta key
+      fallbackInterval: 100,
+      fallbackTool: '_action',
+      fallbackArgs: { action: 'refresh' },
+    }, ctx)
+
+    await new Promise(r => setTimeout(r, 150))
+    clearAllSubscriptions()
+
+    // The merged state value should survive — NOT be clobbered by the raw response
+    expect(ctx.store.get('view')).toBe('lobby')
+    expect(ctx.store.get('lobby.players')).toEqual(['alice', 'bob'])
   })
 
   it('stores plain data in stateKey when poll returns non-prefab result', async () => {

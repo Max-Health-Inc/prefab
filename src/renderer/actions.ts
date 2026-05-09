@@ -385,9 +385,9 @@ function handleSubscribe(action: ActionJSON, ctx: DispatchContext): void {
     if (wireData && ctx.remount) {
       ctx.remount(wireData)
     } else {
-      // State delta: $prefab + update.state
-      applyPrefabUpdate(data, ctx)
-      ctx.store.set(stateKey, data)
+      // State delta: $prefab + update.state — skip raw store.set when delta was merged
+      const merged = applyPrefabUpdate(data, ctx)
+      if (!merged) ctx.store.set(stateKey, data)
       ctx.rerender()
     }
     void runCallbacks(action.onData, ctx, { $data: data })
@@ -544,12 +544,13 @@ function isPrefabUpdate(obj: Record<string, unknown>): boolean {
   return update != null && typeof update === 'object' && 'state' in (update as Record<string, unknown>)
 }
 
-/** If a result contains a display_update() payload, merge its state into the store. */
-function applyPrefabUpdate(result: unknown, ctx: DispatchContext): void {
+/** If a result contains a display_update() payload, merge its state into the store. Returns true if a state delta was applied. */
+function applyPrefabUpdate(result: unknown, ctx: DispatchContext): boolean {
   const updateData = extractPrefabUpdate(result)
-  if (!updateData) return
+  if (!updateData) return false
   const update = (updateData as { update: { state: Record<string, unknown> } }).update
   ctx.store.merge(update.state)
+  return true
 }
 
 /** Blocked URL schemes that can execute code. */
