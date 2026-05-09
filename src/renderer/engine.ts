@@ -166,6 +166,22 @@ export function renderNode(node: ComponentNode, ctx: RenderContext): HTMLElement
       const cls = resolveStr(n.cssClass, ctx)
       if (cls) el.className = (el.className ? el.className + ' ' : '') + cls
     }
+    if (n.onClick != null) {
+      el.addEventListener('click', () => {
+        void dispatchActions(n.onClick as ActionJSON | ActionJSON[], makeDispatchCtx(ctx))
+      })
+      if (el.tagName !== 'BUTTON' && el.tagName !== 'A') {
+        el.setAttribute('role', 'button')
+        el.setAttribute('tabindex', '0')
+        el.addEventListener('keydown', (e: Event) => {
+          const key = (e as KeyboardEvent).key
+          if (key === 'Enter' || key === ' ') {
+            e.preventDefault()
+            void dispatchActions(n.onClick as ActionJSON | ActionJSON[], makeDispatchCtx(ctx))
+          }
+        })
+      }
+    }
   }
 
   // Run onMount actions

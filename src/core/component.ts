@@ -66,20 +66,23 @@ export function serializeValue(v: unknown): unknown {
 
 export interface ComponentProps {
   id?: string
-  cssClass?: string
+  cssClass?: RxStr
+  onClick?: Action | Action[]
   onMount?: Action | Action[]
 }
 
 export class Component {
   readonly componentType: string
   id?: string
-  cssClass?: string
+  cssClass?: RxStr
+  onClick?: Action | Action[]
   onMount?: Action | Action[]
 
   constructor(type: string, props?: ComponentProps) {
     this.componentType = type
     if (props?.id) this.id = props.id
-    if (props?.cssClass) this.cssClass = props.cssClass
+    if (props?.cssClass != null) this.cssClass = props.cssClass
+    if (props?.onClick) this.onClick = props.onClick
     if (props?.onMount) this.onMount = props.onMount
   }
 
@@ -92,7 +95,12 @@ export class Component {
     const json: ComponentJSON = { type: this.componentType }
 
     if (this.id) json.id = this.id
-    if (this.cssClass) json.cssClass = this.cssClass
+    if (this.cssClass != null) json.cssClass = serializeValue(this.cssClass) as string
+    if (this.onClick) {
+      json.onClick = Array.isArray(this.onClick)
+        ? this.onClick.map(a => a.toJSON())
+        : this.onClick.toJSON()
+    }
     if (this.onMount) {
       json.onMount = Array.isArray(this.onMount)
         ? this.onMount.map(a => a.toJSON())

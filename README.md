@@ -253,7 +253,9 @@ Built-in pipes always take precedence. Re-registration warns and overwrites (HMR
 
 ## Actions
 
-Actions are triggered by user interactions (`onClick`, `onChange`, `onSubmit`) or lifecycle events (`onMount`):
+Actions are triggered by user interactions (`onClick`, `onChange`, `onSubmit`) or lifecycle events (`onMount`).
+
+`onClick` works on **all components** — not just `Button`. Containers like `Div`, `Span`, `Column`, and `Row` automatically get `role="button"`, `tabindex="0"`, and keyboard (Enter/Space) support:
 
 ```ts
 import { SetState, ToggleState, CallTool, ShowToast, OpenLink, rx } from '@maxhealth.tech/prefab'
