@@ -2,12 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.2.29] — 2026-05-09
+## [0.2.30] — 2026-05-09
+
+### Bug Fixes
+- **Fixed**: Reverted serializer output back to **camelCase** (`cssClass`, `onMount`, `onClick`, `resultKey`, etc.), matching the upstream PrefectHQ/prefab wire format (`by_alias=True`). The snake_case serializer in v0.2.28 was a breaking change based on an incorrect assumption about the wire spec.
+- **Kept**: Renderer normalization layer — `renderNode()` and `dispatchOne()` accept **both** snake_case and camelCase input, so Python-SDK-generated wire data still renders correctly.
+- **Fixed**: `autoTable` column keys now match raw data keys (no `toCamelCase` conversion) — snake_case row keys like `proposed_start` render correctly without column/key mismatch.
+
+## [0.2.29] — 2026-05-09 *(unpublished — included the faulty snake_case serializer from v0.2.28)*
 
 ### Bug Fixes
 - **Fixed**: `rendererHtml()` CDN URL now derives major.minor from `VERSION` automatically — no more hardcoded `@0.2` constant that would go stale on a minor/major bump
 
-## [0.2.28] — 2026-05-09
+## [0.2.28] — 2026-05-09 *(unpublished — snake_case serializer was a breaking change, reverted in v0.2.30)*
 
 ### New Features
 - **`Subscribe` action** — real-time resource updates via `subscribe(uri, stateKey, opts)` with automatic fallback polling when the host doesn't support MCP `notifications/resources/updated` (#3)
@@ -15,8 +22,8 @@ All notable changes to this project will be documented in this file.
   - `onData` / `onError` callbacks for reactive state binding
 - **`PdfViewer` component** — embed PDF documents with `pdfViewer(src, opts)` (#2)
 
-### Wire Format (Breaking)
-- **snake_case wire format** — all structural keys in the `$prefab` JSON output are now snake_case (`css_class`, `on_mount`, `on_click`, `interval_ms`, `result_key`, `on_success`, `on_error`, `state_key`, `data_key`, etc.), aligning with the Python `prefab_ui` SDK (#4)
+### ~~Wire Format (Breaking)~~
+- ~~**snake_case wire format** — all structural keys in the `$prefab` JSON output are now snake_case~~ *(reverted in v0.2.30)*
 - Renderer normalizes incoming JSON at entry points (`renderNode`, `dispatchOne`), accepting both snake_case and camelCase input for backwards compatibility
 - User-data containers (`state`, `arguments`, `context`, `overrides`) are **not** converted — keys inside them are preserved as-is
 
