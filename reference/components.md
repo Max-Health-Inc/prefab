@@ -29,7 +29,8 @@ Column([Text('No gap')])                          // shorthand
 | `gap` | `number \| GapToken` | Spacing between children. Accepts a number or semantic token: `'none'`, `'xs'`, `'sm'`, `'md'`, `'lg'`, `'xl'`, `'2xl'` |
 | `align` | `string` | Cross-axis alignment (`start`, `center`, `end`, `stretch`) |
 | `justify` | `string` | Main-axis alignment |
-| `cssClass` | `string` | Extra CSS class |
+| `cssClass` | `RxStr` | Extra CSS class — supports reactive expressions (e.g. `rx('active').then('bg-green', 'bg-red')`) |
+| `onClick` | `Action \| Action[]` | Action(s) dispatched on click. Non-button elements get `role="button"` and keyboard support automatically |
 
 **Gap tokens** map to numbers: `none`=0, `xs`=1, `sm`=2, `md`=3, `lg`=4, `xl`=6, `2xl`=8.
 

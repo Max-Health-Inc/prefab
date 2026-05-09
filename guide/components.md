@@ -29,7 +29,8 @@ Column([Text('No gap')])                          // shorthand
 | `gap` | `number` | Spacing between children (in spacing units) |
 | `align` | `string` | Cross-axis alignment (`start`, `center`, `end`, `stretch`) |
 | `justify` | `string` | Main-axis alignment |
-| `cssClass` | `string` | Extra CSS class |
+| `cssClass` | `RxStr` | Extra CSS class — supports reactive expressions (e.g. `rx('active').then('bg-green', 'bg-red')`) |
+| `onClick` | `Action \| Action[]` | Action(s) dispatched on click. Non-button elements get `role="button"` and keyboard support automatically |
 
 ### `Row(props?, children?)`
 
