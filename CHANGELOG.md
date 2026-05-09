@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.33] — 2026-05-09
+
+### Bug Fixes
+- **Fixed**: `display()` now forwards `stylesheets` and `pipes` options to `PrefabApp` — previously these were silently dropped since `DisplayOptions` didn't include them (closes #8)
+
 ## [0.2.32] — 2026-05-09
 
 ### Bug Fixes
