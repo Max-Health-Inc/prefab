@@ -380,8 +380,16 @@ function handleSubscribe(action: ActionJSON, ctx: DispatchContext): void {
   }
 
   const onDataCallback = (data: unknown): void => {
-    ctx.store.set(stateKey, data)
-    ctx.rerender()
+    // Full view replacement: $prefab + view
+    const wireData = extractPrefabPayload(data)
+    if (wireData && ctx.remount) {
+      ctx.remount(wireData)
+    } else {
+      // State delta: $prefab + update.state
+      applyPrefabUpdate(data, ctx)
+      ctx.store.set(stateKey, data)
+      ctx.rerender()
+    }
     void runCallbacks(action.onData, ctx, { $data: data })
   }
 

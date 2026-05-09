@@ -355,6 +355,84 @@ describe('subscribe action dispatch — polling fallback', () => {
     expect(ctx.toasts.length).toBeGreaterThan(0)
     expect(ctx.toasts[0].message).toBe('Poll failed')
   })
+
+  it('remounts when fallback poll returns a full $prefab view', async () => {
+    const prefabResponse = {
+      $prefab: { version: '0.2' },
+      view: { type: 'Text', text: 'Updated Board' },
+      state: { turn: 'black' },
+    }
+    const transport = mockTransport(prefabResponse)
+    const remounted: Record<string, unknown>[] = []
+    const ctx = makeCtx({}, transport)
+    ;(ctx as DispatchContext).remount = (data) => remounted.push(data)
+
+    await dispatchActions({
+      action: 'subscribe',
+      uri: 'chess://game/abc',
+      stateKey: '$game',
+      fallbackInterval: 100,
+      fallbackTool: '_action',
+      fallbackArgs: { action: 'refresh' },
+    }, ctx)
+
+    await new Promise(r => setTimeout(r, 150))
+    clearAllSubscriptions()
+
+    // Should remount, not just store raw data
+    expect(remounted).toHaveLength(1)
+    expect(remounted[0]).toEqual(prefabResponse)
+    // Should NOT store raw data in stateKey when remounting
+    expect(ctx.store.get('$game')).toBeUndefined()
+  })
+
+  it('merges state when fallback poll returns a display_update', async () => {
+    const updateResponse = {
+      $prefab: { version: '0.2' },
+      update: { state: { score: 42 } },
+    }
+    const transport = mockTransport(updateResponse)
+    const ctx = makeCtx({ score: 0, other: 'keep' }, transport)
+    ;(ctx as DispatchContext).remount = () => {}
+
+    await dispatchActions({
+      action: 'subscribe',
+      uri: 'chess://game/abc',
+      stateKey: '$game',
+      fallbackInterval: 100,
+      fallbackTool: '_action',
+    }, ctx)
+
+    await new Promise(r => setTimeout(r, 150))
+    clearAllSubscriptions()
+
+    // State delta should be merged
+    expect(ctx.store.get('score')).toBe(42)
+    expect(ctx.store.get('other')).toBe('keep')
+  })
+
+  it('stores plain data in stateKey when poll returns non-prefab result', async () => {
+    const plainData = { fen: 'rnbq...', turn: 'white' }
+    const transport = mockTransport(plainData)
+    const remounted: unknown[] = []
+    const ctx = makeCtx({}, transport)
+    ;(ctx as DispatchContext).remount = (data) => remounted.push(data)
+
+    await dispatchActions({
+      action: 'subscribe',
+      uri: 'chess://game/abc',
+      stateKey: '$game',
+      fallbackInterval: 100,
+      fallbackTool: '_action',
+    }, ctx)
+
+    await new Promise(r => setTimeout(r, 150))
+    clearAllSubscriptions()
+
+    // Plain data → stored in stateKey, no remount
+    expect(remounted).toHaveLength(0)
+    expect(ctx.store.get('$game')).toEqual(plainData)
+  })
 })
 
 // ── Unsubscribe dispatch ─────────────────────────────────────────────────────

@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.34] — 2026-05-09
+
+### Bug Fixes
+- **Fixed**: Subscribe fallback poll handler now detects `$prefab` responses — poll results containing full views trigger `remount()`, and `display_update` payloads merge state into the store. Previously poll results were stored as raw data, leaving the DOM frozen (closes #9)
+
 ## [0.2.33] — 2026-05-09
 
 ### Bug Fixes
