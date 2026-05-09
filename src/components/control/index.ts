@@ -57,7 +57,7 @@ export function If(propsOrCondition: ConditionProps | RxStr, children?: Componen
     c.getProps = () => ({ condition: String(condition) })
     return c
   }
-  const props = propsOrCondition as ConditionProps
+  const props = propsOrCondition
   const c = new ContainerComponent('If', props)
   c.getProps = () => ({ condition: String(props.condition) })
   return c
@@ -78,7 +78,7 @@ export function Elif(propsOrCondition: ConditionProps | RxStr, children?: Compon
     c.getProps = () => ({ condition: String(condition) })
     return c
   }
-  const props = propsOrCondition as ConditionProps
+  const props = propsOrCondition
   const c = new ContainerComponent('Elif', props)
   c.getProps = () => ({ condition: String(props.condition) })
   return c
