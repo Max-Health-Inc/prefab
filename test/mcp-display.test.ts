@@ -345,6 +345,38 @@ describe('display_update()', () => {
     expect(payload.update.state.user).toEqual({ name: 'Alice', prefs: { theme: 'dark' } })
     expect(payload.update.state.count).toBe(42)
   })
+
+  // ── Issue #13: actions alongside state delta ──────────────────────────────
+
+  it('includes single action in wire format (closes #13)', () => {
+    const result = display_update(
+      { turn: 'black' },
+      { actions: new SetState('prompt', 'Your move') },
+    )
+    const payload = parsePrefab(result) as PrefabUpdateWire
+    expect(payload.update.state).toEqual({ turn: 'black' })
+    expect(payload.update.actions).toEqual([
+      { action: 'setState', key: 'prompt', value: 'Your move' },
+    ])
+  })
+
+  it('includes action array in wire format', () => {
+    const result = display_update(
+      { fen: 'rnbqkbnr/...' },
+      { actions: [new SetState('thinking', true), new CallTool('engine_move')] },
+    )
+    const payload = parsePrefab(result) as PrefabUpdateWire
+    expect(payload.update.actions).toEqual([
+      { action: 'setState', key: 'thinking', value: true },
+      { action: 'toolCall', tool: 'engine_move' },
+    ])
+  })
+
+  it('omits actions when not provided', () => {
+    const result = display_update({ x: 1 })
+    const payload = parsePrefab(result) as PrefabUpdateWire
+    expect(payload.update.actions).toBeUndefined()
+  })
 })
 
 // ── display_error() ──────────────────────────────────────────────────────────

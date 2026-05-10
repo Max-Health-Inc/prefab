@@ -544,12 +544,15 @@ function isPrefabUpdate(obj: Record<string, unknown>): boolean {
   return update != null && typeof update === 'object' && 'state' in (update as Record<string, unknown>)
 }
 
-/** If a result contains a display_update() payload, merge its state into the store. Returns true if a state delta was applied. */
+/** If a result contains a display_update() payload, merge its state into the store and fire actions. Returns true if a state delta was applied. */
 function applyPrefabUpdate(result: unknown, ctx: DispatchContext): boolean {
   const updateData = extractPrefabUpdate(result)
   if (!updateData) return false
-  const update = (updateData as { update: { state: Record<string, unknown> } }).update
+  const update = (updateData as { update: { state: Record<string, unknown>; actions?: ActionJSON | ActionJSON[] } }).update
   ctx.store.merge(update.state)
+  if (update.actions != null) {
+    void dispatchActions(update.actions, ctx)
+  }
   return true
 }
 

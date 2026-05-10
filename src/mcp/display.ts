@@ -20,7 +20,7 @@
 import { type Component } from '../core/component.js'
 import { PrefabApp, VERSION } from '../app.js'
 import type { Theme, LayoutHints } from '../app.js'
-import type { Action } from '../actions/types.js'
+import type { Action, ActionJSON } from '../actions/types.js'
 import type { PipeFn } from '../rx/pipes.js'
 import type { McpToolResult } from './types.js'
 
@@ -168,6 +168,8 @@ export function display_form(
 export interface StateUpdate {
   /** State key-value pairs to merge into the existing UI state. */
   state: Record<string, unknown>
+  /** Actions to fire after the state delta is applied. */
+  actions?: ActionJSON | ActionJSON[]
 }
 
 export interface PrefabUpdateWire {
@@ -175,20 +177,33 @@ export interface PrefabUpdateWire {
   update: StateUpdate
 }
 
+export interface DisplayUpdateOptions {
+  /** Actions to fire after the state delta is applied. */
+  actions?: Action | Action[]
+}
+
 /**
  * Return a partial state update for an existing prefab UI.
  *
  * Instead of re-rendering the entire UI, this sends a state delta
- * that the renderer merges into its reactive store.
+ * that the renderer merges into its reactive store. Optionally fires
+ * actions after the state is applied.
  *
  * @returns MCP tool result with a $prefab update payload.
  */
 export function display_update(
   state: Record<string, unknown>,
+  options?: DisplayUpdateOptions,
 ): McpToolResult {
+  const update: StateUpdate = { state }
+  if (options?.actions != null) {
+    const acts = Array.isArray(options.actions) ? options.actions : [options.actions]
+    update.actions = acts.map(a => a.toJSON())
+  }
+
   const payload: PrefabUpdateWire = {
     $prefab: { version: '0.2' },
-    update: { state },
+    update,
   }
 
   return {

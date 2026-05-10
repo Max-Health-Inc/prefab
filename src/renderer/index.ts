@@ -82,7 +82,7 @@ export interface PrefabWireData {
 
 export interface PrefabUpdateData {
   $prefab: { version: string }
-  update: { state: Record<string, unknown> }
+  update: { state: Record<string, unknown>; actions?: ActionJSON | ActionJSON[] }
 }
 
 export interface MountOptions {
@@ -275,6 +275,10 @@ export const PrefabRenderer = {
       update(updateData: PrefabUpdateData) {
         store.merge(updateData.update.state)
         render()
+        // Fire actions after state is applied (if any)
+        if (updateData.update.actions != null) {
+          void dispatchActions(updateData.update.actions, ctx)
+        }
       },
       store,
       destroy() {

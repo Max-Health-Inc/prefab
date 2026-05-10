@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.39] — 2026-05-10
+
+### New Features
+- **`display_update()` actions** — `display_update()` now accepts an optional `actions` parameter to fire actions alongside state deltas. Actions execute after the state is merged into the store (closes #13)
+  ```ts
+  display_update(
+    { 'game.turn': 'b', 'game.fen': '...' },
+    { actions: [new SendMessage("Your turn. Pick a move.")] }
+  )
+  ```
+
 ## [0.2.38] — 2026-05-09
 
 ### Bug Fixes

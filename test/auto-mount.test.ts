@@ -145,6 +145,36 @@ describe('Auto-mount entry point', () => {
     ui.destroy()
   })
 
+  it('dispatches actions from update payload (Issue #13)', async () => {
+    const wire: PrefabWireData = {
+      $prefab: { version: '0.2' },
+      view: { type: 'Text', content: '{{ msg }}' },
+      state: { msg: 'before', flag: false },
+    }
+    const ui = await app({ mode: 'standalone' })
+    const mounted = ui.mount(root, wire)
+
+    expect(root.textContent).toContain('before')
+
+    // Update with both state and actions
+    mounted.update({
+      $prefab: { version: '0.2' },
+      update: {
+        state: { msg: 'after' },
+        actions: { action: 'setState', key: 'flag', value: true },
+      },
+    })
+
+    // State delta applied immediately
+    expect(root.textContent).toContain('after')
+    // Action fires asynchronously
+    await new Promise(r => queueMicrotask(r))
+    expect(mounted.store.get('flag')).toBe(true)
+
+    mounted.destroy()
+    ui.destroy()
+  })
+
   it('bootAuto wires up full lifecycle', async () => {
     const handle = await bootAuto(root)
     // In standalone mode there's no bridge event source,
