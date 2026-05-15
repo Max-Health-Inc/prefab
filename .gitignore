@@ -4,6 +4,12 @@ dist/
 .DS_Store
 meta.json
 
+# Python cache/bytecode
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
 # VitePress
 docs/.vitepress/cache
 docs/.vitepress/dist
