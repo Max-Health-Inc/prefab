@@ -493,6 +493,36 @@ describe('Bridge (JSON-RPC ui/* protocol)', () => {
     })
   })
 
+  it('dispatches prefab:host-context-changed with full params', () => {
+    bridge.connect()
+
+    let received: Record<string, unknown> | undefined
+    bridge.on('prefab:host-context-changed', (payload) => { received = payload })
+
+    window.postMessage({
+      jsonrpc: '2.0',
+      method: 'ui/notifications/host-context-changed',
+      params: {
+        theme: 'dark',
+        styles: { variables: { '--bg': '#111' } },
+        accessToken: 'eyJhbGciOiJSUzI1NiJ9.test',
+        locale: 'de-AT',
+      },
+    }, '*')
+
+    return new Promise<void>((resolve) => {
+      setTimeout(() => {
+        expect(received).toBeDefined()
+        // Full params are forwarded — including arbitrary fields
+        expect(received!.theme).toBe('dark')
+        expect(received!.accessToken).toBe('eyJhbGciOiJSUzI1NiJ9.test')
+        expect(received!.locale).toBe('de-AT')
+        expect((received!.styles as Record<string, unknown>)).toBeDefined()
+        resolve()
+      }, 50)
+    })
+  })
+
   it('auto-acknowledges host requests with id', () => {
     bridge.connect()
 

@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.40] — 2026-05-15
+
+### New Features
+- **`onHostContextChanged` callback** — `PrefabApp` now exposes `onHostContextChanged((ctx) => {...})` so components can react to arbitrary fields in `ui/notifications/host-context-changed` (e.g. refreshed access tokens, locale, custom app config). The existing `prefab:theme-update` event continues to fire for backward-compat theme handling (closes #14)
+- **`prefab:host-context-changed` bridge event** — the bridge now dispatches the full params object from `host-context-changed` as a separate `prefab:host-context-changed` event, in addition to the existing `prefab:theme-update`
+
 ## [0.2.39] — 2026-05-10
 
 ### New Features

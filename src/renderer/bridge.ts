@@ -472,6 +472,8 @@ export class Bridge {
           if (typeof styles.css?.fonts === 'string') theme.fontCss = styles.css.fonts
         }
         this.dispatch('prefab:theme-update', theme as Record<string, unknown>)
+        // Dispatch full params so components can react to arbitrary host context fields
+        this.dispatch('prefab:host-context-changed', params)
         break
       }
       case 'ui/resource-teardown':
