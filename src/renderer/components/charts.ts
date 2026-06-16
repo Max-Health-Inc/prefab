@@ -1,13 +1,21 @@
 /**
- * Chart component renderers — BarChart, LineChart, AreaChart, PieChart, etc.
+ * Chart component renderers — BarChart, LineChart, AreaChart, PieChart,
+ * ScatterChart, RadialChart, Histogram.
  *
- * Charts render as SVG using simple built-in drawing.
- * For production use, these can be enhanced with a charting library.
+ * Charts render as SVG using simple built-in drawing. Shared axis/SVG/format
+ * helpers live in [chart-helpers.ts]; tooltip hit-zones in [chart-tooltip.ts].
  */
 
 import { registerComponent, resolveValue, el } from '../engine.js'
 import type { ComponentNode, RenderContext } from '../engine.js'
 import { createTooltip, addBarTooltipZones, addLineTooltipZones, showTooltipAt } from './chart-tooltip.js'
+import {
+  COLORS, AXIS_COLOR, GRID_COLOR, AXIS_FONT,
+  chartLayout, createSvg, svgEl, svgText, polar, arcPath,
+  drawYAxis, drawYAxisRight, drawXAxisLabels, drawBaseline,
+  applyPipeFormat, resolveValueFormat, makeTooltipFormatter, addLegend,
+} from './chart-helpers.js'
+import type { SeriesEntry } from './chart-helpers.js'
 
 export function registerChartComponents(): void {
   registerComponent('BarChart', renderBarChart)
@@ -20,206 +28,7 @@ export function registerChartComponents(): void {
   registerComponent('Histogram', renderHistogram)
 }
 
-const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899']
-const AXIS_COLOR = 'var(--muted-foreground, #6b7280)'
-const GRID_COLOR = 'var(--border, #e5e7eb)'
-const AXIS_FONT = '10'
-
-export interface SeriesEntry {
-  dataKey: string
-  label?: string
-  color?: string
-  yAxisId?: 'left' | 'right'
-  tooltipFormat?: string
-}
-
-// ── Shared axis / grid helpers ───────────────────────────────────────────────
-
-export interface ChartLayout {
-  /** Usable plot area after axis padding */
-  plotLeft: number
-  plotRight: number
-  plotTop: number
-  plotBottom: number
-  plotWidth: number
-  plotHeight: number
-}
-
-/** Compute chart layout accounting for optional Y-axis label space. */
-function chartLayout(
-  svgWidth: number,
-  svgHeight: number,
-  hasYAxis: boolean,
-  hasYAxisRight = false,
-): ChartLayout {
-  const plotLeft = hasYAxis ? 44 : 0
-  const plotRight = svgWidth - (hasYAxisRight ? 44 : 0)
-  const plotTop = 10
-  const plotBottom = svgHeight - 24
-  return {
-    plotLeft,
-    plotRight,
-    plotTop,
-    plotBottom,
-    plotWidth: plotRight - plotLeft,
-    plotHeight: plotBottom - plotTop,
-  }
-}
-
-/** Nice round tick values for a 0..max range, returning ~tickCount values. */
-function niceYTicks(max: number, tickCount = 5): number[] {
-  if (max <= 0) return [0]
-  const rawStep = max / tickCount
-  const magnitude = Math.pow(10, Math.floor(Math.log10(rawStep)))
-  const residual = rawStep / magnitude
-  const niceStep =
-    residual <= 1.5 ? magnitude
-      : residual <= 3 ? 2 * magnitude
-        : residual <= 7 ? 5 * magnitude
-          : 10 * magnitude
-  const ticks: number[] = []
-  for (let v = 0; v <= max + niceStep * 0.01; v += niceStep) {
-    ticks.push(Math.round(v * 1000) / 1000)
-  }
-  return ticks
-}
-
-/** Draw Y-axis labels + optional horizontal grid lines into SVG. */
-function drawYAxis(
-  svg: SVGSVGElement,
-  layout: ChartLayout,
-  max: number,
-  showGrid: boolean,
-  format?: string,
-): void {
-  const ticks = niceYTicks(max)
-  for (const tick of ticks) {
-    const y = layout.plotBottom - (max > 0 ? (tick / max) * layout.plotHeight : 0)
-
-    // Y label
-    const label = document.createElementNS('http://www.w3.org/2000/svg', 'text')
-    label.setAttribute('x', String(layout.plotLeft - 6))
-    label.setAttribute('y', String(y + 3))
-    label.setAttribute('text-anchor', 'end')
-    label.setAttribute('font-size', AXIS_FONT)
-    label.setAttribute('fill', AXIS_COLOR)
-    label.textContent = formatYValue(tick, format)
-    svg.appendChild(label)
-
-    // Grid line
-    if (showGrid && tick > 0) {
-      const line = document.createElementNS('http://www.w3.org/2000/svg', 'line')
-      line.setAttribute('x1', String(layout.plotLeft))
-      line.setAttribute('y1', String(y))
-      line.setAttribute('x2', String(layout.plotRight))
-      line.setAttribute('y2', String(y))
-      line.setAttribute('stroke', GRID_COLOR)
-      line.setAttribute('stroke-width', '1')
-      line.setAttribute('stroke-dasharray', '4 3')
-      svg.appendChild(line)
-    }
-  }
-}
-
-/** Draw secondary Y-axis labels on the right side of the plot. */
-function drawYAxisRight(
-  svg: SVGSVGElement,
-  layout: ChartLayout,
-  max: number,
-  format?: string,
-): void {
-  const ticks = niceYTicks(max)
-  for (const tick of ticks) {
-    const y = layout.plotBottom - (max > 0 ? (tick / max) * layout.plotHeight : 0)
-    const label = document.createElementNS('http://www.w3.org/2000/svg', 'text')
-    label.setAttribute('x', String(layout.plotRight + 6))
-    label.setAttribute('y', String(y + 3))
-    label.setAttribute('text-anchor', 'start')
-    label.setAttribute('font-size', AXIS_FONT)
-    label.setAttribute('fill', AXIS_COLOR)
-    label.textContent = formatYValue(tick, format)
-    svg.appendChild(label)
-  }
-}
-
-/** Draw X-axis labels under the plot area. */
-function drawXAxisLabels(
-  svg: SVGSVGElement,
-  data: Record<string, unknown>[],
-  xAxisKey: string,
-  getX: (index: number) => number,
-  yBase: number,
-  format?: (raw: unknown) => string,
-): void {
-  for (let i = 0; i < data.length; i++) {
-    const label = document.createElementNS('http://www.w3.org/2000/svg', 'text')
-    label.setAttribute('x', String(getX(i)))
-    label.setAttribute('y', String(yBase + 14))
-    label.setAttribute('text-anchor', 'middle')
-    label.setAttribute('font-size', AXIS_FONT)
-    label.setAttribute('fill', AXIS_COLOR)
-    const val = data[i][xAxisKey]
-    label.textContent = val == null ? '' : (format ? format(val) : String(val as string | number))
-    svg.appendChild(label)
-  }
-}
-
-/** Draw a baseline (X-axis line) at the bottom of the plot. */
-function drawBaseline(
-  svg: SVGSVGElement,
-  layout: ChartLayout,
-): void {
-  const line = document.createElementNS('http://www.w3.org/2000/svg', 'line')
-  line.setAttribute('x1', String(layout.plotLeft))
-  line.setAttribute('y1', String(layout.plotBottom))
-  line.setAttribute('x2', String(layout.plotRight))
-  line.setAttribute('y2', String(layout.plotBottom))
-  line.setAttribute('stroke', AXIS_COLOR)
-  line.setAttribute('stroke-width', '1')
-  svg.appendChild(line)
-}
-
-/** Apply a pipe expression to a value using the Rx engine. */
-function applyPipeFormat(value: unknown, pipe: string, ctx: RenderContext): string {
-  if (value == null) return ''
-  const result = resolveValue(`{{ __v | ${pipe} }}`, { ...ctx, scope: { ...ctx.scope, __v: value } })
-  return result == null ? String(value as string | number) : String(result as string | number)
-}
-
-export function formatYValue(value: number, format?: string): string {
-  if (format === 'currency') return `$${value.toLocaleString()}`
-  if (format === 'percent') return `${value}%`
-  if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(1)}M`
-  if (value >= 1_000) return `${(value / 1_000).toFixed(1)}K`
-  return String(value)
-}
-
-/**
- * Effective value-axis / tooltip format for a chart node.
- *
- * `valueFormat` (protocol 0.3 / upstream PR #454) is the canonical field;
- * `yAxisFormat` remains a TS-only override for the left axis of dual-axis
- * charts. `"auto"` (upstream's default) means "no explicit format".
- */
-function resolveValueFormat(node: ComponentNode): string | undefined {
-  const fmt = (node.yAxisFormat as string | undefined) ?? (node.valueFormat as string | undefined)
-  return fmt && fmt !== 'auto' ? fmt : undefined
-}
-
-/** Create a format callback for tooltip entries that handles per-axis formats + null. */
-function makeTooltipFormatter(
-  ctx: RenderContext,
-  yAxisFormat?: string,
-  yAxisRightFormat?: string,
-): (raw: unknown, s: SeriesEntry) => string {
-  return (raw, s) => {
-    if (raw === null || raw === undefined) return '\u2014'
-    // Per-series tooltipFormat overrides axis format
-    if (s.tooltipFormat) return applyPipeFormat(raw, s.tooltipFormat, ctx)
-    const fmt = s.yAxisId === 'right' ? yAxisRightFormat : yAxisFormat
-    return formatYValue(Number(raw), fmt)
-  }
-}
+// ── BarChart ─────────────────────────────────────────────────────────────────
 
 function renderBarChart(node: ComponentNode, ctx: RenderContext): HTMLElement {
   const wrapper = el('div', 'pf-chart pf-bar-chart')
@@ -310,6 +119,8 @@ function renderBarChart(node: ComponentNode, ctx: RenderContext): HTMLElement {
   wrapper.appendChild(svg)
   return wrapper
 }
+
+// ── LineChart / AreaChart ────────────────────────────────────────────────────
 
 function renderLineChart(node: ComponentNode, ctx: RenderContext): HTMLElement {
   const wrapper = el('div', `pf-chart pf-${node.type.toLowerCase()}-chart`)
@@ -472,6 +283,8 @@ function renderLineChart(node: ComponentNode, ctx: RenderContext): HTMLElement {
   return wrapper
 }
 
+// ── PieChart ─────────────────────────────────────────────────────────────────
+
 function renderPieChart(node: ComponentNode, ctx: RenderContext): HTMLElement {
   const wrapper = el('div', 'pf-chart pf-pie-chart')
   const data = (resolveValue(node.data, ctx) as Record<string, unknown>[] | undefined) ?? []
@@ -567,7 +380,7 @@ function renderPieChart(node: ComponentNode, ctx: RenderContext): HTMLElement {
   return wrapper
 }
 
-// ── ScatterChart ───────────────────────────────────────────────────────────────
+// ── ScatterChart ─────────────────────────────────────────────────────────────
 
 function renderScatterChart(node: ComponentNode, ctx: RenderContext): HTMLElement {
   const wrapper = el('div', 'pf-chart pf-scatter-chart')
@@ -659,7 +472,7 @@ function renderScatterChart(node: ComponentNode, ctx: RenderContext): HTMLElemen
   return wrapper
 }
 
-// ── RadialChart ────────────────────────────────────────────────────────────────
+// ── RadialChart ──────────────────────────────────────────────────────────────
 
 function renderRadialChart(node: ComponentNode, ctx: RenderContext): HTMLElement {
   const wrapper = el('div', 'pf-chart pf-radial-chart')
@@ -740,89 +553,6 @@ function renderFallbackChart(node: ComponentNode, _ctx: RenderContext): HTMLElem
   e.style.padding = '24px'
   e.style.textAlign = 'center'
   return e
-}
-
-// ── Helpers ──────────────────────────────────────────────────────────────────
-
-function createSvg(width: number, height: number, chartType?: string): SVGSVGElement {
-  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
-  svg.setAttribute('width', '100%')
-  svg.setAttribute('height', String(height))
-  svg.setAttribute('viewBox', `0 0 ${width} ${height}`)
-  svg.setAttribute('role', 'img')
-  if (chartType) {
-    svg.setAttribute('aria-label', `${chartType} chart`)
-  }
-  svg.style.overflow = 'visible'
-  return svg
-}
-
-/** Create an SVG element with string-coerced attributes. */
-function svgEl<K extends keyof SVGElementTagNameMap>(
-  tag: K,
-  attrs: Record<string, string | number>,
-): SVGElementTagNameMap[K] {
-  const node = document.createElementNS('http://www.w3.org/2000/svg', tag)
-  for (const [k, v] of Object.entries(attrs)) node.setAttribute(k, String(v))
-  return node
-}
-
-/** Create an SVG <text> element with content. */
-function svgText(attrs: Record<string, string | number>, text: string): SVGTextElement {
-  const t = svgEl('text', attrs)
-  t.textContent = text
-  return t
-}
-
-/** Polar → SVG coords (degrees, math convention with screen y flipped). */
-function polar(cx: number, cy: number, r: number, angleDeg: number): { x: number; y: number } {
-  const a = (angleDeg * Math.PI) / 180
-  return { x: cx + r * Math.cos(a), y: cy - r * Math.sin(a) }
-}
-
-/** Sampled arc stroke path between two angles — avoids large-arc/sweep flag math. */
-function arcPath(cx: number, cy: number, r: number, a1: number, a2: number): string {
-  const steps = Math.max(2, Math.ceil(Math.abs(a2 - a1) / 4))
-  const parts: string[] = []
-  for (let i = 0; i <= steps; i++) {
-    const p = polar(cx, cy, r, a1 + ((a2 - a1) * i) / steps)
-    parts.push(`${i === 0 ? 'M' : 'L'} ${p.x.toFixed(2)} ${p.y.toFixed(2)}`)
-  }
-  return parts.join(' ')
-}
-
-function addLegend(
-  wrapper: HTMLElement,
-  series: SeriesEntry[],
-  show?: boolean,
-): void {
-  if (show === false || series.length <= 1) return
-  const legend = el('div', 'pf-chart-legend')
-  legend.style.display = 'flex'
-  legend.style.gap = '12px'
-  legend.style.fontSize = '12px'
-  legend.style.marginBottom = '8px'
-
-  for (let i = 0; i < series.length; i++) {
-    const item = el('div', 'pf-chart-legend-item')
-    item.style.display = 'flex'
-    item.style.alignItems = 'center'
-    item.style.gap = '4px'
-
-    const dot = el('span')
-    dot.style.width = '8px'
-    dot.style.height = '8px'
-    dot.style.borderRadius = '50%'
-    dot.style.backgroundColor = series[i].color ?? COLORS[i % COLORS.length]
-
-    const label = el('span')
-    label.textContent = series[i].label ?? series[i].dataKey
-
-    item.appendChild(dot)
-    item.appendChild(label)
-    legend.appendChild(item)
-  }
-  wrapper.appendChild(legend)
 }
 
 // ── Histogram ────────────────────────────────────────────────────────────────
