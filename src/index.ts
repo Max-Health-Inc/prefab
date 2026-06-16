@@ -65,7 +65,7 @@ export type { PdfViewerProps, PdfZoom } from './components/pdf/index.js'
 
 // ── Charts ───────────────────────────────────────────────────────────────────
 export { BarChart, LineChart, AreaChart, PieChart, RadarChart, ScatterChart, Sparkline, RadialChart, Histogram } from './components/charts/index.js'
-export type { ChartSeries, BaseChartProps, BarChartProps, SparklineProps, RadialChartProps, HistogramProps } from './components/charts/index.js'
+export type { ChartSeries, BaseChartProps, BarChartProps, CategoricalChartProps, PieChartProps, ScatterChartProps, SparklineProps, RadialChartProps, HistogramProps } from './components/charts/index.js'
 
 // ── Auto-rendering ───────────────────────────────────────────────────────────
 export { autoDetail, autoTable, statusVariant, registerStatusVariants } from './auto/index.js'

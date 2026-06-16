@@ -475,12 +475,23 @@ function renderLineChart(node: ComponentNode, ctx: RenderContext): HTMLElement {
 function renderPieChart(node: ComponentNode, ctx: RenderContext): HTMLElement {
   const wrapper = el('div', 'pf-chart pf-pie-chart')
   const data = (resolveValue(node.data, ctx) as Record<string, unknown>[] | undefined) ?? []
-  const series = (node.series as SeriesEntry[] | undefined) ?? []
+  const seriesIn = (node.series as SeriesEntry[] | undefined) ?? []
   const height = (node.height as number | undefined) ?? 300
   const size = Math.min(height, 300)
   const showTooltipProp = (node.showTooltip as boolean | undefined) !== false
 
-  if (data.length === 0 || series.length === 0) {
+  // Value field: upstream `dataKey`, falling back to series[0] (legacy series-based input).
+  const key = (node.dataKey as string | undefined) ?? seriesIn[0]?.dataKey
+  // Slice-label field: upstream `nameKey`, falling back to tooltipXKey / xAxis (legacy).
+  const nameKey = (node.nameKey as string | undefined)
+    ?? (node.tooltipXKey as string | undefined)
+    ?? (node.xAxis as string | undefined)
+  // Synthesize a single series for the legend/tooltip when only dataKey/nameKey is given.
+  const series: SeriesEntry[] = seriesIn.length > 0
+    ? seriesIn
+    : (key ? [{ dataKey: key, label: key }] : [])
+
+  if (data.length === 0 || !key) {
     wrapper.textContent = 'No chart data'
     return wrapper
   }
@@ -490,10 +501,6 @@ function renderPieChart(node: ComponentNode, ctx: RenderContext): HTMLElement {
   const cy = size / 2
   const r = size / 2 - 10
 
-  // Use first series key, each data point is a slice
-  const key = series[0].dataKey
-  const xAxisKey = node.xAxis as string | undefined
-  const tooltipXKey = node.tooltipXKey as string | undefined
   const tooltipXFormat = node.tooltipXFormat as string | undefined
   const valueFmt = resolveValueFormat(node)
   const fmtValue = (v: number): string => valueFmt ? applyPipeFormat(v, valueFmt, ctx) : String(v)
@@ -526,8 +533,7 @@ function renderPieChart(node: ComponentNode, ctx: RenderContext): HTMLElement {
     path.style.cursor = 'default'
 
     if (ttCtx) {
-      const sliceKey = tooltipXKey ?? xAxisKey
-      const rawSlice = sliceKey ? data[i][sliceKey] : undefined
+      const rawSlice = nameKey ? data[i][nameKey] : undefined
       const sliceLabel = rawSlice != null
         ? (tooltipXFormat ? applyPipeFormat(rawSlice, tooltipXFormat, ctx) : String(rawSlice as string | number))
         : `Slice ${i + 1}`

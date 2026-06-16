@@ -17,6 +17,7 @@ Catches up to upstream PrefectHQ/prefab v0.20.x ("Wire Transfer", PR #431). The 
 ### Charts
 
 - **`valueFormat` parity (PR #454)** — added the canonical `valueFormat` prop to cartesian/pie/radial charts (value-axis ticks + tooltip values), matching upstream's field name so chart formats are wire-compatible in both directions. `yAxisFormat` / `yAxisRightFormat` remain TS-only overrides for dual-axis charts. The renderer reads `valueFormat` as the base format and treats `"auto"` as "no explicit format".
+- **Pie/Radial/Scatter data-binding parity** — `PieChart` and `RadialChart` now use upstream's `dataKey` (value) + `nameKey` (label) model, and `ScatterChart` gains `xAxis`/`yAxis`/`zAxis` (z = bubble size). The legacy `series`/`xAxis` inputs are still accepted and mapped onto the canonical fields (**dual-accept**, non-breaking), and the Pie renderer reads both shapes — so these charts now round-trip with the Python renderer. New exports: `CategoricalChartProps`, `PieChartProps`, `ScatterChartProps`. (Native TS *rendering* of Radial/Scatter remains a placeholder — a pre-existing gap, unaffected by this change.)
 
 ### Internal
 
