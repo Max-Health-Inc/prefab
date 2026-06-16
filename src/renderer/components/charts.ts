@@ -15,8 +15,8 @@ export function registerChartComponents(): void {
   registerComponent('AreaChart', renderLineChart) // Same renderer, different fill
   registerComponent('PieChart', renderPieChart)
   registerComponent('RadarChart', renderFallbackChart)
-  registerComponent('ScatterChart', renderFallbackChart)
-  registerComponent('RadialChart', renderFallbackChart)
+  registerComponent('ScatterChart', renderScatterChart)
+  registerComponent('RadialChart', renderRadialChart)
   registerComponent('Histogram', renderHistogram)
 }
 
@@ -567,6 +567,173 @@ function renderPieChart(node: ComponentNode, ctx: RenderContext): HTMLElement {
   return wrapper
 }
 
+// ── ScatterChart ───────────────────────────────────────────────────────────────
+
+function renderScatterChart(node: ComponentNode, ctx: RenderContext): HTMLElement {
+  const wrapper = el('div', 'pf-chart pf-scatter-chart')
+  const data = (resolveValue(node.data, ctx) as Record<string, unknown>[] | undefined) ?? []
+  const xKey = node.xAxis as string | undefined
+  const yKey = node.yAxis as string | undefined
+  const zKey = node.zAxis as string | undefined
+  const series = (node.series as SeriesEntry[] | undefined) ?? []
+  const height = (node.height as number | undefined) ?? 300
+
+  if (data.length === 0 || !xKey || !yKey) {
+    wrapper.textContent = 'No chart data'
+    return wrapper
+  }
+
+  const showGrid = (node.showGrid as boolean | undefined) !== false
+  const showTooltipProp = (node.showTooltip as boolean | undefined) !== false
+  const color = series[0]?.color ?? COLORS[0]
+  const valueFmt = resolveValueFormat(node)
+  const fmt = (v: number): string => valueFmt ? applyPipeFormat(v, valueFmt, ctx) : String(Math.round(v * 100) / 100)
+
+  const xs = data.map(d => Number(d[xKey] ?? 0))
+  const ys = data.map(d => Number(d[yKey] ?? 0))
+  const xMin = Math.min(...xs), xMax = Math.max(...xs)
+  const yMin = Math.min(...ys), yMax = Math.max(...ys)
+  const xRange = (xMax - xMin) || 1
+  const yRange = (yMax - yMin) || 1
+  const zs = zKey ? data.map(d => Number(d[zKey] ?? 0)) : []
+  const zMax = zKey ? Math.max(...zs, 1) : 1
+
+  const W = 400
+  const layout = chartLayout(W, height, true)
+  const svg = createSvg(W, height, 'Scatter')
+
+  const sx = (v: number): number => layout.plotLeft + ((v - xMin) / xRange) * layout.plotWidth
+  const sy = (v: number): number => layout.plotBottom - ((v - yMin) / yRange) * layout.plotHeight
+
+  // Y axis ticks across the actual [min, max] range (+ optional grid).
+  const Y_TICKS = 4
+  for (let t = 0; t <= Y_TICKS; t++) {
+    const val = yMin + (yRange * t) / Y_TICKS
+    const y = sy(val)
+    svg.appendChild(svgText(
+      { x: layout.plotLeft - 6, y: y + 3, 'text-anchor': 'end', 'font-size': AXIS_FONT, fill: AXIS_COLOR },
+      fmt(val),
+    ))
+    if (showGrid && t > 0) {
+      svg.appendChild(svgEl('line', {
+        x1: layout.plotLeft, y1: y, x2: layout.plotRight, y2: y,
+        stroke: GRID_COLOR, 'stroke-width': 1, 'stroke-dasharray': '4 3',
+      }))
+    }
+  }
+  drawBaseline(svg, layout)
+
+  // X axis: min / mid / max labels.
+  for (const xv of [xMin, (xMin + xMax) / 2, xMax]) {
+    svg.appendChild(svgText(
+      { x: sx(xv), y: layout.plotBottom + 14, 'text-anchor': 'middle', 'font-size': AXIS_FONT, fill: AXIS_COLOR },
+      String(Math.round(xv * 100) / 100),
+    ))
+  }
+
+  const ttCtx = showTooltipProp ? createTooltip(wrapper, svg) : undefined
+
+  for (let i = 0; i < data.length; i++) {
+    const px = sx(xs[i])
+    const py = sy(ys[i])
+    // Bubble radius from z (sqrt → area-proportional); fixed dot otherwise.
+    const rad = zKey ? 4 + Math.sqrt(zs[i] / zMax) * 14 : 4
+    const dot = svgEl('circle', { cx: px, cy: py, r: rad, fill: color, 'fill-opacity': zKey ? 0.6 : 0.85 })
+    if (ttCtx) {
+      const entries = [
+        { label: xKey, value: fmt(xs[i]), color },
+        { label: yKey, value: fmt(ys[i]), color },
+        ...(zKey ? [{ label: zKey, value: fmt(zs[i]), color }] : []),
+      ]
+      const title = series[0]?.label ?? 'Point'
+      dot.addEventListener('mouseenter', () => showTooltipAt(ttCtx, px, py, title, entries))
+      dot.addEventListener('mouseleave', () => ttCtx.tooltip.classList.remove('pf-visible'))
+      dot.addEventListener('touchstart', () => showTooltipAt(ttCtx, px, py, title, entries), { passive: true })
+      dot.addEventListener('touchend', () => ttCtx.tooltip.classList.remove('pf-visible'), { passive: true })
+    }
+    svg.appendChild(dot)
+  }
+
+  addLegend(wrapper, series, node.showLegend as boolean | undefined)
+  wrapper.appendChild(svg)
+  return wrapper
+}
+
+// ── RadialChart ────────────────────────────────────────────────────────────────
+
+function renderRadialChart(node: ComponentNode, ctx: RenderContext): HTMLElement {
+  const wrapper = el('div', 'pf-chart pf-radial-chart')
+  const data = (resolveValue(node.data, ctx) as Record<string, unknown>[] | undefined) ?? []
+  const seriesIn = (node.series as SeriesEntry[] | undefined) ?? []
+  const dataKey = (node.dataKey as string | undefined) ?? seriesIn[0]?.dataKey
+  const nameKey = (node.nameKey as string | undefined)
+    ?? (node.tooltipXKey as string | undefined)
+    ?? (node.xAxis as string | undefined)
+  const height = (node.height as number | undefined) ?? 300
+
+  if (data.length === 0 || !dataKey) {
+    wrapper.textContent = 'No chart data'
+    return wrapper
+  }
+
+  const size = Math.min(height, 300)
+  const cx = size / 2
+  const cy = size / 2
+  const outer = size / 2 - 10
+  const inner = Math.max(0, Math.min((node.innerRadius as number | undefined) ?? 30, outer - 10))
+  const startAngle = (node.startAngle as number | undefined) ?? 180
+  const endAngle = (node.endAngle as number | undefined) ?? 0
+  const showTooltipProp = (node.showTooltip as boolean | undefined) !== false
+
+  const values = data.map(d => Number(d[dataKey] ?? 0))
+  const max = Math.max(...values, 1)
+
+  const svg = createSvg(size, size, 'Radial')
+  const band = (outer - inner) / data.length
+  const thickness = Math.max(2, band * 0.7)
+  const valueFmt = resolveValueFormat(node)
+  const fmt = (v: number): string => valueFmt ? applyPipeFormat(v, valueFmt, ctx) : String(v)
+  const ttCtx = showTooltipProp ? createTooltip(wrapper, svg) : undefined
+  const legendSeries: SeriesEntry[] = []
+
+  for (let i = 0; i < data.length; i++) {
+    // First row is the outermost ring.
+    const rMid = outer - band * i - band / 2
+    const color = seriesIn[i]?.color ?? COLORS[i % COLORS.length]
+    const frac = values[i] / max
+    const valueEnd = startAngle + frac * (endAngle - startAngle)
+    const rawName = nameKey ? data[i][nameKey] : null
+    const name = rawName != null ? String(rawName as string | number) : (seriesIn[i]?.label ?? dataKey)
+    legendSeries.push({ dataKey: name || dataKey, label: name || dataKey, color })
+
+    // Muted full-range track.
+    svg.appendChild(svgEl('path', {
+      d: arcPath(cx, cy, rMid, startAngle, endAngle),
+      fill: 'none', stroke: GRID_COLOR, 'stroke-width': thickness, 'stroke-linecap': 'round',
+    }))
+
+    // Coloured value arc.
+    const arc = svgEl('path', {
+      d: arcPath(cx, cy, rMid, startAngle, valueEnd),
+      fill: 'none', stroke: color, 'stroke-width': thickness, 'stroke-linecap': 'round',
+    })
+    if (ttCtx) {
+      const mid = polar(cx, cy, rMid, (startAngle + valueEnd) / 2)
+      const entries = [{ label: dataKey, value: fmt(values[i]), color }]
+      const title = name || dataKey
+      arc.addEventListener('mouseenter', () => showTooltipAt(ttCtx, mid.x, mid.y, title, entries))
+      arc.addEventListener('mouseleave', () => ttCtx.tooltip.classList.remove('pf-visible'))
+      arc.addEventListener('touchstart', () => showTooltipAt(ttCtx, mid.x, mid.y, title, entries), { passive: true })
+      arc.addEventListener('touchend', () => ttCtx.tooltip.classList.remove('pf-visible'), { passive: true })
+    }
+    svg.appendChild(arc)
+  }
+
+  addLegend(wrapper, legendSeries, node.showLegend as boolean | undefined)
+  wrapper.appendChild(svg)
+  return wrapper
+}
+
 function renderFallbackChart(node: ComponentNode, _ctx: RenderContext): HTMLElement {
   const e = el('div', `pf-chart pf-${node.type.toLowerCase()}`)
   e.textContent = `${node.type} — not yet supported in renderer`
@@ -588,6 +755,40 @@ function createSvg(width: number, height: number, chartType?: string): SVGSVGEle
   }
   svg.style.overflow = 'visible'
   return svg
+}
+
+/** Create an SVG element with string-coerced attributes. */
+function svgEl<K extends keyof SVGElementTagNameMap>(
+  tag: K,
+  attrs: Record<string, string | number>,
+): SVGElementTagNameMap[K] {
+  const node = document.createElementNS('http://www.w3.org/2000/svg', tag)
+  for (const [k, v] of Object.entries(attrs)) node.setAttribute(k, String(v))
+  return node
+}
+
+/** Create an SVG <text> element with content. */
+function svgText(attrs: Record<string, string | number>, text: string): SVGTextElement {
+  const t = svgEl('text', attrs)
+  t.textContent = text
+  return t
+}
+
+/** Polar → SVG coords (degrees, math convention with screen y flipped). */
+function polar(cx: number, cy: number, r: number, angleDeg: number): { x: number; y: number } {
+  const a = (angleDeg * Math.PI) / 180
+  return { x: cx + r * Math.cos(a), y: cy - r * Math.sin(a) }
+}
+
+/** Sampled arc stroke path between two angles — avoids large-arc/sweep flag math. */
+function arcPath(cx: number, cy: number, r: number, a1: number, a2: number): string {
+  const steps = Math.max(2, Math.ceil(Math.abs(a2 - a1) / 4))
+  const parts: string[] = []
+  for (let i = 0; i <= steps; i++) {
+    const p = polar(cx, cy, r, a1 + ((a2 - a1) * i) / steps)
+    parts.push(`${i === 0 ? 'M' : 'L'} ${p.x.toFixed(2)} ${p.y.toFixed(2)}`)
+  }
+  return parts.join(' ')
 }
 
 function addLegend(

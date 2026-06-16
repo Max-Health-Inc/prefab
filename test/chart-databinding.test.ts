@@ -92,3 +92,41 @@ describe('renderer: Pie renders both shapes', () => {
     expect(sliceCount(node)).toBe(3)
   })
 })
+
+// ── Renderer: Radial / Scatter now draw natively (no fallback) ───────────────
+
+describe('renderer: Radial draws arcs natively', () => {
+  it('renders a track + value arc per row, not the fallback placeholder', () => {
+    const node = asNode(RadialChart({ data: PIE_DATA, dataKey: 'visitors', nameKey: 'browser' }).toJSON())
+    const dom = renderNode(node, makeCtx())
+    expect(dom.textContent).not.toContain('not yet supported')
+    // Two arcs (muted track + coloured value) per data row.
+    expect(dom.querySelectorAll('svg path').length).toBe(PIE_DATA.length * 2)
+  })
+})
+
+describe('renderer: Scatter draws points natively', () => {
+  const SCATTER = [
+    { h: 170, w: 65, age: 25 },
+    { h: 180, w: 80, age: 30 },
+    { h: 160, w: 55, age: 22 },
+  ]
+
+  it('renders one circle per point, not the fallback placeholder', () => {
+    const node = asNode(ScatterChart({
+      data: SCATTER, series: [{ dataKey: 'g', label: 'People' }], xAxis: 'h', yAxis: 'w',
+    }).toJSON())
+    const dom = renderNode(node, makeCtx())
+    expect(dom.textContent).not.toContain('not yet supported')
+    expect(dom.querySelectorAll('svg circle').length).toBe(SCATTER.length)
+  })
+
+  it('bubble mode (zAxis) scales point radius', () => {
+    const node = asNode(ScatterChart({
+      data: SCATTER, series: [{ dataKey: 'g' }], xAxis: 'h', yAxis: 'w', zAxis: 'age',
+    }).toJSON())
+    const dom = renderNode(node, makeCtx())
+    const radii = Array.from(dom.querySelectorAll('svg circle')).map(c => Number(c.getAttribute('r')))
+    expect(new Set(radii).size).toBeGreaterThan(1)
+  })
+})
