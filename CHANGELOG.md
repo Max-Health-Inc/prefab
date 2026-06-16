@@ -14,7 +14,11 @@ Catches up to upstream PrefectHQ/prefab v0.20.x ("Wire Transfer", PR #431). The 
 - **`PrefabApp` / `DisplayOptions`** gain `css` and `mode` options; `display()` merges `css` (concatenated) and `mode` (override) like the other options.
 - `toHTML()` now emits `css`/`stylesheets`/`mode` into `<head>` and strips them from the embedded JSON to avoid double-injection (mirrors upstream `html()`).
 
-> **Note:** golden fixtures were updated to `0.3` by hand (the only change for theme-less views is the version string, verified against upstream `app.py`). CI should regenerate them against upstream `prefab-ui` 0.20.x to confirm full parity.
+### Internal
+
+- **DRY theme compilation** — `applyTheme()` (the legacy `theme`-object path) now routes its dark block through the same `compileThemeCss()` the wire path uses, so both paths emit byte-identical dark CSS. The CSS sanitizers are shared too.
+
+> **Fixtures verified against upstream.** Golden fixtures were regenerated from upstream `prefab-ui` **0.20.2**: 9/10 are byte-identical to the previous `0.2` fixtures apart from the version bump (confirming parity, and that upstream emits `0.3`). The chart fixture surfaced one pre-existing, out-of-scope divergence — upstream emits `valueFormat` (PR #454) where this port emits `yAxisFormat`; tracked separately.
 
 ## [0.2.40] — 2026-05-15
 

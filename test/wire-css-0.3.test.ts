@@ -11,6 +11,13 @@ import { describe, it, expect, afterEach } from 'bun:test'
 import { PrefabApp, PROTOCOL_VERSION, compileThemeCss } from '../src/index'
 import { Heading } from '../src/components/typography'
 import { PrefabRenderer } from '../src/renderer/index'
+import type { PrefabWireData } from '../src/renderer/index'
+import { applyTheme } from '../src/renderer/theme'
+
+/** Bridge the serialize-side wire (PrefabWireFormat) to the consume-side type. */
+function asWireData(wire: unknown): PrefabWireData {
+  return wire as PrefabWireData
+}
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 
@@ -23,6 +30,7 @@ function injectedLinkEls(): HTMLLinkElement[] {
 
 afterEach(() => {
   for (const el of [...injectedStyleEls(), ...injectedLinkEls()]) el.remove()
+  document.getElementById('prefab-dark-theme')?.remove()
   document.documentElement.removeAttribute('data-theme')
   document.documentElement.classList.remove('dark', 'light')
 })
@@ -69,9 +77,9 @@ describe('PrefabApp.toJSON — protocol 0.3', () => {
     const wire = new PrefabApp({
       view: Heading('x'),
       theme: { light: { primary: '#000' } },
-    }).toJSON() as Record<string, unknown>
-    expect(wire.theme).toBeUndefined()
-    expect((wire.css as string[])[0]).toContain('--primary: #000;')
+    }).toJSON()
+    expect('theme' in wire).toBe(false)
+    expect(wire.css![0]).toContain('--primary: #000;')
   })
 
   it('passes stylesheets through and emits mode', () => {
@@ -152,6 +160,64 @@ describe('PrefabRenderer.mount — protocol 0.3', () => {
 
     expect(root.getAttribute('data-theme')).toBe('dark')
     expect(root.classList.contains('dark')).toBe(true)
+    handle.destroy()
+  })
+})
+
+// ── Themes still work (both paths) + DRY consistency ─────────────────────────
+
+describe('themes still work end-to-end', () => {
+  const theme = { light: { primary: '#4f46e5' }, dark: { primary: '#a5b4fc' } }
+
+  it('NEW path (0.3): theme compiles into css and the var is declared on :root', () => {
+    const root = document.createElement('div')
+    const wire = new PrefabApp({ view: Heading('x'), theme }).toJSON()
+    const handle = PrefabRenderer.mount(root, asWireData(wire), { themeToggle: false })
+
+    const injected = injectedStyleEls().map(s => s.textContent ?? '').join('\n')
+    // Light var globally available so component `var(--primary)` resolves.
+    expect(injected).toContain(':root {')
+    expect(injected).toContain('--primary: #4f46e5;')
+    // Dark var present under the dual selector.
+    expect(injected).toContain('.dark, [data-theme="dark"]')
+    expect(injected).toContain('--primary: #a5b4fc;')
+    handle.destroy()
+    expect(injectedStyleEls().length).toBe(0)
+  })
+
+  it('LEGACY path (0.2): theme object still themes — light inline on root, dark in <style>', () => {
+    const root = document.createElement('div')
+    // A 0.2 payload carries a structured `theme` (no css array).
+    const handle = PrefabRenderer.mount(root, {
+      $prefab: { version: '0.2' },
+      view: { type: 'Heading', content: 'x' },
+      theme,
+    }, { themeToggle: false })
+
+    // Light vars scoped inline on the mount root.
+    expect(root.style.getPropertyValue('--primary')).toBe('#4f46e5')
+    // Dark vars in the dedicated style element.
+    const darkEl = document.getElementById('prefab-dark-theme')
+    expect(darkEl?.textContent).toContain('--primary: #a5b4fc;')
+    handle.destroy()
+  })
+
+  it('DRY: legacy applyTheme dark block === wire-path compiled dark css', () => {
+    const root = document.createElement('div')
+    applyTheme(root, theme)
+    const legacyDark = document.getElementById('prefab-dark-theme')?.textContent
+    // Both paths route the dark vars through the single compiler.
+    expect(legacyDark).toBe(compileThemeCss({ dark: theme.dark }))
+  })
+
+  it('mode forces the scheme so dark vars apply without a toggle', () => {
+    const root = document.createElement('div')
+    const wire = new PrefabApp({ view: Heading('x'), theme, mode: 'dark' }).toJSON()
+    expect(wire.mode).toBe('dark')
+    const handle = PrefabRenderer.mount(root, asWireData(wire), { themeToggle: false })
+    // Root carries .dark + [data-theme=dark], matching the compiled dark selector.
+    expect(root.classList.contains('dark')).toBe(true)
+    expect(root.getAttribute('data-theme')).toBe('dark')
     handle.destroy()
   })
 })

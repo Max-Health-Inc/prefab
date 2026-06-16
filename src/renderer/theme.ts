@@ -3,7 +3,7 @@
  * plus a built-in theme toggle button with two-way sync.
  */
 
-import { sanitizeCssIdent, sanitizeCssValue } from '../core/theme-css.js'
+import { compileThemeCss, sanitizeCssIdent, sanitizeCssValue } from '../core/theme-css.js'
 
 export interface ThemeConfig {
   light?: Record<string, string>
@@ -20,14 +20,6 @@ export interface ThemeToggleOptions {
 }
 
 /**
- * Apply theme CSS custom properties to the root element.
- * Light theme props go on :root, dark on [data-theme="dark"].
- *
- * Note: protocol 0.3 ships the theme pre-compiled in the wire `css` array
- * (see [theme-css.ts] `compileThemeCss`). This helper remains for the
- * legacy `theme` object input the renderer still accepts for back-compat.
- */
-/**
  * Set a color scheme on an element using both conventions at once:
  * the `data-theme` attribute (this port) and the `dark`/`light` class
  * (upstream PrefectHQ/prefab). Keeping both in sync lets a single
@@ -39,17 +31,29 @@ export function setThemeAttrs(el: HTMLElement, theme: 'light' | 'dark'): void {
   el.classList.toggle('light', theme === 'light')
 }
 
+/**
+ * Apply a legacy `{ light, dark }` theme object to the live DOM.
+ *
+ * Protocol 0.3 ships the theme pre-compiled in the wire `css` array
+ * (see [theme-css.ts] `compileThemeCss`). This helper remains for the
+ * legacy `theme` object input the renderer still accepts for back-compat;
+ * its dark block reuses the same compiler so both paths stay in lockstep.
+ */
 export function applyTheme(root: HTMLElement, theme?: ThemeConfig): void {
   if (!theme) return
 
+  // Light vars are scoped inline onto the mount root (legacy 0.2 behavior —
+  // avoids a global :root collision when multiple apps share a page).
   if (theme.light) {
     for (const [key, value] of Object.entries(theme.light)) {
       root.style.setProperty(`--${sanitizeCssIdent(key)}`, sanitizeCssValue(value))
     }
   }
 
+  // Dark vars need a media query, so they go in a <style>. Reuse the single
+  // shared compiler so the legacy and protocol-0.3 (wire `css`) paths emit
+  // byte-identical dark CSS.
   if (theme.dark) {
-    // Create a style element for dark mode
     const styleId = 'prefab-dark-theme'
     let styleEl = document.getElementById(styleId) as HTMLStyleElement | null
     if (!styleEl) {
@@ -57,10 +61,7 @@ export function applyTheme(root: HTMLElement, theme?: ThemeConfig): void {
       styleEl.id = styleId
       document.head.appendChild(styleEl)
     }
-    const props = Object.entries(theme.dark)
-      .map(([key, value]) => `  --${sanitizeCssIdent(key)}: ${sanitizeCssValue(value)};`)
-      .join('\n')
-    styleEl.textContent = `[data-theme="dark"] {\n${props}\n}\n@media (prefers-color-scheme: dark) {\n  :root:not([data-theme="light"]) {\n${props}\n  }\n}`
+    styleEl.textContent = compileThemeCss({ dark: theme.dark })
   }
 }
 
