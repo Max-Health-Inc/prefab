@@ -32,7 +32,7 @@ import { renderNode } from './engine.js'
 import type { ComponentNode, RenderContext } from './engine.js'
 import { DestroyRegistry } from './engine.js'
 import { registerAllComponents } from './components/index.js'
-import { applyTheme, applyKeyBindings, createThemeToggle } from './theme.js'
+import { applyTheme, applyKeyBindings, createThemeToggle, setThemeAttrs } from './theme.js'
 import type { ThemeToggleOptions } from './theme.js'
 import { dispatchActions, clearAllIntervals, clearAllSubscriptions } from './actions.js'
 import type { McpTransport, ToastEvent, ActionJSON } from './actions.js'
@@ -70,10 +70,16 @@ export interface PrefabWireData {
   $prefab: { version: string }
   view: ComponentNode
   state?: Record<string, unknown>
+  /** Legacy structured theme (protocol 0.2). Protocol 0.3 ships the theme in `css`. */
   theme?: { light?: Record<string, string>; dark?: Record<string, string> }
   defs?: Record<string, ComponentNode>
   keyBindings?: Record<string, ActionJSON | ActionJSON[]>
+  /** Inline CSS blocks injected as `<style>` (protocol 0.3). */
+  css?: string[]
+  /** External CSS URLs loaded as `<link rel="stylesheet">` (protocol 0.3). */
   stylesheets?: string[]
+  /** Forced color scheme, independent of OS preference (protocol 0.3). */
+  mode?: 'light' | 'dark'
   /** Custom pipe source code strings — hydrated by the renderer on mount. */
   pipes?: Record<string, string>
   /** Size hints for the host container. */
@@ -159,8 +165,9 @@ export const PrefabRenderer = {
       if (newData.state) store.merge(newData.state)
       // Update defs if provided
       if (newData.defs) ctx.defs = newData.defs
-      // Re-apply theme if changed
+      // Re-apply theme / mode if changed
       if (newData.theme) applyTheme(root, newData.theme)
+      if (newData.mode) applyMode(root, newData.mode)
 
       // Hydrate new pipes (if any)
       if (newData.pipes) {
@@ -169,18 +176,10 @@ export const PrefabRenderer = {
         }
       }
 
-      // Swap stylesheets: remove old, inject new
+      // Swap injected styles: remove old, inject new (css blocks + stylesheet links)
       for (const s of styleEls) s.remove()
       styleEls.length = 0
-      if (newData.stylesheets) {
-        for (const css of newData.stylesheets) {
-          const style = document.createElement('style')
-          style.textContent = css
-          style.dataset.prefab = 'injected'
-          document.head.appendChild(style)
-          styleEls.push(style)
-        }
-      }
+      styleEls.push(...injectStyles(newData.css, newData.stylesheets))
 
       // Update layout hints
       applyLayout(root, newData.layout)
@@ -211,23 +210,17 @@ export const PrefabRenderer = {
       destroyRegistry,
     }
 
-    // Apply theme
+    // Apply legacy structured theme (protocol 0.2 back-compat; 0.3 ships theme in `css`)
     applyTheme(root, data.theme)
+
+    // Force color scheme if specified (protocol 0.3)
+    if (data.mode) applyMode(root, data.mode)
 
     // Apply layout hints
     applyLayout(root, data.layout)
 
-    // Inject stylesheets
-    const styleEls: HTMLStyleElement[] = []
-    if (data.stylesheets) {
-      for (const css of data.stylesheets) {
-        const style = document.createElement('style')
-        style.textContent = css
-        style.dataset.prefab = 'injected'
-        document.head.appendChild(style)
-        styleEls.push(style)
-      }
-    }
+    // Inject CSS blocks (<style>) and external stylesheets (<link>)
+    const styleEls: Element[] = injectStyles(data.css, data.stylesheets)
 
     // Keyboard bindings
     let cleanupKeys: (() => void) | undefined
@@ -384,6 +377,62 @@ function defaultToastHandler(toast: ToastEvent): void {
     toastEl.style.opacity = '0'
     setTimeout(() => toastEl.remove(), 300)
   }, duration)
+}
+
+// ── Style / theme helpers ────────────────────────────────────────────────────
+
+/** Force a color scheme on the mount root and document root (protocol 0.3 `mode`). */
+function applyMode(root: HTMLElement, mode: 'light' | 'dark'): void {
+  setThemeAttrs(root, mode)
+  if (typeof document !== 'undefined') setThemeAttrs(document.documentElement, mode)
+}
+
+/**
+ * Heuristic: does a `stylesheets` entry name an external URL (→ `<link>`)
+ * rather than inline CSS (→ `<style>`)? Protocol 0.3 stylesheets are URLs,
+ * but protocol 0.2 payloads put inline CSS here, so the renderer tolerates both.
+ */
+function isStylesheetUrl(s: string): boolean {
+  const t = s.trim()
+  if (t.includes('{') || t.includes('}')) return false // contains CSS rules → inline
+  return /^(https?:)?\/\//i.test(t) || t.startsWith('/') || /\.css(\?|#|$)/i.test(t)
+}
+
+/**
+ * Inject inline CSS blocks (`css`) as `<style>` and external stylesheet URLs
+ * (`stylesheets`) as `<link>`. Returns the created elements for later cleanup.
+ */
+function injectStyles(css?: string[], stylesheets?: string[]): Element[] {
+  const els: Element[] = []
+  if (typeof document === 'undefined') return els
+
+  for (const block of css ?? []) {
+    const style = document.createElement('style')
+    style.textContent = block
+    style.dataset.prefab = 'injected'
+    document.head.appendChild(style)
+    els.push(style)
+  }
+
+  for (const entry of stylesheets ?? []) {
+    if (isStylesheetUrl(entry)) {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = entry
+      link.dataset.prefab = 'injected'
+      document.head.appendChild(link)
+      els.push(link)
+    } else {
+      // Legacy protocol 0.2: inline CSS shipped in `stylesheets`.
+      const style = document.createElement('style')
+      style.textContent = entry
+      style.dataset.prefab = 'injected'
+      document.head.appendChild(style)
+      els.push(style)
+    }
+  }
+
+  return els
 }
 
 // ── Layout helpers ───────────────────────────────────────────────────────────

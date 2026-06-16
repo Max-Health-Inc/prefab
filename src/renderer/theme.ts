@@ -3,6 +3,8 @@
  * plus a built-in theme toggle button with two-way sync.
  */
 
+import { sanitizeCssIdent, sanitizeCssValue } from '../core/theme-css.js'
+
 export interface ThemeConfig {
   light?: Record<string, string>
   dark?: Record<string, string>
@@ -20,16 +22,21 @@ export interface ThemeToggleOptions {
 /**
  * Apply theme CSS custom properties to the root element.
  * Light theme props go on :root, dark on [data-theme="dark"].
+ *
+ * Note: protocol 0.3 ships the theme pre-compiled in the wire `css` array
+ * (see [theme-css.ts] `compileThemeCss`). This helper remains for the
+ * legacy `theme` object input the renderer still accepts for back-compat.
  */
-/** Strip characters that could break out of a CSS property name. */
-function sanitizeCssIdent(key: string): string {
-  return key.replace(/[^a-zA-Z0-9_-]/g, '')
-}
-
-/** Strip characters/patterns that could escape CSS value context. */
-function sanitizeCssValue(value: string): string {
-  // Remove braces, semicolons, url()/expression() to prevent injection
-  return value.replace(/[{}<>;]/g, '').replace(/\b(url|expression)\s*\(/gi, '')
+/**
+ * Set a color scheme on an element using both conventions at once:
+ * the `data-theme` attribute (this port) and the `dark`/`light` class
+ * (upstream PrefectHQ/prefab). Keeping both in sync lets a single
+ * compiled-theme stylesheet match regardless of which renderer emitted it.
+ */
+export function setThemeAttrs(el: HTMLElement, theme: 'light' | 'dark'): void {
+  el.setAttribute('data-theme', theme)
+  el.classList.toggle('dark', theme === 'dark')
+  el.classList.toggle('light', theme === 'light')
 }
 
 export function applyTheme(root: HTMLElement, theme?: ThemeConfig): void {
@@ -177,8 +184,8 @@ export function createThemeToggle(
   btn.addEventListener('mouseleave', () => { btn.style.opacity = '0.7' })
 
   function applyThemeState(theme: 'light' | 'dark'): void {
-    root.setAttribute('data-theme', theme)
-    if (syncDocument) document.documentElement.setAttribute('data-theme', theme)
+    setThemeAttrs(root, theme)
+    if (syncDocument) setThemeAttrs(document.documentElement, theme)
     btn.innerHTML = theme === 'dark' ? MOON_SVG : SUN_SVG
     try { localStorage.setItem(storageKey, theme) } catch { /* noop */ }
   }
@@ -203,7 +210,7 @@ export function createThemeToggle(
         if (m.type === 'attributes' && m.attributeName === 'data-theme') {
           const docTheme = document.documentElement.getAttribute('data-theme')
           if ((docTheme === 'light' || docTheme === 'dark') && docTheme !== root.getAttribute('data-theme')) {
-            root.setAttribute('data-theme', docTheme)
+            setThemeAttrs(root, docTheme)
             btn.innerHTML = docTheme === 'dark' ? MOON_SVG : SUN_SVG
             try { localStorage.setItem(storageKey, docTheme) } catch { /* noop */ }
           }

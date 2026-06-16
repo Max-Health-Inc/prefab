@@ -15,7 +15,7 @@ Every prefab UI is a JSON object with this shape:
 
 ```json
 {
-  "$prefab": { "version": "0.2" },
+  "$prefab": { "version": "0.3" },
   "view": { "type": "Column", "children": [...] },
   "state": { "count": 0 },
   "theme": { "light": { "primary": "#3b82f6" }, "dark": { "primary": "#60a5fa" } }
@@ -36,7 +36,7 @@ Use `"children"` for nesting. Use `"content"` for text content.
 
 ## Essential Rules
 
-1. **Always wrap in envelope** — `{ "$prefab": { "version": "0.2" }, "view": { ... } }`
+1. **Always wrap in envelope** — `{ "$prefab": { "version": "0.3" }, "view": { ... } }`
 2. **PascalCase types** — `Column`, not `column`
 3. **Layout first** — Use `Column` (vertical) or `Row` (horizontal) as root containers
 4. **`gap` for spacing** — `{ "type": "Column", "gap": 16, "children": [...] }`

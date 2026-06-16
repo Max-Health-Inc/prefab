@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.0] — 2026-06-16
+
+### Wire Format (Breaking) — protocol `0.3`
+
+Catches up to upstream PrefectHQ/prefab v0.20.x ("Wire Transfer", PR #431). The `$prefab.version` envelope is now **`0.3`**. The renderer still accepts `0.2` payloads, so existing stored wire data keeps rendering.
+
+- **New top-level `css` field** — an array of inline CSS blocks, injected as `<style>` tags. The **theme is now compiled into this array** (`:root` for light, `.dark, [data-theme="dark"]` for dark) instead of shipping a structured `theme` object; `PrefabApp.toJSON()` no longer emits a `theme` key. New `compileThemeCss()` / `ThemeVars` exports expose the compiler.
+- **`stylesheets` redefined as external URLs** — rendered as `<link rel="stylesheet" href="…">`. The renderer keeps a heuristic that still injects inline CSS found in `stylesheets` as `<style>` for backward compatibility with `0.2` payloads.
+- **New top-level `mode` field** (`'light' | 'dark'`) — forces a color scheme. The renderer applies it via both the `data-theme` attribute and the `dark`/`light` class (so upstream-compiled `.dark {}` CSS resolves), and `toHTML()` stamps it on `<html>`.
+- **`PrefabApp` / `DisplayOptions`** gain `css` and `mode` options; `display()` merges `css` (concatenated) and `mode` (override) like the other options.
+- `toHTML()` now emits `css`/`stylesheets`/`mode` into `<head>` and strips them from the embedded JSON to avoid double-injection (mirrors upstream `html()`).
+
+> **Note:** golden fixtures were updated to `0.3` by hand (the only change for theme-less views is the version string, verified against upstream `app.py`). CI should regenerate them against upstream `prefab-ui` 0.20.x to confirm full parity.
+
 ## [0.2.40] — 2026-05-15
 
 ### New Features

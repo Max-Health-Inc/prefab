@@ -59,7 +59,7 @@ Accepts either a `Component` (auto-wrapped in `PrefabApp`) or a `PrefabApp` inst
       "text": "{\"$prefab\":{\"version\":\"0.2\"},\"view\":{...},\"state\":{...}}"
     }
   ],
-  "structuredContent": { "$prefab": { "version": "0.2" }, "view": { ... } }
+  "structuredContent": { "$prefab": { "version": "0.3" }, "view": { ... } }
 }
 ```
 

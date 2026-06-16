@@ -12,8 +12,10 @@ export { validateWireFormat, isValidWireFormat } from './core/validate.js'
 export type { ValidationError, ValidationResult } from './core/validate.js'
 
 // ── App ──────────────────────────────────────────────────────────────────────
-export { PrefabApp } from './app.js'
-export type { PrefabAppOptions, PrefabWireFormat, Theme, LayoutHints } from './app.js'
+export { PrefabApp, PROTOCOL_VERSION } from './app.js'
+export type { PrefabAppOptions, PrefabWireFormat, Theme, LayoutHints, ColorMode } from './app.js'
+export { compileThemeCss } from './core/theme-css.js'
+export type { ThemeVars } from './core/theme-css.js'
 
 // ── Layout ───────────────────────────────────────────────────────────────────
 export { Column, Row, Grid, GridItem, Container, Div, Span, Dashboard, DashboardItem, Pages, Page, Detail, MasterDetail } from './components/layout/index.js'

@@ -87,10 +87,10 @@ describe('display_form() option forwarding', () => {
     expect(wire.state).toEqual({ email: 'test@x.com' })
   })
 
-  it('forwards theme to wire format', () => {
+  it('forwards theme to wire format (compiled into css)', () => {
     const result = display_form(fields, 'submit_form', { theme: { light: { primary: '#f00' } } })
     const wire = parsePrefab(result) as PrefabWireFormat
-    expect(wire.theme?.light?.primary).toBe('#f00')
+    expect(wire.css?.join('\n')).toContain('--primary: #f00;')
   })
 
   it('forwards layout to wire format', () => {
@@ -308,7 +308,7 @@ describe('display_update wire format', () => {
   it('returns correct $prefab update structure', () => {
     const result = display_update({ score: 42 })
     const wire = parsePrefab(result) as PrefabUpdateWire
-    expect(wire.$prefab.version).toBe('0.2')
+    expect(wire.$prefab.version).toBe('0.3')
     expect(wire.update.state).toEqual({ score: 42 })
     // Should NOT have a view property
     expect((wire as unknown as Record<string, unknown>).view).toBeUndefined()
@@ -420,14 +420,14 @@ describe('display_error / display_success consistency', () => {
     const result = display_error('Oops', 'Something broke')
     expect(result.isError).toBe(true)
     const wire = parsePrefab(result) as PrefabWireFormat
-    expect(wire.$prefab.version).toBe('0.2')
+    expect(wire.$prefab.version).toBe('0.3')
   })
 
   it('display_success does not set isError', () => {
     const result = display_success('Done', 'All good')
     expect(result.isError).toBeUndefined()
     const wire = parsePrefab(result) as PrefabWireFormat
-    expect(wire.$prefab.version).toBe('0.2')
+    expect(wire.$prefab.version).toBe('0.3')
   })
 
   it('display_error structuredContent matches text', () => {
