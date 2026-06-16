@@ -194,6 +194,18 @@ export function formatYValue(value: number, format?: string): string {
   return String(value)
 }
 
+/**
+ * Effective value-axis / tooltip format for a chart node.
+ *
+ * `valueFormat` (protocol 0.3 / upstream PR #454) is the canonical field;
+ * `yAxisFormat` remains a TS-only override for the left axis of dual-axis
+ * charts. `"auto"` (upstream's default) means "no explicit format".
+ */
+function resolveValueFormat(node: ComponentNode): string | undefined {
+  const fmt = (node.yAxisFormat as string | undefined) ?? (node.valueFormat as string | undefined)
+  return fmt && fmt !== 'auto' ? fmt : undefined
+}
+
 /** Create a format callback for tooltip entries that handles per-axis formats + null. */
 function makeTooltipFormatter(
   ctx: RenderContext,
@@ -245,7 +257,7 @@ function renderBarChart(node: ComponentNode, ctx: RenderContext): HTMLElement {
   const svg = createSvg(w, height, 'Bar')
 
   // Axes + grid (behind bars)
-  if (showYAxis) drawYAxis(svg, layout, leftMax, showGrid, node.yAxisFormat as string | undefined)
+  if (showYAxis) drawYAxis(svg, layout, leftMax, showGrid, resolveValueFormat(node))
   if (hasRight) drawYAxisRight(svg, layout, rightMax, node.yAxisRightFormat as string | undefined)
   drawBaseline(svg, layout)
 
@@ -287,7 +299,7 @@ function renderBarChart(node: ComponentNode, ctx: RenderContext): HTMLElement {
     const ttCtx = createTooltip(wrapper, svg)
     const fmt = makeTooltipFormatter(
       ctx,
-      node.yAxisFormat as string | undefined,
+      resolveValueFormat(node),
       node.yAxisRightFormat as string | undefined,
     )
     const ttLabelFmt = tooltipXFormat ? (v: unknown) => applyPipeFormat(v, tooltipXFormat, ctx) : undefined
@@ -338,7 +350,7 @@ function renderLineChart(node: ComponentNode, ctx: RenderContext): HTMLElement {
   const isArea = node.type === 'AreaChart'
 
   // Draw grid + axes (behind data)
-  if (showYAxis) drawYAxis(svg, layout, leftMax, showGrid, node.yAxisFormat as string | undefined)
+  if (showYAxis) drawYAxis(svg, layout, leftMax, showGrid, resolveValueFormat(node))
   if (hasRight) drawYAxisRight(svg, layout, rightMax, node.yAxisRightFormat as string | undefined)
   drawBaseline(svg, layout)
 
@@ -448,7 +460,7 @@ function renderLineChart(node: ComponentNode, ctx: RenderContext): HTMLElement {
     const ttCtx = createTooltip(wrapper, svg)
     const fmt = makeTooltipFormatter(
       ctx,
-      node.yAxisFormat as string | undefined,
+      resolveValueFormat(node),
       node.yAxisRightFormat as string | undefined,
     )
     const ttLabelFmt = tooltipXFormat ? (v: unknown) => applyPipeFormat(v, tooltipXFormat, ctx) : undefined
@@ -483,6 +495,8 @@ function renderPieChart(node: ComponentNode, ctx: RenderContext): HTMLElement {
   const xAxisKey = node.xAxis as string | undefined
   const tooltipXKey = node.tooltipXKey as string | undefined
   const tooltipXFormat = node.tooltipXFormat as string | undefined
+  const valueFmt = resolveValueFormat(node)
+  const fmtValue = (v: number): string => valueFmt ? applyPipeFormat(v, valueFmt, ctx) : String(v)
   const values = data.map(d => Number(d[key] ?? 0))
   const total = values.reduce((a, b) => a + b, 0)
 
@@ -522,7 +536,7 @@ function renderPieChart(node: ComponentNode, ctx: RenderContext): HTMLElement {
       const tipX = cx + (r * 0.6) * Math.cos(midAngle)
       path.addEventListener('mouseenter', () => {
         showTooltipAt(ttCtx, tipX, cy, sliceLabel, [
-          { label: series[0].label ?? key, value: `${values[i]} (${pct})`, color },
+          { label: series[0].label ?? key, value: `${fmtValue(values[i])} (${pct})`, color },
         ])
       })
       path.addEventListener('mouseleave', () => {
@@ -530,7 +544,7 @@ function renderPieChart(node: ComponentNode, ctx: RenderContext): HTMLElement {
       })
       path.addEventListener('touchstart', () => {
         showTooltipAt(ttCtx, tipX, cy, sliceLabel, [
-          { label: series[0].label ?? key, value: `${values[i]} (${pct})`, color },
+          { label: series[0].label ?? key, value: `${fmtValue(values[i])} (${pct})`, color },
         ])
       }, { passive: true })
       path.addEventListener('touchend', () => {

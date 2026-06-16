@@ -34,9 +34,17 @@ export interface BaseChartProps extends ComponentProps {
   showTooltip?: boolean
   showGrid?: boolean
   showYAxis?: boolean
+  /**
+   * Canonical pipe format for value-axis ticks and tooltip values
+   * (e.g. "compact", "currency", "percent:1"). Matches upstream prefab's
+   * `valueFormat` (PR #454). `"auto"` (the default) means no explicit format.
+   */
+  valueFormat?: string
+  /** Left-axis format override for dual-axis charts (TS extension). Overrides `valueFormat`. */
   yAxisFormat?: string
   /** Show a secondary Y-axis on the right for series with yAxisId:'right'. */
   showYAxisRight?: boolean
+  /** Right-axis format for dual-axis charts (TS extension). */
   yAxisRightFormat?: string
   animate?: boolean
 }
@@ -54,6 +62,7 @@ function chartGetProps(props: BaseChartProps, extra?: Record<string, unknown>): 
     ...(props.showTooltip !== undefined && { showTooltip: props.showTooltip }),
     ...(props.showGrid !== undefined && { showGrid: props.showGrid }),
     ...(props.showYAxis !== undefined && { showYAxis: props.showYAxis }),
+    ...(props.valueFormat && { valueFormat: props.valueFormat }),
     ...(props.yAxisFormat && { yAxisFormat: props.yAxisFormat }),
     ...(props.showYAxisRight !== undefined && { showYAxisRight: props.showYAxisRight }),
     ...(props.yAxisRightFormat && { yAxisRightFormat: props.yAxisRightFormat }),

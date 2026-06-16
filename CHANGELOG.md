@@ -14,11 +14,15 @@ Catches up to upstream PrefectHQ/prefab v0.20.x ("Wire Transfer", PR #431). The 
 - **`PrefabApp` / `DisplayOptions`** gain `css` and `mode` options; `display()` merges `css` (concatenated) and `mode` (override) like the other options.
 - `toHTML()` now emits `css`/`stylesheets`/`mode` into `<head>` and strips them from the embedded JSON to avoid double-injection (mirrors upstream `html()`).
 
+### Charts
+
+- **`valueFormat` parity (PR #454)** — added the canonical `valueFormat` prop to cartesian/pie/radial charts (value-axis ticks + tooltip values), matching upstream's field name so chart formats are wire-compatible in both directions. `yAxisFormat` / `yAxisRightFormat` remain TS-only overrides for dual-axis charts. The renderer reads `valueFormat` as the base format and treats `"auto"` as "no explicit format".
+
 ### Internal
 
 - **DRY theme compilation** — `applyTheme()` (the legacy `theme`-object path) now routes its dark block through the same `compileThemeCss()` the wire path uses, so both paths emit byte-identical dark CSS. The CSS sanitizers are shared too.
 
-> **Fixtures verified against upstream.** Golden fixtures were regenerated from upstream `prefab-ui` **0.20.2**: 9/10 are byte-identical to the previous `0.2` fixtures apart from the version bump (confirming parity, and that upstream emits `0.3`). The chart fixture surfaced one pre-existing, out-of-scope divergence — upstream emits `valueFormat` (PR #454) where this port emits `yAxisFormat`; tracked separately.
+> **Fixtures verified against upstream.** Golden fixtures were regenerated from upstream `prefab-ui` **0.20.2**: 9/10 are byte-identical to the previous `0.2` fixtures apart from the version bump (confirming parity, and that upstream emits `0.3`). The 10th (chart) now carries upstream's `valueFormat`, which the builder also emits.
 
 ## [0.2.40] — 2026-05-15
 
