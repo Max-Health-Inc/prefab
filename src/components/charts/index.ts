@@ -173,9 +173,23 @@ export function PieChart(props: PieChartProps): Component {
 
 // ── RadarChart ───────────────────────────────────────────────────────────────
 
-export function RadarChart(props: BaseChartProps): Component {
+export interface RadarChartProps extends BaseChartProps {
+  /** Data key for angular axis (spoke) labels — upstream `axisKey`; falls back to `xAxis`. */
+  axisKey?: string
+  /** Fill the radar polygons (default true; set false for outline only). */
+  filled?: boolean
+  /** Show dots at polygon vertices. */
+  showDots?: boolean
+}
+
+export function RadarChart(props: RadarChartProps): Component {
   const c = new Component('RadarChart', props)
-  c.getProps = () => chartGetProps(props)
+  const axisKey = props.axisKey ?? props.xAxis
+  c.getProps = () => chartGetProps(props, {
+    ...(axisKey && { axisKey }),
+    ...(props.filled !== undefined && { filled: props.filled }),
+    ...(props.showDots !== undefined && { showDots: props.showDots }),
+  })
   return c
 }
 

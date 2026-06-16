@@ -18,7 +18,12 @@ Catches up to upstream PrefectHQ/prefab v0.20.x ("Wire Transfer", PR #431). The 
 
 - **`valueFormat` parity (PR #454)** — added the canonical `valueFormat` prop to cartesian/pie/radial charts (value-axis ticks + tooltip values), matching upstream's field name so chart formats are wire-compatible in both directions. `yAxisFormat` / `yAxisRightFormat` remain TS-only overrides for dual-axis charts. The renderer reads `valueFormat` as the base format and treats `"auto"` as "no explicit format".
 - **Pie/Radial/Scatter data-binding parity** — `PieChart` and `RadialChart` now use upstream's `dataKey` (value) + `nameKey` (label) model, and `ScatterChart` gains `xAxis`/`yAxis`/`zAxis` (z = bubble size). The legacy `series`/`xAxis` inputs are still accepted and mapped onto the canonical fields (**dual-accept**, non-breaking), and the Pie renderer reads both shapes — so these charts now round-trip with the Python renderer. New exports: `CategoricalChartProps`, `PieChartProps`, `ScatterChartProps`.
-- **Native Radial & Scatter renderers** — replaced the "not yet supported" placeholders with real SVG renderers: `RadialChart` draws concentric value arcs (track + value, configurable `innerRadius`/`startAngle`/`endAngle`), and `ScatterChart` plots points with min/max axes, optional grid, tooltips, and **bubble sizing** from `zAxis`. Both honour `valueFormat`. (`RadarChart` remains the one chart still on the fallback.)
+- **Native Radial, Scatter & Radar renderers** — replaced the "not yet supported" placeholders with real SVG renderers, so **every chart type now draws natively** (the fallback is gone):
+  - `RadialChart` — concentric value arcs (muted track + coloured value), configurable `innerRadius`/`startAngle`/`endAngle`.
+  - `ScatterChart` — points over min/max axes with optional grid, tooltips, and **bubble sizing** from `zAxis`.
+  - `RadarChart` — one polygon per series over angular axes, with `axisKey` spoke labels, `filled`, and `showDots`; legacy `xAxis` maps to `axisKey`.
+  - All honour `valueFormat`.
+- **Refactor** — the chart renderers' shared toolkit (colours, axes, SVG primitives, value formatting, legend) was extracted into `chart-helpers.ts` to keep each renderer file under the 700-LOC limit.
 
 ### Internal
 

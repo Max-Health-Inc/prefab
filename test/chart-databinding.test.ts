@@ -7,7 +7,7 @@
  */
 
 import { describe, it, expect, beforeEach } from 'bun:test'
-import { PieChart, RadialChart, ScatterChart } from '../src/components/charts'
+import { PieChart, RadialChart, ScatterChart, RadarChart } from '../src/components/charts'
 import { Store } from '../src/renderer/state'
 import { renderNode } from '../src/renderer/engine'
 import type { ComponentNode, RenderContext } from '../src/renderer/engine'
@@ -128,5 +128,39 @@ describe('renderer: Scatter draws points natively', () => {
     const dom = renderNode(node, makeCtx())
     const radii = Array.from(dom.querySelectorAll('svg circle')).map(c => Number(c.getAttribute('r')))
     expect(new Set(radii).size).toBeGreaterThan(1)
+  })
+})
+
+// ── Radar: builder axisKey + native render ───────────────────────────────────
+
+describe('builder + renderer: Radar', () => {
+  const RADAR = [
+    { subject: 'Math', alice: 120, bob: 98 },
+    { subject: 'English', alice: 98, bob: 130 },
+    { subject: 'Science', alice: 110, bob: 100 },
+  ]
+
+  it('builder emits axisKey + filled/showDots', () => {
+    const json = RadarChart({
+      data: RADAR, series: [{ dataKey: 'alice' }], axisKey: 'subject', filled: false, showDots: true,
+    }).toJSON()
+    expect(json.axisKey).toBe('subject')
+    expect(json.filled).toBe(false)
+    expect(json.showDots).toBe(true)
+  })
+
+  it('builder maps legacy xAxis → axisKey', () => {
+    const json = RadarChart({ data: RADAR, series: [{ dataKey: 'alice' }], xAxis: 'subject' }).toJSON()
+    expect(json.axisKey).toBe('subject')
+  })
+
+  it('renders a polygon per series natively (no fallback)', () => {
+    const node = asNode(RadarChart({
+      data: RADAR, series: [{ dataKey: 'alice' }, { dataKey: 'bob' }], axisKey: 'subject',
+    }).toJSON())
+    const dom = renderNode(node, makeCtx())
+    expect(dom.textContent).not.toContain('not yet supported')
+    // Grid rings + 2 series polygons.
+    expect(dom.querySelectorAll('svg polygon').length).toBeGreaterThanOrEqual(2)
   })
 })

@@ -22,7 +22,7 @@ export function registerChartComponents(): void {
   registerComponent('LineChart', renderLineChart)
   registerComponent('AreaChart', renderLineChart) // Same renderer, different fill
   registerComponent('PieChart', renderPieChart)
-  registerComponent('RadarChart', renderFallbackChart)
+  registerComponent('RadarChart', renderRadarChart)
   registerComponent('ScatterChart', renderScatterChart)
   registerComponent('RadialChart', renderRadialChart)
   registerComponent('Histogram', renderHistogram)
@@ -547,12 +547,101 @@ function renderRadialChart(node: ComponentNode, ctx: RenderContext): HTMLElement
   return wrapper
 }
 
-function renderFallbackChart(node: ComponentNode, _ctx: RenderContext): HTMLElement {
-  const e = el('div', `pf-chart pf-${node.type.toLowerCase()}`)
-  e.textContent = `${node.type} — not yet supported in renderer`
-  e.style.padding = '24px'
-  e.style.textAlign = 'center'
-  return e
+// ── RadarChart ───────────────────────────────────────────────────────────────
+
+function renderRadarChart(node: ComponentNode, ctx: RenderContext): HTMLElement {
+  const wrapper = el('div', 'pf-chart pf-radar-chart')
+  const data = (resolveValue(node.data, ctx) as Record<string, unknown>[] | undefined) ?? []
+  const series = (node.series as SeriesEntry[] | undefined) ?? []
+  const axisKey = (node.axisKey as string | undefined) ?? (node.xAxis as string | undefined)
+  const height = (node.height as number | undefined) ?? 300
+
+  if (data.length === 0 || series.length === 0) {
+    wrapper.textContent = 'No chart data'
+    return wrapper
+  }
+
+  const filled = (node.filled as boolean | undefined) !== false
+  const showDots = (node.showDots as boolean | undefined) === true
+  const showGrid = (node.showGrid as boolean | undefined) !== false
+  const showTooltipProp = (node.showTooltip as boolean | undefined) !== false
+
+  const size = Math.min(height, 320)
+  const cx = size / 2
+  const cy = size / 2
+  const R = size / 2 - 24 // leave room for spoke labels
+  const N = data.length
+  const max = Math.max(...data.flatMap(d => series.map(s => Number(d[s.dataKey] ?? 0))), 1)
+
+  // Spokes start at the top and go clockwise.
+  const angleAt = (i: number): number => 90 - (360 * i) / N
+  const ptStr = (pts: { x: number; y: number }[]): string =>
+    pts.map(p => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ')
+
+  const svg = createSvg(size, size, 'Radar')
+
+  // Polar grid: concentric rings + spokes.
+  if (showGrid) {
+    const rings = 4
+    for (let r = 1; r <= rings; r++) {
+      const rr = (R * r) / rings
+      const ring = Array.from({ length: N }, (_unused, i) => polar(cx, cy, rr, angleAt(i)))
+      svg.appendChild(svgEl('polygon', { points: ptStr(ring), fill: 'none', stroke: GRID_COLOR, 'stroke-width': 1 }))
+    }
+    for (let i = 0; i < N; i++) {
+      const p = polar(cx, cy, R, angleAt(i))
+      svg.appendChild(svgEl('line', { x1: cx, y1: cy, x2: p.x, y2: p.y, stroke: GRID_COLOR, 'stroke-width': 1 }))
+    }
+  }
+
+  // Spoke labels.
+  for (let i = 0; i < N; i++) {
+    const p = polar(cx, cy, R + 12, angleAt(i))
+    const raw = axisKey ? data[i][axisKey] : null
+    svg.appendChild(svgText(
+      { x: p.x, y: p.y + 3, 'text-anchor': 'middle', 'font-size': AXIS_FONT, fill: AXIS_COLOR },
+      raw != null ? String(raw as string | number) : '',
+    ))
+  }
+
+  const ttCtx = showTooltipProp ? createTooltip(wrapper, svg) : undefined
+  const valueFmt = resolveValueFormat(node)
+  const fmt = (v: number): string => valueFmt ? applyPipeFormat(v, valueFmt, ctx) : String(v)
+
+  // One polygon per series.
+  for (let si = 0; si < series.length; si++) {
+    const s = series[si]
+    const color = s.color ?? COLORS[si % COLORS.length]
+    const pts = data.map((d, i) => polar(cx, cy, (Number(d[s.dataKey] ?? 0) / max) * R, angleAt(i)))
+    svg.appendChild(svgEl('polygon', {
+      points: ptStr(pts),
+      fill: filled ? color : 'none', 'fill-opacity': filled ? 0.2 : 0,
+      stroke: color, 'stroke-width': 2,
+    }))
+
+    if (showDots || ttCtx) {
+      for (let i = 0; i < pts.length; i++) {
+        const dot = svgEl('circle', {
+          cx: pts[i].x, cy: pts[i].y, r: showDots ? 3 : 6,
+          fill: showDots ? color : 'transparent', 'fill-opacity': showDots ? 1 : 0,
+        })
+        if (ttCtx) {
+          const raw = axisKey ? data[i][axisKey] : null
+          const title = raw != null ? String(raw as string | number) : (s.label ?? s.dataKey)
+          const entries = [{ label: s.label ?? s.dataKey, value: fmt(Number(data[i][s.dataKey] ?? 0)), color }]
+          dot.addEventListener('mouseenter', () => showTooltipAt(ttCtx, pts[i].x, pts[i].y, title, entries))
+          dot.addEventListener('mouseleave', () => ttCtx.tooltip.classList.remove('pf-visible'))
+          dot.addEventListener('touchstart', () => showTooltipAt(ttCtx, pts[i].x, pts[i].y, title, entries), { passive: true })
+          dot.addEventListener('touchend', () => ttCtx.tooltip.classList.remove('pf-visible'), { passive: true })
+        }
+        svg.appendChild(dot)
+      }
+    }
+  }
+
+  addLegend(wrapper, series, node.showLegend as boolean | undefined)
+  wrapper.appendChild(svg)
+  return wrapper
 }
 
 // ── Histogram ────────────────────────────────────────────────────────────────
