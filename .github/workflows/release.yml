@@ -34,14 +34,21 @@ jobs:
         id: version
         run: |
           PACKAGE_NAME=$(jq -r .name package.json)
+          PKG_VERSION=$(jq -r .version package.json)
 
-          # Always bump from npm latest (ignore package.json version)
           NPM_LATEST=$(npm view "$PACKAGE_NAME" version 2>/dev/null || echo "0.0.0")
           echo "npm-latest=$NPM_LATEST" >> "$GITHUB_OUTPUT"
 
-          # Bump patch: 0.2.24 → 0.2.25
-          IFS='.' read -r MAJOR MINOR PATCH <<< "$NPM_LATEST"
-          NEXT="${MAJOR}.${MINOR}.$((PATCH + 1))"
+          # Honour an intentional bump: if package.json is strictly ahead of the
+          # npm latest (a manual minor/major bump, e.g. a breaking change), ship
+          # that version. Otherwise patch-bump npm latest (the default cadence).
+          HIGHEST=$(printf '%s\n%s\n' "$NPM_LATEST" "$PKG_VERSION" | sort -V | tail -1)
+          if [ "$PKG_VERSION" != "$NPM_LATEST" ] && [ "$HIGHEST" = "$PKG_VERSION" ]; then
+            NEXT="$PKG_VERSION"
+          else
+            IFS='.' read -r MAJOR MINOR PATCH <<< "$NPM_LATEST"
+            NEXT="${MAJOR}.${MINOR}.$((PATCH + 1))"
+          fi
           echo "next=$NEXT" >> "$GITHUB_OUTPUT"
           echo "### Version: $NPM_LATEST → $NEXT" >> "$GITHUB_STEP_SUMMARY"
 
