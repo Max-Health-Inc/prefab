@@ -1,7 +1,7 @@
 ---
 url: /prefab/reference/wire-format.md
 description: >-
-  $prefab v0.2 wire format specification — JSON structure, component nodes,
+  $prefab v0.3 wire format specification — JSON structure, component nodes,
   state, actions, pipes, defs, and template slots.
 ---
 
@@ -9,7 +9,7 @@ description: >-
 
 The `$prefab` wire format is the JSON protocol that connects server-side component builders to client-side renderers. Both the TypeScript and Python libraries produce this format.
 
-> **Note:** This TypeScript library is a superset of the Python `prefab-ui` (v0.19.1). Core components and the v0.2 protocol are identical. Chart formatting props (`xAxisFormat`, `tooltipXFormat`, `tooltipXKey`, per-series `tooltipFormat`, dual Y-axis) are TS-only extensions. The renderer handles both payloads seamlessly.
+> **Note:** This TypeScript library is a superset of the Python `prefab-ui` (v0.20.x). Core components and the v0.3 protocol are identical. Chart formatting props (`xAxisFormat`, `tooltipXFormat`, `tooltipXKey`, per-series `tooltipFormat`, dual Y-axis) are TS-only extensions. The renderer handles both payloads seamlessly, and still accepts legacy `0.2` payloads.
 
 ## Envelope
 
@@ -17,27 +17,31 @@ Every prefab UI is wrapped in a top-level envelope:
 
 ```json
 {
-  "$prefab": { "version": "0.2" },
+  "$prefab": { "version": "0.3" },
   "view": { ... },
   "state": { ... },
-  "theme": { ... },
+  "css": [ ... ],
+  "stylesheets": [ ... ],
+  "mode": "dark",
   "defs": { ... },
   "keyBindings": { ... },
-  "stylesheets": [ ... ],
   "onMount": { ... }
 }
 ```
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `$prefab` | `{ version: string }` | **Yes** | Format identifier. Current version: `"0.2"` |
+| `$prefab` | `{ version: string }` | **Yes** | Format identifier. Current version: `"0.3"` |
 | `view` | `ComponentJSON` | **Yes** | Root component tree |
 | `state` | `Record<string, unknown>` | No | Initial reactive state |
-| `theme` | `ThemeJSON` | No | CSS custom property overrides |
+| `css` | `string[]` | No | Inline CSS blocks injected as `<style>` tags. The theme is compiled into this array (`:root` for light, `.dark, [data-theme="dark"]` for dark). |
+| `stylesheets` | `string[]` | No | External CSS **URLs** loaded as `<link rel="stylesheet">` |
+| `mode` | `"light" \| "dark"` | No | Force a color scheme regardless of OS preference |
 | `defs` | `Record<string, ComponentJSON>` | No | Reusable component templates |
 | `keyBindings` | `Record<string, ActionJSON>` | No | Keyboard shortcut → action |
-| `stylesheets` | `string[]` | No | Custom CSS injected as `<style>` tags |
 | `onMount` | `ActionJSON \| ActionJSON[]` | No | Action(s) to run when the UI renders |
+
+> **Protocol 0.3 (upstream PR #431).** The theme moved off the wire: instead of a structured `theme` object, `PrefabApp.toJSON()` compiles it into the `css` array and emits `mode`. `stylesheets` now means external URLs. The renderer still accepts `0.2` payloads (a structured `theme` object, and inline CSS in `stylesheets`) for backward compatibility.
 
 ## Component JSON
 
@@ -166,26 +170,33 @@ These pipes enable the Signal/Collection/Ref data pattern on the wire format lev
 | `error` | `onError` callback | Error value |
 | `result` | `onSuccess` callback | Action result |
 
-## Theme JSON
+## Theme (authoring input → compiled `css`)
+
+You author a theme as a `{ light, dark }` map of CSS custom properties:
+
+```ts
+new PrefabApp({
+  view,
+  theme: {
+    light: { primary: '#3b82f6', background: '#ffffff', foreground: '#0a0a0a' },
+    dark:  { primary: '#60a5fa', background: '#0a0a0a', foreground: '#fafafa' },
+  },
+})
+```
+
+In protocol **0.3** this is **compiled into the wire `css` array** (it is *not* sent as a structured `theme` object). Light variables target `:root`; dark variables target `.dark, [data-theme="dark"]` plus a `prefers-color-scheme: dark` block:
 
 ```json
 {
-  "light": {
-    "primary": "#3b82f6",
-    "background": "#ffffff",
-    "foreground": "#0a0a0a",
-    "muted": "#f5f5f5"
-  },
-  "dark": {
-    "primary": "#60a5fa",
-    "background": "#0a0a0a",
-    "foreground": "#fafafa",
-    "muted": "#262626"
-  }
+  "$prefab": { "version": "0.3" },
+  "view": { ... },
+  "css": [
+    ":root {\n  --primary: #3b82f6;\n  --background: #ffffff;\n}\n.dark, [data-theme=\"dark\"] {\n  --primary: #60a5fa;\n}"
+  ]
 }
 ```
 
-Theme values are applied as CSS custom properties (`--primary`, `--background`, etc.) on the root element. The renderer selects `light` or `dark` based on the host's `prefers-color-scheme` or the `data-theme` attribute.
+The renderer injects each `css` entry as a `<style>` tag. Color scheme is selected by the host's `prefers-color-scheme`, the `data-theme` attribute, or the `dark`/`light` class. Use the top-level `mode` field to force one. (Legacy `0.2` payloads carrying a structured `theme` object still render.)
 
 ## State Updates (Partial)
 
@@ -193,7 +204,7 @@ For incremental updates without re-rendering the full UI, use a state update wir
 
 ```json
 {
-  "$prefab": { "version": "0.2" },
+  "$prefab": { "version": "0.3" },
   "stateUpdate": {
     "count": 42,
     "status": "complete"

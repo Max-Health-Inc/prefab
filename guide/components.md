@@ -580,7 +580,7 @@ All built-in pipes work: `upper`, `lower`, `truncate`, `currency`, `percent`, `c
 
 ### `RadarChart(props)` / `ScatterChart(props)`
 
-Same base props. The renderer provides SVG rendering for Bar, Line, Area, and Pie; other types use a placeholder or external library.
+`RadarChart` plots one polygon per series over angular axes (`axisKey` for spoke labels, plus `filled`/`showDots`). `ScatterChart` plots points from `xAxis`/`yAxis`, with an optional `zAxis` to size each point (bubble chart). All chart types render natively as SVG.
 
 ### `Sparkline(props)`
 
@@ -592,7 +592,7 @@ Sparkline({ data: [10, 20, 15, 30, 25], color: '#22c55e', height: 32 })
 
 ### `RadialChart(props)` / `Histogram(props)`
 
-Radial progress chart and histogram distribution chart.
+Radial bar chart (concentric value arcs; `dataKey`/`nameKey` + `innerRadius`/`startAngle`/`endAngle`) and histogram distribution chart.
 
 ***
 

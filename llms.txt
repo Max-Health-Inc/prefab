@@ -32,7 +32,7 @@
 - [MCP Display Helpers](/prefab/reference/mcp-display.md): API reference for display(), displayForm(), rendererHtml(), registerViewerResource(), PREFAB_RESOURCE_URI, and MCP display helper types.
 - [Browser Renderer](/prefab/reference/renderer.md): API reference for the prefab browser renderer — mount(), destroy(), registerComponent(), theme configuration, and custom component renderers.
 - [PostMessage Bridge](/prefab/reference/bridge.md): API reference for the PostMessage bridge — app(), onToolResult, onToolInput, prefab:* and ui/* JSON-RPC dual-protocol support.
-- [Wire Format Specification](/prefab/reference/wire-format.md): $prefab v0.2 wire format specification — JSON structure, component nodes, state, actions, pipes, defs, and template slots.
+- [Wire Format Specification](/prefab/reference/wire-format.md): $prefab v0.3 wire format specification — JSON structure, component nodes, state, actions, pipes, defs, and template slots.
 
 ### Other
 
