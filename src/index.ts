@@ -12,8 +12,10 @@ export { validateWireFormat, isValidWireFormat } from './core/validate.js'
 export type { ValidationError, ValidationResult } from './core/validate.js'
 
 // ── App ──────────────────────────────────────────────────────────────────────
-export { PrefabApp } from './app.js'
-export type { PrefabAppOptions, PrefabWireFormat, Theme, LayoutHints } from './app.js'
+export { PrefabApp, PROTOCOL_VERSION } from './app.js'
+export type { PrefabAppOptions, PrefabWireFormat, Theme, LayoutHints, ColorMode } from './app.js'
+export { compileThemeCss } from './core/theme-css.js'
+export type { ThemeVars } from './core/theme-css.js'
 
 // ── Layout ───────────────────────────────────────────────────────────────────
 export { Column, Row, Grid, GridItem, Container, Div, Span, Dashboard, DashboardItem, Pages, Page, Detail, MasterDetail } from './components/layout/index.js'
@@ -63,7 +65,7 @@ export type { PdfViewerProps, PdfZoom } from './components/pdf/index.js'
 
 // ── Charts ───────────────────────────────────────────────────────────────────
 export { BarChart, LineChart, AreaChart, PieChart, RadarChart, ScatterChart, Sparkline, RadialChart, Histogram } from './components/charts/index.js'
-export type { ChartSeries, BaseChartProps, BarChartProps, SparklineProps, RadialChartProps, HistogramProps } from './components/charts/index.js'
+export type { ChartSeries, BaseChartProps, BarChartProps, CategoricalChartProps, PieChartProps, ScatterChartProps, RadarChartProps, SparklineProps, RadialChartProps, HistogramProps } from './components/charts/index.js'
 
 // ── Auto-rendering ───────────────────────────────────────────────────────────
 export { autoDetail, autoTable, statusVariant, registerStatusVariants } from './auto/index.js'

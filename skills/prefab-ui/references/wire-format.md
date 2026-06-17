@@ -1,32 +1,36 @@
 # Wire Format Reference
 
-Complete specification for the `$prefab` v0.2 wire format.
+Complete specification for the `$prefab` v0.3 wire format. (The renderer also accepts legacy `0.2` payloads.)
 
 ## Envelope
 
 ```json
 {
-  "$prefab": { "version": "0.2" },
+  "$prefab": { "version": "0.3" },
   "view": { ... },
   "state": { ... },
-  "theme": { ... },
+  "css": [ ... ],
+  "stylesheets": [ ... ],
+  "mode": "dark",
   "defs": { ... },
   "keyBindings": { ... },
-  "stylesheets": [ ... ],
   "onMount": { ... }
 }
 ```
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `$prefab` | `{ version: string }` | **Yes** | Format identifier. Current: `"0.2"` |
+| `$prefab` | `{ version: string }` | **Yes** | Format identifier. Current: `"0.3"` |
 | `view` | `ComponentJSON` | **Yes** | Root component tree |
 | `state` | `Record<string, unknown>` | No | Initial reactive state |
-| `theme` | `ThemeJSON` | No | CSS custom property overrides |
+| `css` | `string[]` | No | Inline CSS blocks injected as `<style>`. The theme is compiled into this array. |
+| `stylesheets` | `string[]` | No | External CSS **URLs** loaded as `<link rel="stylesheet">` |
+| `mode` | `"light" \| "dark"` | No | Force a color scheme |
 | `defs` | `Record<string, ComponentJSON>` | No | Reusable component templates |
 | `keyBindings` | `Record<string, ActionJSON>` | No | Keyboard shortcut → action map |
-| `stylesheets` | `string[]` | No | Custom CSS injected as `<style>` tags |
 | `onMount` | `ActionJSON \| ActionJSON[]` | No | Action(s) to run when UI renders |
+
+> Author a theme as `PrefabApp({ theme: { light, dark } })`; it is compiled into the `css` array on the wire (protocol 0.3). Legacy `0.2` payloads with a structured `theme` object still render.
 
 ## Component JSON
 
@@ -167,7 +171,9 @@ Pipes chain: `{{ name | upper | truncate:20 }}`
 | `error` | `onError` callback | Error value |
 | `result` | `onSuccess` callback | Action result |
 
-## Theme JSON
+## Theme (authoring input → compiled `css`)
+
+Author a theme as a `{ light, dark }` variable map:
 
 ```json
 {
@@ -176,7 +182,7 @@ Pipes chain: `{{ name | upper | truncate:20 }}`
 }
 ```
 
-Values become CSS custom properties (`--primary`, `--background`, etc.). The renderer selects light/dark based on `prefers-color-scheme` or the `data-theme` attribute on the root element.
+In protocol **0.3** this compiles into the wire `css` array (`:root` for light, `.dark, [data-theme="dark"]` for dark) — it is not sent as a structured `theme` object. Values become CSS custom properties (`--primary`, `--background`, etc.). The renderer selects light/dark via `prefers-color-scheme`, the `data-theme` attribute, or the `dark`/`light` class; use the top-level `mode` field to force one.
 
 ### Available Theme Tokens
 
@@ -188,7 +194,7 @@ For partial updates without re-sending the full UI:
 
 ```json
 {
-  "$prefab": { "version": "0.2" },
+  "$prefab": { "version": "0.3" },
   "stateUpdate": { "count": 42, "status": "complete" }
 }
 ```

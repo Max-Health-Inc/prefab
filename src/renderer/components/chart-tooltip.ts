@@ -4,7 +4,7 @@
  * Extracted from charts.ts to keep each file under 700 LOC.
  */
 
-import type { ChartLayout, SeriesEntry } from './charts.js'
+import type { ChartLayout, SeriesEntry } from './chart-helpers.js'
 
 const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899']
 

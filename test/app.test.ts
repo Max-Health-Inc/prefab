@@ -20,7 +20,7 @@ describe('PrefabApp', () => {
     })
     const json = app.toJSON()
 
-    expect(json.$prefab).toEqual({ version: '0.2' })
+    expect(json.$prefab).toEqual({ version: '0.3' })
     expect(json.view.type).toBe('Div')
     expect(json.view.cssClass).toBe('pf-app-root')
     expect(json.view.children).toHaveLength(1)
@@ -36,15 +36,45 @@ describe('PrefabApp', () => {
     expect(app.toJSON().view.cssClass).toBe('pf-app-root p-6 max-w-4xl')
   })
 
-  it('includes theme', () => {
+  it('compiles theme into the css array (protocol 0.3)', () => {
     const app = new PrefabApp({
       view: Heading('Hi'),
       theme: { light: { primary: '#000' }, dark: { primary: '#fff' } },
     })
-    expect(app.toJSON().theme).toEqual({
-      light: { primary: '#000' },
-      dark: { primary: '#fff' },
+    const json = app.toJSON()
+    // Theme is no longer a structured wire field — it is compiled to CSS.
+    expect(json.css).toBeDefined()
+    expect(json.css!.length).toBe(1)
+    const css = json.css![0]
+    expect(css).toContain(':root')
+    expect(css).toContain('--primary: #000;')
+    expect(css).toContain('[data-theme="dark"]')
+    expect(css).toContain('--primary: #fff;')
+  })
+
+  it('merges user css after the compiled theme', () => {
+    const app = new PrefabApp({
+      view: Heading('Hi'),
+      theme: { light: { primary: '#000' } },
+      css: ['.custom { color: red; }'],
     })
+    const css = app.toJSON().css!
+    expect(css.length).toBe(2)
+    expect(css[0]).toContain('--primary: #000;')
+    expect(css[1]).toBe('.custom { color: red; }')
+  })
+
+  it('emits mode when forced', () => {
+    const app = new PrefabApp({ view: Heading('Hi'), mode: 'dark' })
+    expect(app.toJSON().mode).toBe('dark')
+  })
+
+  it('emits stylesheets as-is (external URLs)', () => {
+    const app = new PrefabApp({
+      view: Heading('Hi'),
+      stylesheets: ['https://cdn.example.com/x.css'],
+    })
+    expect(app.toJSON().stylesheets).toEqual(['https://cdn.example.com/x.css'])
   })
 
   it('includes key bindings', () => {
@@ -69,7 +99,9 @@ describe('PrefabApp', () => {
     const app = new PrefabApp({ view: Heading('Hi') })
     const json = app.toJSON()
     expect(json.state).toBeUndefined()
-    expect(json.theme).toBeUndefined()
+    expect(json.css).toBeUndefined()
+    expect(json.stylesheets).toBeUndefined()
+    expect(json.mode).toBeUndefined()
     expect(json.defs).toBeUndefined()
     expect(json.keyBindings).toBeUndefined()
     expect(json.layout).toBeUndefined()
@@ -156,7 +188,7 @@ describe('PrefabApp', () => {
     const json = app.toJSON()
 
     // Verify structure
-    expect(json.$prefab.version).toBe('0.2')
+    expect(json.$prefab.version).toBe('0.3')
     expect(json.state).toEqual({ users: [] })
 
     const columnView = json.view.children![0]

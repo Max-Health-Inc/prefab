@@ -18,8 +18,8 @@
  */
 
 import { type Component } from '../core/component.js'
-import { PrefabApp, VERSION } from '../app.js'
-import type { Theme, LayoutHints } from '../app.js'
+import { PrefabApp, VERSION, PROTOCOL_VERSION } from '../app.js'
+import type { Theme, LayoutHints, ColorMode } from '../app.js'
 import type { Action, ActionJSON } from '../actions/types.js'
 import type { PipeFn } from '../rx/pipes.js'
 import type { McpToolResult } from './types.js'
@@ -49,8 +49,12 @@ export interface DisplayOptions {
   cssClass?: string
   /** Size hints for the host container (iframe, panel, etc.). */
   layout?: LayoutHints
-  /** Custom CSS stylesheets to inject into the renderer. */
+  /** Inline CSS blocks injected as `<style>` (merged after the compiled theme). */
+  css?: string[]
+  /** External CSS URLs loaded as `<link rel="stylesheet">`. */
   stylesheets?: string[]
+  /** Force a color scheme regardless of OS preference. */
+  mode?: ColorMode
   /** Custom pipe functions for reactive expressions. */
   pipes?: Record<string, PipeFn>
 }
@@ -89,7 +93,9 @@ export function display(
           : undefined,
         cssClass: options.cssClass ?? viewOrApp.cssClass,
         layout: options.layout ?? viewOrApp.layout,
+        css: concatArrays(viewOrApp.css, options.css),
         stylesheets: concatArrays(viewOrApp.stylesheets, options.stylesheets),
+        mode: options.mode ?? viewOrApp.mode,
         pipes: viewOrApp.pipes || options.pipes
           ? { ...viewOrApp.pipes, ...options.pipes }
           : undefined,
@@ -108,7 +114,9 @@ export function display(
       keyBindings: options?.keyBindings,
       cssClass: options?.cssClass,
       layout: options?.layout,
+      css: options?.css,
       stylesheets: options?.stylesheets,
+      mode: options?.mode,
       pipes: options?.pipes,
     })
   }
@@ -152,7 +160,9 @@ export function display_form(
     keyBindings: options?.keyBindings,
     cssClass: options?.cssClass,
     layout: options?.layout,
+    css: options?.css,
     stylesheets: options?.stylesheets,
+    mode: options?.mode,
     pipes: options?.pipes,
   })
 
@@ -202,7 +212,7 @@ export function display_update(
   }
 
   const payload: PrefabUpdateWire = {
-    $prefab: { version: '0.2' },
+    $prefab: { version: PROTOCOL_VERSION },
     update,
   }
 

@@ -104,9 +104,24 @@ export function validateWireFormat(
     }
   }
 
-  // theme (optional)
+  // theme (optional, legacy protocol 0.2 input)
   if (obj.theme !== undefined) {
     validateTheme(obj.theme, errors)
+  }
+
+  // css (optional, protocol 0.3) — array of inline CSS strings
+  if (obj.css !== undefined) {
+    validateStringArray(obj.css, '$.css', errors)
+  }
+
+  // stylesheets (optional, protocol 0.3) — array of external CSS URLs
+  if (obj.stylesheets !== undefined) {
+    validateStringArray(obj.stylesheets, '$.stylesheets', errors)
+  }
+
+  // mode (optional, protocol 0.3)
+  if (obj.mode !== undefined && obj.mode !== 'light' && obj.mode !== 'dark') {
+    errors.push({ path: '$.mode', message: 'mode must be "light" or "dark"' })
   }
 
   // defs (optional)
@@ -209,6 +224,18 @@ function validateAction(action: unknown, path: string, errors: ValidationError[]
   const hasAction = typeof act.action === 'string' && act.action.length > 0
   if (!hasType && !hasAction) {
     errors.push({ path: `${path}.type`, message: 'Action must have a non-empty "type" or "action" string' })
+  }
+}
+
+function validateStringArray(value: unknown, path: string, errors: ValidationError[]): void {
+  if (!Array.isArray(value)) {
+    errors.push({ path, message: `${path} must be an array of strings` })
+    return
+  }
+  for (let i = 0; i < value.length; i++) {
+    if (typeof value[i] !== 'string') {
+      errors.push({ path: `${path}[${i}]`, message: 'must be a string' })
+    }
   }
 }
 

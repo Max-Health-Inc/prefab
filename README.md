@@ -441,7 +441,7 @@ All UIs serialize to the `$prefab` wire format (JSON):
 
 ```json
 {
-  "$prefab": { "version": "0.2" },
+  "$prefab": { "version": "0.3" },
   "view": {
     "type": "Column",
     "children": [

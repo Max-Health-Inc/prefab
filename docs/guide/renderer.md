@@ -28,7 +28,7 @@ Set `window.__PREFAB_DATA__` before the script loads:
 ```html
 <script>
   window.__PREFAB_DATA__ = {
-    "$prefab": { "version": "0.2" },
+    "$prefab": { "version": "0.3" },
     "view": { "type": "H1", "content": "Hello!" }
   };
 </script>

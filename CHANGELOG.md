@@ -2,6 +2,35 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.0] — 2026-06-16
+
+### Wire Format (Breaking) — protocol `0.3`
+
+Catches up to upstream PrefectHQ/prefab v0.20.x ("Wire Transfer", PR #431). The `$prefab.version` envelope is now **`0.3`**. The renderer still accepts `0.2` payloads, so existing stored wire data keeps rendering.
+
+- **New top-level `css` field** — an array of inline CSS blocks, injected as `<style>` tags. The **theme is now compiled into this array** (`:root` for light, `.dark, [data-theme="dark"]` for dark) instead of shipping a structured `theme` object; `PrefabApp.toJSON()` no longer emits a `theme` key. New `compileThemeCss()` / `ThemeVars` exports expose the compiler.
+- **`stylesheets` redefined as external URLs** — rendered as `<link rel="stylesheet" href="…">`. The renderer keeps a heuristic that still injects inline CSS found in `stylesheets` as `<style>` for backward compatibility with `0.2` payloads.
+- **New top-level `mode` field** (`'light' | 'dark'`) — forces a color scheme. The renderer applies it via both the `data-theme` attribute and the `dark`/`light` class (so upstream-compiled `.dark {}` CSS resolves), and `toHTML()` stamps it on `<html>`.
+- **`PrefabApp` / `DisplayOptions`** gain `css` and `mode` options; `display()` merges `css` (concatenated) and `mode` (override) like the other options.
+- `toHTML()` now emits `css`/`stylesheets`/`mode` into `<head>` and strips them from the embedded JSON to avoid double-injection (mirrors upstream `html()`).
+
+### Charts
+
+- **`valueFormat` parity (PR #454)** — added the canonical `valueFormat` prop to cartesian/pie/radial charts (value-axis ticks + tooltip values), matching upstream's field name so chart formats are wire-compatible in both directions. `yAxisFormat` / `yAxisRightFormat` remain TS-only overrides for dual-axis charts. The renderer reads `valueFormat` as the base format and treats `"auto"` as "no explicit format".
+- **Pie/Radial/Scatter data-binding parity** — `PieChart` and `RadialChart` now use upstream's `dataKey` (value) + `nameKey` (label) model, and `ScatterChart` gains `xAxis`/`yAxis`/`zAxis` (z = bubble size). The legacy `series`/`xAxis` inputs are still accepted and mapped onto the canonical fields (**dual-accept**, non-breaking), and the Pie renderer reads both shapes — so these charts now round-trip with the Python renderer. New exports: `CategoricalChartProps`, `PieChartProps`, `ScatterChartProps`.
+- **Native Radial, Scatter & Radar renderers** — replaced the "not yet supported" placeholders with real SVG renderers, so **every chart type now draws natively** (the fallback is gone):
+  - `RadialChart` — concentric value arcs (muted track + coloured value), configurable `innerRadius`/`startAngle`/`endAngle`.
+  - `ScatterChart` — points over min/max axes with optional grid, tooltips, and **bubble sizing** from `zAxis`.
+  - `RadarChart` — one polygon per series over angular axes, with `axisKey` spoke labels, `filled`, and `showDots`; legacy `xAxis` maps to `axisKey`.
+  - All honour `valueFormat`.
+- **Refactor** — the chart renderers' shared toolkit (colours, axes, SVG primitives, value formatting, legend) was extracted into `chart-helpers.ts` to keep each renderer file under the 700-LOC limit.
+
+### Internal
+
+- **DRY theme compilation** — `applyTheme()` (the legacy `theme`-object path) now routes its dark block through the same `compileThemeCss()` the wire path uses, so both paths emit byte-identical dark CSS. The CSS sanitizers are shared too.
+
+> **Fixtures verified against upstream.** Golden fixtures were regenerated from upstream `prefab-ui` **0.20.2**: 9/10 are byte-identical to the previous `0.2` fixtures apart from the version bump (confirming parity, and that upstream emits `0.3`). The 10th (chart) now carries upstream's `valueFormat`, which the builder also emits.
+
 ## [0.2.40] — 2026-05-15
 
 ### New Features

@@ -34,9 +34,17 @@ export interface BaseChartProps extends ComponentProps {
   showTooltip?: boolean
   showGrid?: boolean
   showYAxis?: boolean
+  /**
+   * Canonical pipe format for value-axis ticks and tooltip values
+   * (e.g. "compact", "currency", "percent:1"). Matches upstream prefab's
+   * `valueFormat` (PR #454). `"auto"` (the default) means no explicit format.
+   */
+  valueFormat?: string
+  /** Left-axis format override for dual-axis charts (TS extension). Overrides `valueFormat`. */
   yAxisFormat?: string
   /** Show a secondary Y-axis on the right for series with yAxisId:'right'. */
   showYAxisRight?: boolean
+  /** Right-axis format for dual-axis charts (TS extension). */
   yAxisRightFormat?: string
   animate?: boolean
 }
@@ -54,10 +62,59 @@ function chartGetProps(props: BaseChartProps, extra?: Record<string, unknown>): 
     ...(props.showTooltip !== undefined && { showTooltip: props.showTooltip }),
     ...(props.showGrid !== undefined && { showGrid: props.showGrid }),
     ...(props.showYAxis !== undefined && { showYAxis: props.showYAxis }),
+    ...(props.valueFormat && { valueFormat: props.valueFormat }),
     ...(props.yAxisFormat && { yAxisFormat: props.yAxisFormat }),
     ...(props.showYAxisRight !== undefined && { showYAxisRight: props.showYAxisRight }),
     ...(props.yAxisRightFormat && { yAxisRightFormat: props.yAxisRightFormat }),
     ...(props.animate !== undefined && { animate: props.animate }),
+    ...extra,
+  }
+}
+
+// ── Categorical charts (Pie, Radial) ───────────────────────────────────────────
+
+/**
+ * Props for categorical charts that plot one numeric value per data row
+ * (Pie, Radial). Matches upstream prefab's `dataKey` (value) + `nameKey`
+ * (label) model. The legacy `series`/`xAxis` inputs are still accepted and
+ * mapped onto `dataKey`/`nameKey`, so existing series-based code keeps working.
+ */
+export interface CategoricalChartProps extends ComponentProps {
+  data: unknown[]
+  /** Numeric value field (upstream canonical). */
+  dataKey?: string
+  /** Slice/segment label field (upstream canonical). */
+  nameKey?: string
+  /** Legacy series-based input — `series[0].dataKey` becomes the value field. Prefer `dataKey`. */
+  series?: ChartSeries[]
+  /** Legacy label field. Prefer `nameKey`. */
+  xAxis?: string
+  /** Legacy label key. Prefer `nameKey`. */
+  tooltipXKey?: string
+  height?: number
+  showLegend?: boolean
+  showTooltip?: boolean
+  animate?: boolean
+  /** Value format pipe for tooltip values (e.g. "currency", "percent:1"). */
+  valueFormat?: string
+}
+
+function categoricalGetProps(
+  props: CategoricalChartProps,
+  extra?: Record<string, unknown>,
+): Record<string, unknown> {
+  // Resolve the upstream canonical fields from either the new or legacy inputs.
+  const dataKey = props.dataKey ?? props.series?.[0]?.dataKey
+  const nameKey = props.nameKey ?? props.tooltipXKey ?? props.xAxis
+  return {
+    data: props.data,
+    ...(dataKey && { dataKey }),
+    ...(nameKey && { nameKey }),
+    ...(props.height !== undefined && { height: props.height }),
+    ...(props.showLegend !== undefined && { showLegend: props.showLegend }),
+    ...(props.showTooltip !== undefined && { showTooltip: props.showTooltip }),
+    ...(props.animate !== undefined && { animate: props.animate }),
+    ...(props.valueFormat && { valueFormat: props.valueFormat }),
     ...extra,
   }
 }
@@ -98,25 +155,59 @@ export function AreaChart(props: BaseChartProps): Component {
 
 // ── PieChart ─────────────────────────────────────────────────────────────────
 
-export function PieChart(props: BaseChartProps): Component {
+export interface PieChartProps extends CategoricalChartProps {
+  innerRadius?: number
+  showLabel?: boolean
+  paddingAngle?: number
+}
+
+export function PieChart(props: PieChartProps): Component {
   const c = new Component('PieChart', props)
-  c.getProps = () => chartGetProps(props)
+  c.getProps = () => categoricalGetProps(props, {
+    ...(props.innerRadius !== undefined && { innerRadius: props.innerRadius }),
+    ...(props.showLabel !== undefined && { showLabel: props.showLabel }),
+    ...(props.paddingAngle !== undefined && { paddingAngle: props.paddingAngle }),
+  })
   return c
 }
 
 // ── RadarChart ───────────────────────────────────────────────────────────────
 
-export function RadarChart(props: BaseChartProps): Component {
+export interface RadarChartProps extends BaseChartProps {
+  /** Data key for angular axis (spoke) labels — upstream `axisKey`; falls back to `xAxis`. */
+  axisKey?: string
+  /** Fill the radar polygons (default true; set false for outline only). */
+  filled?: boolean
+  /** Show dots at polygon vertices. */
+  showDots?: boolean
+}
+
+export function RadarChart(props: RadarChartProps): Component {
   const c = new Component('RadarChart', props)
-  c.getProps = () => chartGetProps(props)
+  const axisKey = props.axisKey ?? props.xAxis
+  c.getProps = () => chartGetProps(props, {
+    ...(axisKey && { axisKey }),
+    ...(props.filled !== undefined && { filled: props.filled }),
+    ...(props.showDots !== undefined && { showDots: props.showDots }),
+  })
   return c
 }
 
 // ── ScatterChart ─────────────────────────────────────────────────────────────
 
-export function ScatterChart(props: BaseChartProps): Component {
+export interface ScatterChartProps extends BaseChartProps {
+  /** Data key for y-axis values (upstream). */
+  yAxis?: string
+  /** Data key for bubble size (upstream, optional). */
+  zAxis?: string
+}
+
+export function ScatterChart(props: ScatterChartProps): Component {
   const c = new Component('ScatterChart', props)
-  c.getProps = () => chartGetProps(props)
+  c.getProps = () => chartGetProps(props, {
+    ...(props.yAxis && { yAxis: props.yAxis }),
+    ...(props.zAxis && { zAxis: props.zAxis }),
+  })
   return c
 }
 
@@ -144,7 +235,7 @@ export function Sparkline(props: SparklineProps): Component {
 
 // ── RadialChart ──────────────────────────────────────────────────────────────
 
-export interface RadialChartProps extends BaseChartProps {
+export interface RadialChartProps extends CategoricalChartProps {
   innerRadius?: number
   startAngle?: number
   endAngle?: number
@@ -152,7 +243,7 @@ export interface RadialChartProps extends BaseChartProps {
 
 export function RadialChart(props: RadialChartProps): Component {
   const c = new Component('RadialChart', props)
-  c.getProps = () => chartGetProps(props, {
+  c.getProps = () => categoricalGetProps(props, {
     ...(props.innerRadius !== undefined && { innerRadius: props.innerRadius }),
     ...(props.startAngle !== undefined && { startAngle: props.startAngle }),
     ...(props.endAngle !== undefined && { endAngle: props.endAngle }),
