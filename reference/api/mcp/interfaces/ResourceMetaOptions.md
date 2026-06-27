@@ -1,0 +1,32 @@
+---
+url: /prefab/reference/api/mcp/interfaces/ResourceMetaOptions.md
+---
+[@maxhealth.tech/prefab](../../index.md) / [mcp](../index.md) / ResourceMetaOptions
+
+# Interface: ResourceMetaOptions
+
+Defined in: [mcp/display.ts:371](https://github.com/Max-Health-Inc/prefab/blob/b83a59c5090bb060486e2f2a8a35c743b2b469d8/src/mcp/display.ts#L371)
+
+## Properties
+
+### csp?
+
+```ts
+optional csp?: McpAppCsp;
+```
+
+Defined in: [mcp/display.ts:373](https://github.com/Max-Health-Inc/prefab/blob/b83a59c5090bb060486e2f2a8a35c743b2b469d8/src/mcp/display.ts#L373)
+
+CSP domains configuration.
+
+***
+
+### permissions?
+
+```ts
+optional permissions?: McpAppPermissions;
+```
+
+Defined in: [mcp/display.ts:375](https://github.com/Max-Health-Inc/prefab/blob/b83a59c5090bb060486e2f2a8a35c743b2b469d8/src/mcp/display.ts#L375)
+
+Permission Policy requests (camera, mic, etc.).

@@ -1,0 +1,117 @@
+{
+  "$prefab": {
+    "version": "0.2"
+  },
+  "view": {
+    "type": "Column",
+    "cssClass": "gap-4",
+    "children": [
+      {
+        "type": "Heading",
+        "content": "Dynamic Content",
+        "level": 2
+      },
+      {
+        "type": "Row",
+        "cssClass": "gap-2",
+        "children": [
+          {
+            "type": "Button",
+            "label": "Show Success",
+            "onClick": {
+              "action": "setState",
+              "key": "status",
+              "value": "success"
+            }
+          },
+          {
+            "type": "Button",
+            "label": "Show Error",
+            "onClick": {
+              "action": "setState",
+              "key": "status",
+              "value": "error"
+            }
+          },
+          {
+            "type": "Button",
+            "label": "Show Loading",
+            "onClick": {
+              "action": "setState",
+              "key": "status",
+              "value": "loading"
+            }
+          }
+        ]
+      },
+      {
+        "type": "If",
+        "condition": "{{ status == 'success' }}",
+        "then": [
+          {
+            "type": "Alert",
+            "variant": "default",
+            "children": [
+              {
+                "type": "AlertTitle",
+                "content": "Success!"
+              },
+              {
+                "type": "AlertDescription",
+                "content": "Operation completed successfully."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "If",
+        "condition": "{{ status == 'error' }}",
+        "then": [
+          {
+            "type": "Alert",
+            "variant": "destructive",
+            "children": [
+              {
+                "type": "AlertTitle",
+                "content": "Error"
+              },
+              {
+                "type": "AlertDescription",
+                "content": "Something went wrong. Please try again."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "If",
+        "condition": "{{ status == 'loading' }}",
+        "then": [
+          {
+            "type": "Card",
+            "children": [
+              {
+                "type": "CardContent",
+                "children": [
+                  {
+                    "type": "Progress",
+                    "value": 65,
+                    "max": 100
+                  },
+                  {
+                    "type": "Muted",
+                    "content": "Loading data..."
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "state": {
+    "status": "success"
+  }
+}

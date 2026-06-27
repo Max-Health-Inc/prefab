@@ -46,4 +46,4 @@ They are perfect for MCP tool handlers, where you frequently turn an API respons
 
 Reach for the underlying components directly when you need precise control — bespoke column renderers, custom interactions, conditional layouts, or a design that doesn't map cleanly onto your raw data shape. Auto-renderers are a fast on-ramp, not a ceiling: you can start with `autoTable`, then graduate to a hand-built `DataTable` the moment you need something the auto path can't express. The two styles compose freely in the same view.
 
-→ See the [Auto-Renderers reference](/reference/auto-renderers) for the full API: every helper, its options, and examples.
+→ See the [Auto-Renderers API reference](/reference/api/auto/) for the full API: every helper, its options, and examples.

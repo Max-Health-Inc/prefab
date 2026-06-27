@@ -1,0 +1,25 @@
+{
+  "$prefab": {
+    "version": "0.2"
+  },
+  "view": {
+    "type": "Column",
+    "cssClass": "gap-4",
+    "children": [
+      {
+        "type": "Heading",
+        "content": "Hello World",
+        "level": 1
+      },
+      {
+        "type": "Text",
+        "content": "Welcome to the prefab playground. Edit the JSON on the left and watch the UI update in real time."
+      },
+      {
+        "type": "Badge",
+        "label": "Active",
+        "variant": "success"
+      }
+    ]
+  }
+}

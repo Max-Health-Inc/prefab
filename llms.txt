@@ -26,14 +26,231 @@
 ### Reference
 
 - [Components Reference](/prefab/reference/components.md): Complete API reference for all 115+ prefab components — props, signatures, and wire format examples for layout, forms, data, media, and charts.
-- [Actions Reference](/prefab/reference/actions.md): API reference for prefab actions — CallTool, SetState, ShowToast, Navigate, OpenLink, Validate, and all serializable event handlers.
-- [Reactive Expressions (`rx`)](/prefab/reference/rx.md): API reference for rx() expressions, 20+ built-in pipes, signals, and reactive collections in prefab's state system.
-- [Auto-Renderers](/prefab/reference/auto-renderers.md): API reference for autoTable, autoChart, autoForm, autoMetrics, autoTimeline, autoProgress, and autoComparison auto-rendering functions.
-- [MCP Display Helpers](/prefab/reference/mcp-display.md): API reference for display(), displayForm(), rendererHtml(), registerViewerResource(), PREFAB_RESOURCE_URI, and MCP display helper types.
-- [Browser Renderer](/prefab/reference/renderer.md): API reference for the prefab browser renderer — mount(), destroy(), the render handle, registerComponent(), registerPipe(), theme configuration, and custom component renderers.
-- [PostMessage Bridge](/prefab/reference/bridge.md): API reference for the PostMessage bridge — app(), onToolResult, onToolInput, prefab:* and ui/* JSON-RPC dual-protocol support.
 - [Wire Format Specification](/prefab/reference/wire-format.md): $prefab v0.3 wire format specification — JSON structure, component nodes, state, actions, pipes, defs, and template slots.
+- [Rendering Prefab UIs in MCP Apps Hosts](/prefab/reference/mcp-apps.md): Complete guide to rendering prefab UIs inside MCP Apps hosts (VS Code, Claude Desktop, ChatGPT). Covers CSP, ui/* JSON-RPC protocol, and common pitfalls.
+
+### API (from source)
+
+- [actions](/prefab/reference/api/actions.md)
+- [auto](/prefab/reference/api/auto.md)
+- [mcp](/prefab/reference/api/mcp.md)
+- [renderer](/prefab/reference/api/renderer.md)
+- [rx](/prefab/reference/api/rx.md)
+
+#### actions
+
+##### Classes
+
+- [Class: SetState](/reference/api/actions/classes/SetState.md)
+- [Class: ToggleState](/reference/api/actions/classes/ToggleState.md)
+- [Class: AppendState](/reference/api/actions/classes/AppendState.md)
+- [Class: PopState](/reference/api/actions/classes/PopState.md)
+- [Class: ShowToast](/reference/api/actions/classes/ShowToast.md)
+- [Class: CloseOverlay](/reference/api/actions/classes/CloseOverlay.md)
+- [Class: OpenLink](/reference/api/actions/classes/OpenLink.md)
+- [Class: SetInterval](/reference/api/actions/classes/SetInterval.md)
+- [Class: Fetch](/reference/api/actions/classes/Fetch.md)
+- [Class: OpenFilePicker](/reference/api/actions/classes/OpenFilePicker.md)
+- [Class: CallHandler](/reference/api/actions/classes/CallHandler.md)
+- [Class: CallTool](/reference/api/actions/classes/CallTool.md)
+- [Class: SendMessage](/reference/api/actions/classes/SendMessage.md)
+- [Class: UpdateContext](/reference/api/actions/classes/UpdateContext.md)
+- [Class: RequestDisplayMode](/reference/api/actions/classes/RequestDisplayMode.md)
+- [Class: Subscribe](/reference/api/actions/classes/Subscribe.md)
+- [Class: Unsubscribe](/reference/api/actions/classes/Unsubscribe.md)
+
+##### Interfaces
+
+- [Interface: SetStateOpts](/reference/api/actions/interfaces/SetStateOpts.md)
+- [Interface: ShowToastOpts](/reference/api/actions/interfaces/ShowToastOpts.md)
+- [Interface: FetchOpts](/reference/api/actions/interfaces/FetchOpts.md)
+- [Interface: OpenFilePickerOpts](/reference/api/actions/interfaces/OpenFilePickerOpts.md)
+- [Interface: CallHandlerOpts](/reference/api/actions/interfaces/CallHandlerOpts.md)
+- [Interface: CallToolOpts](/reference/api/actions/interfaces/CallToolOpts.md)
+- [Interface: SubscribeOpts](/reference/api/actions/interfaces/SubscribeOpts.md)
+- [Interface: ActionJSON](/reference/api/actions/interfaces/ActionJSON.md)
+- [Interface: Action](/reference/api/actions/interfaces/Action.md)
+
+##### Type Aliases
+
+- [Type Alias: ToastVariant](/reference/api/actions/type-aliases/ToastVariant.md)
+- [Type Alias: DisplayMode](/reference/api/actions/type-aliases/DisplayMode.md)
+- [Type Alias: StateTarget](/reference/api/actions/type-aliases/StateTarget.md)
+
+##### Functions
+
+- [Function: set()](/reference/api/actions/functions/set.md)
+- [Function: toggle()](/reference/api/actions/functions/toggle.md)
+- [Function: append()](/reference/api/actions/functions/append.md)
+- [Function: pop()](/reference/api/actions/functions/pop.md)
+- [Function: serializeCallbacks()](/reference/api/actions/functions/serializeCallbacks.md)
+
+#### auto
+
+##### Classes
+
+- [Class: QuickFormBuilder](/reference/api/auto/classes/QuickFormBuilder.md)
+
+##### Interfaces
+
+- [Interface: AutoChartOptions](/reference/api/auto/interfaces/AutoChartOptions.md)
+- [Interface: AutoComparisonOptions](/reference/api/auto/interfaces/AutoComparisonOptions.md)
+- [Interface: AutoFormField](/reference/api/auto/interfaces/AutoFormField.md)
+- [Interface: AutoFormOptions](/reference/api/auto/interfaces/AutoFormOptions.md)
+- [Interface: AutoDetailOptions](/reference/api/auto/interfaces/AutoDetailOptions.md)
+- [Interface: AutoTableOptions](/reference/api/auto/interfaces/AutoTableOptions.md)
+- [Interface: AutoMetricDef](/reference/api/auto/interfaces/AutoMetricDef.md)
+- [Interface: AutoMetricsOptions](/reference/api/auto/interfaces/AutoMetricsOptions.md)
+- [Interface: AutoProgressStep](/reference/api/auto/interfaces/AutoProgressStep.md)
+- [Interface: AutoProgressOptions](/reference/api/auto/interfaces/AutoProgressOptions.md)
+- [Interface: AutoTimelineEvent](/reference/api/auto/interfaces/AutoTimelineEvent.md)
+- [Interface: AutoTimelineOptions](/reference/api/auto/interfaces/AutoTimelineOptions.md)
+
+##### Type Aliases
+
+- [Type Alias: ChartType](/reference/api/auto/type-aliases/ChartType.md)
+
+##### Functions
+
+- [Function: autoChart()](/reference/api/auto/functions/autoChart.md)
+- [Function: autoComparison()](/reference/api/auto/functions/autoComparison.md)
+- [Function: autoForm()](/reference/api/auto/functions/autoForm.md)
+- [Function: QuickForm()](/reference/api/auto/functions/QuickForm.md)
+- [Function: statusVariant()](/reference/api/auto/functions/statusVariant.md)
+- [Function: registerStatusVariants()](/reference/api/auto/functions/registerStatusVariants.md)
+- [Function: autoDetail()](/reference/api/auto/functions/autoDetail.md)
+- [Function: autoTable()](/reference/api/auto/functions/autoTable.md)
+- [Function: autoMetrics()](/reference/api/auto/functions/autoMetrics.md)
+- [Function: autoProgress()](/reference/api/auto/functions/autoProgress.md)
+- [Function: autoTimeline()](/reference/api/auto/functions/autoTimeline.md)
+
+#### mcp
+
+##### Interfaces
+
+- [Interface: DisplayOptions](/reference/api/mcp/interfaces/DisplayOptions.md)
+- [Interface: DisplayFormOptions](/reference/api/mcp/interfaces/DisplayFormOptions.md)
+- [Interface: StateUpdate](/reference/api/mcp/interfaces/StateUpdate.md)
+- [Interface: PrefabUpdateWire](/reference/api/mcp/interfaces/PrefabUpdateWire.md)
+- [Interface: DisplayUpdateOptions](/reference/api/mcp/interfaces/DisplayUpdateOptions.md)
+- [Interface: DisplayErrorOptions](/reference/api/mcp/interfaces/DisplayErrorOptions.md)
+- [Interface: DisplaySuccessOptions](/reference/api/mcp/interfaces/DisplaySuccessOptions.md)
+- [Interface: McpAppCsp](/reference/api/mcp/interfaces/McpAppCsp.md)
+- [Interface: McpAppPermissions](/reference/api/mcp/interfaces/McpAppPermissions.md)
+- [Interface: ResourceMetaOptions](/reference/api/mcp/interfaces/ResourceMetaOptions.md)
+- [Interface: RendererHtmlOptions](/reference/api/mcp/interfaces/RendererHtmlOptions.md)
+- [Interface: ViewerResourceOptions](/reference/api/mcp/interfaces/ViewerResourceOptions.md)
+- [Interface: McpTextContent](/reference/api/mcp/interfaces/McpTextContent.md)
+- [Interface: McpImageContent](/reference/api/mcp/interfaces/McpImageContent.md)
+- [Interface: McpTextResourceContents](/reference/api/mcp/interfaces/McpTextResourceContents.md)
+- [Interface: McpBlobResourceContents](/reference/api/mcp/interfaces/McpBlobResourceContents.md)
+- [Interface: McpResourceContent](/reference/api/mcp/interfaces/McpResourceContent.md)
+- [Interface: McpToolResult](/reference/api/mcp/interfaces/McpToolResult.md)
+
+##### Type Aliases
+
+- [Type Alias: McpContent](/reference/api/mcp/type-aliases/McpContent.md)
+
+##### Variables
+
+- [Variable: displayForm](/reference/api/mcp/variables/displayForm.md)
+- [Variable: displayUpdate](/reference/api/mcp/variables/displayUpdate.md)
+- [Variable: displayError](/reference/api/mcp/variables/displayError.md)
+- [Variable: displaySuccess](/reference/api/mcp/variables/displaySuccess.md)
+- [Variable: PREFAB\_CDN\_META](/reference/api/mcp/variables/PREFAB_CDN_META.md)
+- [Variable: PREFAB\_RESOURCE\_URI](/reference/api/mcp/variables/PREFAB_RESOURCE_URI.md)
+
+##### Functions
+
+- [Function: display()](/reference/api/mcp/functions/display.md)
+- [Function: display\_form()](/reference/api/mcp/functions/display_form.md)
+- [Function: display\_update()](/reference/api/mcp/functions/display_update.md)
+- [Function: display\_error()](/reference/api/mcp/functions/display_error.md)
+- [Function: display\_success()](/reference/api/mcp/functions/display_success.md)
+- [Function: resourceMeta()](/reference/api/mcp/functions/resourceMeta.md)
+- [Function: rendererHtml()](/reference/api/mcp/functions/rendererHtml.md)
+- [Function: registerViewerResource()](/reference/api/mcp/functions/registerViewerResource.md)
+
+#### renderer
+
+##### Classes
+
+- [Class: Bridge](/reference/api/renderer/classes/Bridge.md)
+- [Class: DestroyRegistry](/reference/api/renderer/classes/DestroyRegistry.md)
+
+##### Interfaces
+
+- [Interface: AppOptions](/reference/api/renderer/interfaces/AppOptions.md)
+- [Interface: PrefabApp](/reference/api/renderer/interfaces/PrefabApp.md)
+- [Interface: MountHandle](/reference/api/renderer/interfaces/MountHandle.md)
+- [Interface: BridgeMessage\<T>](/reference/api/renderer/interfaces/BridgeMessage.md)
+- [Interface: AppCapabilities](/reference/api/renderer/interfaces/AppCapabilities.md)
+- [Interface: HostCapabilities](/reference/api/renderer/interfaces/HostCapabilities.md)
+- [Interface: HostContext](/reference/api/renderer/interfaces/HostContext.md)
+- [Interface: HostTheme](/reference/api/renderer/interfaces/HostTheme.md)
+- [Interface: ComponentNode](/reference/api/renderer/interfaces/ComponentNode.md)
+- [Interface: RenderContext](/reference/api/renderer/interfaces/RenderContext.md)
+- [Interface: RenderResult](/reference/api/renderer/interfaces/RenderResult.md)
+- [Interface: PrefabWireData](/reference/api/renderer/interfaces/PrefabWireData.md)
+- [Interface: PrefabUpdateData](/reference/api/renderer/interfaces/PrefabUpdateData.md)
+- [Interface: MountOptions](/reference/api/renderer/interfaces/MountOptions.md)
+- [Interface: MountedApp](/reference/api/renderer/interfaces/MountedApp.md)
+- [Interface: ThemeToggleOptions](/reference/api/renderer/interfaces/ThemeToggleOptions.md)
+
+##### Type Aliases
+
+- [Type Alias: DisplayMode](/reference/api/renderer/type-aliases/DisplayMode.md)
+- [Type Alias: RenderFnReturn](/reference/api/renderer/type-aliases/RenderFnReturn.md)
+- [Type Alias: RenderFn](/reference/api/renderer/type-aliases/RenderFn.md)
+
+##### Variables
+
+- [Variable: PrefabRenderer](/reference/api/renderer/variables/PrefabRenderer.md)
+
+##### Functions
+
+- [Function: app()](/reference/api/renderer/functions/app.md)
+- [Function: applyHostTheme()](/reference/api/renderer/functions/applyHostTheme.md)
+- [Function: isIframe()](/reference/api/renderer/functions/isIframe.md)
+- [Function: registerComponent()](/reference/api/renderer/functions/registerComponent.md)
+- [Function: createThemeToggle()](/reference/api/renderer/functions/createThemeToggle.md)
+
+#### rx
+
+##### Classes
+
+- [Class: Ref\<T>](/reference/api/rx/classes/Ref.md)
+- [Class: Collection\<T>](/reference/api/rx/classes/Collection.md)
+- [Class: Rx](/reference/api/rx/classes/Rx.md)
+- [Class: Signal\<T>](/reference/api/rx/classes/Signal.md)
+
+##### Interfaces
+
+- [Interface: SignalOptions](/reference/api/rx/interfaces/SignalOptions.md)
+
+##### Type Aliases
+
+- [Type Alias: PipeFn](/reference/api/rx/type-aliases/PipeFn.md)
+- [Type Alias: SignalValue](/reference/api/rx/type-aliases/SignalValue.md)
+
+##### Variables
+
+- [Variable: ITEM](/reference/api/rx/variables/ITEM.md)
+- [Variable: INDEX](/reference/api/rx/variables/INDEX.md)
+- [Variable: EVENT](/reference/api/rx/variables/EVENT.md)
+- [Variable: ERROR](/reference/api/rx/variables/ERROR.md)
+- [Variable: RESULT](/reference/api/rx/variables/RESULT.md)
+- [Variable: STATE](/reference/api/rx/variables/STATE.md)
+
+##### Functions
+
+- [Function: collection()](/reference/api/rx/functions/collection.md)
+- [Function: registerPipe()](/reference/api/rx/functions/registerPipe.md)
+- [Function: unregisterPipe()](/reference/api/rx/functions/unregisterPipe.md)
+- [Function: listPipes()](/reference/api/rx/functions/listPipes.md)
+- [Function: rx()](/reference/api/rx/functions/rx.md)
+- [Function: signal()](/reference/api/rx/functions/signal.md)
 
 ### Other
 
-- [Rendering Prefab UIs in MCP Apps Hosts](/prefab/reference/mcp-apps.md): Complete guide to rendering prefab UIs inside MCP Apps hosts (VS Code, Claude Desktop, ChatGPT). Covers CSP, ui/* JSON-RPC protocol, and common pitfalls.
+- [@maxhealth.tech/prefab](/prefab/reference/api.md)

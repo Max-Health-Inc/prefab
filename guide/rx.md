@@ -57,4 +57,4 @@ const selectedId = signal('selectedPatientId', patients.firstKey())
 
 Because everything compiles down to `{{ }}` expressions, a signal change ripples through every binding that depends on it — exactly like a hand-written expression, just type-safe.
 
-→ See the [Reactive Expressions reference](/reference/rx) for the full API: every pipe, operator, scope variable, and the Signals/Collections methods.
+→ See the [Rx API reference](/reference/api/rx/) for the full API: `rx`, `signal`, `collection`, every scope variable, and the pipe registry.

@@ -42,4 +42,4 @@ The renderer paints structure, but `prefab.css` carries the design tokens and ba
 
 The renderer is extensible without forking it. You can teach it new node types with `registerComponent`, add new `{{ }}` filters with `registerPipe`, and inject scoped stylesheets straight from the wire format — all covered in the reference.
 
-→ See the [Renderer reference](/reference/renderer) for the full API: every method, option, and the render handle.
+→ See the [Renderer API reference](/reference/api/renderer/) for the full API: every method, option, and the render handle.

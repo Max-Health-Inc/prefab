@@ -595,394 +595,69 @@
     // ═══════════════════════════════════════════════════════════════════════════════
     // DEMO EXAMPLES
     // ═══════════════════════════════════════════════════════════════════════════════
+    // Each entry carries only demo-only metadata. The actual $prefab UI payload
+    // lives in a single canonical file at /prefab/examples/<id>.json and is
+    // fetched at runtime (see loadExampleUI) so the same UIs are not duplicated
+    // across the demo, the playground, and the skill bundle.
     const EXAMPLES = [
       {
         id: 'dashboard',
         label: 'Analytics Dashboard',
         user: 'Build me an analytics dashboard with key metrics, a traffic line chart, and a top pages table.',
-        assistant: 'Here\'s your analytics dashboard with live metrics, a weekly traffic chart, and a top-pages breakdown:',
-        prefab: {
-          "$prefab": { "version": "0.2" },
-          "view": {
-            "type": "Column", "gap": 16,
-            "children": [
-              {
-                "type": "Row", "children": [
-                  { "type": "Heading", "content": "Analytics Dashboard", "level": 2 },
-                  { "type": "Badge", "label": "Live", "variant": "success" }
-                ]
-              },
-              {
-                "type": "Row", "gap": 16, "children": [
-                  { "type": "Card", "children": [{ "type": "CardContent", "children": [{ "type": "Metric", "label": "Total Users", "value": "12,847" }] }] },
-                  { "type": "Card", "children": [{ "type": "CardContent", "children": [{ "type": "Metric", "label": "Revenue", "value": "$48,290" }] }] },
-                  { "type": "Card", "children": [{ "type": "CardContent", "children": [{ "type": "Metric", "label": "Conversion", "value": "3.2%" }] }] },
-                  { "type": "Card", "children": [{ "type": "CardContent", "children": [{ "type": "Metric", "label": "Avg. Session", "value": "4m 32s" }] }] }
-                ]
-              },
-              {
-                "type": "Row", "gap": 16, "children": [
-                  {
-                    "type": "Card", "children": [
-                      { "type": "CardHeader", "children": [{ "type": "CardTitle", "content": "Weekly Traffic" }] },
-                      {
-                        "type": "CardContent", "children": [
-                          {
-                            "type": "LineChart",
-                            "data": [
-                              { "day": "Mon", "visitors": 1200 }, { "day": "Tue", "visitors": 1800 },
-                              { "day": "Wed", "visitors": 1400 }, { "day": "Thu", "visitors": 2200 },
-                              { "day": "Fri", "visitors": 1900 }, { "day": "Sat", "visitors": 800 },
-                              { "day": "Sun", "visitors": 600 }
-                            ],
-                            "series": [{ "dataKey": "visitors", "label": "Visitors", "color": "#4f46e5" }],
-                            "xAxis": "day", "height": 220, "showGrid": true, "animate": true
-                          }
-                        ]
-                      }
-                    ]
-                  },
-                  {
-                    "type": "Card", "children": [
-                      { "type": "CardHeader", "children": [{ "type": "CardTitle", "content": "Top Pages" }] },
-                      {
-                        "type": "CardContent", "children": [
-                          {
-                            "type": "DataTable",
-                            "columns": [
-                              { "key": "page", "header": "Page" },
-                              { "key": "views", "header": "Views", "sortable": true },
-                              { "key": "bounce", "header": "Bounce Rate" }
-                            ],
-                            "rows": [
-                              { "page": "/home", "views": "4,280", "bounce": "32%" },
-                              { "page": "/pricing", "views": "2,190", "bounce": "45%" },
-                              { "page": "/docs", "views": "1,890", "bounce": "22%" },
-                              { "page": "/blog", "views": "1,420", "bounce": "38%" }
-                            ],
-                            "search": false, "paginated": false
-                          }
-                        ]
-                      }
-                    ]
-                  }
-                ]
-              }
-            ]
-          }
-        }
+        assistant: 'Here\'s your analytics dashboard with live metrics, a weekly traffic chart, and a top-pages breakdown:'
       },
-
       {
         id: 'patient-card',
         label: 'Patient Summary',
         user: 'Show me a patient summary card for Sarah Connor with vitals and status badges.',
-        assistant: 'Here\'s the patient summary card with current vitals and clinical status:',
-        prefab: {
-          "$prefab": { "version": "0.2" },
-          "view": {
-            "type": "Card",
-            "children": [
-              {
-                "type": "CardHeader", "children": [
-                  { "type": "CardTitle", "content": "Sarah Connor" },
-                  { "type": "CardDescription", "content": "DOB: 1965-02-28 · MRN: 00482917" }
-                ]
-              },
-              {
-                "type": "CardContent", "children": [
-                  {
-                    "type": "Column", "gap": 12, "children": [
-                      {
-                        "type": "Row", "gap": 16, "children": [
-                          { "type": "Metric", "label": "Heart Rate", "value": "72 bpm" },
-                          { "type": "Metric", "label": "Blood Pressure", "value": "120/80" },
-                          { "type": "Metric", "label": "Temperature", "value": "98.6°F" },
-                          { "type": "Metric", "label": "SpO₂", "value": "98%" }
-                        ]
-                      },
-                      { "type": "Separator" },
-                      { "type": "Text", "content": "Patient is in stable condition. No abnormalities detected in recent labs. Follow-up scheduled in 2 weeks." }
-                    ]
-                  }
-                ]
-              },
-              {
-                "type": "CardFooter", "children": [
-                  { "type": "Badge", "label": "Stable", "variant": "success" },
-                  { "type": "Badge", "label": "Outpatient", "variant": "secondary" },
-                  { "type": "Badge", "label": "Lab results pending", "variant": "warning" }
-                ]
-              }
-            ]
-          }
-        }
+        assistant: 'Here\'s the patient summary card with current vitals and clinical status:'
       },
-
       {
         id: 'revenue-chart',
         label: 'Revenue Report',
         user: 'Create a revenue vs costs bar chart for the first half of the year.',
-        assistant: 'Here\'s your H1 revenue report with a side-by-side bar chart comparing revenue and costs:',
-        prefab: {
-          "$prefab": { "version": "0.2" },
-          "view": {
-            "type": "Column", "gap": 16,
-            "children": [
-              { "type": "Heading", "content": "Revenue Report — H1 2026", "level": 2 },
-              {
-                "type": "Row", "gap": 16, "children": [
-                  { "type": "Card", "children": [{ "type": "CardContent", "children": [{ "type": "Metric", "label": "Total Revenue", "value": "$25,580" }] }] },
-                  { "type": "Card", "children": [{ "type": "CardContent", "children": [{ "type": "Metric", "label": "Total Costs", "value": "$15,706" }] }] },
-                  { "type": "Card", "children": [{ "type": "CardContent", "children": [{ "type": "Metric", "label": "Net Profit", "value": "$9,874" }] }] }
-                ]
-              },
-              {
-                "type": "Card", "children": [
-                  {
-                    "type": "CardContent", "children": [
-                      {
-                        "type": "BarChart",
-                        "data": [
-                          { "month": "Jan", "revenue": 4000, "costs": 2400 },
-                          { "month": "Feb", "revenue": 3000, "costs": 1398 },
-                          { "month": "Mar", "revenue": 5200, "costs": 3100 },
-                          { "month": "Apr", "revenue": 2780, "costs": 3908 },
-                          { "month": "May", "revenue": 6100, "costs": 2800 },
-                          { "month": "Jun", "revenue": 4500, "costs": 2100 }
-                        ],
-                        "series": [
-                          { "dataKey": "revenue", "label": "Revenue", "color": "#4f46e5" },
-                          { "dataKey": "costs", "label": "Costs", "color": "#ef4444" }
-                        ],
-                        "xAxis": "month", "height": 300,
-                        "showLegend": true, "showTooltip": true, "animate": true, "showGrid": true, "barRadius": 4
-                      }
-                    ]
-                  }
-                ]
-              }
-            ]
-          }
-        }
+        assistant: 'Here\'s your H1 revenue report with a side-by-side bar chart comparing revenue and costs:'
       },
-
       {
         id: 'contact-form',
         label: 'Contact Form',
         user: 'Make a contact form with name, email, subject dropdown, and a message field.',
-        assistant: 'Here\'s an interactive contact form with validation-ready fields and action buttons:',
-        prefab: {
-          "$prefab": { "version": "0.2" },
-          "view": {
-            "type": "Card",
-            "children": [
-              {
-                "type": "CardHeader", "children": [
-                  { "type": "CardTitle", "content": "Contact Us" },
-                  { "type": "CardDescription", "content": "Send us a message and we'll get back to you within 24 hours." }
-                ]
-              },
-              {
-                "type": "CardContent", "children": [
-                  {
-                    "type": "Column", "gap": 12, "children": [
-                      { "type": "Input", "name": "name", "inputType": "text", "placeholder": "Your name" },
-                      { "type": "Input", "name": "email", "inputType": "email", "placeholder": "you@example.com" },
-                      {
-                        "type": "Select", "name": "subject", "children": [
-                          { "type": "SelectOption", "label": "Select a subject", "value": "" },
-                          { "type": "SelectOption", "label": "General Inquiry", "value": "general" },
-                          { "type": "SelectOption", "label": "Bug Report", "value": "bug" },
-                          { "type": "SelectOption", "label": "Feature Request", "value": "feature" },
-                          { "type": "SelectOption", "label": "Partnership", "value": "partnership" }
-                        ]
-                      },
-                      { "type": "Textarea", "name": "message", "placeholder": "Your message…", "rows": 4 },
-                      {
-                        "type": "Row", "gap": 8, "children": [
-                          {
-                            "type": "Button", "label": "Send Message", "variant": "default",
-                            "onClick": { "action": "showToast", "title": "Sent!", "description": "Your message has been submitted." }
-                          },
-                          {
-                            "type": "Button", "label": "Clear", "variant": "outline",
-                            "onClick": [
-                              { "action": "setState", "key": "name", "value": "" },
-                              { "action": "setState", "key": "email", "value": "" },
-                              { "action": "setState", "key": "message", "value": "" }
-                            ]
-                          }
-                        ]
-                      }
-                    ]
-                  }
-                ]
-              }
-            ]
-          },
-          "state": { "name": "", "email": "", "subject": "", "message": "" }
-        }
+        assistant: 'Here\'s an interactive contact form with validation-ready fields and action buttons:'
       },
-
       {
         id: 'settings-tabs',
         label: 'Settings Panel',
         user: 'Create a settings panel with tabs for General, Security, and Notifications.',
-        assistant: 'Here\'s a tabbed settings panel with alerts and interactive controls in each section:',
-        prefab: {
-          "$prefab": { "version": "0.2" },
-          "view": {
-            "type": "Column", "gap": 16,
-            "children": [
-              { "type": "Heading", "content": "Settings", "level": 2 },
-              {
-                "type": "Tabs", "name": "settings_tabs", "children": [
-                  {
-                    "type": "Tab", "title": "General", "children": [
-                      {
-                        "type": "Column", "gap": 12, "children": [
-                          {
-                            "type": "Alert", "variant": "default", "children": [
-                              { "type": "AlertTitle", "content": "Heads up" },
-                              { "type": "AlertDescription", "content": "These settings affect your entire workspace." }
-                            ]
-                          },
-                          { "type": "Input", "name": "workspace_name", "inputType": "text", "placeholder": "Workspace name" },
-                          { "type": "Checkbox", "name": "notifications", "label": "Enable notifications" }
-                        ]
-                      }
-                    ]
-                  },
-                  {
-                    "type": "Tab", "title": "Security", "children": [
-                      {
-                        "type": "Column", "gap": 12, "children": [
-                          {
-                            "type": "Alert", "variant": "destructive", "children": [
-                              { "type": "AlertTitle", "content": "Warning" },
-                              { "type": "AlertDescription", "content": "Changing security settings may log out all users." }
-                            ]
-                          },
-                          { "type": "Checkbox", "name": "2fa", "label": "Require two-factor authentication" },
-                          {
-                            "type": "Select", "name": "session_timeout", "children": [
-                              { "type": "SelectOption", "label": "Session timeout", "value": "" },
-                              { "type": "SelectOption", "label": "15 minutes", "value": "15" },
-                              { "type": "SelectOption", "label": "1 hour", "value": "60" },
-                              { "type": "SelectOption", "label": "8 hours", "value": "480" },
-                              { "type": "SelectOption", "label": "Never", "value": "0" }
-                            ]
-                          }
-                        ]
-                      }
-                    ]
-                  },
-                  {
-                    "type": "Tab", "title": "Notifications", "children": [
-                      {
-                        "type": "Column", "gap": 12, "children": [
-                          { "type": "Checkbox", "name": "email_notif", "label": "Email notifications" },
-                          { "type": "Checkbox", "name": "push_notif", "label": "Push notifications" },
-                          { "type": "Checkbox", "name": "sms_notif", "label": "SMS notifications" }
-                        ]
-                      }
-                    ]
-                  }
-                ]
-              }
-            ]
-          },
-          "state": { "workspace_name": "", "notifications": true, "2fa": false, "session_timeout": "60", "email_notif": true, "push_notif": true, "sms_notif": false }
-        }
+        assistant: 'Here\'s a tabbed settings panel with alerts and interactive controls in each section:'
       },
-
       {
         id: 'user-directory',
         label: 'User Directory',
         user: 'Show me a searchable user directory table with name, role, department, and status.',
-        assistant: 'Here\'s a searchable user directory with sortable columns:',
-        prefab: {
-          "$prefab": { "version": "0.2" },
-          "view": {
-            "type": "Column", "gap": 16,
-            "children": [
-              { "type": "Heading", "content": "User Directory", "level": 2 },
-              {
-                "type": "DataTable",
-                "columns": [
-                  { "key": "name", "header": "Name", "sortable": true },
-                  { "key": "role", "header": "Role", "sortable": true },
-                  { "key": "department", "header": "Department" },
-                  { "key": "status", "header": "Status" }
-                ],
-                "rows": [
-                  { "name": "Alice Chen", "role": "Admin", "department": "Engineering", "status": "Active" },
-                  { "name": "Bob Martinez", "role": "Editor", "department": "Marketing", "status": "Active" },
-                  { "name": "Carol Davis", "role": "Viewer", "department": "Sales", "status": "Inactive" },
-                  { "name": "Dan Wilson", "role": "Admin", "department": "Engineering", "status": "Active" },
-                  { "name": "Eva Brown", "role": "Editor", "department": "Design", "status": "Active" },
-                  { "name": "Frank Lee", "role": "Viewer", "department": "Support", "status": "Active" },
-                  { "name": "Grace Kim", "role": "Admin", "department": "Operations", "status": "Active" }
-                ],
-                "search": true, "paginated": false
-              }
-            ]
-          }
-        }
+        assistant: 'Here\'s a searchable user directory with sortable columns:'
       },
-
       {
         id: 'todo-app',
         label: 'Interactive Todo',
         user: 'Build a todo list app where I can add tasks and see them in a table.',
-        assistant: 'Here\'s a fully interactive todo list — type a task and click Add to see it appear:',
-        prefab: {
-          "$prefab": { "version": "0.2" },
-          "view": {
-            "type": "Card",
-            "children": [
-              {
-                "type": "CardHeader", "children": [
-                  { "type": "CardTitle", "content": "Todo List" },
-                  { "type": "CardDescription", "content": "Tasks: {{ tasks | length }}" }
-                ]
-              },
-              {
-                "type": "CardContent", "children": [
-                  {
-                    "type": "Column", "gap": 12, "children": [
-                      {
-                        "type": "Row", "gap": 8, "children": [
-                          { "type": "Input", "name": "newTask", "placeholder": "What needs to be done?" },
-                          {
-                            "type": "Button", "label": "Add", "onClick": [
-                              { "action": "appendState", "key": "tasks", "value": "{{ newTask }}" },
-                              { "action": "setState", "key": "newTask", "value": "" }
-                            ]
-                          }
-                        ]
-                      },
-                      { "type": "Separator" },
-                      {
-                        "type": "DataTable",
-                        "columns": [{ "key": "value", "header": "Task" }],
-                        "rows": "{{ tasks }}",
-                        "search": false, "paginated": false
-                      }
-                    ]
-                  }
-                ]
-              }
-            ]
-          },
-          "state": {
-            "newTask": "",
-            "tasks": ["Review pull requests", "Update documentation", "Deploy v2.0"]
-          }
-        }
+        assistant: 'Here\'s a fully interactive todo list — type a task and click Add to see it appear:'
       }
     ];
+
+    // Resolve canonical example URLs relative to the site base (works under /prefab/).
+    // The demo is served at <base>/demo/, so '../examples/<id>.json' points at <base>/examples/.
+    const exampleUrl = (id) => new URL(`../examples/${id}.json`, window.location.href).href;
+
+    // Cache fetched UI payloads so re-selecting an example does not refetch.
+    const uiCache = new Map();
+    async function loadExampleUI(id) {
+      if (uiCache.has(id)) return uiCache.get(id);
+      const res = await fetch(exampleUrl(id));
+      if (!res.ok) throw new Error(`Failed to load example "${id}" (HTTP ${res.status})`);
+      const ui = JSON.parse(await res.text());
+      uiCache.set(id, ui);
+      return ui;
+    }
 
     // ═══════════════════════════════════════════════════════════════════════════════
     // RENDER LOGIC
@@ -1003,7 +678,7 @@
     // Render the selected example
     let currentRenderers = [];
 
-    function renderExample(index) {
+    async function renderExample(index) {
       const ex = EXAMPLES[index];
 
       // Destroy previous prefab renderers
@@ -1016,8 +691,18 @@
       // User message
       chatInner.appendChild(createMessage('user', ex.user));
 
+      // Load the canonical UI payload, then render exactly as before.
+      let prefab;
+      try {
+        prefab = await loadExampleUI(ex.id);
+      } catch (err) {
+        chatInner.appendChild(createMessage('assistant', 'Failed to load example: ' + String(err)));
+        chatScroll.scrollTop = 0;
+        return;
+      }
+
       // Assistant message with rendered prefab
-      chatInner.appendChild(createAssistantMessage(ex.assistant, ex.prefab));
+      chatInner.appendChild(createAssistantMessage(ex.assistant, prefab));
 
       // Scroll to top
       chatScroll.scrollTop = 0;

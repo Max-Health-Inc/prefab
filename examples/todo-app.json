@@ -1,0 +1,84 @@
+{
+  "$prefab": {
+    "version": "0.2"
+  },
+  "view": {
+    "type": "Card",
+    "children": [
+      {
+        "type": "CardHeader",
+        "children": [
+          {
+            "type": "CardTitle",
+            "content": "Todo List"
+          },
+          {
+            "type": "CardDescription",
+            "content": "Tasks: {{ tasks | length }}"
+          }
+        ]
+      },
+      {
+        "type": "CardContent",
+        "children": [
+          {
+            "type": "Column",
+            "gap": 12,
+            "children": [
+              {
+                "type": "Row",
+                "gap": 8,
+                "children": [
+                  {
+                    "type": "Input",
+                    "name": "newTask",
+                    "placeholder": "What needs to be done?"
+                  },
+                  {
+                    "type": "Button",
+                    "label": "Add",
+                    "onClick": [
+                      {
+                        "action": "appendState",
+                        "key": "tasks",
+                        "value": "{{ newTask }}"
+                      },
+                      {
+                        "action": "setState",
+                        "key": "newTask",
+                        "value": ""
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "Separator"
+              },
+              {
+                "type": "DataTable",
+                "columns": [
+                  {
+                    "key": "value",
+                    "header": "Task"
+                  }
+                ],
+                "rows": "{{ tasks }}",
+                "search": false,
+                "paginated": false
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "state": {
+    "newTask": "",
+    "tasks": [
+      "Review pull requests",
+      "Update documentation",
+      "Deploy v2.0"
+    ]
+  }
+}

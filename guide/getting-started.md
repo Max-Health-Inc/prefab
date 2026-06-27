@@ -216,7 +216,7 @@ import '@maxhealth.tech/prefab/prefab.css'              // Base theme CSS
 
 * [Live Demo](/demo/) — see LLM prompts rendered as live UIs
 * [Components](./components) — the component model, with the [full catalog](/reference/components) of all 115+ components
-* [Actions](./actions) — client-side and MCP actions ([reference](/reference/actions))
-* [Reactive Expressions](./rx) — dynamic values and [Signals & Collections](./rx#signals--collections) ([reference](/reference/rx))
-* [Auto-Renderers](./auto-renderers) — generate UIs from raw data ([reference](/reference/auto-renderers))
+* [Actions](./actions) — client-side and MCP actions ([API](/reference/api/actions/))
+* [Reactive Expressions](./rx) — dynamic values and [Signals & Collections](./rx#signals--collections) ([API](/reference/api/rx/))
+* [Auto-Renderers](./auto-renderers) — generate UIs from raw data ([API](/reference/api/auto/))
 * [Wire Format](/reference/wire-format) — the `$prefab` JSON spec
