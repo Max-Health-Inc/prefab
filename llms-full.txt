@@ -215,11 +215,10 @@ import '@maxhealth.tech/prefab/prefab.css'              // Base theme CSS
 ## Next Steps
 
 * [Live Demo](/demo/) — see LLM prompts rendered as live UIs
-* [Components](./components) — full reference for all 115+ components
-* [Signals & Collections](./rx#signals--collections) — reactive data layer
-* [Actions](./actions) — client-side and MCP actions
-* [Reactive Expressions](./rx) — dynamic values with `rx()`
-* [Auto-Renderers](./auto-renderers) — generate UIs from raw data
+* [Components](./components) — the component model, with the [full catalog](/reference/components) of all 115+ components
+* [Actions](./actions) — client-side and MCP actions ([reference](/reference/actions))
+* [Reactive Expressions](./rx) — dynamic values and [Signals & Collections](./rx#signals--collections) ([reference](/reference/rx))
+* [Auto-Renderers](./auto-renderers) — generate UIs from raw data ([reference](/reference/auto-renderers))
 * [Wire Format](/reference/wire-format) — the `$prefab` JSON spec
 
 ---
@@ -231,694 +230,48 @@ description: >-
   data tables, charts, media, and interactive elements.
 ---
 
-# Components Reference
+# Components
 
-All components are functions that return a `Component` instance. They serialize to JSON via `.toJSON()` and compose as children of container components.
+A prefab UI is just data. You describe what you want as a tree of typed nodes, and the renderer turns that tree into a live interface. There is no JSX, no virtual DOM to reason about, and no framework to learn — only a vocabulary of component functions that you nest inside one another.
 
-***
+## The mental model
 
-## Layout
+Each component is a function that returns a `Component` instance. Calling it builds one node in the tree; passing other components as its children grows the tree downward. When you are ready to ship, the whole structure serializes to plain `$prefab` wire JSON, which any prefab-aware client can render.
 
-Structural containers that control spacing, direction, and grid placement.
-
-### `Column(props?, children?)`
-
-Vertical flex container. The most common layout primitive.
+Most components share a friendly shape: an optional **props** object first, then an array of **children**.
 
 ```ts
-Column({ gap: 6 }, [H1('Title'), Text('Body')])
-Column([Text('No gap')])                          // shorthand
-```
-
-| Prop | Type | Description |
-|------|------|-------------|
-| `gap` | `number` | Spacing between children (in spacing units) |
-| `align` | `string` | Cross-axis alignment (`start`, `center`, `end`, `stretch`) |
-| `justify` | `string` | Main-axis alignment |
-| `cssClass` | `RxStr` | Extra CSS class — supports reactive expressions (e.g. `rx('active').then('bg-green', 'bg-red')`) |
-| `onClick` | `Action \| Action[]` | Action(s) dispatched on click. Non-button elements get `role="button"` and keyboard support automatically |
-
-### `Row(props?, children?)`
-
-Horizontal flex container.
-
-```ts
-Row({ gap: 4 }, [Button('Cancel'), Button('Save')])
-```
-
-Same props as `Column`.
-
-### `Grid(props?, children?)`
-
-CSS Grid container.
-
-```ts
-Grid({ columns: 3, gap: 4 }, [
-  GridItem({ span: 2 }, [Card(...)]),
-  GridItem([Card(...)]),
+Column({ gap: 6 }, [
+  H1('Patients'),
+  Text('Everyone under your care, at a glance.'),
 ])
 ```
 
-| Prop | Type | Description |
-|------|------|-------------|
-| `columns` | `number` | Number of columns |
-| `gap` | `number` | Grid gap |
+Containers like `Column` and `Row` hold other nodes; leaf nodes like `Text` and `Badge` carry content. Where children are the only thing you need, most containers let you skip the props object entirely and pass the array on its own.
 
-### `GridItem(props?, children?)`
+## How components compose
 
-Child of `Grid`.
+Composition is the whole game. You build small, meaningful pieces and slot them into larger layouts, the same way you would nest boxes inside boxes. A card lives inside a column, a table lives inside a card, a badge lives inside a table cell. Because every node is data, you can also build trees programmatically — map over rows, conditionally include a section, or factor a repeated fragment into a helper function.
 
-| Prop | Type | Description |
-|------|------|-------------|
-| `span` | `number` | Column span |
+Props that drive behavior (an `onClick` action, a reactive `cssClass`, a `from` collection) make these static trees come alive without changing the composition model.
 
-### `Container(props?, children?)`
+## The categories
 
-Generic wrapper with max-width and padding.
+prefab groups its 115+ components into a handful of families. Reach for the family that matches your intent:
 
-### `Div(props?, children?)` / `Span(props?, children?)`
+* **Layout** — structural containers that control direction, spacing, and grids (`Column`, `Row`, `Grid`, `MasterDetail`).
+* **Typography** — headings, paragraphs, labels, and inline text styles.
+* **Card & Alert** — grouped content surfaces and status callouts.
+* **Forms** — inputs, selects, checkboxes, date pickers, and field wrappers.
+* **Data display** — tables, badges, metrics, and progress indicators.
+* **Charts** — bar, line, area, pie, radar, scatter, and more, rendered natively as SVG.
+* **Media** — images, audio, video, embeds, and file drop zones.
+* **Interactive** — tabs, accordions, dialogs, popovers, and carousels.
+* **Control flow** — `If`/`Else`, `ForEach`, and reusable `Define`/`Use` templates that shape the tree at render time.
 
-Generic block/inline wrappers.
+Pick a container, fill it with the leaves and nested containers you need, and let the renderer handle the rest.
 
-### `Dashboard(props?, children?)` / `DashboardItem(props?, children?)`
-
-Dashboard grid layout with named items.
-
-### `Pages(props?, children?)` / `Page(props?, children?)`
-
-Paginated view container.
-
-### `Detail(props, children?)`
-
-Conditional detail pane that shows content when a `Ref` resolves, or an empty placeholder otherwise.
-
-```ts
-import { collection, signal, Detail, Heading, Text } from '@maxhealth.tech/prefab'
-
-const patients = collection('patients', data, { key: 'id' })
-const selectedId = signal('selectedPatientId', patients.firstKey())
-const selected = patients.by(selectedId)
-
-Detail({ of: selected, empty: Text('Select a patient') }, [
-  Heading(selected.dot('name')),
-  Text(selected.dot('dob')),
-])
-```
-
-| Prop | Type | Description |
-|------|------|-------------|
-| `of` | `Ref \| RxStr` | Reactive reference expression |
-| `empty` | `Component` | Shown when ref resolves to null/undefined |
-
-### `MasterDetail(props?, children?)`
-
-Two-pane layout: master (list) on the left, detail on the right. Expects exactly two children.
-
-```ts
-MasterDetail({ masterWidth: '350px', gap: 4 }, [
-  table,   // master panel
-  detail,  // detail panel
-])
-```
-
-| Prop | Type | Description |
-|------|------|-------------|
-| `masterWidth` | `string` | Width of master pane (default: `'33%'`) |
-| `gap` | `number` | Gap between panes |
-
-***
-
-## Typography
-
-Text rendering components.
-
-### `Heading(content, props?)`
-
-```ts
-Heading('Welcome', { level: 2 })
-```
-
-| Prop | Type | Description |
-|------|------|-------------|
-| `content` | `string \| Rx` | Text content (supports reactive expressions) |
-| `level` | `1-4` | Heading level |
-
-### `H1(content)` / `H2(content)` / `H3(content)` / `H4(content)`
-
-Shorthand heading constructors.
-
-```ts
-H1('Dashboard')  // same as Heading('Dashboard', { level: 1 })
-```
-
-### `Text(content, props?)`
-
-```ts
-Text('Hello world')
-Text(rx`Welcome, ${STATE}.userName!`)
-```
-
-### `P(content)` / `Lead(content)` / `Large(content)` / `Small(content)` / `Muted(content)`
-
-Semantic text variants.
-
-### `BlockQuote(content)`
-
-Block quotation.
-
-### `Label(content, props?)`
-
-Form label text.
-
-### `Link(content, props?)`
-
-```ts
-Link('Visit site', { href: 'https://example.com', target: '_blank' })
-```
-
-| Prop | Type | Description |
-|------|------|-------------|
-| `href` | `string` | URL |
-| `target` | `string` | Link target (`_blank`, `_self`, etc.) |
-
-### `Code(content)` / `Kbd(content)`
-
-Inline code / keyboard shortcut styling.
-
-### `Markdown(content)`
-
-Rendered Markdown content.
-
-```ts
-Markdown('## Hello\n\nThis is **bold** text.')
-```
-
-***
-
-## Card
-
-Card containers for grouped content.
-
-### `Card(props?, children?)`
-
-```ts
-Card([
-  CardHeader([CardTitle('User'), CardDescription('Profile info')]),
-  CardContent([Text('Name: Alice')]),
-  CardFooter([Button('Edit')]),
-])
-```
-
-### `CardHeader` / `CardTitle` / `CardDescription` / `CardContent` / `CardFooter`
-
-Card sub-components. All accept children.
-
-***
-
-## Data Display
-
-### `DataTable(props)`
-
-Rich data table with search, column definitions, and optional row selection.
-
-```ts
-DataTable({
-  rows: users,
-  columns: [
-    col('name', 'Name'),
-    col('email', 'Email'),
-    col('status', 'Status'),
-  ],
-  search: true,
-})
-```
-
-| Prop | Type | Description |
-|------|------|-------------|
-| `rows` | `unknown[] \| RxStr` | Array of row objects (or reactive expression) |
-| `columns` | `DataTableColumnDef[]` | Column definitions (use `col()` helper) |
-| `search` | `boolean` | Enable search |
-| `from` | `Collection` | Derive rows from a Collection (mutually exclusive with `rows`) |
-| `selected` | `Signal` | Signal tracking the selected row's key (requires `from`) |
-
-#### Row Selection with Signal/Collection
-
-When `from` and `selected` are provided, DataTable auto-generates row click handling:
-
-```ts
-const patients = collection('patients', data, { key: 'id' })
-const selectedId = signal('selectedPatientId', patients.firstKey())
-
-DataTable({
-  columns: [col('name'), col('dob')],
-  from: patients,
-  selected: selectedId,
-})
-// Wire: rows="{{ patients }}", rowKey="id", selected="{{ selectedPatientId }}",
-//       onRowClick=[{ action: "setState", key: "selectedPatientId", value: "{{ $item.id }}" }]
-```
-
-### `col(key, header?, opts?)`
-
-Column definition helper. Short form or descriptor form:
-
-```ts
-// Short form
-col('name', 'Full Name')
-col('email', 'Email', { sortable: true })
-
-// Descriptor form (object)
-col({ key: 'amount', header: 'Amount', format: 'currency' })
-col({ key: 'name', accessor: 'name | humanName', header: 'Patient' })
-```
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `key` | `string` | Row object field name |
-| `header` | `string` | Column header label (defaults to `key`) |
-| `sortable` | `boolean` | Enable column sorting |
-| `format` | `string` | Pipe name applied to cell values (e.g. `'currency'`, `'date'`) |
-| `accessor` | `string` | Pipe expression for complex access (overrides `key` for display) |
-
-### `Badge(content, props?)`
-
-```ts
-Badge('Active', { variant: 'success' })
-```
-
-| Variant | Color |
-|---------|-------|
-| `default` | Neutral |
-| `secondary` | Muted |
-| `outline` | Border only |
-| `success` | Green |
-| `warning` | Yellow |
-| `destructive` | Red |
-| `info` | Blue |
-
-### `Metric(props)`
-
-```ts
-Metric({ label: 'Revenue', value: '$125K', change: 12.5 })
-```
-
-| Prop | Type | Description |
-|------|------|-------------|
-| `label` | `string` | Metric name |
-| `value` | `string \| number` | Display value |
-| `change` | `number` | Percentage change (positive = green, negative = red) |
-| `prefix` | `string` | Value prefix (e.g. `$`) |
-| `suffix` | `string` | Value suffix (e.g. `%`) |
-
-### Other Data Components
-
-| Component | Description |
-|-----------|-------------|
-| `Dot(props)` | Colored status dot |
-| `Ring(props)` | Circular progress ring |
-| `Progress(props)` | Linear progress bar |
-| `Separator()` | Horizontal divider |
-| `Loader()` | Loading spinner |
-| `Icon(name, props?)` | Named icon |
-
-***
-
-## Table
-
-Low-level HTML table primitives (for custom table layouts beyond `DataTable`).
-
-```ts
-Table({ striped: true }, [
-  TableHead([
-    TableRow([TableHeader('Name'), TableHeader('Age')]),
-  ]),
-  TableBody([
-    TableRow([TableCell({ children: [Text('Alice')] }), TableCell({ children: [Text('30')] })]),
-  ]),
-  TableCaption('User list'),
-])
-```
-
-### Components
-
-`Table`, `TableHead`, `TableBody`, `TableFooter`, `TableRow`, `TableHeader`, `TableCell`, `TableCaption`, `ExpandableRow`
-
-`TableCell` supports `colSpan` and `rowSpan` props.
-
-***
-
-## Form
-
-### `Form(props?, children?)`
-
-```ts
-Form({ onSubmit: CallTool('create_user') }, [
-  Input({ name: 'email', type: 'email', required: true }),
-  Button('Create', { type: 'submit' }),
-])
-```
-
-| Prop | Type | Description |
-|------|------|-------------|
-| `onSubmit` | `Action` | Action to run when the form is submitted |
-
-### `Input(props)`
-
-```ts
-Input({ name: 'email', type: 'email', label: 'Email', placeholder: 'you@example.com', required: true })
-```
-
-| Prop | Type | Description |
-|------|------|-------------|
-| `name` | `string` | State key (also used as form field name) |
-| `type` | `string` | `text`, `email`, `number`, `password`, `url`, `tel`, `date`, `search`, `hidden` |
-| `label` | `string` | Label text |
-| `placeholder` | `string` | Placeholder text |
-| `required` | `boolean` | Validation |
-| `defaultValue` | `string` | Initial value |
-| `onChange` | `Action` | Action on value change |
-
-### `Textarea(props)`
-
-Multi-line text input. Same props as `Input` plus `rows`.
-
-### `Button(content, props?)`
-
-```ts
-Button('Save', { variant: 'default', onClick: ShowToast('Saved!') })
-```
-
-| Prop | Type | Description |
-|------|------|-------------|
-| `variant` | `ButtonVariant` | `default`, `secondary`, `outline`, `ghost`, `destructive`, `link` |
-| `size` | `ButtonSize` | `default`, `sm`, `lg`, `icon` |
-| `onClick` | `Action` | Click action |
-| `type` | `string` | `button` (default), `submit` |
-| `disabled` | `boolean` | Disabled state |
-
-### `ButtonGroup(children)`
-
-Horizontal button row.
-
-### `Select(props?, children?)`
-
-```ts
-Select({ name: 'role', label: 'Role' }, [
-  SelectOption({ value: 'admin', label: 'Admin' }),
-  SelectOption({ value: 'user', label: 'User' }),
-])
-```
-
-Sub-components: `SelectOption`, `SelectGroup`, `SelectLabel`, `SelectSeparator`
-
-### `Checkbox(props)` / `Switch(props)` / `Slider(props)`
-
-Boolean and range inputs.
-
-```ts
-Checkbox({ name: 'agree', label: 'I agree to the terms' })
-Switch({ name: 'notifications', label: 'Enable notifications' })
-Slider({ name: 'volume', min: 0, max: 100, step: 1 })
-```
-
-### `Radio(props)` / `RadioGroup(props?, children?)`
-
-```ts
-RadioGroup({ name: 'color', label: 'Favorite Color' }, [
-  Radio({ value: 'red', label: 'Red' }),
-  Radio({ value: 'blue', label: 'Blue' }),
-  Radio({ value: 'green', label: 'Green' }),
-])
-```
-
-### `Combobox(props?, children?)` / `ComboboxOption(props)`
-
-Autocomplete select with search.
-
-```ts
-Combobox({ name: 'country', placeholder: 'Search countries...', searchable: true }, [
-  ComboboxOption({ value: 'us', label: 'United States' }),
-  ComboboxOption({ value: 'de', label: 'Germany' }),
-])
-```
-
-Sub-components: `ComboboxGroup`, `ComboboxLabel`, `ComboboxSeparator`
-
-### `Calendar(props)` / `DatePicker(props)`
-
-Date selection.
-
-```ts
-Calendar({ name: 'date', minDate: '2024-01-01', maxDate: '2024-12-31' })
-DatePicker({ name: 'dob', label: 'Date of Birth', placeholder: 'Pick a date' })
-```
-
-### `Field(props?, children?)`
-
-Structured form field wrapper.
-
-```ts
-Field([
-  FieldTitle('Email'),
-  FieldDescription('Your work email address'),
-  FieldContent([Input({ name: 'email', type: 'email' })]),
-  FieldError('Invalid email format'),
-])
-```
-
-Sub-components: `FieldTitle`, `FieldDescription`, `FieldContent`, `FieldError`
-
-### `ChoiceCard(props)`
-
-Selectable card for option picking.
-
-```ts
-ChoiceCard({ value: 'pro', label: 'Pro Plan', description: '$29/mo', selected: true })
-```
-
-***
-
-## Interactive
-
-### `Tabs(props?, children?)`
-
-Tabbed interface with keyboard navigation (Arrow keys, Home/End).
-
-```ts
-Tabs({ defaultTab: 'overview' }, [
-  Tab({ id: 'overview', label: 'Overview' }, [Text('Overview content')]),
-  Tab({ id: 'details', label: 'Details' }, [Text('Details content')]),
-])
-```
-
-### `Accordion(props?, children?)`
-
-Collapsible sections.
-
-```ts
-Accordion([
-  AccordionItem({ title: 'FAQ 1' }, [Text('Answer 1')]),
-  AccordionItem({ title: 'FAQ 2' }, [Text('Answer 2')]),
-])
-```
-
-### `Dialog(props?, children?)`
-
-Modal dialog (ARIA `role="dialog"`).
-
-```ts
-Dialog({ title: 'Confirm', trigger: 'delete-btn' }, [
-  Text('Are you sure?'),
-  Button('Delete', { variant: 'destructive', onClick: CallTool('delete_item') }),
-])
-```
-
-### `Popover(props?, children?)` / `Tooltip(props?, children?)` / `HoverCard(props?, children?)`
-
-Overlay components.
-
-### `Carousel(props?, children?)`
-
-Image/content carousel with prev/next buttons.
-
-***
-
-## Charts
-
-All charts accept a `data` prop (array of objects) and a `series` array.
-
-### `BarChart(props)` / `LineChart(props)` / `AreaChart(props)` / `PieChart(props)`
-
-```ts
-BarChart({
-  data: [{ month: 'Jan', revenue: 100 }, { month: 'Feb', revenue: 150 }],
-  series: [{ key: 'revenue', label: 'Revenue', color: '#3b82f6' }],
-  xAxis: 'month',
-  height: 300,
-})
-```
-
-| Prop | Type | Description |
-|------|------|-------------|
-| `data` | `object[]` | Data array |
-| `series` | `ChartSeries[]` | Series definitions (see below) |
-| `xAxis` | `string` | Data key for X axis labels |
-| `xAxisFormat` | `string` | Pipe applied to X axis tick labels (e.g. `'date'`, `'truncate:10'`) |
-| `tooltipXKey` | `string` | Data key for tooltip category label (defaults to `xAxis`) |
-| `tooltipXFormat` | `string` | Pipe applied to tooltip category label (e.g. `'datetime'`, `'upper'`) |
-| `height` | `number` | Chart height in px |
-| `showTooltip` | `boolean` | Show tooltip on hover (default `true`) |
-| `showGrid` | `boolean` | Show horizontal grid lines |
-| `showYAxis` | `boolean` | Show Y axis labels (default `true`) |
-| `yAxisFormat` | `string` | Y axis label format: `'currency'`, `'percent'`, or auto-compact |
-| `showYAxisRight` | `boolean` | Show secondary Y axis on the right |
-| `yAxisRightFormat` | `string` | Format for the right Y axis |
-| `showLegend` | `boolean` | Show legend below chart |
-
-#### `ChartSeries`
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `dataKey` | `string` | **Required.** Key in data objects for this series |
-| `label` | `string` | Display label (defaults to `dataKey`) |
-| `color` | `string` | Series color (auto-assigned if omitted) |
-| `yAxisId` | `'left' \| 'right'` | Which Y axis this series binds to |
-| `tooltipFormat` | `string` | Pipe for this series' value in the tooltip (overrides `yAxisFormat`) |
-
-#### Formatting Example
-
-Same timestamp field, different presentation on axis vs tooltip:
-
-```ts
-LineChart({
-  data: timeseries,
-  xAxis: 'timestamp',
-  xAxisFormat: 'date',          // axis: "4/25/2026"
-  tooltipXFormat: 'datetime',   // tooltip: "4/25/2026, 2:30:00 PM"
-  series: [
-    { dataKey: 'revenue', label: 'Revenue', tooltipFormat: 'currency' },
-    { dataKey: 'growth', label: 'Growth', tooltipFormat: 'percent' },
-  ],
-})
-```
-
-All built-in pipes work: `upper`, `lower`, `truncate`, `currency`, `percent`, `compact`, `date`, `time`, `datetime`, `number`, `round`, plus custom wire pipes.
-
-### `RadarChart(props)` / `ScatterChart(props)`
-
-`RadarChart` plots one polygon per series over angular axes (`axisKey` for spoke labels, plus `filled`/`showDots`). `ScatterChart` plots points from `xAxis`/`yAxis`, with an optional `zAxis` to size each point (bubble chart). All chart types render natively as SVG.
-
-### `Sparkline(props)`
-
-Inline mini chart.
-
-```ts
-Sparkline({ data: [10, 20, 15, 30, 25], color: '#22c55e', height: 32 })
-```
-
-### `RadialChart(props)` / `Histogram(props)`
-
-Radial bar chart (concentric value arcs; `dataKey`/`nameKey` + `innerRadius`/`startAngle`/`endAngle`) and histogram distribution chart.
-
-***
-
-## Media
-
-### `Image(props)`
-
-```ts
-Image({ src: '/photo.jpg', alt: 'Profile photo', width: 200, height: 200 })
-```
-
-### `Audio(props)` / `Video(props)` / `Embed(props)`
-
-Media embeds.
-
-### `Svg(props)`
-
-Inline SVG content.
-
-### `DropZone(props)`
-
-File upload drop area.
-
-```ts
-DropZone({ accept: 'image/*', multiple: true, onDrop: CallTool('upload_file') })
-```
-
-### `Mermaid(content)`
-
-Mermaid diagram (rendered by the browser if `mermaid` library is available).
-
-```ts
-Mermaid('graph TD; A-->B; B-->C;')
-```
-
-***
-
-## Alert
-
-### `Alert(props?, children?)`
-
-```ts
-Alert({ variant: 'warning' }, [
-  AlertTitle('Warning'),
-  AlertDescription('This action cannot be undone.'),
-])
-```
-
-| Variant | Color |
-|---------|-------|
-| `default` | Neutral |
-| `info` | Blue |
-| `success` | Green |
-| `warning` | Yellow |
-| `destructive` | Red |
-
-***
-
-## Control Flow
-
-### `ForEach(props?, children?)`
-
-Iterate over a reactive array.
-
-```ts
-ForEach({ each: rx('state.items'), as: 'item' }, [
-  Text(rx`${ITEM}.name`),
-])
-```
-
-| Prop | Type | Description |
-|------|------|-------------|
-| `each` | `Rx \| string` | Expression for the array to iterate |
-| `as` | `string` | Variable name for each item (default: `item`) |
-
-### `If(props?, children?)` / `Elif(props?, children?)` / `Else(children?)`
-
-Conditional rendering.
-
-```ts
-If({ condition: rx('state.loading') }, [Loader()])
-Elif({ condition: rx('state.error') }, [Alert({ variant: 'destructive' }, [Text(rx`${STATE}.error`)])])
-Else([Text('Content loaded!')])
-```
-
-### `Define(props?, children?)` / `Use(props)` / `Slot(props?)`
-
-Component templates for reuse.
-
-```ts
-Define({ name: 'userCard' }, [
-  Card([CardContent([
-    Text(Slot('name')),
-    Badge(Slot('role')),
-  ])]),
-])
-
-// Later:
-Use({ def: 'userCard', props: { name: 'Alice', role: 'Admin' } })
-```
+→ See the [Components reference](/reference/components) for the full catalog: every component, its props, and examples.
 
 ---
 
@@ -929,368 +282,42 @@ description: >-
   and other serializable event handlers for MCP Apps.
 ---
 
-# Actions Reference
+# Actions
 
-Actions are serializable commands attached to component events (`onClick`, `onChange`, `onSubmit`, `onMount`). They execute either client-side (no server roundtrip) or via MCP transport.
+Actions are how a prefab UI does something. They are small, serializable commands you attach to a component event — `onClick`, `onChange`, `onSubmit`, or the app-level `onMount`. Because they are plain data (not closures), they travel across the wire and run wherever the renderer lives, which is what makes interactivity possible in an MCP App.
 
-## Client Actions
+## Two execution models
 
-### `SetState(key, value, opts?)`
+Every action falls into one of two camps:
 
-Set a reactive state value.
+* **Client-side** actions resolve entirely in the renderer with no server roundtrip. Setting state, toggling a flag, showing a toast, opening a link, or picking a file all happen instantly in the browser.
+* **MCP transport** actions take a roundtrip through the host — calling a tool, sending a chat message, or updating shared context. These are how your UI reaches back into the server that produced it.
 
-```ts
-Button('Increment', { onClick: SetState('count', rx`${STATE}.count + 1`) })
-```
+Reaching for the right camp is usually obvious: if the work is purely visual or local, keep it client-side; if it needs the model or your backend, call a tool.
 
-| Param | Type | Description |
-|-------|------|-------------|
-| `key` | `string` | State key to set |
-| `value` | `unknown` | New value (can be Rx expression) |
-| `opts.onSuccess` | `Action \| Action[]` | Run after success |
-| `opts.onError` | `Action \| Action[]` | Run on error |
+## Chaining with onSuccess and onError
 
-**Wire JSON:** `{ "action": "setState", "key": "count", "value": "{{ state.count + 1 }}" }`
-
-### `ToggleState(key)`
-
-Toggle a boolean state value.
-
-```ts
-Switch({ name: 'dark', onChange: ToggleState('darkMode') })
-```
-
-**Wire JSON:** `{ "action": "toggleState", "key": "darkMode" }`
-
-### `AppendState(key, value, index?)`
-
-Append a value to a state array. Optional `index` for insertion position.
-
-```ts
-Button('Add Item', { onClick: AppendState('todos', { text: 'New todo', done: false }) })
-```
-
-### `PopState(key, index)`
-
-Remove an item from a state array by index.
-
-```ts
-Button('Remove', { onClick: PopState('todos', rx`${INDEX}`) })
-```
-
-### `ShowToast(message, opts?)`
-
-Display a toast notification.
-
-```ts
-Button('Save', { onClick: ShowToast('Saved successfully!', { variant: 'success' }) })
-```
-
-| Param | Type | Description |
-|-------|------|-------------|
-| `message` | `string` | Toast message |
-| `opts.description` | `string` | Secondary text |
-| `opts.variant` | `ToastVariant` | `default`, `success`, `error`, `warning`, `info` |
-| `opts.duration` | `number` | Auto-dismiss in ms |
-
-### `CloseOverlay()`
-
-Close the current dialog/popover.
-
-```ts
-Button('Close', { onClick: new CloseOverlay() })
-```
-
-### `OpenLink(url, target?)`
-
-Navigate to a URL.
-
-```ts
-Button('Docs', { onClick: new OpenLink('https://docs.example.com', '_blank') })
-```
-
-### `SetInterval(intervalMs, onTick)`
-
-Periodic timer that fires an action.
-
-```ts
-// Refresh data every 30 seconds
-SetInterval(30000, CallTool('get_data', { resultKey: 'data' }))
-```
-
-### `Fetch(url, opts?)`
-
-HTTP request from the client.
-
-```ts
-Button('Load', { onClick: new Fetch('/api/data', {
-  method: 'GET',
-  resultKey: 'apiData',
-  onSuccess: ShowToast('Loaded!'),
-  onError: ShowToast('Failed', { variant: 'error' }),
-}) })
-```
-
-| Param | Type | Description |
-|-------|------|-------------|
-| `url` | `string` | Request URL |
-| `opts.method` | `string` | HTTP method |
-| `opts.headers` | `Record<string, string>` | Request headers |
-| `opts.body` | `unknown` | Request body |
-| `opts.resultKey` | `string` | State key to store the response |
-| `opts.onSuccess` | `Action \| Action[]` | Success callback |
-| `opts.onError` | `Action \| Action[]` | Error callback |
-
-### `OpenFilePicker(opts?)`
-
-Open a native file picker.
-
-```ts
-Button('Upload', { onClick: new OpenFilePicker({
-  accept: 'image/*',
-  multiple: true,
-  resultKey: 'selectedFiles',
-}) })
-```
-
-### `CallHandler(handler, opts?)`
-
-Call a named client-side handler function.
-
-```ts
-Button('Custom', { onClick: new CallHandler('myHandler', {
-  arguments: { id: rx`${STATE}.selectedId` },
-}) })
-```
-
-***
-
-## MCP Actions
-
-These actions require a server roundtrip via the MCP transport (PostMessage bridge or HTTP).
-
-### `CallTool(tool, opts?)`
-
-Invoke an MCP tool from the UI.
-
-```ts
-// In a form submission
-Form({ onSubmit: CallTool('create_user', { resultKey: 'result' }) }, [
-  Input({ name: 'email', type: 'email' }),
-  Button('Create', { type: 'submit' }),
-])
-
-// In a button click
-Button('Refresh', { onClick: CallTool('get_data', {
-  arguments: { id: rx`${STATE}.selectedId` },
-  resultKey: 'data',
-  onSuccess: ShowToast('Data loaded'),
-  onError: ShowToast('Failed to load', { variant: 'error' }),
-}) })
-```
-
-| Param | Type | Description |
-|-------|------|-------------|
-| `tool` | `string` | MCP tool name |
-| `opts.arguments` | `Record<string, unknown>` | Tool arguments (supports Rx) |
-| `opts.resultKey` | `string` | State key to store the result |
-| `opts.onSuccess` | `Action \| Action[]` | Success callback |
-| `opts.onError` | `Action \| Action[]` | Error callback |
-
-**Wire JSON:** `{ "action": "toolCall", "tool": "create_user", "arguments": {...}, "resultKey": "result" }`
-
-### `SendMessage(message)`
-
-Send a chat message through the MCP transport.
-
-```ts
-Button('Send', { onClick: new SendMessage(rx`${STATE}.messageText`) })
-```
-
-### `UpdateContext(context)`
-
-Update shared context on the host.
-
-```ts
-Button('Set Theme', { onClick: new UpdateContext({ theme: 'dark' }) })
-```
-
-### `RequestDisplayMode(mode)`
-
-Request a display mode change from the host.
-
-```ts
-Button('Fullscreen', { onClick: new RequestDisplayMode('fullscreen') })
-```
-
-| Mode | Description |
-|------|-------------|
-| `inline` | Default embedded mode |
-| `fullscreen` | Full-screen overlay |
-| `pip` | Picture-in-picture |
-
-***
-
-## Real-Time Subscriptions
-
-Subscribe to a resource URI for live updates. The renderer uses native MCP push when the host supports it, and automatically falls back to periodic polling otherwise.
-
-### `Subscribe(uri, opts)`
-
-Start receiving updates from a resource.
-
-```ts
-import { Subscribe, Unsubscribe, ShowToast } from '@maxhealth.tech/prefab'
-
-// Basic — push with polling fallback
-new Subscribe('chess://game/abc123', {
-  stateKey: '$game',
-  fallbackInterval: 2000,
-  fallbackTool: '_action',
-  fallbackArgs: { action: 'refresh' },
-})
-
-// With callbacks
-new Subscribe('data://stream', {
-  stateKey: '$stream',
-  fallbackInterval: 5000,
-  fallbackTool: 'poll_stream',
-  onData: new ShowToast('Updated', { variant: 'info' }),
-  onError: new ShowToast('Connection lost', { variant: 'error' }),
-})
-```
-
-| Param | Type | Description |
-|-------|------|-------------|
-| `uri` | `string` | Resource URI to subscribe to |
-| `opts.stateKey` | `string` | Store key where incoming data is written |
-| `opts.fallbackInterval` | `number` | Poll interval (ms) when host lacks push support. Default `2000` |
-| `opts.fallbackTool` | `string` | Tool to call when polling in fallback mode |
-| `opts.fallbackArgs` | `Record<string, unknown>` | Arguments passed to the fallback tool |
-| `opts.onData` | `Action \| Action[]` | Runs whenever new data arrives (push or poll) |
-| `opts.onError` | `Action \| Action[]` | Runs on subscription or poll error |
-
-**How it works:**
-
-1. **Push path** — If `transport.subscribe` exists and `capabilities.subscriptions` is true, the renderer subscribes natively. Data arrives via push and is stored at `stateKey`.
-2. **Fallback path** — Otherwise, a `SetInterval` + `CallTool` loop polls at `fallbackInterval`. The tool response is handled identically to a `toolCall` action: full `$prefab` views trigger `remount()`, `display_update()` deltas merge into state, and plain data is stored at `stateKey`.
-
-### `Unsubscribe(uri)`
-
-Stop receiving updates. Cleans up both push subscriptions and polling intervals.
-
-```ts
-Button('Leave', { onClick: new Unsubscribe('chess://game/abc123') })
-```
-
-::: tip
-Subscriptions are automatically cleaned up when the renderer is destroyed. Use `Unsubscribe` explicitly only when you need to stop updates mid-session (e.g. leaving a game lobby).
-:::
-
-### Typical pattern: `onMount` + Subscribe
-
-```ts
-display(
-  Column({ children: [
-    H1('Live Dashboard'),
-    Text(rx('$data.status')),
-  ] }),
-  {
-    state: { $data: {} },
-    onMount: new Subscribe('app://dashboard/live', {
-      stateKey: '$data',
-      fallbackInterval: 5000,
-      fallbackTool: 'refresh_dashboard',
-    }),
-  },
-)
-```
-
-***
-
-## Action Builder Sugar
-
-Ergonomic wrappers that accept `Signal` or `Collection` instead of raw string keys. These produce the same wire-format actions but keep your code type-safe and DRY.
-
-```ts
-import { set, toggle, append, pop } from '@maxhealth.tech/prefab'
-import { signal, collection } from '@maxhealth.tech/prefab'
-```
-
-### `set(target, value, opts?)`
-
-```ts
-const count = signal('count', 0)
-
-set(count, 42)                        // → new SetState('count', 42)
-set(count, rx`${count} + 1`)          // → new SetState('count', '{{ count + 1 }}')
-set('rawKey', 'value')                // raw string key also works
-```
-
-### `toggle(target)`
-
-```ts
-const darkMode = signal('darkMode', false)
-toggle(darkMode)                      // → new ToggleState('darkMode')
-```
-
-### `append(target, item, index?)`
-
-```ts
-const items = collection('items', rows, { key: 'id' })
-append(items, { id: 'new', name: 'New' })       // → new AppendState('items', {...})
-append(items, newItem, 0)                         // insert at index 0
-```
-
-### `pop(target, indexOrValue?)`
-
-```ts
-pop(items, 0)                         // → new PopState('items', 0)
-pop(items)                            // → new PopState('items', -1) (last element)
-pop(items, 'some-value')              // remove by value
-```
-
-### `StateTarget` type
-
-All sugar functions accept: `Signal | Collection | string`
-
-### Composition
-
-Sugar functions return the same action classes, so `onSuccess` / `onError` chains work:
-
-````ts
-Button('Save', {
-  onClick: set(count, 0, { onSuccess: ShowToast('Reset!') }),
-})
-
----
-
-## Action Chaining
-
-Actions can be chained via `onSuccess` / `onError`:
+Most actions accept `onSuccess` and `onError` options, each taking a single action or an array of them. This lets you compose flows declaratively — save a record, then flip a flag and show a success toast, and surface an error toast if it fails — without writing any imperative glue.
 
 ```ts
 Button('Save & Notify', {
   onClick: CallTool('save_item', {
     arguments: { name: rx`${STATE}.name` },
-    onSuccess: [
-      SetState('saved', true),
-      ShowToast('Saved!', { variant: 'success' }),
-    ],
+    onSuccess: [SetState('saved', true), ShowToast('Saved!', { variant: 'success' })],
     onError: ShowToast('Save failed', { variant: 'error' }),
   }),
 })
-````
-
-## Lifecycle Actions
-
-Use `onMount` at the app level to run actions when the UI first renders:
-
-```ts
-display(myView, {
-  onMount: CallTool('get_initial_data', { resultKey: 'data' }),
-})
 ```
+
+## Lifecycle: running on mount
+
+Actions are not limited to user gestures. Pass `onMount` to `display()` to run an action the moment the UI first renders — perfect for loading initial data or opening a real-time subscription so the view arrives already populated.
+
+## When to use the builder sugar
+
+For the state-mutating actions (`set`, `toggle`, `append`, `pop`), prefab ships ergonomic wrappers that accept a `Signal` or `Collection` instead of a raw string key. Prefer them whenever you already model your state with signals: you keep type safety, avoid stringly-typed keys, and produce the exact same wire-format actions. Drop down to the raw action classes when you need a one-off or are working without a signal.
+
+→ See the [Actions reference](/reference/actions) for the full catalog: every action, its parameters, and wire JSON.
 
 ---
 
@@ -1303,294 +330,57 @@ description: >-
 
 # Reactive Expressions (`rx`)
 
-Reactive expressions are template strings evaluated client-side by the renderer. They reference state values, loop variables, and event data — and update automatically when state changes.
-
-## Template Syntax
-
-Expressions are wrapped in `{{ }}`:
+A reactive expression is just a string wrapped in `{{ }}` that the renderer keeps alive. Instead of baking a value into your UI once, you hand the renderer a tiny formula. Whenever the underlying state changes, the renderer re-runs the formula and patches only the affected parts of the screen.
 
 ```
-{{ state.count }}
-{{ state.count + 1 }}
-{{ state.name | upper }}
-{{ state.active ? 'Yes' : 'No' }}
+Hello, {{ user.name }}!     →     Hello, Ada!
 ```
 
-## The `rx()` Builder
+Change `user.name` in state and the greeting updates on its own. No re-render call, no event wiring — that is the whole idea.
 
-The `rx()` function provides a typed, chainable API for building expressions:
+## The mental model
+
+Think of four moving pieces that flow in one direction:
+
+1. **State store** — a plain key/value bag that lives in the browser (`count`, `user`, `patients`, …).
+2. **Expressions** — `{{ }}` formulas that read from that store and from loop or event scope.
+3. **Pipes** — `| filters` that format a value for display (`{{ price | currency:'EUR' }}`).
+4. **Auto-update** — when state changes, every expression that touched the changed key re-evaluates and the DOM follows.
+
+You rarely write the raw strings by hand. The `rx()` builder gives you a typed, chainable way to compose them, so a typo becomes a compile error instead of a blank screen:
 
 ```ts
-import { rx, STATE, ITEM, INDEX, EVENT, ERROR, RESULT } from '@maxhealth.tech/prefab'
+import { rx, STATE } from '@maxhealth.tech/prefab'
+
+rx('count').add(1)          // → "{{ count + 1 }}"
+rx('name').upper()          // → "{{ name | upper }}"
+rx('active').then('On', 'Off')
 ```
 
-### Basic Usage
-
-```ts
-rx('count')                        // → "{{ count }}"
-rx('user.name')                    // → "{{ user.name }}"
-// STATE.name → rx('name')         (proxy shorthand for state keys)
-```
-
-### Property Access
-
-```ts
-rx('user').dot('name')             // → "{{ user.name }}"
-rx('items').at(0)                  // → "{{ items.0 }}"
-rx('items').at(rx('state.index'))  // → "{{ items.{{ state.index }} }}"
-```
-
-### Arithmetic
-
-```ts
-rx('count').add(1)                 // → "{{ count + 1 }}"
-rx('price').mul(rx('quantity'))    // → "{{ price * quantity }}"
-rx('total').sub(rx('discount'))    // → "{{ total - discount }}"
-rx('value').div(100)               // → "{{ value / 100 }}"
-rx('index').mod(2)                 // → "{{ index % 2 }}"
-```
-
-### Comparison
-
-```ts
-rx('count').gt(10)                 // → "{{ count > 10 }}"
-rx('status').eq('active')          // → "{{ status === 'active' }}"
-rx('age').gte(18)                  // → "{{ age >= 18 }}"
-rx('count').neq(0)                 // → "{{ count !== 0 }}"
-```
-
-### Logical
-
-```ts
-rx('a').and(rx('b'))               // → "{{ a && b }}"
-rx('a').or(rx('b'))                // → "{{ a || b }}"
-rx('loading').not()                // → "{{ !loading }}"
-```
-
-### Ternary
-
-```ts
-rx('active').then('Online', 'Offline')
-// → "{{ active ? 'Online' : 'Offline' }}"
-
-rx('count').gt(0).then(rx('count'), 'None')
-// → "{{ count > 0 ? {{ count }} : 'None' }}"
-```
-
-### Pipes (Filters)
-
-Pipes transform values for display:
-
-```ts
-rx('name').upper()                 // → "{{ name | upper }}"
-rx('amount').currency('USD')       // → "{{ amount | currency:'USD' }}"
-rx('items').length()               // → "{{ items | length }}"
-rx('name').truncate(20)            // → "{{ name | truncate:20 }}"
-rx('date').date()                  // → "{{ date | date }}"
-```
-
-#### Available Pipes
-
-| Pipe | Description | Example |
-|------|-------------|---------|
-| `upper` | Uppercase | `{{ name \| upper }}` |
-| `lower` | Lowercase | `{{ name \| lower }}` |
-| `truncate:N` | Truncate to N chars | `{{ desc \| truncate:50 }}` |
-| `currency` / `currency:'USD'` | Format as currency | `{{ price \| currency:'EUR' }}` |
-| `number` | Format number | `{{ count \| number }}` |
-| `percent` | Format as percentage | `{{ rate \| percent }}` |
-| `date` | Format date | `{{ created \| date }}` |
-| `time` | Format time | `{{ created \| time }}` |
-| `datetime` | Format date + time | `{{ created \| datetime }}` |
-| `length` | Array/string length | `{{ items \| length }}` |
-| `default:'fallback'` | Default if null/empty | `{{ name \| default:'Unknown' }}` |
-| `first` | First element | `{{ items \| first }}` |
-| `last` | Last element | `{{ items \| last }}` |
-| `round:N` | Round to N decimals | `{{ value \| round:2 }}` |
-| `compact:N` | Compact number format | `{{ value \| compact }}` |
-| `abs` | Absolute value | `{{ value \| abs }}` |
-| `pluralize:'word'` | Pluralize word by count | `{{ count \| pluralize:'item' }}` |
-| `join:','` | Join array with separator | `{{ items \| join:',' }}` |
-| `selectattr:'key'` | Filter objects by truthy attr | `{{ items \| selectattr:'active' }}` |
-| `rejectattr:'key'` | Filter objects by falsy attr | `{{ items \| rejectattr:'deleted' }}` |
-| `find:'field',keyRef` | Find row in array by key | `{{ patients \| find:'id',selectedId }}` |
-| `dot:'field'` | Extract property from object | `{{ patient \| dot:'name' }}` |
-
-Pipes can be chained: `{{ name | upper | truncate:20 }}`
-
-## Built-in Variables
-
-| Variable | Builder | Description |
-|----------|---------|-------------|
-| `state.*` | `STATE` | Reactive state store (`STATE.foo` → `rx('foo')`) |
-| `item` | `ITEM` | Current item in `ForEach` loop |
-| `index` | `INDEX` | Current index in `ForEach` loop |
-| `event` | `EVENT` | Event data (e.g. form values) |
-| `error` | `ERROR` | Error from failed action |
-| `result` | `RESULT` | Result from last tool call / fetch |
-
-### Usage with `ForEach`
-
-```ts
-ForEach({ each: rx('state.users'), as: 'user' }, [
-  Row([
-    Text(rx`${ITEM}.name`),
-    Badge(rx`${ITEM}.status`),
-    Text(rx`User #${INDEX}`),
-  ]),
-])
-```
-
-### Usage with `CallTool` Result
-
-```ts
-CallTool('search', {
-  arguments: { query: rx`${STATE}.query` },
-  resultKey: 'searchResult',
-  onSuccess: SetState('items', rx`${RESULT}.data`),
-  onError: SetState('errorMsg', rx`${ERROR}`),
-})
-```
-
-***
+Expressions can also reference scope that only exists in certain places — the current `item` and `index` inside a `ForEach` loop, the `event` payload on a form, or the `result` and `error` of a tool call. Each has a matching builder (`ITEM`, `INDEX`, `EVENT`, `RESULT`, `ERROR`).
 
 ## Signals & Collections
 
-Signals and Collections are the typed reactive data layer. They produce `{{ }}` expressions and auto-register their initial values with `PrefabApp` state — no manual `.toState()` needed.
+Raw state keys work, but they are untyped and easy to misspell. **Signals** and **collections** are a thin typed layer on top of the same state store, giving your reactive data a name, a shape, and a home.
 
-### `signal(key, initial, options?)`
+* A **signal** is a single reactive scalar — a string, number, boolean, or null. Think "the currently selected id" or "is the panel open".
+* A **collection** is a keyed array of rows, with helpers to look a row up by a signal's value.
 
-A named reactive scalar (string, number, boolean, or null).
-
-```ts
-import { signal } from '@maxhealth.tech/prefab'
-
-const selectedId = signal('selectedPatientId', 'p1')
-
-selectedId.key       // 'selectedPatientId'
-selectedId.initial   // 'p1'
-selectedId.toRx()    // Rx → "{{ selectedPatientId }}"
-selectedId.toString() // "{{ selectedPatientId }}"
-selectedId.toState() // { selectedPatientId: 'p1' }
-```
-
-| Param | Type | Description |
-|-------|------|-------------|
-| `key` | `string` | State key name |
-| `initial` | `string \| number \| boolean \| null` | Initial value |
-| `options.urlSync` | `string` | Sync with URL query parameter (opt-in) |
-
-### `collection(key, rows, { key: field })`
-
-A named keyed array with typed lookups.
+The nice part: declaring them is enough. Their initial values are auto-collected into `PrefabApp` state, so you never hand-assemble a `state: { ... }` object.
 
 ```ts
-import { collection } from '@maxhealth.tech/prefab'
+import { signal, collection } from '@maxhealth.tech/prefab'
 
-const patients = collection('patients', fhirPatients, { key: 'id' })
-
-patients.stateKey    // 'patients'
-patients.keyField    // 'id'
-patients.rows        // the array
-patients.length      // row count
-patients.firstKey()  // key of first row, or null
-patients.lastKey()   // key of last row, or null
-patients.toRx()      // Rx → "{{ patients }}"
-patients.toState()   // { patients: [...] }
-```
-
-### `collection.by(signal)` → `Ref`
-
-Lazily resolve a row by a signal's value. Returns a `Ref` that compiles to a `find` pipe expression:
-
-```ts
-const selected = patients.by(selectedId)
-
-selected.expr        // "patients | find:'id',selectedPatientId"
-selected.toString()  // "{{ patients | find:'id',selectedPatientId }}"
-selected.dot('name') // Rx → "{{ patients | find:'id',selectedPatientId | dot:'name' }}"
-```
-
-The `Ref.dot()` method returns another `Ref`, so you can chain further:
-
-```ts
-selected.dot('address').dot('city')
-// → "{{ patients | find:'id',selectedPatientId | dot:'address' | dot:'city' }}"
-```
-
-### Auto State Collection
-
-When you create signals and collections, their state is auto-collected by `PrefabApp`:
-
-```ts
 const patients = collection('patients', data, { key: 'id' })
 const selectedId = signal('selectedPatientId', patients.firstKey())
 
-const app = new PrefabApp({
-  title: 'Patient Browser',
-  view: myView,
-  // No need for: state: { ...patients.toState(), ...selectedId.toState() }
-  // State is auto-collected from signal() and collection() calls!
-})
-
-// wire.state === { patients: [...], selectedPatientId: 'p1' }
+// patients.by(selectedId) → "{{ patients | find:'id',selectedPatientId }}"
+// Reads the selected row, reactively. Bind it straight into a component.
 ```
 
-Use `resetAutoState()` to clear the collector between app builds (important in long-running processes or serverless).
+Because everything compiles down to `{{ }}` expressions, a signal change ripples through every binding that depends on it — exactly like a hand-written expression, just type-safe.
 
-***
-
-## `find` and `dot` Pipes
-
-These pipes enable collection lookups in the wire format. They're used internally by `Ref` but can also be written manually.
-
-### `find:'field',keyRef`
-
-Find a row in an array where `row[field]` matches the value of a state key:
-
-```
-{{ patients | find:'id',selectedPatientId }}
-```
-
-* The second argument can be a state key, a scope variable (`$item.parentId`), or a quoted literal (`'p1'`).
-* Numeric coercion: string `'2'` matches number `2` and vice versa.
-* Returns `undefined` if no match is found.
-
-### `dot:'field'`
-
-Extract a property from an object:
-
-```
-{{ patients | find:'id',selectedPatientId | dot:'name' }}
-```
-
-Returns `undefined` if the input is null/undefined.
-
-***
-
-## Custom Pipes
-
-Register domain-specific pipes that work in `{{ }}` expressions:
-
-```ts
-import { registerPipe, unregisterPipe, listPipes } from '@maxhealth.tech/prefab'
-
-// Register a FHIR human name formatter
-registerPipe('humanName', (value) => {
-  if (!value || typeof value !== 'object') return ''
-  const name = value as { given?: string[]; family?: string }
-  return `${(name.given ?? []).join(' ')} ${name.family ?? ''}`.trim()
-})
-
-// Use in expressions:
-// {{ patient | dot:'name' | humanName }}
-
-// Debugging
-listPipes()           // → ['humanName']
-unregisterPipe('humanName')
-```
-
-Built-in pipes always take precedence over custom pipes. Re-registering a pipe with the same name warns and overwrites (HMR-friendly).
+→ See the [Reactive Expressions reference](/reference/rx) for the full API: every pipe, operator, scope variable, and the Signals/Collections methods.
 
 ---
 
@@ -1603,253 +393,46 @@ description: >-
 
 # Auto-Renderers
 
-Auto-renderers generate complete UI components from raw data — no manual component wiring needed. They're ideal for MCP tool handlers that return API responses.
+Most of the time you already have the data — a list of users from a query, a few KPIs, a row of monthly sales. What you *don't* want to do is hand-wire a table, pick column definitions, choose a chart type, and style badges every single time. Auto-renderers close that gap: hand them raw data, get a finished UI back in one call.
+
+## The Mental Model
+
+Think of an auto-renderer as a single function with a simple shape: **data in → component tree out.**
 
 ```ts
-import {
-  autoDetail, autoTable, autoChart, autoForm,
-  autoComparison, autoMetrics, autoTimeline, autoProgress,
-} from '@maxhealth.tech/prefab'
+const users = await db.query('SELECT * FROM users')
+return display(autoTable(users), { title: 'Users' })
 ```
 
-***
+That `autoTable(users)` call inspects your data, infers the columns from the object keys, detects which fields are statuses (and renders them as badges), and returns a normal `Component`. Because the output is just a regular component, it slots into any layout — wrap it in a `Column`, drop it next to a chart, or hand it to `display()`. There is no special runtime and no escape hatch to learn.
 
-## `autoTable(data, opts?)`
+The family follows one consistent convention: the **first argument is your data**, and an **optional second argument is an options object** (title, layout hints, behaviour flags). `autoForm` is the small exception — it takes a submit-tool name in the middle so a generated form knows which MCP tool to call.
 
-Generate a `DataTable` from an array of objects. Columns are auto-detected from object keys.
+A useful way to picture the whole family is by the shape of input each one expects. Roughly:
 
-```ts
-const users = [
-  { name: 'Alice', email: 'alice@co.com', status: 'active' },
-  { name: 'Bob', email: 'bob@co.com', status: 'inactive' },
-]
+* a **single object** describes one thing → a detail view,
+* a **list of records** describes many of the same thing → a table, chart, or comparison,
+* a **sequence in time** describes a journey → a timeline or progress tracker,
+* a **set of fields** describes an intent to capture → a form.
 
-autoTable(users, { title: 'Users', searchable: true })
-```
+Once you internalise that mapping, choosing the right helper rarely needs the reference at all — you reach for the one whose input shape matches the data already in your hand.
 
-| Option | Type | Description |
-|--------|------|-------------|
-| `title` | `string` | Table heading |
-| `searchable` | `boolean` | Enable search |
-| `sortable` | `boolean` | Enable column sorting |
-| `maxRows` | `number` | Limit rows shown |
+## When to Reach for Them
 
-Status columns (`status`, `state`, etc.) are automatically rendered as `Badge` components with semantic variants (green for active, red for inactive, etc.).
+Auto-renderers shine when the *structure* of your UI mirrors the *structure* of your data:
 
-### Custom Status Variants
+* An array of records → a searchable, sortable table.
+* A handful of numbers → a row of metric cards.
+* Date-stamped events → a vertical timeline.
+* A list of fields → a working form wired to a tool.
 
-```ts
-import { registerStatusVariants } from '@maxhealth.tech/prefab'
+They are perfect for MCP tool handlers, where you frequently turn an API response straight into something renderable with minimal ceremony.
 
-registerStatusVariants({
-  'custom_status': 'success',
-  'needs_review': 'warning',
-})
-```
+## When to Hand-Craft Instead
 
-***
+Reach for the underlying components directly when you need precise control — bespoke column renderers, custom interactions, conditional layouts, or a design that doesn't map cleanly onto your raw data shape. Auto-renderers are a fast on-ramp, not a ceiling: you can start with `autoTable`, then graduate to a hand-built `DataTable` the moment you need something the auto path can't express. The two styles compose freely in the same view.
 
-## `autoDetail(data, opts?)`
-
-Generate a key-value detail view from an object.
-
-```ts
-const user = { name: 'Alice', email: 'alice@co.com', role: 'Admin', joined: '2024-01-15' }
-
-autoDetail(user, { title: 'User Profile' })
-```
-
-| Option | Type | Description |
-|--------|------|-------------|
-| `title` | `string` | Section heading |
-| `exclude` | `string[]` | Keys to exclude |
-
-***
-
-## `autoChart(data, opts?)`
-
-Generate a chart from data. Auto-selects the best chart type if not specified.
-
-```ts
-const sales = [
-  { month: 'Jan', revenue: 10000, costs: 8000 },
-  { month: 'Feb', revenue: 12000, costs: 8500 },
-  { month: 'Mar', revenue: 15000, costs: 9000 },
-]
-
-autoChart(sales, { title: 'Revenue vs Costs', chartType: 'bar', xAxis: 'month' })
-```
-
-| Option | Type | Description |
-|--------|------|-------------|
-| `title` | `string` | Chart heading |
-| `subtitle` | `string` | Secondary text |
-| `chartType` | `ChartType` | `bar`, `line`, `area`, `pie` (default: auto-detect) |
-| `xAxis` | `string` | Key for X axis labels |
-| `height` | `number` | Chart height in px |
-| `showLegend` | `boolean` | Show legend (default: true) |
-
-Numeric columns are auto-detected as series. The first string column is used as the X axis if `xAxis` is not specified.
-
-***
-
-## `autoForm(fields, opts?)`
-
-Generate a form from field definitions that submits to an MCP tool.
-
-```ts
-autoForm([
-  { name: 'name', type: 'text', required: true },
-  { name: 'email', type: 'email', required: true },
-  { name: 'role', type: 'select', options: ['admin', 'user', 'viewer'] },
-  { name: 'notes', type: 'textarea' },
-], 'create_user', {
-  title: 'Create User',
-  submitLabel: 'Create',
-})
-```
-
-The second argument is the `submitTool` — the MCP tool name to call on submit.
-
-| Option | Type | Description |
-|--------|------|-------------|
-| `title` | `string` | Form heading |
-| `subtitle` | `string` | Secondary text |
-| `submitLabel` | `string` | Submit button text (default: `'Submit'`) |
-| `onSubmit` | `Action` | Custom submit action (overrides submitTool) |
-| `successMessage` | `string` | Toast message on success |
-| `errorMessage` | `string` | Toast message on error |
-
-### Field Definition
-
-| Prop | Type | Description |
-|------|------|-------------|
-| `name` | `string` | Field name / state key |
-| `label` | `string` | Display label (defaults to humanized name) |
-| `type` | `string` | Input type (`text`, `email`, `number`, `password`, `url`, etc.) |
-| `placeholder` | `string` | Placeholder text |
-| `required` | `boolean` | Validation |
-
-***
-
-## `autoMetrics(metrics, opts?)`
-
-Generate metric cards from numeric data.
-
-```ts
-autoMetrics([
-  { label: 'Revenue', value: 125000, format: 'currency', change: 12.5 },
-  { label: 'Users', value: 3420, change: -2.1 },
-  { label: 'Uptime', value: 99.9, format: 'percent' },
-], { title: 'KPIs', columns: 3 })
-```
-
-| Option | Type | Description |
-|--------|------|-------------|
-| `title` | `string` | Section heading |
-| `columns` | `number` | Grid columns (default: auto) |
-
-### Metric Definition
-
-| Prop | Type | Description |
-|------|------|-------------|
-| `label` | `string` | Metric name |
-| `value` | `number \| string` | Display value |
-| `format` | `string` | `currency`, `percent`, `number` |
-| `change` | `number` | % change (green if positive, red if negative) |
-| `prefix` / `suffix` | `string` | Value decorations |
-
-***
-
-## `autoComparison(items, opts?)`
-
-Side-by-side comparison view.
-
-```ts
-autoComparison([
-  { name: 'Plan A', price: '$29/mo', storage: '10 GB', support: 'Email' },
-  { name: 'Plan B', price: '$99/mo', storage: '100 GB', support: '24/7 Phone' },
-], { title: 'Compare Plans', highlightDifferences: true })
-```
-
-| Option | Type | Description |
-|--------|------|-------------|
-| `title` | `string` | Section heading |
-| `highlightDifferences` | `boolean` | Highlight differing values |
-
-***
-
-## `autoTimeline(events, opts?)`
-
-Vertical timeline from date-ordered events.
-
-```ts
-autoTimeline([
-  { date: '2024-01-15', title: 'Created', description: 'Account created' },
-  { date: '2024-02-01', title: 'Verified', description: 'Email verified' },
-  { date: '2024-03-10', title: 'Upgraded', description: 'Upgraded to Pro' },
-], { title: 'Account History' })
-```
-
-| Option | Type | Description |
-|--------|------|-------------|
-| `title` | `string` | Section heading |
-
-### Event Definition
-
-| Prop | Type | Description |
-|------|------|-------------|
-| `date` | `string` | ISO date string |
-| `title` | `string` | Event title |
-| `description` | `string` | Event details |
-| `status` | `string` | Optional status (renders as Badge) |
-
-***
-
-## `autoProgress(steps, opts?)`
-
-Step-based progress tracker.
-
-```ts
-autoProgress([
-  { label: 'Order Placed', status: 'complete' },
-  { label: 'Processing', status: 'current' },
-  { label: 'Shipped', status: 'pending' },
-  { label: 'Delivered', status: 'pending' },
-], { title: 'Order Status' })
-```
-
-| Option | Type | Description |
-|--------|------|-------------|
-| `title` | `string` | Section heading |
-
-### Step Definition
-
-| Prop | Type | Description |
-|------|------|-------------|
-| `label` | `string` | Step name |
-| `status` | `string` | `complete`, `current`, `pending`, `error` |
-| `description` | `string` | Step details |
-
-***
-
-## Combining Auto-Renderers
-
-Auto-renderers return standard `Component` instances, so they compose freely:
-
-```ts
-display(
-  Column({ gap: 8 }, [
-    autoMetrics(kpis, { title: 'KPIs', columns: 4 }),
-    Row({ gap: 4 }, [
-      autoChart(salesData, { title: 'Revenue' }),
-      autoChart(userData, { title: 'Signups', chartType: 'line' }),
-    ]),
-    autoTable(recentOrders, { title: 'Recent Orders' }),
-  ]),
-  { title: 'Dashboard' },
-)
-```
+→ See the [Auto-Renderers reference](/reference/auto-renderers) for the full API: every helper, its options, and examples.
 
 ---
 
@@ -1862,199 +445,61 @@ description: >-
 
 # MCP Display Helpers
 
-These functions wrap prefab component trees as MCP tool result content arrays. Use them in MCP tool handlers to return rich UIs.
+When an MCP tool runs, it hands back a result. The display helpers let that
+result be a living UI instead of a wall of text. You build a component tree on
+the server, hand it to a helper, and the helper packages it into the exact
+shape an MCP host expects to render.
 
-```ts
-import { display, display_form, display_update, display_error } from '@maxhealth.tech/prefab/mcp'
-```
+## The mental model
 
-***
+Think of every tool handler as three small steps:
 
-## `display(view, opts?)`
-
-Return a full UI as an MCP tool result.
+1. **Build** — compose your screen from prefab components (a `Column`, a table,
+   a form, a chart).
+2. **Wrap** — pass that tree to a display helper. The helper serializes it to
+   the `$prefab` wire format and folds it into an MCP tool-result envelope.
+3. **Return** — hand the envelope straight back from your handler. Any host that
+   speaks prefab paints it.
 
 ```ts
 import { display, Column, H1, autoTable } from '@maxhealth.tech/prefab'
 
-async function listPatients(args: any) {
-  const patients = await db.query('SELECT * FROM patients')
-  return display(
-    Column({ gap: 6 }, [
-      H1('Patients'),
-      autoTable(patients),
-    ]),
-    { title: 'Patient List' },
-  )
-}
-```
-
-Accepts either a `Component` (auto-wrapped in `PrefabApp`) or a `PrefabApp` instance.
-
-### Options
-
-| Option | Type | Description |
-|--------|------|-------------|
-| `title` | `string` | Page title |
-| `state` | `Record<string, unknown>` | Initial reactive state |
-| `theme` | `Theme` | Light/dark theme overrides |
-| `defs` | `Record<string, Component>` | Reusable component templates |
-| `onMount` | `Action \| Action[]` | Run when the UI mounts |
-| `keyBindings` | `Record<string, Action>` | Keyboard shortcuts |
-| `cssClass` | `string` | Root CSS class |
-
-### Return Shape
-
-```json
-{
-  "content": [
-    {
-      "type": "text",
-      "text": "{\"$prefab\":{\"version\":\"0.2\"},\"view\":{...},\"state\":{...}}"
-    }
-  ]
-}
-```
-
-***
-
-## `display_form(fields, submitTool, opts?)`
-
-Return a form that submits back to an MCP tool. Shorthand for building a `Form` + `Input` components manually.
-
-```ts
-import { display_form } from '@maxhealth.tech/prefab/mcp'
-
-async function editUser(args: any) {
-  const user = await db.getUser(args.id)
-  return display_form([
-    { name: 'id', type: 'hidden', defaultValue: user.id },
-    { name: 'name', type: 'text', required: true, defaultValue: user.name },
-    { name: 'email', type: 'email', required: true, defaultValue: user.email },
-    { name: 'role', type: 'select', options: ['admin', 'user'] },
-  ], 'save_user', {
-    title: 'Edit User',
-    submitLabel: 'Save Changes',
-  })
-}
-```
-
-### Parameters
-
-| Param | Type | Description |
-|-------|------|-------------|
-| `fields` | `AutoFormField[]` | Field definitions (same as `autoForm`) |
-| `submitTool` | `string` | MCP tool to call on submit |
-| `opts.title` | `string` | Form heading |
-| `opts.subtitle` | `string` | Secondary text |
-| `opts.submitLabel` | `string` | Submit button text |
-| `opts.state` | `Record<string, unknown>` | Pre-fill state |
-
-***
-
-## `display_update(stateUpdate)`
-
-Return a partial state update. The renderer merges these values into the existing store without re-rendering the full UI.
-
-```ts
-import { display_update } from '@maxhealth.tech/prefab/mcp'
-
-async function incrementCounter(args: any) {
-  const newCount = args.currentCount + 1
-  return display_update({ count: newCount, lastUpdated: new Date().toISOString() })
-}
-```
-
-### Return Shape
-
-```json
-{
-  "content": [
-    {
-      "type": "text",
-      "text": "{\"$prefab\":{\"version\":\"0.2\"},\"update\":{\"state\":{\"count\":43}}}"
-    }
-  ]
-}
-```
-
-***
-
-## `display_error(title, message, opts?)`
-
-Return a standardized error view.
-
-```ts
-import { display_error } from '@maxhealth.tech/prefab/mcp'
-
-async function getPatient(args: any) {
-  const patient = await db.getPatient(args.id)
-  if (!patient) {
-    return display_error('Not Found', 'Patient not found', {
-      detail: `No patient with ID ${args.id}`,
-      hint: 'Check the patient ID and try again.',
-    })
-  }
-  return display(patientView(patient))
-}
-```
-
-### Parameters
-
-| Param | Type | Description |
-|-------|------|-------------|
-| `title` | `string` | Error heading (shown in alert title) |
-| `message` | `string` | Error description |
-
-### Options
-
-| Option | Type | Description |
-|--------|------|-------------|
-| `detail` | `string` | Detailed error / stack trace (shown in code block) |
-| `hint` | `string` | Help text for the user (shown as muted text) |
-| `theme` | `Theme` | Theme overrides |
-
-***
-
-## Pattern: Tool Chain
-
-A common pattern is a list tool → detail tool → edit form:
-
-```ts
-// Tool 1: List
 async function listPatients() {
   const patients = await db.query('SELECT * FROM patients')
-  return display(
-    autoTable(patients, { title: 'Patients' }),
-    {
-      state: { patients },
-      onMount: CallTool('get_stats', { resultKey: 'stats' }),
-    },
-  )
-}
-
-// Tool 2: Detail (called from table row click)
-async function getPatient(args: { id: string }) {
-  const patient = await db.getPatient(args.id)
-  return display(
-    Column([
-      H1(patient.name),
-      autoDetail(patient),
-      Button('Edit', { onClick: CallTool('edit_patient_form', { arguments: { id: patient.id } }) }),
-    ]),
-  )
-}
-
-// Tool 3: Edit form
-async function editPatientForm(args: { id: string }) {
-  const patient = await db.getPatient(args.id)
-  return display_form([
-    { name: 'id', type: 'hidden', defaultValue: patient.id },
-    { name: 'name', type: 'text', required: true, defaultValue: patient.name },
-    { name: 'email', type: 'email', defaultValue: patient.email },
-  ], 'save_patient', { title: `Edit ${patient.name}` })
+  return display(Column([H1('Patients'), autoTable(patients)]), { title: 'Patients' })
 }
 ```
+
+You never touch the envelope by hand. The helper knows where the JSON goes,
+which fields the host reads, and how to keep older and newer hosts happy.
+
+## Full display vs. incremental update
+
+There are two ways to send something back, and picking the right one keeps your
+UIs snappy.
+
+Reach for a **full display** when the screen changes shape — a new list, a
+detail page, a form, an error or success card. The host swaps in the whole tree
+and renders it fresh.
+
+Reach for an **incremental update** when the screen is already on the user's
+screen and you only need to nudge some values inside it — a counter ticking up,
+a status flipping to "done", a freshly fetched total. Instead of re-sending the
+entire view, you send just the changed state, and the renderer merges it into
+the live store without rebuilding anything.
+
+That split is the whole game: send a full view when the layout changes, send a
+patch when only the data does.
+
+## Chaining tools
+
+Because each handler returns a self-contained UI, tools compose naturally. A
+list view can carry a button whose click calls a detail tool; the detail view
+can carry one that opens an edit form; the form submits back to a save tool.
+Each step is just another handler returning its own `display(...)`, so rich,
+multi-screen flows fall out of simple pieces.
+
+→ See the [MCP Display reference](/reference/mcp-display) for the full API: every helper, its options, and the tool-result shape.
 
 ---
 
@@ -2067,230 +512,42 @@ description: >-
 
 # Browser Renderer
 
-The prefab renderer is an IIFE bundle (`dist/renderer.min.js`) that renders `$prefab` wire JSON into vanilla DOM. Zero framework dependencies.
+The browser renderer is how your `$prefab` UIs come alive in a real page. It is a single, self-contained script (`dist/renderer.min.js`) with **zero framework dependencies** — no React, no Vue, no build step. Drop it in with a `<script>` tag and it turns wire JSON into living DOM.
 
-## Loading
+## The mental model
 
-### Script Tag (CDN)
+Think of the renderer as a small machine with one job: **wire JSON in, live DOM out.**
 
-```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@maxhealth.tech/prefab@latest/dist/prefab.css">
-<script src="https://cdn.jsdelivr.net/npm/@maxhealth.tech/prefab@latest/dist/renderer.min.js"></script>
+```
+$prefab wire JSON  ──▶  renderer  ──▶  real DOM nodes
 ```
 
-This creates the `window.PrefabRenderer` global and (in ext-app mode) `window.prefab`.
+Your server (or your LLM) describes *what* the UI should look like as plain JSON — a tree of typed nodes like `Column`, `H1`, `DataTable`. The renderer reads that tree and builds the matching HTML elements, wires up event handlers, and applies your theme. You never touch the DOM yourself.
 
-::: tip Always include prefab.css
-The base CSS provides design tokens and structural styles. Without it, components render unstyled.
-:::
+The interesting part is what happens *after* the first paint. The renderer keeps a small **reactive store** alongside the DOM. When a button fires an action, or a tool call returns fresh data, the store updates and every `{{ ... }}` expression that depends on it re-evaluates automatically. The page reacts; you don't re-render by hand.
 
-### Auto-Mount
+## How it fits in a page
 
-Set `window.__PREFAB_DATA__` before the script loads:
+There are two ways to get a UI on screen, and which you reach for depends on whether the JSON is ready at load time.
+
+**Auto-mount** is the zero-code path. Stash your wire data on `window.__PREFAB_DATA__` before the script runs, and the renderer finds your `#root` (or the body) and mounts itself on `DOMContentLoaded`. Perfect for server-rendered pages that already know what to show.
 
 ```html
-<script>
-  window.__PREFAB_DATA__ = {
-    "$prefab": { "version": "0.3" },
-    "view": { "type": "H1", "content": "Hello!" }
-  };
-</script>
+<script>window.__PREFAB_DATA__ = { "$prefab": { "version": "0.3" }, "view": { "type": "H1", "content": "Hello!" } };</script>
 <script src="renderer.min.js"></script>
 ```
 
-The renderer auto-mounts into the first `#root` element (or `document.body`) on `DOMContentLoaded`.
+**Manual mount** is for when the data arrives later — from a fetch, a tool call, or user interaction. Call `PrefabRenderer.mount(element, data, options)` yourself and you get back a **render handle** you can hold onto: feed it new data with `update()`, force a redraw with `rerender()`, reach into the reactive `store`, or tear everything down with `destroy()`.
 
-### Manual Mount
+::: tip Always ship prefab.css
+The renderer paints structure, but `prefab.css` carries the design tokens and base styles. Load it alongside the script or your components come out unstyled.
+:::
 
-```js
-const handle = PrefabRenderer.mount(document.getElementById('root'), wireData, {
-  transport: { endpoint: '/mcp/tools/call' },
-  onToast: (event) => alert(event.message),
-});
+## Going further
 
-// Later:
-handle.update(newWireData);
-handle.destroy();
-```
+The renderer is extensible without forking it. You can teach it new node types with `registerComponent`, add new `{{ }}` filters with `registerPipe`, and inject scoped stylesheets straight from the wire format — all covered in the reference.
 
-## `PrefabRenderer.mount(element, data, options?)`
-
-| Param | Type | Description |
-|-------|------|-------------|
-| `element` | `HTMLElement` | Target DOM element |
-| `data` | `PrefabWireData` | Wire format JSON |
-| `options.transport` | `{ endpoint, headers? }` | HTTP transport config for `CallTool` |
-| `options.onToast` | `(event) => void` | Toast handler |
-
-Returns a `MountedApp` with:
-
-| Method | Description |
-|--------|-------------|
-| `update(data)` | Apply a state update from `display_update()` |
-| `rerender()` | Re-render the entire UI from current state |
-| `destroy()` | Unmount and clean up |
-| `store` | Access the reactive `Store` |
-
-***
-
-## Reactive Store
-
-The renderer maintains a `Store` that holds all reactive state:
-
-```ts
-const store = handle.store;
-
-store.get('count');           // Read
-store.set('count', 42);       // Write (triggers re-render)
-store.merge({ a: 1, b: 2 }); // Merge multiple
-store.toggle('active');        // Toggle boolean
-store.append('items', item);   // Push to array
-store.pop('items', 0);         // Remove by index
-store.getAll();               // Full state copy
-```
-
-State changes automatically re-evaluate all `{{ }}` expressions in the DOM.
-
-***
-
-## Theme Engine
-
-The renderer applies theme values as CSS custom properties:
-
-```json
-{
-  "theme": {
-    "light": { "primary": "#3b82f6", "radius": "0.5rem" },
-    "dark": { "primary": "#60a5fa" }
-  }
-}
-```
-
-Applied as:
-
-```css
-:root {
-  --primary: #3b82f6;
-  --radius: 0.5rem;
-}
-```
-
-The renderer selects the theme variant based on `prefers-color-scheme` or `data-theme` attribute on the root element.
-
-***
-
-## Component Registry
-
-The renderer has 115+ built-in component renderers. Each `type` string maps to a render function:
-
-```
-Layout:      Column, Row, Grid, GridItem, Container, Div, Span, MasterDetail, Detail, ...
-Typography:  H1-H4, Text, Heading, Muted, Code, Markdown, Link, Kbd, ...
-Card:        Card, CardHeader, CardTitle, CardContent, CardFooter
-Data:        DataTable, Badge, Metric, Progress, Separator, Loader, Icon, ...
-Table:       Table, TableHead, TableBody, TableRow, TableCell, ...
-Form:        Form, Input, Textarea, Button, Select, Checkbox, Switch, ...
-Interactive: Tabs, Tab, Accordion, AccordionItem, Dialog, Tooltip, ...
-Charts:      BarChart, LineChart, AreaChart, PieChart, Sparkline, ...
-Media:       Image, Audio, Video, Embed, Svg, DropZone, Mermaid
-Alert:       Alert, AlertTitle, AlertDescription
-Control:     ForEach, If, Elif, Else, Define, Use, Slot
-```
-
-### Custom Components
-
-Register custom renderers before mounting:
-
-```js
-import { registerComponent } from '@maxhealth.tech/prefab/renderer'
-
-registerComponent('MyWidget', (node, ctx) => {
-  const el = document.createElement('div');
-  el.textContent = node.content;
-  return el;
-});
-```
-
-`registerComponent` is a standalone function, not a method on `PrefabRenderer`.
-
-***
-
-## Action Dispatcher
-
-The renderer handles 15 action types:
-
-| Action | Behavior |
-|--------|----------|
-| `setState` | Updates the reactive store |
-| `toggleState` | Toggles a boolean in the store |
-| `appendState` | Pushes to an array in the store |
-| `popState` | Removes from an array in the store |
-| `showToast` | Calls the toast handler |
-| `closeOverlay` | Closes the current dialog |
-| `openLink` | `window.open(url, target)` |
-| `setInterval` | Starts a periodic timer |
-| `fetch` | `fetch()` + stores result |
-| `openFilePicker` | Opens file input dialog |
-| `callHandler` | Calls a registered JS handler |
-| `toolCall` | Routes through MCP transport |
-| `sendMessage` | Routes through MCP transport |
-| `updateContext` | Routes through bridge |
-| `requestDisplayMode` | Routes through bridge |
-
-***
-
-## Stylesheet Injection
-
-The wire format's `stylesheets` field injects `<style>` tags:
-
-```json
-{
-  "stylesheets": [
-    ".custom-btn { background: linear-gradient(135deg, #667eea, #764ba2); }",
-    "@keyframes pulse { 0% { opacity: 1 } 50% { opacity: 0.5 } 100% { opacity: 1 } }"
-  ]
-}
-```
-
-Stylesheets are scoped to the mount lifecycle — they're removed on `destroy()`.
-
-***
-
-## Custom Pipes
-
-Register custom pipe filters that work in `{{ }}` expressions at runtime:
-
-```js
-import { registerPipe } from '@maxhealth.tech/prefab'
-
-registerPipe('humanName', (value) => {
-  if (!value || typeof value !== 'object') return ''
-  const n = value
-  return `${(n.given ?? []).join(' ')} ${n.family ?? ''}`.trim()
-})
-
-// Now {{ patient.name | humanName }} works in any component
-```
-
-See the [Rx reference](/reference/rx#custom-pipes) for the full API (`registerPipe`, `unregisterPipe`, `listPipes`).
-
-***
-
-## Accessibility
-
-The renderer applies ARIA attributes automatically:
-
-| Component | ARIA |
-|-----------|------|
-| `Tabs` | `role="tablist"`, `aria-selected`, keyboard arrows/Home/End |
-| `Tab` | `role="tab"`, `aria-controls`, `tabindex` |
-| `Accordion` | `aria-expanded`, Enter/Space toggle |
-| `Dialog` | `role="dialog"`, `aria-modal`, focus trap |
-| `Tooltip` | `role="tooltip"` |
-| `Carousel` | `role="region"`, `aria-roledescription="carousel"` |
-| `Progress` | `role="progressbar"`, `aria-valuenow/min/max` |
-| `Alert` | `role="alert"` |
-| Form inputs | `aria-required`, `aria-invalid`, `id`/`for` linking |
+→ See the [Renderer reference](/reference/renderer) for the full API: every method, option, and the render handle.
 
 ---
 
@@ -2303,9 +560,24 @@ description: >-
 
 # PostMessage Bridge
 
-The bridge enables prefab apps running in iframes to communicate with their host via PostMessage. It supports two protocols — `prefab:*` (custom) and `ui/*` JSON-RPC (MCP Apps spec) — and works in VS Code, Claude, ChatGPT, or any MCP Apps host.
+When a prefab app renders inside an MCP Apps host like VS Code, Claude, or ChatGPT, it lives in a sandboxed iframe. The bridge is what lets that iframe and its host hold a conversation — passing tool input in, sending tool calls and chat messages out, and reacting to theme or context changes — all over the browser's `postMessage` channel.
 
-## Quick Start
+## Two protocols, one bridge
+
+The bridge speaks two message dialects at once, so the same app works across hosts that disagree on conventions:
+
+* **`prefab:*`** — the custom, prefab-native protocol (for example `prefab:tool-input`, `prefab:tool-call`).
+* **`ui/*`** — the JSON-RPC dialect from the [MCP Apps spec](https://modelcontextprotocol.io), which standards-based hosts prefer.
+
+You never choose between them. The bridge negotiates the right one during connection and translates underneath, so your code stays the same regardless of which host loaded it.
+
+## Connection lifecycle
+
+Every session opens with a short handshake. The app announces the capabilities it supports, the host replies with its own capabilities plus the active theme, and from there messages flow both ways for the life of the iframe. Tool input arrives, your app renders, tool calls go back out, and either side can tear the connection down cleanly when it's done. The host can also push updates mid-session — a theme switch or a fresh context payload (locale, access tokens, and the like) — which your handlers receive as they happen.
+
+## High-level vs. low-level
+
+Most apps only ever touch the high-level **`prefab.app()`** factory. It auto-detects whether you're in an iframe or running standalone, runs the handshake for you, applies the host theme, and hands back a ready-to-use `PrefabApp` object with friendly methods like `onToolInput`, `render`, and `callTool`.
 
 ```html
 <script src="renderer.min.js"></script>
@@ -2320,235 +592,13 @@ The bridge enables prefab apps running in iframes to communicate with their host
 </script>
 ```
 
-***
+If you need finer control — a custom transport, your own handshake timing, or raw message handling — reach for the low-level **`Bridge`** class instead. It exposes the wire directly: connect, initialize, subscribe to raw message types, and disconnect yourself. The factory is built on top of it, so you lose convenience but gain control.
 
-## `prefab.app(options?)`
+## A note on origin security
 
-Factory function that auto-detects the environment, performs the handshake, and returns a `PrefabApp` API object.
+By default the bridge accepts messages from any origin (`'*'`), which is fine for local development but unsafe in production. Always pass an explicit `hostOrigin` so the bridge only trusts messages from your real host. It validates incoming `event.origin`, correlates tool responses by id to prevent spoofing, and times out stalled tool calls — but the origin you set is the first line of defense.
 
-### Options
-
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `mode` | `'bridge' \| 'standalone' \| 'auto'` | `'auto'` | Force bridge or standalone mode |
-| `hostOrigin` | `string` | `'*'` | Allowed origin for PostMessage (set in production!) |
-| `transport` | `McpTransportOptions` | — | HTTP transport config for standalone mode |
-| `capabilities` | `AppCapabilities` | `{ toolInput: true }` | Capabilities to advertise |
-
-### Environment Detection
-
-| Condition | Mode | Transport |
-|-----------|------|-----------|
-| Running in iframe | Bridge | PostMessage via `window.parent` |
-| Standalone + transport config | Standalone | HTTP POST |
-| Standalone, no config | Standalone | Noop (actions silently succeed) |
-
-***
-
-## `PrefabApp` API
-
-### Tool Communication
-
-```ts
-// Call an MCP tool
-const result = await ui.callTool('search_users', { query: 'alice' });
-
-// Send a chat message
-await ui.sendMessage('Operation complete');
-```
-
-### Lifecycle Hooks
-
-```ts
-// Receive tool input from the host
-ui.onToolInput((args) => {
-  console.log('Tool args:', args);
-  ui.render('#root', buildUI(args));
-});
-
-// Receive tool results
-ui.onToolResult((result) => {
-  console.log('Tool result:', result);
-});
-
-// Handle cancellation
-ui.onToolCancelled(() => {
-  console.log('Tool was cancelled');
-});
-
-// Streaming partial input
-ui.onToolInputPartial((partialArgs) => {
-  console.log('Partial input:', partialArgs);
-});
-```
-
-The first `onToolInput` delivery is buffered — if the host sends tool input before the handler is registered, it's delivered immediately when `onToolInput` is called.
-
-### Rendering
-
-```ts
-// Render component JSON into a DOM target
-const handle = ui.render('#root',
-  { type: 'Column', children: [
-    { type: 'H1', content: 'Hello' },
-    { type: 'Text', content: '{{ state.message }}' },
-  ]},
-);
-
-// Re-render
-handle.rerender();
-
-// Access state
-handle.store.set('message', 'Updated!');
-
-// Unmount
-handle.destroy();
-```
-
-### Display Modes
-
-```ts
-ui.requestMode('fullscreen');  // Request fullscreen
-ui.requestMode('pip');         // Picture-in-picture
-ui.requestMode('inline');      // Back to inline
-```
-
-### Host Integration
-
-```ts
-ui.openLink('https://docs.example.com', '_blank');
-ui.updateContext({ selectedPatient: 'patient-123' });
-```
-
-### Host Info
-
-```ts
-ui.host;          // HostContext: { capabilities, theme?, name?, version? }
-ui.capabilities;  // HostCapabilities: { toast?, clipboard?, navigation? }
-ui.theme;         // HostTheme | undefined
-ui.transport;     // The underlying McpTransport
-```
-
-### Cleanup
-
-```ts
-ui.destroy();  // Disconnects bridge, removes listeners
-```
-
-***
-
-## PostMessage Protocol
-
-All messages use a `prefab:` namespace prefix.
-
-### App → Host Messages
-
-| Type | Payload | Description |
-|------|---------|-------------|
-| `prefab:init` | `{ capabilities }` | Handshake init |
-| `prefab:tool-call` | `{ tool, arguments }` | MCP tool invocation |
-| `prefab:send-message` | `{ message }` | Chat message |
-| `prefab:request-mode` | `{ mode }` | Display mode request |
-| `prefab:open-link` | `{ url, target? }` | URL navigation |
-| `prefab:update-context` | `{ context }` | Context update |
-
-### Host → App Messages
-
-| Type | Payload | Description |
-|------|---------|-------------|
-| `prefab:init-response` | `{ capabilities, theme? }` | Handshake response |
-| `prefab:tool-input` | `{ args }` | Tool input delivery |
-| `prefab:tool-input-partial` | `{ args }` | Streaming partial input |
-| `prefab:tool-result` | `{ result }` | Tool execution result |
-| `prefab:tool-cancelled` | `{}` | Tool was cancelled |
-| `prefab:theme-update` | `HostTheme` | Theme change |
-| `prefab:state-update` | `Record<string, unknown>` | State merge |
-
-### Message Shape
-
-```ts
-interface BridgeMessage {
-  type: string;           // e.g. 'prefab:tool-call'
-  payload?: Record<string, unknown>;
-  id?: string;            // For request/response correlation
-}
-```
-
-### Handshake Flow
-
-```
-App                          Host
- │                            │
- │── prefab:init ────────────>│  { capabilities: { toolInput: true } }
- │                            │
- │<── prefab:init-response ───│  { capabilities: { toast: true }, theme: {...} }
- │                            │
- │<── prefab:tool-input ──────│  { args: { patientId: '123' } }
- │                            │
- │── prefab:tool-call ───────>│  { tool: 'get_patient', arguments: {...} }
- │                            │
- │<── prefab:tool-call-response│  { result: { name: 'Alice', ... } }
-```
-
-***
-
-## Host Theme
-
-The host can provide CSS variables during the handshake or via `prefab:theme-update`:
-
-```ts
-interface HostTheme {
-  primary?: string;
-  background?: string;
-  foreground?: string;
-  muted?: string;
-  border?: string;
-  radius?: string;
-  // ... any CSS custom property
-}
-```
-
-The bridge applies these as `--property: value` on `document.documentElement`.
-
-***
-
-## Security
-
-* Set `hostOrigin` to the expected host origin in production (not `'*'`)
-* The bridge validates `event.origin` on incoming messages
-* Tool call responses use `id` correlation to prevent spoofing
-* Tool calls have a 30-second timeout
-
-```ts
-const ui = await prefab.app({
-  hostOrigin: 'https://your-host.example.com',
-});
-```
-
-***
-
-## Bridge Class (Low-Level)
-
-For custom integrations, use `Bridge` directly:
-
-```ts
-import { Bridge, isIframe, applyHostTheme } from '@maxhealth.tech/prefab/renderer';
-
-if (isIframe()) {
-  const bridge = new Bridge('https://host.example.com');
-  bridge.connect();
-
-  const hostCtx = await bridge.initialize({ toolInput: true });
-  const transport = bridge.createTransport();
-
-  bridge.on('prefab:tool-input', (payload) => {
-    console.log('Tool input:', payload.args);
-  });
-
-  // Cleanup
-  bridge.disconnect();
-}
-```
+→ See the [Bridge reference](/reference/bridge) for the full API: every message type, the PrefabApp methods, and the handshake protocol.
 
 ---
 
@@ -2647,6 +697,19 @@ Paginated view container.
 
 Conditional detail pane. Shows `children` when `of` resolves, shows `empty` otherwise.
 
+```ts
+import { collection, signal, Detail, Heading, Text } from '@maxhealth.tech/prefab'
+
+const patients = collection('patients', data, { key: 'id' })
+const selectedId = signal('selectedPatientId', patients.firstKey())
+const selected = patients.by(selectedId)
+
+Detail({ of: selected, empty: Text('Select a patient') }, [
+  Heading(selected.dot('name')),
+  Text(selected.dot('dob')),
+])
+```
+
 | Prop | Type | Description |
 |------|------|-------------|
 | `of` | `Ref \| RxStr` | Reactive reference expression |
@@ -2655,6 +718,13 @@ Conditional detail pane. Shows `children` when `of` resolves, shows `empty` othe
 ### `MasterDetail(props?, children?)`
 
 Two-pane layout (master list + detail). Expects two children.
+
+```ts
+MasterDetail({ masterWidth: '350px', gap: 4 }, [
+  table,   // master panel
+  detail,  // detail panel
+])
+```
 
 | Prop | Type | Description |
 |------|------|-------------|
@@ -2763,6 +833,18 @@ Card sub-components. All accept children.
 
 Rich data table with search, column definitions, and optional row selection.
 
+```ts
+DataTable({
+  rows: users,
+  columns: [
+    col('name', 'Name'),
+    col('email', 'Email'),
+    col('status', 'Status'),
+  ],
+  search: true,
+})
+```
+
 | Prop | Type | Description |
 |------|------|-------------|
 | `rows` | `unknown[] \| RxStr` | Array of row objects (or reactive expression) |
@@ -2771,9 +853,36 @@ Rich data table with search, column definitions, and optional row selection.
 | `from` | `Collection` | Derive rows from a Collection (mutually exclusive with `rows`) |
 | `selected` | `Signal` | Signal tracking selected row key (requires `from`) |
 
+#### Row Selection with Signal/Collection
+
+When `from` and `selected` are provided, DataTable auto-generates row click handling:
+
+```ts
+const patients = collection('patients', data, { key: 'id' })
+const selectedId = signal('selectedPatientId', patients.firstKey())
+
+DataTable({
+  columns: [col('name'), col('dob')],
+  from: patients,
+  selected: selectedId,
+})
+// Wire: rows="{{ patients }}", rowKey="id", selected="{{ selectedPatientId }}",
+//       onRowClick=[{ action: "setState", key: "selectedPatientId", value: "{{ $item.id }}" }]
+```
+
 ### `col(key, header?, opts?)`
 
 Column definition helper — short form or descriptor form.
+
+```ts
+// Short form
+col('name', 'Full Name')
+col('email', 'Email', { sortable: true })
+
+// Descriptor form (object)
+col({ key: 'amount', header: 'Amount', format: 'currency' })
+col({ key: 'name', accessor: 'name | humanName', header: 'Patient' })
+```
 
 | Field | Type | Description |
 |-------|------|-------------|
@@ -3471,17 +1580,30 @@ Button('Fullscreen', { onClick: new RequestDisplayMode('fullscreen') })
 
 ## Real-Time Subscriptions
 
+Subscribe to a resource URI for live updates. The renderer uses native MCP push when the host supports it, and automatically falls back to periodic polling otherwise.
+
 ### `Subscribe(uri, opts)`
 
-Subscribe to a resource URI for real-time updates. Uses native MCP push when available, falls back to polling via `SetInterval` + `CallTool` otherwise.
+Start receiving updates from a resource. Uses native MCP push when available, falls back to polling via `SetInterval` + `CallTool` otherwise.
 
 ```ts
+import { Subscribe, Unsubscribe, ShowToast } from '@maxhealth.tech/prefab'
+
+// Basic — push with polling fallback
 new Subscribe('chess://game/abc123', {
   stateKey: '$game',
   fallbackInterval: 2000,
   fallbackTool: '_action',
   fallbackArgs: { action: 'refresh' },
-  onData: new ShowToast('Game updated'),
+})
+
+// With callbacks
+new Subscribe('data://stream', {
+  stateKey: '$stream',
+  fallbackInterval: 5000,
+  fallbackTool: 'poll_stream',
+  onData: new ShowToast('Updated', { variant: 'info' }),
+  onError: new ShowToast('Connection lost', { variant: 'error' }),
 })
 ```
 
@@ -3489,11 +1611,11 @@ new Subscribe('chess://game/abc123', {
 |-------|------|-------------|
 | `uri` | `string` | Resource URI to subscribe to |
 | `opts.stateKey` | `string` | Store key where incoming data is written |
-| `opts.fallbackInterval` | `number` | Poll interval in ms (default `2000`, minimum `100`) |
-| `opts.fallbackTool` | `string` | Tool to call when polling |
-| `opts.fallbackArgs` | `Record<string, unknown>` | Arguments for the fallback tool |
-| `opts.onData` | `Action \| Action[]` | Callback on new data |
-| `opts.onError` | `Action \| Action[]` | Callback on error |
+| `opts.fallbackInterval` | `number` | Poll interval (ms) when host lacks push support. Default `2000`, minimum `100` |
+| `opts.fallbackTool` | `string` | Tool to call when polling in fallback mode |
+| `opts.fallbackArgs` | `Record<string, unknown>` | Arguments passed to the fallback tool |
+| `opts.onData` | `Action \| Action[]` | Runs whenever new data arrives (push or poll) |
+| `opts.onError` | `Action \| Action[]` | Runs on subscription or poll error |
 
 **Wire JSON:**
 
@@ -3508,6 +1630,11 @@ new Subscribe('chess://game/abc123', {
 }
 ```
 
+**How it works:**
+
+1. **Push path** — If `transport.subscribe` exists and `capabilities.subscriptions` is true, the renderer subscribes natively. Data arrives via push and is stored at `stateKey`.
+2. **Fallback path** — Otherwise, a `SetInterval` + `CallTool` loop polls at `fallbackInterval`. The tool response is handled identically to a `toolCall` action.
+
 **Response handling:**
 
 * Full `$prefab` view → `remount()` (replaces entire UI)
@@ -3516,13 +1643,36 @@ new Subscribe('chess://game/abc123', {
 
 ### `Unsubscribe(uri)`
 
-Stop receiving updates from a previously subscribed resource.
+Stop receiving updates from a previously subscribed resource. Cleans up both push subscriptions and polling intervals.
 
 ```ts
 Button('Leave', { onClick: new Unsubscribe('chess://game/abc123') })
 ```
 
 **Wire JSON:** `{ "action": "unsubscribe", "uri": "chess://game/abc123" }`
+
+::: tip
+Subscriptions are automatically cleaned up when the renderer is destroyed. Use `Unsubscribe` explicitly only when you need to stop updates mid-session (e.g. leaving a game lobby).
+:::
+
+### Typical pattern: `onMount` + Subscribe
+
+```ts
+display(
+  Column({ children: [
+    H1('Live Dashboard'),
+    Text(rx('$data.status')),
+  ] }),
+  {
+    state: { $data: {} },
+    onMount: new Subscribe('app://dashboard/live', {
+      stateKey: '$data',
+      fallbackInterval: 5000,
+      fallbackTool: 'refresh_dashboard',
+    }),
+  },
+)
+```
 
 ***
 
@@ -3557,10 +1707,11 @@ display(myView, {
 
 ## Action Builder Sugar
 
-Ergonomic wrappers that accept `Signal`, `Collection`, or raw `string` keys.
+Ergonomic wrappers that accept a `Signal` or `Collection` instead of a raw string key. These produce the same wire-format actions but keep your code type-safe and DRY.
 
 ```ts
 import { set, toggle, append, pop } from '@maxhealth.tech/prefab'
+import { signal, collection } from '@maxhealth.tech/prefab'
 ```
 
 | Function | Signature | Produces |
@@ -3571,6 +1722,49 @@ import { set, toggle, append, pop } from '@maxhealth.tech/prefab'
 | `pop(target, indexOrValue?)` | `(StateTarget, number \| string) → PopState` | `PopState` (defaults to `-1`) |
 
 `StateTarget` = `Signal | Collection | string`
+
+### `set(target, value, opts?)`
+
+```ts
+const count = signal('count', 0)
+
+set(count, 42)                        // → new SetState('count', 42)
+set(count, rx`${count} + 1`)          // → new SetState('count', '{{ count + 1 }}')
+set('rawKey', 'value')                // raw string key also works
+```
+
+### `toggle(target)`
+
+```ts
+const darkMode = signal('darkMode', false)
+toggle(darkMode)                      // → new ToggleState('darkMode')
+```
+
+### `append(target, item, index?)`
+
+```ts
+const items = collection('items', rows, { key: 'id' })
+append(items, { id: 'new', name: 'New' })       // → new AppendState('items', {...})
+append(items, newItem, 0)                         // insert at index 0
+```
+
+### `pop(target, indexOrValue?)`
+
+```ts
+pop(items, 0)                         // → new PopState('items', 0)
+pop(items)                            // → new PopState('items', -1) (last element)
+pop(items, 'some-value')              // remove by value
+```
+
+### Composition
+
+Sugar functions return the same action classes, so `onSuccess` / `onError` chains work:
+
+```ts
+Button('Save', {
+  onClick: set(count, 0, { onSuccess: ShowToast('Reset!') }),
+})
+```
 
 ---
 
@@ -3752,6 +1946,13 @@ Factory function — returns a `Signal<T>`.
 | `initial` | `SignalValue` | Initial value |
 | `options.urlSync` | `string` | URL query param name (opt-in) |
 
+### Instance Properties
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `key` | `string` | The state key name |
+| `initial` | `SignalValue` | The initial value |
+
 ### Instance Methods
 
 | Method | Returns | Description |
@@ -3760,6 +1961,16 @@ Factory function — returns a `Signal<T>`.
 | `toString()` | `string` | `{{ key }}` |
 | `toJSON()` | `string` | Same as `toString()` |
 | `toState()` | `Record<string, T>` | `{ key: initial }` |
+
+```ts
+const selectedId = signal('selectedPatientId', 'p1')
+
+selectedId.key        // 'selectedPatientId'
+selectedId.initial    // 'p1'
+selectedId.toRx()     // Rx → "{{ selectedPatientId }}"
+selectedId.toString() // "{{ selectedPatientId }}"
+selectedId.toState()  // { selectedPatientId: 'p1' }
+```
 
 ***
 
@@ -3779,16 +1990,37 @@ A named keyed array with typed lookup helpers.
 | `rows` | `T[]` | Source data |
 | `key` | `string` | Field used for identity lookups |
 
+### Instance Properties
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `stateKey` | `string` | The state key name |
+| `keyField` | `string` | Field used for identity lookups |
+| `rows` | `T[]` | The source array |
+
 ### Instance Methods
 
 | Method | Returns | Description |
 |--------|---------|-------------|
 | `by(signal)` | `Ref<T>` | Lazy row reference via `find` pipe |
-| `firstKey()` | `string \| null` | Key of first row |
-| `lastKey()` | `string \| null` | Key of last row |
+| `firstKey()` | `string \| null` | Key of first row, or `null` if empty |
+| `lastKey()` | `string \| null` | Key of last row, or `null` if empty |
 | `length` | `number` | Row count |
 | `toRx()` | `Rx` | `{{ stateKey }}` expression |
 | `toState()` | `Record<string, T[]>` | `{ stateKey: rows }` |
+
+```ts
+const patients = collection('patients', fhirPatients, { key: 'id' })
+
+patients.stateKey   // 'patients'
+patients.keyField   // 'id'
+patients.rows       // the array
+patients.length     // row count
+patients.firstKey() // key of first row, or null
+patients.lastKey()  // key of last row, or null
+patients.toRx()     // Rx → "{{ patients }}"
+patients.toState()  // { patients: [...] }
+```
 
 ***
 
@@ -3798,16 +2030,89 @@ A named keyed array with typed lookup helpers.
 import { Ref } from '@maxhealth.tech/prefab'
 ```
 
-A lazy, serializable reference to a row in a collection. Returned by `collection.by(signal)`.
+A lazy, serializable reference to a row in a collection. Returned by `collection.by(signal)`. The expression is evaluated at runtime by the renderer's pipe evaluator.
+
+### Instance Properties
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `expr` | `string` | The raw pipe expression (without `{{ }}`) |
 
 ### Instance Methods
 
 | Method | Returns | Description |
 |--------|---------|-------------|
 | `toRx()` | `Rx` | The find expression as `Rx` |
-| `dot(field)` | `Ref` | Nested property access via `dot` pipe |
+| `dot(field)` | `Ref` | Nested property access via `dot` pipe (chainable) |
 | `toString()` | `string` | `{{ expr }}` |
 | `toJSON()` | `string` | Same as `toString()` |
+
+`collection.by(signal)` returns a `Ref` that compiles to a `find` pipe expression:
+
+```ts
+const selected = patients.by(selectedId)
+
+selected.expr        // "patients | find:'id',selectedPatientId"
+selected.toString()  // "{{ patients | find:'id',selectedPatientId }}"
+selected.dot('name') // Ref → "{{ patients | find:'id',selectedPatientId | dot:'name' }}"
+```
+
+`Ref.dot()` returns another `Ref`, so lookups chain:
+
+```ts
+selected.dot('address').dot('city')
+// → "{{ patients | find:'id',selectedPatientId | dot:'address' | dot:'city' }}"
+```
+
+***
+
+## `find` and `dot` Pipes
+
+These pipes power collection lookups in the wire format. They are used internally by `Ref` but can also be written by hand.
+
+### `find:'field',keyRef`
+
+Find a row in an array where `row[field]` matches the value of a state key:
+
+```
+{{ patients | find:'id',selectedPatientId }}
+```
+
+* The second argument can be a state key, a scope variable (`$item.parentId`), or a quoted literal (`'p1'`).
+* Numeric coercion: string `'2'` matches number `2` and vice versa.
+* Returns `undefined` if no match is found.
+
+### `dot:'field'`
+
+Extract a property from an object:
+
+```
+{{ patients | find:'id',selectedPatientId | dot:'name' }}
+```
+
+Returns `undefined` if the input is null/undefined.
+
+***
+
+## Auto State Collection
+
+Signals and collections auto-register their initial values with `PrefabApp` — no manual `.toState()` spreading needed:
+
+```ts
+const patients = collection('patients', data, { key: 'id' })
+const selectedId = signal('selectedPatientId', patients.firstKey())
+
+const app = new PrefabApp({
+  title: 'Patient Browser',
+  view: myView,
+  // No need for: state: { ...patients.toState(), ...selectedId.toState() }
+  // State is auto-collected from signal() and collection() calls!
+})
+
+// wire.state === { patients: [...], selectedPatientId: 'p1' }
+```
+
+Call [`resetAutoState()`](#resetautostate) to clear the collector between app builds (important in long-running or serverless processes).
 
 ***
 
@@ -4522,8 +2827,9 @@ registerViewerResource(server, {
 ---
 url: /prefab/reference/renderer.md
 description: >-
-  API reference for the prefab browser renderer — mount(), destroy(),
-  registerComponent(), theme configuration, and custom component renderers.
+  API reference for the prefab browser renderer — mount(), destroy(), the render
+  handle, registerComponent(), registerPipe(), theme configuration, and custom
+  component renderers.
 ---
 
 # Browser Renderer
@@ -4541,6 +2847,10 @@ The prefab renderer is an IIFE bundle (`dist/renderer.min.js`) that renders `$pr
 
 This creates the `window.PrefabRenderer` global and (in ext-app mode) `window.prefab`.
 
+::: tip Always include prefab.css
+The base CSS provides design tokens and structural styles. Without it, components render unstyled.
+:::
+
 ### Auto-Mount
 
 Set `window.__PREFAB_DATA__` before the script loads:
@@ -4548,7 +2858,7 @@ Set `window.__PREFAB_DATA__` before the script loads:
 ```html
 <script>
   window.__PREFAB_DATA__ = {
-    "$prefab": { "version": "0.2" },
+    "$prefab": { "version": "0.3" },
     "view": { "type": "H1", "content": "Hello!" }
   };
 </script>
@@ -4641,7 +2951,7 @@ The renderer selects the theme variant based on `prefers-color-scheme` or `data-
 The renderer has 115+ built-in component renderers. Each `type` string maps to a render function:
 
 ```
-Layout:      Column, Row, Grid, GridItem, Container, Div, Span, ...
+Layout:      Column, Row, Grid, GridItem, Container, Div, Span, MasterDetail, Detail, ...
 Typography:  H1-H4, Text, Heading, Muted, Code, Markdown, Link, Kbd, ...
 Card:        Card, CardHeader, CardTitle, CardContent, CardFooter
 Data:        DataTable, Badge, Metric, Progress, Separator, Loader, Icon, ...
@@ -4710,6 +3020,26 @@ The wire format's `stylesheets` field injects `<style>` tags:
 ```
 
 Stylesheets are scoped to the mount lifecycle — they're removed on `destroy()`.
+
+***
+
+## Custom Pipes
+
+Register custom pipe filters that work in `{{ }}` expressions at runtime:
+
+```js
+import { registerPipe } from '@maxhealth.tech/prefab'
+
+registerPipe('humanName', (value) => {
+  if (!value || typeof value !== 'object') return ''
+  const n = value
+  return `${(n.given ?? []).join(' ')} ${n.family ?? ''}`.trim()
+})
+
+// Now {{ patient.name | humanName }} works in any component
+```
+
+See the [Rx reference](/reference/rx#custom-pipes) for the full API (`registerPipe`, `unregisterPipe`, `listPipes`).
 
 ***
 

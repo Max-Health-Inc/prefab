@@ -209,17 +209,30 @@ Button('Fullscreen', { onClick: new RequestDisplayMode('fullscreen') })
 
 ## Real-Time Subscriptions
 
+Subscribe to a resource URI for live updates. The renderer uses native MCP push when the host supports it, and automatically falls back to periodic polling otherwise.
+
 ### `Subscribe(uri, opts)`
 
-Subscribe to a resource URI for real-time updates. Uses native MCP push when available, falls back to polling via `SetInterval` + `CallTool` otherwise.
+Start receiving updates from a resource. Uses native MCP push when available, falls back to polling via `SetInterval` + `CallTool` otherwise.
 
 ```ts
+import { Subscribe, Unsubscribe, ShowToast } from '@maxhealth.tech/prefab'
+
+// Basic — push with polling fallback
 new Subscribe('chess://game/abc123', {
   stateKey: '$game',
   fallbackInterval: 2000,
   fallbackTool: '_action',
   fallbackArgs: { action: 'refresh' },
-  onData: new ShowToast('Game updated'),
+})
+
+// With callbacks
+new Subscribe('data://stream', {
+  stateKey: '$stream',
+  fallbackInterval: 5000,
+  fallbackTool: 'poll_stream',
+  onData: new ShowToast('Updated', { variant: 'info' }),
+  onError: new ShowToast('Connection lost', { variant: 'error' }),
 })
 ```
 
@@ -227,11 +240,11 @@ new Subscribe('chess://game/abc123', {
 |-------|------|-------------|
 | `uri` | `string` | Resource URI to subscribe to |
 | `opts.stateKey` | `string` | Store key where incoming data is written |
-| `opts.fallbackInterval` | `number` | Poll interval in ms (default `2000`, minimum `100`) |
-| `opts.fallbackTool` | `string` | Tool to call when polling |
-| `opts.fallbackArgs` | `Record<string, unknown>` | Arguments for the fallback tool |
-| `opts.onData` | `Action \| Action[]` | Callback on new data |
-| `opts.onError` | `Action \| Action[]` | Callback on error |
+| `opts.fallbackInterval` | `number` | Poll interval (ms) when host lacks push support. Default `2000`, minimum `100` |
+| `opts.fallbackTool` | `string` | Tool to call when polling in fallback mode |
+| `opts.fallbackArgs` | `Record<string, unknown>` | Arguments passed to the fallback tool |
+| `opts.onData` | `Action \| Action[]` | Runs whenever new data arrives (push or poll) |
+| `opts.onError` | `Action \| Action[]` | Runs on subscription or poll error |
 
 **Wire JSON:**
 
@@ -246,6 +259,11 @@ new Subscribe('chess://game/abc123', {
 }
 ```
 
+**How it works:**
+
+1. **Push path** — If `transport.subscribe` exists and `capabilities.subscriptions` is true, the renderer subscribes natively. Data arrives via push and is stored at `stateKey`.
+2. **Fallback path** — Otherwise, a `SetInterval` + `CallTool` loop polls at `fallbackInterval`. The tool response is handled identically to a `toolCall` action.
+
 **Response handling:**
 
 * Full `$prefab` view → `remount()` (replaces entire UI)
@@ -254,13 +272,36 @@ new Subscribe('chess://game/abc123', {
 
 ### `Unsubscribe(uri)`
 
-Stop receiving updates from a previously subscribed resource.
+Stop receiving updates from a previously subscribed resource. Cleans up both push subscriptions and polling intervals.
 
 ```ts
 Button('Leave', { onClick: new Unsubscribe('chess://game/abc123') })
 ```
 
 **Wire JSON:** `{ "action": "unsubscribe", "uri": "chess://game/abc123" }`
+
+::: tip
+Subscriptions are automatically cleaned up when the renderer is destroyed. Use `Unsubscribe` explicitly only when you need to stop updates mid-session (e.g. leaving a game lobby).
+:::
+
+### Typical pattern: `onMount` + Subscribe
+
+```ts
+display(
+  Column({ children: [
+    H1('Live Dashboard'),
+    Text(rx('$data.status')),
+  ] }),
+  {
+    state: { $data: {} },
+    onMount: new Subscribe('app://dashboard/live', {
+      stateKey: '$data',
+      fallbackInterval: 5000,
+      fallbackTool: 'refresh_dashboard',
+    }),
+  },
+)
+```
 
 ***
 
@@ -295,10 +336,11 @@ display(myView, {
 
 ## Action Builder Sugar
 
-Ergonomic wrappers that accept `Signal`, `Collection`, or raw `string` keys.
+Ergonomic wrappers that accept a `Signal` or `Collection` instead of a raw string key. These produce the same wire-format actions but keep your code type-safe and DRY.
 
 ```ts
 import { set, toggle, append, pop } from '@maxhealth.tech/prefab'
+import { signal, collection } from '@maxhealth.tech/prefab'
 ```
 
 | Function | Signature | Produces |
@@ -309,3 +351,46 @@ import { set, toggle, append, pop } from '@maxhealth.tech/prefab'
 | `pop(target, indexOrValue?)` | `(StateTarget, number \| string) → PopState` | `PopState` (defaults to `-1`) |
 
 `StateTarget` = `Signal | Collection | string`
+
+### `set(target, value, opts?)`
+
+```ts
+const count = signal('count', 0)
+
+set(count, 42)                        // → new SetState('count', 42)
+set(count, rx`${count} + 1`)          // → new SetState('count', '{{ count + 1 }}')
+set('rawKey', 'value')                // raw string key also works
+```
+
+### `toggle(target)`
+
+```ts
+const darkMode = signal('darkMode', false)
+toggle(darkMode)                      // → new ToggleState('darkMode')
+```
+
+### `append(target, item, index?)`
+
+```ts
+const items = collection('items', rows, { key: 'id' })
+append(items, { id: 'new', name: 'New' })       // → new AppendState('items', {...})
+append(items, newItem, 0)                         // insert at index 0
+```
+
+### `pop(target, indexOrValue?)`
+
+```ts
+pop(items, 0)                         // → new PopState('items', 0)
+pop(items)                            // → new PopState('items', -1) (last element)
+pop(items, 'some-value')              // remove by value
+```
+
+### Composition
+
+Sugar functions return the same action classes, so `onSuccess` / `onError` chains work:
+
+```ts
+Button('Save', {
+  onClick: set(count, 0, { onSuccess: ShowToast('Reset!') }),
+})
+```

@@ -7,227 +7,39 @@ description: >-
 
 # Browser Renderer
 
-The prefab renderer is an IIFE bundle (`dist/renderer.min.js`) that renders `$prefab` wire JSON into vanilla DOM. Zero framework dependencies.
+The browser renderer is how your `$prefab` UIs come alive in a real page. It is a single, self-contained script (`dist/renderer.min.js`) with **zero framework dependencies** — no React, no Vue, no build step. Drop it in with a `<script>` tag and it turns wire JSON into living DOM.
 
-## Loading
+## The mental model
 
-### Script Tag (CDN)
+Think of the renderer as a small machine with one job: **wire JSON in, live DOM out.**
 
-```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@maxhealth.tech/prefab@latest/dist/prefab.css">
-<script src="https://cdn.jsdelivr.net/npm/@maxhealth.tech/prefab@latest/dist/renderer.min.js"></script>
+```
+$prefab wire JSON  ──▶  renderer  ──▶  real DOM nodes
 ```
 
-This creates the `window.PrefabRenderer` global and (in ext-app mode) `window.prefab`.
+Your server (or your LLM) describes *what* the UI should look like as plain JSON — a tree of typed nodes like `Column`, `H1`, `DataTable`. The renderer reads that tree and builds the matching HTML elements, wires up event handlers, and applies your theme. You never touch the DOM yourself.
 
-::: tip Always include prefab.css
-The base CSS provides design tokens and structural styles. Without it, components render unstyled.
-:::
+The interesting part is what happens *after* the first paint. The renderer keeps a small **reactive store** alongside the DOM. When a button fires an action, or a tool call returns fresh data, the store updates and every `{{ ... }}` expression that depends on it re-evaluates automatically. The page reacts; you don't re-render by hand.
 
-### Auto-Mount
+## How it fits in a page
 
-Set `window.__PREFAB_DATA__` before the script loads:
+There are two ways to get a UI on screen, and which you reach for depends on whether the JSON is ready at load time.
+
+**Auto-mount** is the zero-code path. Stash your wire data on `window.__PREFAB_DATA__` before the script runs, and the renderer finds your `#root` (or the body) and mounts itself on `DOMContentLoaded`. Perfect for server-rendered pages that already know what to show.
 
 ```html
-<script>
-  window.__PREFAB_DATA__ = {
-    "$prefab": { "version": "0.3" },
-    "view": { "type": "H1", "content": "Hello!" }
-  };
-</script>
+<script>window.__PREFAB_DATA__ = { "$prefab": { "version": "0.3" }, "view": { "type": "H1", "content": "Hello!" } };</script>
 <script src="renderer.min.js"></script>
 ```
 
-The renderer auto-mounts into the first `#root` element (or `document.body`) on `DOMContentLoaded`.
+**Manual mount** is for when the data arrives later — from a fetch, a tool call, or user interaction. Call `PrefabRenderer.mount(element, data, options)` yourself and you get back a **render handle** you can hold onto: feed it new data with `update()`, force a redraw with `rerender()`, reach into the reactive `store`, or tear everything down with `destroy()`.
 
-### Manual Mount
+::: tip Always ship prefab.css
+The renderer paints structure, but `prefab.css` carries the design tokens and base styles. Load it alongside the script or your components come out unstyled.
+:::
 
-```js
-const handle = PrefabRenderer.mount(document.getElementById('root'), wireData, {
-  transport: { endpoint: '/mcp/tools/call' },
-  onToast: (event) => alert(event.message),
-});
+## Going further
 
-// Later:
-handle.update(newWireData);
-handle.destroy();
-```
+The renderer is extensible without forking it. You can teach it new node types with `registerComponent`, add new `{{ }}` filters with `registerPipe`, and inject scoped stylesheets straight from the wire format — all covered in the reference.
 
-## `PrefabRenderer.mount(element, data, options?)`
-
-| Param | Type | Description |
-|-------|------|-------------|
-| `element` | `HTMLElement` | Target DOM element |
-| `data` | `PrefabWireData` | Wire format JSON |
-| `options.transport` | `{ endpoint, headers? }` | HTTP transport config for `CallTool` |
-| `options.onToast` | `(event) => void` | Toast handler |
-
-Returns a `MountedApp` with:
-
-| Method | Description |
-|--------|-------------|
-| `update(data)` | Apply a state update from `display_update()` |
-| `rerender()` | Re-render the entire UI from current state |
-| `destroy()` | Unmount and clean up |
-| `store` | Access the reactive `Store` |
-
-***
-
-## Reactive Store
-
-The renderer maintains a `Store` that holds all reactive state:
-
-```ts
-const store = handle.store;
-
-store.get('count');           // Read
-store.set('count', 42);       // Write (triggers re-render)
-store.merge({ a: 1, b: 2 }); // Merge multiple
-store.toggle('active');        // Toggle boolean
-store.append('items', item);   // Push to array
-store.pop('items', 0);         // Remove by index
-store.getAll();               // Full state copy
-```
-
-State changes automatically re-evaluate all `{{ }}` expressions in the DOM.
-
-***
-
-## Theme Engine
-
-The renderer applies theme values as CSS custom properties:
-
-```json
-{
-  "theme": {
-    "light": { "primary": "#3b82f6", "radius": "0.5rem" },
-    "dark": { "primary": "#60a5fa" }
-  }
-}
-```
-
-Applied as:
-
-```css
-:root {
-  --primary: #3b82f6;
-  --radius: 0.5rem;
-}
-```
-
-The renderer selects the theme variant based on `prefers-color-scheme` or `data-theme` attribute on the root element.
-
-***
-
-## Component Registry
-
-The renderer has 115+ built-in component renderers. Each `type` string maps to a render function:
-
-```
-Layout:      Column, Row, Grid, GridItem, Container, Div, Span, MasterDetail, Detail, ...
-Typography:  H1-H4, Text, Heading, Muted, Code, Markdown, Link, Kbd, ...
-Card:        Card, CardHeader, CardTitle, CardContent, CardFooter
-Data:        DataTable, Badge, Metric, Progress, Separator, Loader, Icon, ...
-Table:       Table, TableHead, TableBody, TableRow, TableCell, ...
-Form:        Form, Input, Textarea, Button, Select, Checkbox, Switch, ...
-Interactive: Tabs, Tab, Accordion, AccordionItem, Dialog, Tooltip, ...
-Charts:      BarChart, LineChart, AreaChart, PieChart, Sparkline, ...
-Media:       Image, Audio, Video, Embed, Svg, DropZone, Mermaid
-Alert:       Alert, AlertTitle, AlertDescription
-Control:     ForEach, If, Elif, Else, Define, Use, Slot
-```
-
-### Custom Components
-
-Register custom renderers before mounting:
-
-```js
-import { registerComponent } from '@maxhealth.tech/prefab/renderer'
-
-registerComponent('MyWidget', (node, ctx) => {
-  const el = document.createElement('div');
-  el.textContent = node.content;
-  return el;
-});
-```
-
-`registerComponent` is a standalone function, not a method on `PrefabRenderer`.
-
-***
-
-## Action Dispatcher
-
-The renderer handles 15 action types:
-
-| Action | Behavior |
-|--------|----------|
-| `setState` | Updates the reactive store |
-| `toggleState` | Toggles a boolean in the store |
-| `appendState` | Pushes to an array in the store |
-| `popState` | Removes from an array in the store |
-| `showToast` | Calls the toast handler |
-| `closeOverlay` | Closes the current dialog |
-| `openLink` | `window.open(url, target)` |
-| `setInterval` | Starts a periodic timer |
-| `fetch` | `fetch()` + stores result |
-| `openFilePicker` | Opens file input dialog |
-| `callHandler` | Calls a registered JS handler |
-| `toolCall` | Routes through MCP transport |
-| `sendMessage` | Routes through MCP transport |
-| `updateContext` | Routes through bridge |
-| `requestDisplayMode` | Routes through bridge |
-
-***
-
-## Stylesheet Injection
-
-The wire format's `stylesheets` field injects `<style>` tags:
-
-```json
-{
-  "stylesheets": [
-    ".custom-btn { background: linear-gradient(135deg, #667eea, #764ba2); }",
-    "@keyframes pulse { 0% { opacity: 1 } 50% { opacity: 0.5 } 100% { opacity: 1 } }"
-  ]
-}
-```
-
-Stylesheets are scoped to the mount lifecycle — they're removed on `destroy()`.
-
-***
-
-## Custom Pipes
-
-Register custom pipe filters that work in `{{ }}` expressions at runtime:
-
-```js
-import { registerPipe } from '@maxhealth.tech/prefab'
-
-registerPipe('humanName', (value) => {
-  if (!value || typeof value !== 'object') return ''
-  const n = value
-  return `${(n.given ?? []).join(' ')} ${n.family ?? ''}`.trim()
-})
-
-// Now {{ patient.name | humanName }} works in any component
-```
-
-See the [Rx reference](/reference/rx#custom-pipes) for the full API (`registerPipe`, `unregisterPipe`, `listPipes`).
-
-***
-
-## Accessibility
-
-The renderer applies ARIA attributes automatically:
-
-| Component | ARIA |
-|-----------|------|
-| `Tabs` | `role="tablist"`, `aria-selected`, keyboard arrows/Home/End |
-| `Tab` | `role="tab"`, `aria-controls`, `tabindex` |
-| `Accordion` | `aria-expanded`, Enter/Space toggle |
-| `Dialog` | `role="dialog"`, `aria-modal`, focus trap |
-| `Tooltip` | `role="tooltip"` |
-| `Carousel` | `role="region"`, `aria-roledescription="carousel"` |
-| `Progress` | `role="progressbar"`, `aria-valuenow/min/max` |
-| `Alert` | `role="alert"` |
-| Form inputs | `aria-required`, `aria-invalid`, `id`/`for` linking |
+→ See the [Renderer reference](/reference/renderer) for the full API: every method, option, and the render handle.

@@ -1,8 +1,9 @@
 ---
 url: /prefab/reference/renderer.md
 description: >-
-  API reference for the prefab browser renderer — mount(), destroy(),
-  registerComponent(), theme configuration, and custom component renderers.
+  API reference for the prefab browser renderer — mount(), destroy(), the render
+  handle, registerComponent(), registerPipe(), theme configuration, and custom
+  component renderers.
 ---
 
 # Browser Renderer
@@ -20,6 +21,10 @@ The prefab renderer is an IIFE bundle (`dist/renderer.min.js`) that renders `$pr
 
 This creates the `window.PrefabRenderer` global and (in ext-app mode) `window.prefab`.
 
+::: tip Always include prefab.css
+The base CSS provides design tokens and structural styles. Without it, components render unstyled.
+:::
+
 ### Auto-Mount
 
 Set `window.__PREFAB_DATA__` before the script loads:
@@ -27,7 +32,7 @@ Set `window.__PREFAB_DATA__` before the script loads:
 ```html
 <script>
   window.__PREFAB_DATA__ = {
-    "$prefab": { "version": "0.2" },
+    "$prefab": { "version": "0.3" },
     "view": { "type": "H1", "content": "Hello!" }
   };
 </script>
@@ -120,7 +125,7 @@ The renderer selects the theme variant based on `prefers-color-scheme` or `data-
 The renderer has 115+ built-in component renderers. Each `type` string maps to a render function:
 
 ```
-Layout:      Column, Row, Grid, GridItem, Container, Div, Span, ...
+Layout:      Column, Row, Grid, GridItem, Container, Div, Span, MasterDetail, Detail, ...
 Typography:  H1-H4, Text, Heading, Muted, Code, Markdown, Link, Kbd, ...
 Card:        Card, CardHeader, CardTitle, CardContent, CardFooter
 Data:        DataTable, Badge, Metric, Progress, Separator, Loader, Icon, ...
@@ -189,6 +194,26 @@ The wire format's `stylesheets` field injects `<style>` tags:
 ```
 
 Stylesheets are scoped to the mount lifecycle — they're removed on `destroy()`.
+
+***
+
+## Custom Pipes
+
+Register custom pipe filters that work in `{{ }}` expressions at runtime:
+
+```js
+import { registerPipe } from '@maxhealth.tech/prefab'
+
+registerPipe('humanName', (value) => {
+  if (!value || typeof value !== 'object') return ''
+  const n = value
+  return `${(n.given ?? []).join(' ')} ${n.family ?? ''}`.trim()
+})
+
+// Now {{ patient.name | humanName }} works in any component
+```
+
+See the [Rx reference](/reference/rx#custom-pipes) for the full API (`registerPipe`, `unregisterPipe`, `listPipes`).
 
 ***
 

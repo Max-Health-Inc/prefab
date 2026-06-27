@@ -7,9 +7,24 @@ description: >-
 
 # PostMessage Bridge
 
-The bridge enables prefab apps running in iframes to communicate with their host via PostMessage. It supports two protocols — `prefab:*` (custom) and `ui/*` JSON-RPC (MCP Apps spec) — and works in VS Code, Claude, ChatGPT, or any MCP Apps host.
+When a prefab app renders inside an MCP Apps host like VS Code, Claude, or ChatGPT, it lives in a sandboxed iframe. The bridge is what lets that iframe and its host hold a conversation — passing tool input in, sending tool calls and chat messages out, and reacting to theme or context changes — all over the browser's `postMessage` channel.
 
-## Quick Start
+## Two protocols, one bridge
+
+The bridge speaks two message dialects at once, so the same app works across hosts that disagree on conventions:
+
+* **`prefab:*`** — the custom, prefab-native protocol (for example `prefab:tool-input`, `prefab:tool-call`).
+* **`ui/*`** — the JSON-RPC dialect from the [MCP Apps spec](https://modelcontextprotocol.io), which standards-based hosts prefer.
+
+You never choose between them. The bridge negotiates the right one during connection and translates underneath, so your code stays the same regardless of which host loaded it.
+
+## Connection lifecycle
+
+Every session opens with a short handshake. The app announces the capabilities it supports, the host replies with its own capabilities plus the active theme, and from there messages flow both ways for the life of the iframe. Tool input arrives, your app renders, tool calls go back out, and either side can tear the connection down cleanly when it's done. The host can also push updates mid-session — a theme switch or a fresh context payload (locale, access tokens, and the like) — which your handlers receive as they happen.
+
+## High-level vs. low-level
+
+Most apps only ever touch the high-level **`prefab.app()`** factory. It auto-detects whether you're in an iframe or running standalone, runs the handshake for you, applies the host theme, and hands back a ready-to-use `PrefabApp` object with friendly methods like `onToolInput`, `render`, and `callTool`.
 
 ```html
 <script src="renderer.min.js"></script>
@@ -24,232 +39,10 @@ The bridge enables prefab apps running in iframes to communicate with their host
 </script>
 ```
 
-***
+If you need finer control — a custom transport, your own handshake timing, or raw message handling — reach for the low-level **`Bridge`** class instead. It exposes the wire directly: connect, initialize, subscribe to raw message types, and disconnect yourself. The factory is built on top of it, so you lose convenience but gain control.
 
-## `prefab.app(options?)`
+## A note on origin security
 
-Factory function that auto-detects the environment, performs the handshake, and returns a `PrefabApp` API object.
+By default the bridge accepts messages from any origin (`'*'`), which is fine for local development but unsafe in production. Always pass an explicit `hostOrigin` so the bridge only trusts messages from your real host. It validates incoming `event.origin`, correlates tool responses by id to prevent spoofing, and times out stalled tool calls — but the origin you set is the first line of defense.
 
-### Options
-
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `mode` | `'bridge' \| 'standalone' \| 'auto'` | `'auto'` | Force bridge or standalone mode |
-| `hostOrigin` | `string` | `'*'` | Allowed origin for PostMessage (set in production!) |
-| `transport` | `McpTransportOptions` | — | HTTP transport config for standalone mode |
-| `capabilities` | `AppCapabilities` | `{ toolInput: true }` | Capabilities to advertise |
-
-### Environment Detection
-
-| Condition | Mode | Transport |
-|-----------|------|-----------|
-| Running in iframe | Bridge | PostMessage via `window.parent` |
-| Standalone + transport config | Standalone | HTTP POST |
-| Standalone, no config | Standalone | Noop (actions silently succeed) |
-
-***
-
-## `PrefabApp` API
-
-### Tool Communication
-
-```ts
-// Call an MCP tool
-const result = await ui.callTool('search_users', { query: 'alice' });
-
-// Send a chat message
-await ui.sendMessage('Operation complete');
-```
-
-### Lifecycle Hooks
-
-```ts
-// Receive tool input from the host
-ui.onToolInput((args) => {
-  console.log('Tool args:', args);
-  ui.render('#root', buildUI(args));
-});
-
-// Receive tool results
-ui.onToolResult((result) => {
-  console.log('Tool result:', result);
-});
-
-// Handle cancellation
-ui.onToolCancelled(() => {
-  console.log('Tool was cancelled');
-});
-
-// Streaming partial input
-ui.onToolInputPartial((partialArgs) => {
-  console.log('Partial input:', partialArgs);
-});
-```
-
-The first `onToolInput` delivery is buffered — if the host sends tool input before the handler is registered, it's delivered immediately when `onToolInput` is called.
-
-### Rendering
-
-```ts
-// Render component JSON into a DOM target
-const handle = ui.render('#root',
-  { type: 'Column', children: [
-    { type: 'H1', content: 'Hello' },
-    { type: 'Text', content: '{{ state.message }}' },
-  ]},
-);
-
-// Re-render
-handle.rerender();
-
-// Access state
-handle.store.set('message', 'Updated!');
-
-// Unmount
-handle.destroy();
-```
-
-### Display Modes
-
-```ts
-ui.requestMode('fullscreen');  // Request fullscreen
-ui.requestMode('pip');         // Picture-in-picture
-ui.requestMode('inline');      // Back to inline
-```
-
-### Host Integration
-
-```ts
-ui.openLink('https://docs.example.com', '_blank');
-ui.updateContext({ selectedPatient: 'patient-123' });
-```
-
-### Host Info
-
-```ts
-ui.host;          // HostContext: { capabilities, theme?, name?, version? }
-ui.capabilities;  // HostCapabilities: { toast?, clipboard?, navigation? }
-ui.theme;         // HostTheme | undefined
-ui.transport;     // The underlying McpTransport
-```
-
-### Cleanup
-
-```ts
-ui.destroy();  // Disconnects bridge, removes listeners
-```
-
-***
-
-## PostMessage Protocol
-
-All messages use a `prefab:` namespace prefix.
-
-### App → Host Messages
-
-| Type | Payload | Description |
-|------|---------|-------------|
-| `prefab:init` | `{ capabilities }` | Handshake init |
-| `prefab:tool-call` | `{ tool, arguments }` | MCP tool invocation |
-| `prefab:send-message` | `{ message }` | Chat message |
-| `prefab:request-mode` | `{ mode }` | Display mode request |
-| `prefab:open-link` | `{ url, target? }` | URL navigation |
-| `prefab:update-context` | `{ context }` | Context update |
-
-### Host → App Messages
-
-| Type | Payload | Description |
-|------|---------|-------------|
-| `prefab:init-response` | `{ capabilities, theme? }` | Handshake response |
-| `prefab:tool-input` | `{ args }` | Tool input delivery |
-| `prefab:tool-input-partial` | `{ args }` | Streaming partial input |
-| `prefab:tool-result` | `{ result }` | Tool execution result |
-| `prefab:tool-cancelled` | `{}` | Tool was cancelled |
-| `prefab:theme-update` | `HostTheme` | Theme change |
-| `prefab:state-update` | `Record<string, unknown>` | State merge |
-
-### Message Shape
-
-```ts
-interface BridgeMessage {
-  type: string;           // e.g. 'prefab:tool-call'
-  payload?: Record<string, unknown>;
-  id?: string;            // For request/response correlation
-}
-```
-
-### Handshake Flow
-
-```
-App                          Host
- │                            │
- │── prefab:init ────────────>│  { capabilities: { toolInput: true } }
- │                            │
- │<── prefab:init-response ───│  { capabilities: { toast: true }, theme: {...} }
- │                            │
- │<── prefab:tool-input ──────│  { args: { patientId: '123' } }
- │                            │
- │── prefab:tool-call ───────>│  { tool: 'get_patient', arguments: {...} }
- │                            │
- │<── prefab:tool-call-response│  { result: { name: 'Alice', ... } }
-```
-
-***
-
-## Host Theme
-
-The host can provide CSS variables during the handshake or via `prefab:theme-update`:
-
-```ts
-interface HostTheme {
-  primary?: string;
-  background?: string;
-  foreground?: string;
-  muted?: string;
-  border?: string;
-  radius?: string;
-  // ... any CSS custom property
-}
-```
-
-The bridge applies these as `--property: value` on `document.documentElement`.
-
-***
-
-## Security
-
-* Set `hostOrigin` to the expected host origin in production (not `'*'`)
-* The bridge validates `event.origin` on incoming messages
-* Tool call responses use `id` correlation to prevent spoofing
-* Tool calls have a 30-second timeout
-
-```ts
-const ui = await prefab.app({
-  hostOrigin: 'https://your-host.example.com',
-});
-```
-
-***
-
-## Bridge Class (Low-Level)
-
-For custom integrations, use `Bridge` directly:
-
-```ts
-import { Bridge, isIframe, applyHostTheme } from '@maxhealth.tech/prefab/renderer';
-
-if (isIframe()) {
-  const bridge = new Bridge('https://host.example.com');
-  bridge.connect();
-
-  const hostCtx = await bridge.initialize({ toolInput: true });
-  const transport = bridge.createTransport();
-
-  bridge.on('prefab:tool-input', (payload) => {
-    console.log('Tool input:', payload.args);
-  });
-
-  // Cleanup
-  bridge.disconnect();
-}
-```
+→ See the [Bridge reference](/reference/bridge) for the full API: every message type, the PrefabApp methods, and the handshake protocol.
