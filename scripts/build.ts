@@ -67,3 +67,9 @@ console.log('✅ Auto-mount bundle → dist/renderer.auto.min.js')
 // Copy CSS theme file to dist
 copyFileSync('src/prefab.css', 'dist/prefab.css')
 console.log('✅ Base theme → dist/prefab.css')
+
+// Regenerate the skill's example assets from the single canonical source
+// (docs/public/examples/). These copies are git-ignored, so a normal build
+// keeps the skill bundle self-contained without committing duplicate JSON.
+const { genSkillAssets } = await import('./gen-skill-assets.ts')
+genSkillAssets()

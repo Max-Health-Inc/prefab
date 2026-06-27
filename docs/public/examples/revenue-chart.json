@@ -1,0 +1,131 @@
+{
+  "$prefab": {
+    "version": "0.2"
+  },
+  "view": {
+    "type": "Column",
+    "gap": 16,
+    "children": [
+      {
+        "type": "Heading",
+        "content": "Revenue Report — H1 2026",
+        "level": 2
+      },
+      {
+        "type": "Row",
+        "gap": 16,
+        "children": [
+          {
+            "type": "Card",
+            "children": [
+              {
+                "type": "CardContent",
+                "children": [
+                  {
+                    "type": "Metric",
+                    "label": "Total Revenue",
+                    "value": "$25,580"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "Card",
+            "children": [
+              {
+                "type": "CardContent",
+                "children": [
+                  {
+                    "type": "Metric",
+                    "label": "Total Costs",
+                    "value": "$15,706"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "Card",
+            "children": [
+              {
+                "type": "CardContent",
+                "children": [
+                  {
+                    "type": "Metric",
+                    "label": "Net Profit",
+                    "value": "$9,874"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "Card",
+        "children": [
+          {
+            "type": "CardContent",
+            "children": [
+              {
+                "type": "BarChart",
+                "data": [
+                  {
+                    "month": "Jan",
+                    "revenue": 4000,
+                    "costs": 2400
+                  },
+                  {
+                    "month": "Feb",
+                    "revenue": 3000,
+                    "costs": 1398
+                  },
+                  {
+                    "month": "Mar",
+                    "revenue": 5200,
+                    "costs": 3100
+                  },
+                  {
+                    "month": "Apr",
+                    "revenue": 2780,
+                    "costs": 3908
+                  },
+                  {
+                    "month": "May",
+                    "revenue": 6100,
+                    "costs": 2800
+                  },
+                  {
+                    "month": "Jun",
+                    "revenue": 4500,
+                    "costs": 2100
+                  }
+                ],
+                "series": [
+                  {
+                    "dataKey": "revenue",
+                    "label": "Revenue",
+                    "color": "#4f46e5"
+                  },
+                  {
+                    "dataKey": "costs",
+                    "label": "Costs",
+                    "color": "#ef4444"
+                  }
+                ],
+                "xAxis": "month",
+                "height": 300,
+                "showLegend": true,
+                "showTooltip": true,
+                "animate": true,
+                "showGrid": true,
+                "barRadius": 4
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

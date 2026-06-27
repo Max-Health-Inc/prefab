@@ -58,4 +58,4 @@ can carry one that opens an edit form; the form submits back to a save tool.
 Each step is just another handler returning its own `display(...)`, so rich,
 multi-screen flows fall out of simple pieces.
 
-→ See the [MCP Display reference](/reference/mcp-display) for the full API: every helper, its options, and the tool-result shape.
+→ See the [MCP API reference](/reference/api/mcp/) for the full API: every helper, its options, and the tool-result shape.

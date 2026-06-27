@@ -37,4 +37,4 @@ Actions are not limited to user gestures. Pass `onMount` to `display()` to run a
 
 For the state-mutating actions (`set`, `toggle`, `append`, `pop`), prefab ships ergonomic wrappers that accept a `Signal` or `Collection` instead of a raw string key. Prefer them whenever you already model your state with signals: you keep type safety, avoid stringly-typed keys, and produce the exact same wire-format actions. Drop down to the raw action classes when you need a one-off or are working without a signal.
 
-→ See the [Actions reference](/reference/actions) for the full catalog: every action, its parameters, and wire JSON.
+→ See the [Actions API reference](/reference/api/actions/) for every action class, its constructor options, and serialized shape.

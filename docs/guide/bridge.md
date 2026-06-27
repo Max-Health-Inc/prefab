@@ -42,4 +42,4 @@ If you need finer control — a custom transport, your own handshake timing, or 
 
 By default the bridge accepts messages from any origin (`'*'`), which is fine for local development but unsafe in production. Always pass an explicit `hostOrigin` so the bridge only trusts messages from your real host. It validates incoming `event.origin`, correlates tool responses by id to prevent spoofing, and times out stalled tool calls — but the origin you set is the first line of defense.
 
-→ See the [Bridge reference](/reference/bridge) for the full API: every message type, the PrefabApp methods, and the handshake protocol.
+→ See the [Renderer API reference](/reference/api/renderer/) for the full API: the `Bridge` class, the `PrefabApp` methods, and the `app()` factory.

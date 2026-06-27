@@ -14,6 +14,14 @@ __pycache__/
 docs/.vitepress/cache
 docs/.vitepress/dist
 
+# Generated API reference — produced from src/ TSDoc by TypeDoc (predocs hook).
+# The source of truth is the TSDoc in src/; do not commit the generated output.
+docs/reference/api/
+
+# Generated skill assets — copied from the canonical docs/public/examples/
+# by scripts/gen-skill-assets.ts (run via the build). Do not commit.
+skills/prefab-ui/assets/examples/
+
 # Compiled test artifacts (from stale tsc runs)
 test/**/*.js
 test/**/*.js.map

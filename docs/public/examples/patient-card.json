@@ -1,0 +1,87 @@
+{
+  "$prefab": {
+    "version": "0.2"
+  },
+  "view": {
+    "type": "Card",
+    "children": [
+      {
+        "type": "CardHeader",
+        "children": [
+          {
+            "type": "CardTitle",
+            "content": "Sarah Connor"
+          },
+          {
+            "type": "CardDescription",
+            "content": "DOB: 1965-02-28 · MRN: 00482917"
+          }
+        ]
+      },
+      {
+        "type": "CardContent",
+        "children": [
+          {
+            "type": "Column",
+            "gap": 12,
+            "children": [
+              {
+                "type": "Row",
+                "gap": 16,
+                "children": [
+                  {
+                    "type": "Metric",
+                    "label": "Heart Rate",
+                    "value": "72 bpm"
+                  },
+                  {
+                    "type": "Metric",
+                    "label": "Blood Pressure",
+                    "value": "120/80"
+                  },
+                  {
+                    "type": "Metric",
+                    "label": "Temperature",
+                    "value": "98.6°F"
+                  },
+                  {
+                    "type": "Metric",
+                    "label": "SpO₂",
+                    "value": "98%"
+                  }
+                ]
+              },
+              {
+                "type": "Separator"
+              },
+              {
+                "type": "Text",
+                "content": "Patient is in stable condition. No abnormalities detected in recent labs. Follow-up scheduled in 2 weeks."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "CardFooter",
+        "children": [
+          {
+            "type": "Badge",
+            "label": "Stable",
+            "variant": "success"
+          },
+          {
+            "type": "Badge",
+            "label": "Outpatient",
+            "variant": "secondary"
+          },
+          {
+            "type": "Badge",
+            "label": "Lab results pending",
+            "variant": "warning"
+          }
+        ]
+      }
+    ]
+  }
+}
