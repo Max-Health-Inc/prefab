@@ -2,365 +2,39 @@
 description: How to attach actions to components — CallTool, SetState, ShowToast, Navigate, and other serializable event handlers for MCP Apps.
 ---
 
-# Actions Reference
+# Actions
 
-Actions are serializable commands attached to component events (`onClick`, `onChange`, `onSubmit`, `onMount`). They execute either client-side (no server roundtrip) or via MCP transport.
+Actions are how a prefab UI does something. They are small, serializable commands you attach to a component event — `onClick`, `onChange`, `onSubmit`, or the app-level `onMount`. Because they are plain data (not closures), they travel across the wire and run wherever the renderer lives, which is what makes interactivity possible in an MCP App.
 
-## Client Actions
+## Two execution models
 
-### `SetState(key, value, opts?)`
+Every action falls into one of two camps:
 
-Set a reactive state value.
+- **Client-side** actions resolve entirely in the renderer with no server roundtrip. Setting state, toggling a flag, showing a toast, opening a link, or picking a file all happen instantly in the browser.
+- **MCP transport** actions take a roundtrip through the host — calling a tool, sending a chat message, or updating shared context. These are how your UI reaches back into the server that produced it.
 
-```ts
-Button('Increment', { onClick: SetState('count', rx`${STATE}.count + 1`) })
-```
+Reaching for the right camp is usually obvious: if the work is purely visual or local, keep it client-side; if it needs the model or your backend, call a tool.
 
-| Param | Type | Description |
-|-------|------|-------------|
-| `key` | `string` | State key to set |
-| `value` | `unknown` | New value (can be Rx expression) |
-| `opts.onSuccess` | `Action \| Action[]` | Run after success |
-| `opts.onError` | `Action \| Action[]` | Run on error |
+## Chaining with onSuccess and onError
 
-**Wire JSON:** `{ "action": "setState", "key": "count", "value": "{{ state.count + 1 }}" }`
-
-### `ToggleState(key)`
-
-Toggle a boolean state value.
-
-```ts
-Switch({ name: 'dark', onChange: ToggleState('darkMode') })
-```
-
-**Wire JSON:** `{ "action": "toggleState", "key": "darkMode" }`
-
-### `AppendState(key, value, index?)`
-
-Append a value to a state array. Optional `index` for insertion position.
-
-```ts
-Button('Add Item', { onClick: AppendState('todos', { text: 'New todo', done: false }) })
-```
-
-### `PopState(key, index)`
-
-Remove an item from a state array by index.
-
-```ts
-Button('Remove', { onClick: PopState('todos', rx`${INDEX}`) })
-```
-
-### `ShowToast(message, opts?)`
-
-Display a toast notification.
-
-```ts
-Button('Save', { onClick: ShowToast('Saved successfully!', { variant: 'success' }) })
-```
-
-| Param | Type | Description |
-|-------|------|-------------|
-| `message` | `string` | Toast message |
-| `opts.description` | `string` | Secondary text |
-| `opts.variant` | `ToastVariant` | `default`, `success`, `error`, `warning`, `info` |
-| `opts.duration` | `number` | Auto-dismiss in ms |
-
-### `CloseOverlay()`
-
-Close the current dialog/popover.
-
-```ts
-Button('Close', { onClick: new CloseOverlay() })
-```
-
-### `OpenLink(url, target?)`
-
-Navigate to a URL.
-
-```ts
-Button('Docs', { onClick: new OpenLink('https://docs.example.com', '_blank') })
-```
-
-### `SetInterval(intervalMs, onTick)`
-
-Periodic timer that fires an action.
-
-```ts
-// Refresh data every 30 seconds
-SetInterval(30000, CallTool('get_data', { resultKey: 'data' }))
-```
-
-### `Fetch(url, opts?)`
-
-HTTP request from the client.
-
-```ts
-Button('Load', { onClick: new Fetch('/api/data', {
-  method: 'GET',
-  resultKey: 'apiData',
-  onSuccess: ShowToast('Loaded!'),
-  onError: ShowToast('Failed', { variant: 'error' }),
-}) })
-```
-
-| Param | Type | Description |
-|-------|------|-------------|
-| `url` | `string` | Request URL |
-| `opts.method` | `string` | HTTP method |
-| `opts.headers` | `Record<string, string>` | Request headers |
-| `opts.body` | `unknown` | Request body |
-| `opts.resultKey` | `string` | State key to store the response |
-| `opts.onSuccess` | `Action \| Action[]` | Success callback |
-| `opts.onError` | `Action \| Action[]` | Error callback |
-
-### `OpenFilePicker(opts?)`
-
-Open a native file picker.
-
-```ts
-Button('Upload', { onClick: new OpenFilePicker({
-  accept: 'image/*',
-  multiple: true,
-  resultKey: 'selectedFiles',
-}) })
-```
-
-### `CallHandler(handler, opts?)`
-
-Call a named client-side handler function.
-
-```ts
-Button('Custom', { onClick: new CallHandler('myHandler', {
-  arguments: { id: rx`${STATE}.selectedId` },
-}) })
-```
-
----
-
-## MCP Actions
-
-These actions require a server roundtrip via the MCP transport (PostMessage bridge or HTTP).
-
-### `CallTool(tool, opts?)`
-
-Invoke an MCP tool from the UI.
-
-```ts
-// In a form submission
-Form({ onSubmit: CallTool('create_user', { resultKey: 'result' }) }, [
-  Input({ name: 'email', type: 'email' }),
-  Button('Create', { type: 'submit' }),
-])
-
-// In a button click
-Button('Refresh', { onClick: CallTool('get_data', {
-  arguments: { id: rx`${STATE}.selectedId` },
-  resultKey: 'data',
-  onSuccess: ShowToast('Data loaded'),
-  onError: ShowToast('Failed to load', { variant: 'error' }),
-}) })
-```
-
-| Param | Type | Description |
-|-------|------|-------------|
-| `tool` | `string` | MCP tool name |
-| `opts.arguments` | `Record<string, unknown>` | Tool arguments (supports Rx) |
-| `opts.resultKey` | `string` | State key to store the result |
-| `opts.onSuccess` | `Action \| Action[]` | Success callback |
-| `opts.onError` | `Action \| Action[]` | Error callback |
-
-**Wire JSON:** `{ "action": "toolCall", "tool": "create_user", "arguments": {...}, "resultKey": "result" }`
-
-### `SendMessage(message)`
-
-Send a chat message through the MCP transport.
-
-```ts
-Button('Send', { onClick: new SendMessage(rx`${STATE}.messageText`) })
-```
-
-### `UpdateContext(context)`
-
-Update shared context on the host.
-
-```ts
-Button('Set Theme', { onClick: new UpdateContext({ theme: 'dark' }) })
-```
-
-### `RequestDisplayMode(mode)`
-
-Request a display mode change from the host.
-
-```ts
-Button('Fullscreen', { onClick: new RequestDisplayMode('fullscreen') })
-```
-
-| Mode | Description |
-|------|-------------|
-| `inline` | Default embedded mode |
-| `fullscreen` | Full-screen overlay |
-| `pip` | Picture-in-picture |
-
----
-
-## Real-Time Subscriptions
-
-Subscribe to a resource URI for live updates. The renderer uses native MCP push when the host supports it, and automatically falls back to periodic polling otherwise.
-
-### `Subscribe(uri, opts)`
-
-Start receiving updates from a resource.
-
-```ts
-import { Subscribe, Unsubscribe, ShowToast } from '@maxhealth.tech/prefab'
-
-// Basic — push with polling fallback
-new Subscribe('chess://game/abc123', {
-  stateKey: '$game',
-  fallbackInterval: 2000,
-  fallbackTool: '_action',
-  fallbackArgs: { action: 'refresh' },
-})
-
-// With callbacks
-new Subscribe('data://stream', {
-  stateKey: '$stream',
-  fallbackInterval: 5000,
-  fallbackTool: 'poll_stream',
-  onData: new ShowToast('Updated', { variant: 'info' }),
-  onError: new ShowToast('Connection lost', { variant: 'error' }),
-})
-```
-
-| Param | Type | Description |
-|-------|------|-------------|
-| `uri` | `string` | Resource URI to subscribe to |
-| `opts.stateKey` | `string` | Store key where incoming data is written |
-| `opts.fallbackInterval` | `number` | Poll interval (ms) when host lacks push support. Default `2000` |
-| `opts.fallbackTool` | `string` | Tool to call when polling in fallback mode |
-| `opts.fallbackArgs` | `Record<string, unknown>` | Arguments passed to the fallback tool |
-| `opts.onData` | `Action \| Action[]` | Runs whenever new data arrives (push or poll) |
-| `opts.onError` | `Action \| Action[]` | Runs on subscription or poll error |
-
-**How it works:**
-
-1. **Push path** — If `transport.subscribe` exists and `capabilities.subscriptions` is true, the renderer subscribes natively. Data arrives via push and is stored at `stateKey`.
-2. **Fallback path** — Otherwise, a `SetInterval` + `CallTool` loop polls at `fallbackInterval`. The tool response is handled identically to a `toolCall` action: full `$prefab` views trigger `remount()`, `display_update()` deltas merge into state, and plain data is stored at `stateKey`.
-
-### `Unsubscribe(uri)`
-
-Stop receiving updates. Cleans up both push subscriptions and polling intervals.
-
-```ts
-Button('Leave', { onClick: new Unsubscribe('chess://game/abc123') })
-```
-
-::: tip
-Subscriptions are automatically cleaned up when the renderer is destroyed. Use `Unsubscribe` explicitly only when you need to stop updates mid-session (e.g. leaving a game lobby).
-:::
-
-### Typical pattern: `onMount` + Subscribe
-
-```ts
-display(
-  Column({ children: [
-    H1('Live Dashboard'),
-    Text(rx('$data.status')),
-  ] }),
-  {
-    state: { $data: {} },
-    onMount: new Subscribe('app://dashboard/live', {
-      stateKey: '$data',
-      fallbackInterval: 5000,
-      fallbackTool: 'refresh_dashboard',
-    }),
-  },
-)
-```
-
----
-
-## Action Builder Sugar
-
-Ergonomic wrappers that accept `Signal` or `Collection` instead of raw string keys. These produce the same wire-format actions but keep your code type-safe and DRY.
-
-```ts
-import { set, toggle, append, pop } from '@maxhealth.tech/prefab'
-import { signal, collection } from '@maxhealth.tech/prefab'
-```
-
-### `set(target, value, opts?)`
-
-```ts
-const count = signal('count', 0)
-
-set(count, 42)                        // → new SetState('count', 42)
-set(count, rx`${count} + 1`)          // → new SetState('count', '{{ count + 1 }}')
-set('rawKey', 'value')                // raw string key also works
-```
-
-### `toggle(target)`
-
-```ts
-const darkMode = signal('darkMode', false)
-toggle(darkMode)                      // → new ToggleState('darkMode')
-```
-
-### `append(target, item, index?)`
-
-```ts
-const items = collection('items', rows, { key: 'id' })
-append(items, { id: 'new', name: 'New' })       // → new AppendState('items', {...})
-append(items, newItem, 0)                         // insert at index 0
-```
-
-### `pop(target, indexOrValue?)`
-
-```ts
-pop(items, 0)                         // → new PopState('items', 0)
-pop(items)                            // → new PopState('items', -1) (last element)
-pop(items, 'some-value')              // remove by value
-```
-
-### `StateTarget` type
-
-All sugar functions accept: `Signal | Collection | string`
-
-### Composition
-
-Sugar functions return the same action classes, so `onSuccess` / `onError` chains work:
-
-```ts
-Button('Save', {
-  onClick: set(count, 0, { onSuccess: ShowToast('Reset!') }),
-})
-
----
-
-## Action Chaining
-
-Actions can be chained via `onSuccess` / `onError`:
+Most actions accept `onSuccess` and `onError` options, each taking a single action or an array of them. This lets you compose flows declaratively — save a record, then flip a flag and show a success toast, and surface an error toast if it fails — without writing any imperative glue.
 
 ```ts
 Button('Save & Notify', {
   onClick: CallTool('save_item', {
     arguments: { name: rx`${STATE}.name` },
-    onSuccess: [
-      SetState('saved', true),
-      ShowToast('Saved!', { variant: 'success' }),
-    ],
+    onSuccess: [SetState('saved', true), ShowToast('Saved!', { variant: 'success' })],
     onError: ShowToast('Save failed', { variant: 'error' }),
   }),
 })
 ```
 
-## Lifecycle Actions
+## Lifecycle: running on mount
 
-Use `onMount` at the app level to run actions when the UI first renders:
+Actions are not limited to user gestures. Pass `onMount` to `display()` to run an action the moment the UI first renders — perfect for loading initial data or opening a real-time subscription so the view arrives already populated.
 
-```ts
-display(myView, {
-  onMount: CallTool('get_initial_data', { resultKey: 'data' }),
-})
-```
+## When to use the builder sugar
+
+For the state-mutating actions (`set`, `toggle`, `append`, `pop`), prefab ships ergonomic wrappers that accept a `Signal` or `Collection` instead of a raw string key. Prefer them whenever you already model your state with signals: you keep type safety, avoid stringly-typed keys, and produce the exact same wire-format actions. Drop down to the raw action classes when you need a one-off or are working without a signal.
+
+→ See the [Actions reference](/reference/actions) for the full catalog: every action, its parameters, and wire JSON.

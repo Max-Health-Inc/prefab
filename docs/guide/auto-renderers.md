@@ -4,250 +4,43 @@ description: Auto-generate tables, charts, forms, metrics, and timelines from ra
 
 # Auto-Renderers
 
-Auto-renderers generate complete UI components from raw data — no manual component wiring needed. They're ideal for MCP tool handlers that return API responses.
+Most of the time you already have the data — a list of users from a query, a few KPIs, a row of monthly sales. What you *don't* want to do is hand-wire a table, pick column definitions, choose a chart type, and style badges every single time. Auto-renderers close that gap: hand them raw data, get a finished UI back in one call.
+
+## The Mental Model
+
+Think of an auto-renderer as a single function with a simple shape: **data in → component tree out.**
 
 ```ts
-import {
-  autoDetail, autoTable, autoChart, autoForm,
-  autoComparison, autoMetrics, autoTimeline, autoProgress,
-} from '@maxhealth.tech/prefab'
+const users = await db.query('SELECT * FROM users')
+return display(autoTable(users), { title: 'Users' })
 ```
 
----
+That `autoTable(users)` call inspects your data, infers the columns from the object keys, detects which fields are statuses (and renders them as badges), and returns a normal `Component`. Because the output is just a regular component, it slots into any layout — wrap it in a `Column`, drop it next to a chart, or hand it to `display()`. There is no special runtime and no escape hatch to learn.
 
-## `autoTable(data, opts?)`
+The family follows one consistent convention: the **first argument is your data**, and an **optional second argument is an options object** (title, layout hints, behaviour flags). `autoForm` is the small exception — it takes a submit-tool name in the middle so a generated form knows which MCP tool to call.
 
-Generate a `DataTable` from an array of objects. Columns are auto-detected from object keys.
+A useful way to picture the whole family is by the shape of input each one expects. Roughly:
 
-```ts
-const users = [
-  { name: 'Alice', email: 'alice@co.com', status: 'active' },
-  { name: 'Bob', email: 'bob@co.com', status: 'inactive' },
-]
+- a **single object** describes one thing → a detail view,
+- a **list of records** describes many of the same thing → a table, chart, or comparison,
+- a **sequence in time** describes a journey → a timeline or progress tracker,
+- a **set of fields** describes an intent to capture → a form.
 
-autoTable(users, { title: 'Users', searchable: true })
-```
+Once you internalise that mapping, choosing the right helper rarely needs the reference at all — you reach for the one whose input shape matches the data already in your hand.
 
-| Option | Type | Description |
-|--------|------|-------------|
-| `title` | `string` | Table heading |
-| `searchable` | `boolean` | Enable search |
-| `sortable` | `boolean` | Enable column sorting |
-| `maxRows` | `number` | Limit rows shown |
+## When to Reach for Them
 
-Status columns (`status`, `state`, etc.) are automatically rendered as `Badge` components with semantic variants (green for active, red for inactive, etc.).
+Auto-renderers shine when the *structure* of your UI mirrors the *structure* of your data:
 
-### Custom Status Variants
+- An array of records → a searchable, sortable table.
+- A handful of numbers → a row of metric cards.
+- Date-stamped events → a vertical timeline.
+- A list of fields → a working form wired to a tool.
 
-```ts
-import { registerStatusVariants } from '@maxhealth.tech/prefab'
+They are perfect for MCP tool handlers, where you frequently turn an API response straight into something renderable with minimal ceremony.
 
-registerStatusVariants({
-  'custom_status': 'success',
-  'needs_review': 'warning',
-})
-```
+## When to Hand-Craft Instead
 
----
+Reach for the underlying components directly when you need precise control — bespoke column renderers, custom interactions, conditional layouts, or a design that doesn't map cleanly onto your raw data shape. Auto-renderers are a fast on-ramp, not a ceiling: you can start with `autoTable`, then graduate to a hand-built `DataTable` the moment you need something the auto path can't express. The two styles compose freely in the same view.
 
-## `autoDetail(data, opts?)`
-
-Generate a key-value detail view from an object.
-
-```ts
-const user = { name: 'Alice', email: 'alice@co.com', role: 'Admin', joined: '2024-01-15' }
-
-autoDetail(user, { title: 'User Profile' })
-```
-
-| Option | Type | Description |
-|--------|------|-------------|
-| `title` | `string` | Section heading |
-| `exclude` | `string[]` | Keys to exclude |
-
----
-
-## `autoChart(data, opts?)`
-
-Generate a chart from data. Auto-selects the best chart type if not specified.
-
-```ts
-const sales = [
-  { month: 'Jan', revenue: 10000, costs: 8000 },
-  { month: 'Feb', revenue: 12000, costs: 8500 },
-  { month: 'Mar', revenue: 15000, costs: 9000 },
-]
-
-autoChart(sales, { title: 'Revenue vs Costs', chartType: 'bar', xAxis: 'month' })
-```
-
-| Option | Type | Description |
-|--------|------|-------------|
-| `title` | `string` | Chart heading |
-| `subtitle` | `string` | Secondary text |
-| `chartType` | `ChartType` | `bar`, `line`, `area`, `pie` (default: auto-detect) |
-| `xAxis` | `string` | Key for X axis labels |
-| `height` | `number` | Chart height in px |
-| `showLegend` | `boolean` | Show legend (default: true) |
-
-Numeric columns are auto-detected as series. The first string column is used as the X axis if `xAxis` is not specified.
-
----
-
-## `autoForm(fields, opts?)`
-
-Generate a form from field definitions that submits to an MCP tool.
-
-```ts
-autoForm([
-  { name: 'name', type: 'text', required: true },
-  { name: 'email', type: 'email', required: true },
-  { name: 'role', type: 'select', options: ['admin', 'user', 'viewer'] },
-  { name: 'notes', type: 'textarea' },
-], 'create_user', {
-  title: 'Create User',
-  submitLabel: 'Create',
-})
-```
-
-The second argument is the `submitTool` — the MCP tool name to call on submit.
-
-| Option | Type | Description |
-|--------|------|-------------|
-| `title` | `string` | Form heading |
-| `subtitle` | `string` | Secondary text |
-| `submitLabel` | `string` | Submit button text (default: `'Submit'`) |
-| `onSubmit` | `Action` | Custom submit action (overrides submitTool) |
-| `successMessage` | `string` | Toast message on success |
-| `errorMessage` | `string` | Toast message on error |
-
-### Field Definition
-
-| Prop | Type | Description |
-|------|------|-------------|
-| `name` | `string` | Field name / state key |
-| `label` | `string` | Display label (defaults to humanized name) |
-| `type` | `string` | Input type (`text`, `email`, `number`, `password`, `url`, etc.) |
-| `placeholder` | `string` | Placeholder text |
-| `required` | `boolean` | Validation |
-
----
-
-## `autoMetrics(metrics, opts?)`
-
-Generate metric cards from numeric data.
-
-```ts
-autoMetrics([
-  { label: 'Revenue', value: 125000, format: 'currency', change: 12.5 },
-  { label: 'Users', value: 3420, change: -2.1 },
-  { label: 'Uptime', value: 99.9, format: 'percent' },
-], { title: 'KPIs', columns: 3 })
-```
-
-| Option | Type | Description |
-|--------|------|-------------|
-| `title` | `string` | Section heading |
-| `columns` | `number` | Grid columns (default: auto) |
-
-### Metric Definition
-
-| Prop | Type | Description |
-|------|------|-------------|
-| `label` | `string` | Metric name |
-| `value` | `number \| string` | Display value |
-| `format` | `string` | `currency`, `percent`, `number` |
-| `change` | `number` | % change (green if positive, red if negative) |
-| `prefix` / `suffix` | `string` | Value decorations |
-
----
-
-## `autoComparison(items, opts?)`
-
-Side-by-side comparison view.
-
-```ts
-autoComparison([
-  { name: 'Plan A', price: '$29/mo', storage: '10 GB', support: 'Email' },
-  { name: 'Plan B', price: '$99/mo', storage: '100 GB', support: '24/7 Phone' },
-], { title: 'Compare Plans', highlightDifferences: true })
-```
-
-| Option | Type | Description |
-|--------|------|-------------|
-| `title` | `string` | Section heading |
-| `highlightDifferences` | `boolean` | Highlight differing values |
-
----
-
-## `autoTimeline(events, opts?)`
-
-Vertical timeline from date-ordered events.
-
-```ts
-autoTimeline([
-  { date: '2024-01-15', title: 'Created', description: 'Account created' },
-  { date: '2024-02-01', title: 'Verified', description: 'Email verified' },
-  { date: '2024-03-10', title: 'Upgraded', description: 'Upgraded to Pro' },
-], { title: 'Account History' })
-```
-
-| Option | Type | Description |
-|--------|------|-------------|
-| `title` | `string` | Section heading |
-
-### Event Definition
-
-| Prop | Type | Description |
-|------|------|-------------|
-| `date` | `string` | ISO date string |
-| `title` | `string` | Event title |
-| `description` | `string` | Event details |
-| `status` | `string` | Optional status (renders as Badge) |
-
----
-
-## `autoProgress(steps, opts?)`
-
-Step-based progress tracker.
-
-```ts
-autoProgress([
-  { label: 'Order Placed', status: 'complete' },
-  { label: 'Processing', status: 'current' },
-  { label: 'Shipped', status: 'pending' },
-  { label: 'Delivered', status: 'pending' },
-], { title: 'Order Status' })
-```
-
-| Option | Type | Description |
-|--------|------|-------------|
-| `title` | `string` | Section heading |
-
-### Step Definition
-
-| Prop | Type | Description |
-|------|------|-------------|
-| `label` | `string` | Step name |
-| `status` | `string` | `complete`, `current`, `pending`, `error` |
-| `description` | `string` | Step details |
-
----
-
-## Combining Auto-Renderers
-
-Auto-renderers return standard `Component` instances, so they compose freely:
-
-```ts
-display(
-  Column({ gap: 8 }, [
-    autoMetrics(kpis, { title: 'KPIs', columns: 4 }),
-    Row({ gap: 4 }, [
-      autoChart(salesData, { title: 'Revenue' }),
-      autoChart(userData, { title: 'Signups', chartType: 'line' }),
-    ]),
-    autoTable(recentOrders, { title: 'Recent Orders' }),
-  ]),
-  { title: 'Dashboard' },
-)
-```
+→ See the [Auto-Renderers reference](/reference/auto-renderers) for the full API: every helper, its options, and examples.

@@ -90,6 +90,19 @@ Paginated view container.
 
 Conditional detail pane. Shows `children` when `of` resolves, shows `empty` otherwise.
 
+```ts
+import { collection, signal, Detail, Heading, Text } from '@maxhealth.tech/prefab'
+
+const patients = collection('patients', data, { key: 'id' })
+const selectedId = signal('selectedPatientId', patients.firstKey())
+const selected = patients.by(selectedId)
+
+Detail({ of: selected, empty: Text('Select a patient') }, [
+  Heading(selected.dot('name')),
+  Text(selected.dot('dob')),
+])
+```
+
 | Prop | Type | Description |
 |------|------|-------------|
 | `of` | `Ref \| RxStr` | Reactive reference expression |
@@ -98,6 +111,13 @@ Conditional detail pane. Shows `children` when `of` resolves, shows `empty` othe
 ### `MasterDetail(props?, children?)`
 
 Two-pane layout (master list + detail). Expects two children.
+
+```ts
+MasterDetail({ masterWidth: '350px', gap: 4 }, [
+  table,   // master panel
+  detail,  // detail panel
+])
+```
 
 | Prop | Type | Description |
 |------|------|-------------|
@@ -206,6 +226,18 @@ Card sub-components. All accept children.
 
 Rich data table with search, column definitions, and optional row selection.
 
+```ts
+DataTable({
+  rows: users,
+  columns: [
+    col('name', 'Name'),
+    col('email', 'Email'),
+    col('status', 'Status'),
+  ],
+  search: true,
+})
+```
+
 | Prop | Type | Description |
 |------|------|-------------|
 | `rows` | `unknown[] \| RxStr` | Array of row objects (or reactive expression) |
@@ -214,9 +246,36 @@ Rich data table with search, column definitions, and optional row selection.
 | `from` | `Collection` | Derive rows from a Collection (mutually exclusive with `rows`) |
 | `selected` | `Signal` | Signal tracking selected row key (requires `from`) |
 
+#### Row Selection with Signal/Collection
+
+When `from` and `selected` are provided, DataTable auto-generates row click handling:
+
+```ts
+const patients = collection('patients', data, { key: 'id' })
+const selectedId = signal('selectedPatientId', patients.firstKey())
+
+DataTable({
+  columns: [col('name'), col('dob')],
+  from: patients,
+  selected: selectedId,
+})
+// Wire: rows="{{ patients }}", rowKey="id", selected="{{ selectedPatientId }}",
+//       onRowClick=[{ action: "setState", key: "selectedPatientId", value: "{{ $item.id }}" }]
+```
+
 ### `col(key, header?, opts?)`
 
 Column definition helper — short form or descriptor form.
+
+```ts
+// Short form
+col('name', 'Full Name')
+col('email', 'Email', { sortable: true })
+
+// Descriptor form (object)
+col({ key: 'amount', header: 'Amount', format: 'currency' })
+col({ key: 'name', accessor: 'name | humanName', header: 'Patient' })
+```
 
 | Field | Type | Description |
 |-------|------|-------------|

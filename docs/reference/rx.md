@@ -173,6 +173,13 @@ Factory function — returns a `Signal<T>`.
 | `initial` | `SignalValue` | Initial value |
 | `options.urlSync` | `string` | URL query param name (opt-in) |
 
+### Instance Properties
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `key` | `string` | The state key name |
+| `initial` | `SignalValue` | The initial value |
+
 ### Instance Methods
 
 | Method | Returns | Description |
@@ -181,6 +188,16 @@ Factory function — returns a `Signal<T>`.
 | `toString()` | `string` | `{{ key }}` |
 | `toJSON()` | `string` | Same as `toString()` |
 | `toState()` | `Record<string, T>` | `{ key: initial }` |
+
+```ts
+const selectedId = signal('selectedPatientId', 'p1')
+
+selectedId.key        // 'selectedPatientId'
+selectedId.initial    // 'p1'
+selectedId.toRx()     // Rx → "{{ selectedPatientId }}"
+selectedId.toString() // "{{ selectedPatientId }}"
+selectedId.toState()  // { selectedPatientId: 'p1' }
+```
 
 ---
 
@@ -200,16 +217,37 @@ A named keyed array with typed lookup helpers.
 | `rows` | `T[]` | Source data |
 | `key` | `string` | Field used for identity lookups |
 
+### Instance Properties
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `stateKey` | `string` | The state key name |
+| `keyField` | `string` | Field used for identity lookups |
+| `rows` | `T[]` | The source array |
+
 ### Instance Methods
 
 | Method | Returns | Description |
 |--------|---------|-------------|
 | `by(signal)` | `Ref<T>` | Lazy row reference via `find` pipe |
-| `firstKey()` | `string \| null` | Key of first row |
-| `lastKey()` | `string \| null` | Key of last row |
+| `firstKey()` | `string \| null` | Key of first row, or `null` if empty |
+| `lastKey()` | `string \| null` | Key of last row, or `null` if empty |
 | `length` | `number` | Row count |
 | `toRx()` | `Rx` | `{{ stateKey }}` expression |
 | `toState()` | `Record<string, T[]>` | `{ stateKey: rows }` |
+
+```ts
+const patients = collection('patients', fhirPatients, { key: 'id' })
+
+patients.stateKey   // 'patients'
+patients.keyField   // 'id'
+patients.rows       // the array
+patients.length     // row count
+patients.firstKey() // key of first row, or null
+patients.lastKey()  // key of last row, or null
+patients.toRx()     // Rx → "{{ patients }}"
+patients.toState()  // { patients: [...] }
+```
 
 ---
 
@@ -219,16 +257,89 @@ A named keyed array with typed lookup helpers.
 import { Ref } from '@maxhealth.tech/prefab'
 ```
 
-A lazy, serializable reference to a row in a collection. Returned by `collection.by(signal)`.
+A lazy, serializable reference to a row in a collection. Returned by `collection.by(signal)`. The expression is evaluated at runtime by the renderer's pipe evaluator.
+
+### Instance Properties
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `expr` | `string` | The raw pipe expression (without `{{ }}`) |
 
 ### Instance Methods
 
 | Method | Returns | Description |
 |--------|---------|-------------|
 | `toRx()` | `Rx` | The find expression as `Rx` |
-| `dot(field)` | `Ref` | Nested property access via `dot` pipe |
+| `dot(field)` | `Ref` | Nested property access via `dot` pipe (chainable) |
 | `toString()` | `string` | `{{ expr }}` |
 | `toJSON()` | `string` | Same as `toString()` |
+
+`collection.by(signal)` returns a `Ref` that compiles to a `find` pipe expression:
+
+```ts
+const selected = patients.by(selectedId)
+
+selected.expr        // "patients | find:'id',selectedPatientId"
+selected.toString()  // "{{ patients | find:'id',selectedPatientId }}"
+selected.dot('name') // Ref → "{{ patients | find:'id',selectedPatientId | dot:'name' }}"
+```
+
+`Ref.dot()` returns another `Ref`, so lookups chain:
+
+```ts
+selected.dot('address').dot('city')
+// → "{{ patients | find:'id',selectedPatientId | dot:'address' | dot:'city' }}"
+```
+
+---
+
+## `find` and `dot` Pipes
+
+These pipes power collection lookups in the wire format. They are used internally by `Ref` but can also be written by hand.
+
+### `find:'field',keyRef`
+
+Find a row in an array where `row[field]` matches the value of a state key:
+
+```
+{{ patients | find:'id',selectedPatientId }}
+```
+
+- The second argument can be a state key, a scope variable (`$item.parentId`), or a quoted literal (`'p1'`).
+- Numeric coercion: string `'2'` matches number `2` and vice versa.
+- Returns `undefined` if no match is found.
+
+### `dot:'field'`
+
+Extract a property from an object:
+
+```
+{{ patients | find:'id',selectedPatientId | dot:'name' }}
+```
+
+Returns `undefined` if the input is null/undefined.
+
+---
+
+## Auto State Collection
+
+Signals and collections auto-register their initial values with `PrefabApp` — no manual `.toState()` spreading needed:
+
+```ts
+const patients = collection('patients', data, { key: 'id' })
+const selectedId = signal('selectedPatientId', patients.firstKey())
+
+const app = new PrefabApp({
+  title: 'Patient Browser',
+  view: myView,
+  // No need for: state: { ...patients.toState(), ...selectedId.toState() }
+  // State is auto-collected from signal() and collection() calls!
+})
+
+// wire.state === { patients: [...], selectedPatientId: 'p1' }
+```
+
+Call [`resetAutoState()`](#resetautostate) to clear the collector between app builds (important in long-running or serverless processes).
 
 ---
 
