@@ -1,0 +1,157 @@
+{
+  "$prefab": {
+    "version": "0.2"
+  },
+  "view": {
+    "type": "Column",
+    "gap": 16,
+    "children": [
+      {
+        "type": "Heading",
+        "content": "Settings",
+        "level": 2
+      },
+      {
+        "type": "Tabs",
+        "name": "settings_tabs",
+        "children": [
+          {
+            "type": "Tab",
+            "title": "General",
+            "children": [
+              {
+                "type": "Column",
+                "gap": 12,
+                "children": [
+                  {
+                    "type": "Alert",
+                    "variant": "default",
+                    "children": [
+                      {
+                        "type": "AlertTitle",
+                        "content": "Heads up"
+                      },
+                      {
+                        "type": "AlertDescription",
+                        "content": "These settings affect your entire workspace."
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Input",
+                    "name": "workspace_name",
+                    "inputType": "text",
+                    "placeholder": "Workspace name"
+                  },
+                  {
+                    "type": "Checkbox",
+                    "name": "notifications",
+                    "label": "Enable notifications"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "Tab",
+            "title": "Security",
+            "children": [
+              {
+                "type": "Column",
+                "gap": 12,
+                "children": [
+                  {
+                    "type": "Alert",
+                    "variant": "destructive",
+                    "children": [
+                      {
+                        "type": "AlertTitle",
+                        "content": "Warning"
+                      },
+                      {
+                        "type": "AlertDescription",
+                        "content": "Changing security settings may log out all users."
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Checkbox",
+                    "name": "2fa",
+                    "label": "Require two-factor authentication"
+                  },
+                  {
+                    "type": "Select",
+                    "name": "session_timeout",
+                    "children": [
+                      {
+                        "type": "SelectOption",
+                        "label": "Session timeout",
+                        "value": ""
+                      },
+                      {
+                        "type": "SelectOption",
+                        "label": "15 minutes",
+                        "value": "15"
+                      },
+                      {
+                        "type": "SelectOption",
+                        "label": "1 hour",
+                        "value": "60"
+                      },
+                      {
+                        "type": "SelectOption",
+                        "label": "8 hours",
+                        "value": "480"
+                      },
+                      {
+                        "type": "SelectOption",
+                        "label": "Never",
+                        "value": "0"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "Tab",
+            "title": "Notifications",
+            "children": [
+              {
+                "type": "Column",
+                "gap": 12,
+                "children": [
+                  {
+                    "type": "Checkbox",
+                    "name": "email_notif",
+                    "label": "Email notifications"
+                  },
+                  {
+                    "type": "Checkbox",
+                    "name": "push_notif",
+                    "label": "Push notifications"
+                  },
+                  {
+                    "type": "Checkbox",
+                    "name": "sms_notif",
+                    "label": "SMS notifications"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "state": {
+    "workspace_name": "",
+    "notifications": true,
+    "2fa": false,
+    "session_timeout": "60",
+    "email_notif": true,
+    "push_notif": true,
+    "sms_notif": false
+  }
+}

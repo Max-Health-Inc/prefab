@@ -365,356 +365,40 @@ html, body {
 // ═══════════════════════════════════════════════════════════════════════════════
 // EXAMPLES GALLERY
 // ═══════════════════════════════════════════════════════════════════════════════
-const EXAMPLES = {
-  "Hello World": {
-    "$prefab": { "version": "0.2" },
-    "view": {
-      "type": "Column", "cssClass": "gap-4",
-      "children": [
-        { "type": "Heading", "content": "Hello World", "level": 1 },
-        { "type": "Text", "content": "Welcome to the prefab playground. Edit the JSON on the left and watch the UI update in real time." },
-        { "type": "Badge", "label": "Active", "variant": "success" }
-      ]
-    }
-  },
-
-  "Counter App": {
-    "$prefab": { "version": "0.2" },
-    "view": {
-      "type": "Column", "cssClass": "gap-4",
-      "children": [
-        { "type": "Heading", "content": "Counter App", "level": 1 },
-        { "type": "Text", "content": "Count: {{ count }}" },
-        { "type": "Row", "cssClass": "gap-2", "children": [
-          { "type": "Button", "label": "+1", "onClick": { "action": "setState", "key": "count", "value": "{{ count + 1 }}" } },
-          { "type": "Button", "label": "-1", "onClick": { "action": "setState", "key": "count", "value": "{{ count - 1 }}" } },
-          { "type": "Button", "label": "Reset", "variant": "outline", "onClick": { "action": "setState", "key": "count", "value": 0 } }
-        ]}
-      ]
-    },
-    "state": { "count": 0 }
-  },
-
-  "Patient Card": {
-    "$prefab": { "version": "0.2" },
-    "view": {
-      "type": "Card",
-      "children": [
-        { "type": "CardHeader", "children": [
-          { "type": "CardTitle", "content": "Patient Summary" },
-          { "type": "CardDescription", "content": "Last updated: 2024-01-15" }
-        ]},
-        { "type": "CardContent", "children": [
-          { "type": "Column", "cssClass": "gap-3", "children": [
-            { "type": "Row", "cssClass": "gap-4", "children": [
-              { "type": "Metric", "label": "Heart Rate", "value": "72 bpm" },
-              { "type": "Metric", "label": "Blood Pressure", "value": "120/80" },
-              { "type": "Metric", "label": "Temperature", "value": "98.6°F" }
-            ]},
-            { "type": "Separator" },
-            { "type": "Text", "content": "Patient is in stable condition. No abnormalities detected in recent labs." }
-          ]}
-        ]},
-        { "type": "CardFooter", "children": [
-          { "type": "Badge", "label": "Stable", "variant": "success" },
-          { "type": "Badge", "label": "Outpatient", "variant": "secondary" }
-        ]}
-      ]
-    }
-  },
-
-  "Data Table": {
-    "$prefab": { "version": "0.2" },
-    "view": {
-      "type": "Column", "cssClass": "gap-4",
-      "children": [
-        { "type": "Heading", "content": "User Directory", "level": 2 },
-        { "type": "DataTable",
-          "columns": [
-            { "key": "name", "header": "Name", "sortable": true },
-            { "key": "role", "header": "Role", "sortable": true },
-            { "key": "department", "header": "Department" },
-            { "key": "status", "header": "Status" }
-          ],
-          "rows": [
-            { "name": "Alice Chen", "role": "Admin", "department": "Engineering", "status": "Active" },
-            { "name": "Bob Martinez", "role": "Editor", "department": "Marketing", "status": "Active" },
-            { "name": "Carol Davis", "role": "Viewer", "department": "Sales", "status": "Inactive" },
-            { "name": "Dan Wilson", "role": "Admin", "department": "Engineering", "status": "Active" },
-            { "name": "Eva Brown", "role": "Editor", "department": "Design", "status": "Active" }
-          ],
-          "search": true,
-          "paginated": false
-        }
-      ]
-    }
-  },
-
-  "Revenue Chart": {
-    "$prefab": { "version": "0.2" },
-    "view": {
-      "type": "Column", "cssClass": "gap-4",
-      "children": [
-        { "type": "Heading", "content": "Revenue Report", "level": 2 },
-        { "type": "BarChart",
-          "data": [
-            { "month": "Jan", "revenue": 4000, "costs": 2400 },
-            { "month": "Feb", "revenue": 3000, "costs": 1398 },
-            { "month": "Mar", "revenue": 5200, "costs": 3100 },
-            { "month": "Apr", "revenue": 2780, "costs": 3908 },
-            { "month": "May", "revenue": 6100, "costs": 2800 },
-            { "month": "Jun", "revenue": 4500, "costs": 2100 }
-          ],
-          "series": [
-            { "dataKey": "revenue", "label": "Revenue", "color": "#4f46e5" },
-            { "dataKey": "costs", "label": "Costs", "color": "#ef4444" }
-          ],
-          "xAxis": "month",
-          "height": 300,
-          "showLegend": true,
-          "showTooltip": true,
-          "animate": true,
-          "showGrid": true,
-          "barRadius": 4
-        }
-      ]
-    }
-  },
-
-  "Contact Form": {
-    "$prefab": { "version": "0.2" },
-    "view": {
-      "type": "Card",
-      "children": [
-        { "type": "CardHeader", "children": [
-          { "type": "CardTitle", "content": "Contact Us" },
-          { "type": "CardDescription", "content": "Send us a message and we'll get back to you." }
-        ]},
-        { "type": "CardContent", "children": [
-          { "type": "Column", "cssClass": "gap-3", "children": [
-            { "type": "Input", "name": "name", "inputType": "text", "placeholder": "Your name" },
-            { "type": "Input", "name": "email", "inputType": "email", "placeholder": "you@example.com" },
-            { "type": "Select", "name": "subject", "placeholder": "Select a subject", "options": [
-              { "label": "General Inquiry", "value": "general" },
-              { "label": "Bug Report", "value": "bug" },
-              { "label": "Feature Request", "value": "feature" },
-              { "label": "Partnership", "value": "partnership" }
-            ]},
-            { "type": "Textarea", "name": "message", "placeholder": "Your message..." },
-            { "type": "Row", "cssClass": "gap-2", "children": [
-              { "type": "Button", "label": "Send Message", "variant": "default", "onClick": { "action": "showToast", "title": "Sent!", "description": "Your message has been submitted." } },
-              { "type": "Button", "label": "Clear", "variant": "outline", "onClick": [
-                { "action": "setState", "key": "name", "value": "" },
-                { "action": "setState", "key": "email", "value": "" },
-                { "action": "setState", "key": "message", "value": "" }
-              ]}
-            ]}
-          ]}
-        ]}
-      ]
-    },
-    "state": { "name": "", "email": "", "subject": "", "message": "" }
-  },
-
-  "Tabs & Alerts": {
-    "$prefab": { "version": "0.2" },
-    "view": {
-      "type": "Column", "cssClass": "gap-4",
-      "children": [
-        { "type": "Heading", "content": "Settings", "level": 2 },
-        { "type": "Tabs", "name": "settings_tabs", "children": [
-          { "type": "Tab", "title": "General", "children": [
-            { "type": "Column", "cssClass": "gap-3", "children": [
-              { "type": "Alert", "variant": "default", "children": [
-                { "type": "AlertTitle", "content": "Heads up" },
-                { "type": "AlertDescription", "content": "These settings affect your entire workspace." }
-              ]},
-              { "type": "Input", "name": "workspace_name", "inputType": "text", "placeholder": "Workspace name" },
-              { "type": "Checkbox", "name": "notifications", "label": "Enable notifications" }
-            ]}
-          ]},
-          { "type": "Tab", "title": "Security", "children": [
-            { "type": "Column", "cssClass": "gap-3", "children": [
-              { "type": "Alert", "variant": "destructive", "children": [
-                { "type": "AlertTitle", "content": "Warning" },
-                { "type": "AlertDescription", "content": "Changing security settings may log out all users." }
-              ]},
-              { "type": "Checkbox", "name": "2fa", "label": "Require two-factor authentication" },
-              { "type": "Select", "name": "session_timeout", "placeholder": "Session timeout", "options": [
-                { "label": "15 minutes", "value": "15" },
-                { "label": "1 hour", "value": "60" },
-                { "label": "8 hours", "value": "480" },
-                { "label": "Never", "value": "0" }
-              ]}
-            ]}
-          ]},
-          { "type": "Tab", "title": "Notifications", "children": [
-            { "type": "Column", "cssClass": "gap-3", "children": [
-              { "type": "Checkbox", "name": "email_notif", "label": "Email notifications" },
-              { "type": "Checkbox", "name": "push_notif", "label": "Push notifications" },
-              { "type": "Checkbox", "name": "sms_notif", "label": "SMS notifications" }
-            ]}
-          ]}
-        ]}
-      ]
-    },
-    "state": { "workspace_name": "", "notifications": true, "2fa": false, "session_timeout": "60", "email_notif": true, "push_notif": true, "sms_notif": false }
-  },
-
-  "Dashboard Layout": {
-    "$prefab": { "version": "0.2" },
-    "view": {
-      "type": "Column", "cssClass": "gap-4",
-      "children": [
-        { "type": "Row", "cssClass": "gap-4", "children": [
-          { "type": "Heading", "content": "Analytics Dashboard", "level": 2 },
-          { "type": "Badge", "label": "Live", "variant": "success" }
-        ]},
-        { "type": "Row", "cssClass": "gap-4", "children": [
-          { "type": "Card", "children": [
-            { "type": "CardContent", "children": [
-              { "type": "Metric", "label": "Total Users", "value": "12,847" }
-            ]}
-          ]},
-          { "type": "Card", "children": [
-            { "type": "CardContent", "children": [
-              { "type": "Metric", "label": "Revenue", "value": "$48,290" }
-            ]}
-          ]},
-          { "type": "Card", "children": [
-            { "type": "CardContent", "children": [
-              { "type": "Metric", "label": "Conversion", "value": "3.2%" }
-            ]}
-          ]},
-          { "type": "Card", "children": [
-            { "type": "CardContent", "children": [
-              { "type": "Metric", "label": "Avg. Session", "value": "4m 32s" }
-            ]}
-          ]}
-        ]},
-        { "type": "Row", "cssClass": "gap-4", "children": [
-          { "type": "Card", "children": [
-            { "type": "CardHeader", "children": [
-              { "type": "CardTitle", "content": "Traffic" }
-            ]},
-            { "type": "CardContent", "children": [
-              { "type": "LineChart",
-                "data": [
-                  { "day": "Mon", "visitors": 1200 },
-                  { "day": "Tue", "visitors": 1800 },
-                  { "day": "Wed", "visitors": 1400 },
-                  { "day": "Thu", "visitors": 2200 },
-                  { "day": "Fri", "visitors": 1900 },
-                  { "day": "Sat", "visitors": 800 },
-                  { "day": "Sun", "visitors": 600 }
-                ],
-                "series": [{ "dataKey": "visitors", "label": "Visitors", "color": "#4f46e5" }],
-                "xAxis": "day",
-                "height": 200,
-                "showGrid": true,
-                "animate": true
-              }
-            ]}
-          ]},
-          { "type": "Card", "children": [
-            { "type": "CardHeader", "children": [
-              { "type": "CardTitle", "content": "Top Pages" }
-            ]},
-            { "type": "CardContent", "children": [
-              { "type": "DataTable",
-                "columns": [
-                  { "key": "page", "header": "Page" },
-                  { "key": "views", "header": "Views", "sortable": true },
-                  { "key": "bounce", "header": "Bounce Rate" }
-                ],
-                "rows": [
-                  { "page": "/home", "views": "4,280", "bounce": "32%" },
-                  { "page": "/pricing", "views": "2,190", "bounce": "45%" },
-                  { "page": "/docs", "views": "1,890", "bounce": "22%" },
-                  { "page": "/blog", "views": "1,420", "bounce": "38%" }
-                ],
-                "search": false, "paginated": false
-              }
-            ]}
-          ]}
-        ]}
-      ]
-    }
-  },
-
-  "Interactive Todo": {
-    "$prefab": { "version": "0.2" },
-    "view": {
-      "type": "Card",
-      "children": [
-        { "type": "CardHeader", "children": [
-          { "type": "CardTitle", "content": "Todo List" },
-          { "type": "CardDescription", "content": "Tasks: {{ tasks | length }}" }
-        ]},
-        { "type": "CardContent", "children": [
-          { "type": "Column", "cssClass": "gap-3", "children": [
-            { "type": "Row", "cssClass": "gap-2", "children": [
-              { "type": "Input", "name": "newTask", "placeholder": "What needs to be done?" },
-              { "type": "Button", "label": "Add", "onClick": [
-                { "action": "appendState", "key": "tasks", "item": "{{ newTask }}" },
-                { "action": "setState", "key": "newTask", "value": "" }
-              ]}
-            ]},
-            { "type": "Separator" },
-            { "type": "DataTable",
-              "columns": [
-                { "key": "value", "header": "Task" }
-              ],
-              "rows": "{{ tasks }}",
-              "search": false,
-              "paginated": false
-            }
-          ]}
-        ]}
-      ]
-    },
-    "state": {
-      "newTask": "",
-      "tasks": ["Review pull requests", "Update documentation", "Deploy v2.0"]
-    }
-  },
-
-  "Conditional UI": {
-    "$prefab": { "version": "0.2" },
-    "view": {
-      "type": "Column", "cssClass": "gap-4",
-      "children": [
-        { "type": "Heading", "content": "Dynamic Content", "level": 2 },
-        { "type": "Row", "cssClass": "gap-2", "children": [
-          { "type": "Button", "label": "Show Success", "onClick": { "action": "setState", "key": "status", "value": "success" } },
-          { "type": "Button", "label": "Show Error", "onClick": { "action": "setState", "key": "status", "value": "error" } },
-          { "type": "Button", "label": "Show Loading", "onClick": { "action": "setState", "key": "status", "value": "loading" } }
-        ]},
-        { "type": "If", "condition": "{{ status == 'success' }}", "then": [
-          { "type": "Alert", "variant": "default", "children": [
-            { "type": "AlertTitle", "content": "Success!" },
-            { "type": "AlertDescription", "content": "Operation completed successfully." }
-          ]}
-        ]},
-        { "type": "If", "condition": "{{ status == 'error' }}", "then": [
-          { "type": "Alert", "variant": "destructive", "children": [
-            { "type": "AlertTitle", "content": "Error" },
-            { "type": "AlertDescription", "content": "Something went wrong. Please try again." }
-          ]}
-        ]},
-        { "type": "If", "condition": "{{ status == 'loading' }}", "then": [
-          { "type": "Card", "children": [
-            { "type": "CardContent", "children": [
-              { "type": "Progress", "value": 65, "max": 100 },
-              { "type": "Muted", "content": "Loading data..." }
-            ]}
-          ]}
-        ]}
-      ]
-    },
-    "state": { "status": "success" }
-  }
+// Gallery entries map a display name to the canonical example file id. The actual
+// $prefab UI payloads live once in /prefab/examples/<id>.json and are fetched at
+// runtime, so they are no longer duplicated between the demo, the playground, and
+// the skill bundle.
+const EXAMPLE_IDS = {
+  "Hello World": "hello-world",
+  "Counter App": "counter-app",
+  "Patient Card": "patient-card",
+  "Data Table": "user-directory",
+  "Revenue Chart": "revenue-chart",
+  "Contact Form": "contact-form",
+  "Tabs & Alerts": "settings-tabs",
+  "Dashboard Layout": "dashboard",
+  "Interactive Todo": "todo-app",
+  "Conditional UI": "conditional-ui"
 };
+
+// Resolve canonical example URLs relative to the site base (works under /prefab/).
+// The playground is served at <base>/playground/, so '../examples/<id>.json'
+// points at <base>/examples/.
+const exampleUrl = (id) => new URL(`../examples/${id}.json`, window.location.href).href;
+
+// Cache parsed UI payloads so re-selecting an example does not refetch.
+const exampleCache = new Map();
+async function loadExampleUI(name) {
+  const id = EXAMPLE_IDS[name];
+  if (!id) throw new Error(`Unknown example "${name}"`);
+  if (exampleCache.has(id)) return exampleCache.get(id);
+  const res = await fetch(exampleUrl(id));
+  if (!res.ok) throw new Error(`Failed to load example "${name}" (HTTP ${res.status})`);
+  const ui = JSON.parse(await res.text());
+  exampleCache.set(id, ui);
+  return ui;
+}
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // AI SYSTEM PROMPT
@@ -772,7 +456,7 @@ let renderTimer = null;
 window.addEventListener('DOMContentLoaded', () => {
   // Populate example dropdown
   const select = document.getElementById('example-select');
-  for (const name of Object.keys(EXAMPLES)) {
+  for (const name of Object.keys(EXAMPLE_IDS)) {
     const opt = document.createElement('option');
     opt.value = name;
     opt.textContent = name;
@@ -789,10 +473,12 @@ window.addEventListener('DOMContentLoaded', () => {
       trailingCommas: 'error',
     });
 
-    const initialJson = getInitialJson();
+    // If a shared link is present we have JSON synchronously; otherwise start
+    // with a placeholder and asynchronously load the canonical "Hello World".
+    const pendingJson = consumePendingJson();
 
     editor = monaco.editor.create(document.getElementById('editor-container'), {
-      value: initialJson,
+      value: pendingJson ?? '{\n  "$prefab": { "version": "0.2" },\n  "view": { "type": "Text", "content": "Loading example…" }\n}',
       language: 'json',
       theme: 'vs-dark',
       minimap: { enabled: false },
@@ -814,16 +500,24 @@ window.addEventListener('DOMContentLoaded', () => {
       renderTimer = setTimeout(() => renderPreview(), 300);
     });
 
-    // Initial render
-    renderPreview();
+    if (pendingJson) {
+      renderPreview();
+    } else {
+      loadExampleUI('Hello World')
+        .then((ui) => { editor.setValue(JSON.stringify(ui, null, 2)); })
+        .catch((err) => { showToast('Error', String(err.message || err), 'error'); });
+    }
   });
 
   // Example selector
-  select.addEventListener('change', (e) => {
+  select.addEventListener('change', async (e) => {
     const name = e.target.value;
-    if (name && EXAMPLES[name]) {
-      const json = JSON.stringify(EXAMPLES[name], null, 2);
-      editor.setValue(json);
+    if (!name || !EXAMPLE_IDS[name]) return;
+    try {
+      const ui = await loadExampleUI(name);
+      editor.setValue(JSON.stringify(ui, null, 2));
+    } catch (err) {
+      showToast('Error', String(err.message || err), 'error');
     }
   });
 
@@ -1003,14 +697,14 @@ function showToast(title, description, variant) {
 // ═══════════════════════════════════════════════════════════════════════════════
 // INITIAL JSON
 // ═══════════════════════════════════════════════════════════════════════════════
-function getInitialJson() {
-  // Check for pending hash JSON
+function consumePendingJson() {
+  // Pending JSON comes from a shared #json= link decoded before the editor existed.
   if (window._pendingJson) {
     const j = window._pendingJson;
     delete window._pendingJson;
     return j;
   }
-  return JSON.stringify(EXAMPLES['Hello World'], null, 2);
+  return null;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
