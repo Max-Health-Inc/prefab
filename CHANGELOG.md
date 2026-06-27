@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.1] — 2026-06-27
+
+Documentation and tooling release. No runtime or API changes: `src/` is unchanged aside from the version bump, so the published bundle is functionally identical to 0.3.0.
+
+### Fixed
+
+- Corrected the wire-protocol version label across the user-facing docs. The README badge and tagline, the skill header, the homepage feature text, and a version-pin example still advertised `0.2`, but the library has shipped protocol `0.3` since 0.3.0 (the renderer still accepts legacy `0.2` payloads).
+
+### Docs
+
+- Deduplicated the Guide and Reference sections. Each reference topic now lives in one place, and the Guide pages are concise conceptual pages that link into the reference, removing a large amount of duplicated content.
+- Single-sourced the example UIs. The demo and playground now load one canonical set of `$prefab` examples from `docs/public/examples/` at runtime instead of embedding their own copies, and the skill bundle's example assets are generated from that same set.
+- The programmatic API reference (actions, rx, mcp, auto, renderer) is now generated from the source TSDoc with TypeDoc, so it stays in sync with the code. The component catalog, wire format, and MCP Apps pages remain hand-written.
+
 ## [0.3.0] — 2026-06-16
 
 ### Wire Format (Breaking) — protocol `0.3`
