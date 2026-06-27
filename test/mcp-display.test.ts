@@ -53,7 +53,7 @@ describe('display()', () => {
 
     expect(result.isError).toBeUndefined()
     const wire = parsePrefab(result) as PrefabWireFormat
-    expect(wire.$prefab.version).toBe('0.2')
+    expect(wire.$prefab.version).toBe('0.3')
     expect(wire.view.type).toBe('Div')
     expect(wire.view.cssClass).toContain('pf-app-root')
   })
@@ -69,7 +69,7 @@ describe('display()', () => {
     expect(wire.state).toEqual({ count: 0 })
   })
 
-  it('includes state and theme when provided', () => {
+  it('includes state and compiles theme into css when provided', () => {
     const result = display(Text('x'), {
       title: 'Themed',
       state: { name: 'Alice' },
@@ -77,7 +77,7 @@ describe('display()', () => {
     })
     const wire = parsePrefab(result) as PrefabWireFormat
     expect(wire.state).toEqual({ name: 'Alice' })
-    expect(wire.theme!.light!.primary).toBe('#00f')
+    expect(wire.css!.join('\n')).toContain('--primary: #00f;')
   })
 
   it('includes onMount and keyBindings', () => {
@@ -98,7 +98,7 @@ describe('display()', () => {
     ]
     const result = display(autoTable(data), { title: 'Users' })
     const wire = parsePrefab(result) as PrefabWireFormat
-    expect(wire.$prefab.version).toBe('0.2')
+    expect(wire.$prefab.version).toBe('0.3')
     const json = JSON.stringify(wire)
     expect(json).toContain('DataTable')
   })
@@ -141,6 +141,140 @@ describe('display()', () => {
     })
     expect((result.structuredContent as Record<string, unknown>).layout).toEqual({ maxHeight: 400 })
   })
+
+  it('forwards stylesheets to wire format', () => {
+    const result = display(Text('styled'), {
+      stylesheets: ['.custom { color: red; }'],
+    })
+    const wire = parsePrefab(result) as PrefabWireFormat
+    expect(wire.stylesheets).toEqual(['.custom { color: red; }'])
+  })
+
+  it('forwards pipes to wire format', () => {
+    const result = display(Text('piped'), {
+      pipes: { double: (v: unknown) => Number(v) * 2 },
+    })
+    const wire = parsePrefab(result) as PrefabWireFormat
+    expect(wire.pipes).toBeDefined()
+    expect(wire.pipes!.double).toContain('* 2')
+  })
+
+  it('omits stylesheets and pipes when not provided', () => {
+    const result = display(Text('plain'))
+    const wire = parsePrefab(result) as PrefabWireFormat
+    expect(wire.stylesheets).toBeUndefined()
+    expect(wire.pipes).toBeUndefined()
+  })
+
+  // ── Issue #12: display() with PrefabApp + options merge ──────────────────
+
+  it('merges options into existing PrefabApp (closes #12)', () => {
+    const app = new PrefabApp({
+      title: 'Original',
+      view: Text('Hi'),
+      state: { existing: 1 },
+    })
+    const result = display(app, {
+      state: { added: 2 },
+      stylesheets: ['.injected { color: red; }'],
+    })
+    const wire = parsePrefab(result) as PrefabWireFormat
+    // State is merged — both original and added keys present
+    expect(wire.state).toEqual({ existing: 1, added: 2 })
+    // Stylesheets from options are included
+    expect(wire.stylesheets).toEqual(['.injected { color: red; }'])
+  })
+
+  it('options state overrides PrefabApp state on conflict', () => {
+    const app = new PrefabApp({
+      title: 'App',
+      view: Text('x'),
+      state: { count: 0, name: 'old' },
+    })
+    const result = display(app, { state: { count: 99 } })
+    const wire = parsePrefab(result) as PrefabWireFormat
+    expect(wire.state).toEqual({ count: 99, name: 'old' })
+  })
+
+  it('concatenates stylesheets from PrefabApp and options', () => {
+    const app = new PrefabApp({
+      title: 'Styled',
+      view: Text('x'),
+      stylesheets: ['.base { margin: 0; }'],
+    })
+    const result = display(app, {
+      stylesheets: ['.extra { padding: 4px; }'],
+    })
+    const wire = parsePrefab(result) as PrefabWireFormat
+    expect(wire.stylesheets).toEqual([
+      '.base { margin: 0; }',
+      '.extra { padding: 4px; }',
+    ])
+  })
+
+  it('options theme overrides PrefabApp theme', () => {
+    const app = new PrefabApp({
+      title: 'Themed',
+      view: Text('x'),
+      theme: { light: { primary: '#000' } },
+    })
+    const result = display(app, {
+      theme: { dark: { primary: '#fff' } },
+    })
+    const wire = parsePrefab(result) as PrefabWireFormat
+    // options.theme overrides entirely (not deep merged) — compiled into css.
+    const css = wire.css!.join('\n')
+    expect(css).toContain('--primary: #fff;')
+    expect(css).not.toContain('--primary: #000;')
+  })
+
+  it('PrefabApp without options is passed through unchanged', () => {
+    const app = new PrefabApp({
+      title: 'Direct',
+      view: Text('x'),
+      stylesheets: ['.keep { color: blue; }'],
+      state: { ok: true },
+    })
+    const result = display(app)
+    const wire = parsePrefab(result) as PrefabWireFormat
+    expect(wire.state).toEqual({ ok: true })
+    expect(wire.stylesheets).toEqual(['.keep { color: blue; }'])
+  })
+
+  it('merges layout from options into PrefabApp', () => {
+    const app = new PrefabApp({
+      title: 'App',
+      view: Text('x'),
+    })
+    const result = display(app, { layout: { preferredHeight: 600 } })
+    const wire = parsePrefab(result) as PrefabWireFormat
+    expect(wire.layout).toEqual({ preferredHeight: 600 })
+  })
+
+  it('merges pipes from PrefabApp and options', () => {
+    const app = new PrefabApp({
+      title: 'App',
+      view: Text('x'),
+      pipes: { upper: (v: unknown) => String(v).toUpperCase() },
+    })
+    const result = display(app, {
+      pipes: { lower: (v: unknown) => String(v).toLowerCase() },
+    })
+    const wire = parsePrefab(result) as PrefabWireFormat
+    expect(wire.pipes!.upper).toBeDefined()
+    expect(wire.pipes!.lower).toBeDefined()
+  })
+
+  it('empty options object does not alter PrefabApp', () => {
+    const app = new PrefabApp({
+      title: 'Direct',
+      view: Text('x'),
+      state: { kept: true },
+    })
+    const result = display(app, {})
+    const wire = parsePrefab(result) as PrefabWireFormat
+    expect(wire.state).toEqual({ kept: true })
+  })
 })
 
 // ── display_form() ───────────────────────────────────────────────────────────
@@ -157,7 +291,7 @@ describe('display_form()', () => {
     expect(result.isError).toBeUndefined()
 
     const wire = parsePrefab(result) as PrefabWireFormat
-    expect(wire.$prefab.version).toBe('0.2')
+    expect(wire.$prefab.version).toBe('0.3')
     const json = JSON.stringify(wire)
     expect(json).toContain('Form')
     expect(json).toContain('create_patient')
@@ -195,7 +329,7 @@ describe('display_update()', () => {
     expect(result.isError).toBeUndefined()
 
     const payload = parsePrefab(result) as PrefabUpdateWire
-    expect(payload.$prefab.version).toBe('0.2')
+    expect(payload.$prefab.version).toBe('0.3')
     expect(payload.update.state).toEqual({ loading: false, data: [1, 2, 3] })
   })
 
@@ -213,6 +347,38 @@ describe('display_update()', () => {
     expect(payload.update.state.user).toEqual({ name: 'Alice', prefs: { theme: 'dark' } })
     expect(payload.update.state.count).toBe(42)
   })
+
+  // ── Issue #13: actions alongside state delta ──────────────────────────────
+
+  it('includes single action in wire format (closes #13)', () => {
+    const result = display_update(
+      { turn: 'black' },
+      { actions: new SetState('prompt', 'Your move') },
+    )
+    const payload = parsePrefab(result) as PrefabUpdateWire
+    expect(payload.update.state).toEqual({ turn: 'black' })
+    expect(payload.update.actions).toEqual([
+      { action: 'setState', key: 'prompt', value: 'Your move' },
+    ])
+  })
+
+  it('includes action array in wire format', () => {
+    const result = display_update(
+      { fen: 'rnbqkbnr/...' },
+      { actions: [new SetState('thinking', true), new CallTool('engine_move')] },
+    )
+    const payload = parsePrefab(result) as PrefabUpdateWire
+    expect(payload.update.actions).toEqual([
+      { action: 'setState', key: 'thinking', value: true },
+      { action: 'toolCall', tool: 'engine_move' },
+    ])
+  })
+
+  it('omits actions when not provided', () => {
+    const result = display_update({ x: 1 })
+    const payload = parsePrefab(result) as PrefabUpdateWire
+    expect(payload.update.actions).toBeUndefined()
+  })
 })
 
 // ── display_error() ──────────────────────────────────────────────────────────
@@ -223,7 +389,7 @@ describe('display_error()', () => {
     expect(result.isError).toBe(true)
 
     const wire = parsePrefab(result) as PrefabWireFormat
-    expect(wire.$prefab.version).toBe('0.2')
+    expect(wire.$prefab.version).toBe('0.3')
     const json = JSON.stringify(wire)
     expect(json).toContain('Not Found')
     expect(json).toContain('Patient with ID xyz was not found.')
@@ -271,7 +437,7 @@ describe('mock MCP tool handler integration', () => {
     const result = tool.handler({})
     expect(result.content).toHaveLength(1)
     const wire = parsePrefab(result) as PrefabWireFormat
-    expect(wire.$prefab.version).toBe('0.2')
+    expect(wire.$prefab.version).toBe('0.3')
   })
 
   it('tool returns display_form() for create flow', () => {

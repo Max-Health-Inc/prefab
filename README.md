@@ -253,7 +253,9 @@ Built-in pipes always take precedence. Re-registration warns and overwrites (HMR
 
 ## Actions
 
-Actions are triggered by user interactions (`onClick`, `onChange`, `onSubmit`) or lifecycle events (`onMount`):
+Actions are triggered by user interactions (`onClick`, `onChange`, `onSubmit`) or lifecycle events (`onMount`).
+
+`onClick` works on **all components** — not just `Button`. Containers like `Div`, `Span`, `Column`, and `Row` automatically get `role="button"`, `tabindex="0"`, and keyboard (Enter/Space) support:
 
 ```ts
 import { SetState, ToggleState, CallTool, ShowToast, OpenLink, rx } from '@maxhealth.tech/prefab'
@@ -274,6 +276,24 @@ Button('Save', { onClick: new ShowToast('Saved!', { variant: 'success' }) })
 **Client actions:** `SetState`, `ToggleState`, `AppendState`, `PopState`, `ShowToast`, `CloseOverlay`, `OpenLink`, `SetInterval`, `Fetch`, `OpenFilePicker`, `CallHandler`
 
 **MCP actions:** `CallTool`, `SendMessage`, `UpdateContext`, `RequestDisplayMode`
+
+**Real-time:** `Subscribe`, `Unsubscribe` — resource subscriptions with automatic polling fallback
+
+```ts
+import { Subscribe, Unsubscribe, ShowToast } from '@maxhealth.tech/prefab'
+
+// Live updates — uses native push when available, polls otherwise
+new Subscribe('chess://game/abc123', {
+  stateKey: '$game',
+  fallbackInterval: 2000,
+  fallbackTool: '_action',
+  fallbackArgs: { action: 'refresh' },
+  onData: new ShowToast('Game updated'),
+})
+
+// Cleanup
+Button('Leave', { onClick: new Unsubscribe('chess://game/abc123') })
+```
 
 ## Auto-Renderers
 
@@ -339,6 +359,29 @@ return display_update({ count: 42, status: 'complete' })
 return display_error('User not found', { code: 404 })
 ```
 
+### `rendererHtml()` — Viewer HTML Shell
+
+Generate the complete HTML page for an MCP Apps viewer resource. Loads `prefab.css` + `renderer.auto.min.js` from the CDN automatically — no manual script wiring needed:
+
+```ts
+import { rendererHtml, registerViewerResource } from '@maxhealth.tech/prefab/mcp'
+
+// Minimal — just works
+const html = rendererHtml()
+
+// With extras
+const html = rendererHtml({
+  title: 'My App',
+  stylesheets: ['https://cdn.example.com/theme.css'],
+  scripts: ['https://cdn.example.com/plugin.js'],
+})
+
+// One-liner resource registration on your MCP server
+registerViewerResource(server, { title: 'Patient Browser' })
+```
+
+Options: `title`, `scripts`, `stylesheets`, `cdnBase` (override CDN URL).
+
 ## Browser Renderer
 
 Two bundles, zero external dependencies:
@@ -398,7 +441,7 @@ All UIs serialize to the `$prefab` wire format (JSON):
 
 ```json
 {
-  "$prefab": { "version": "0.2" },
+  "$prefab": { "version": "0.3" },
   "view": {
     "type": "Column",
     "children": [

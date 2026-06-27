@@ -6,6 +6,7 @@ export { display, display_form, display_update, display_error, display_success, 
 export type {
   DisplayOptions,
   DisplayFormOptions,
+  DisplayUpdateOptions,
   DisplayErrorOptions,
   DisplaySuccessOptions,
   StateUpdate,

@@ -81,6 +81,12 @@ ui.onToolCancelled(() => {
 ui.onToolInputPartial((partialArgs) => {
   console.log('Partial input:', partialArgs);
 });
+
+// Receive full host context changes (theme + arbitrary fields like accessToken)
+ui.onHostContextChanged((ctx) => {
+  console.log('Host context:', ctx);
+  // ctx.accessToken, ctx.theme, ctx.locale, etc.
+});
 ```
 
 The first `onToolInput` delivery is buffered — if the host sends tool input before the handler is registered, it's delivered immediately when `onToolInput` is called.
@@ -163,6 +169,7 @@ All messages use a `prefab:` namespace prefix.
 | `prefab:tool-result` | `{ result }` | Tool execution result |
 | `prefab:tool-cancelled` | `{}` | Tool was cancelled |
 | `prefab:theme-update` | `HostTheme` | Theme change |
+| `prefab:host-context-changed` | `Record<string, unknown>` | Full host context (theme + arbitrary fields) |
 | `prefab:state-update` | `Record<string, unknown>` | State merge |
 
 ### Message Shape

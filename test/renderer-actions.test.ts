@@ -8,16 +8,19 @@ import { describe, it, expect, beforeEach } from 'bun:test'
 import { Store } from '../src/renderer/state'
 import { dispatchActions, clearAllIntervals } from '../src/renderer/actions'
 import type { DispatchContext, ToastEvent, McpTransport } from '../src/renderer/actions'
+import { extractPrefabPayload, extractPrefabUpdate } from '../src/renderer/actions'
 import { createNoopTransport } from '../src/renderer/transport'
 
-function makeCtx(state?: Record<string, unknown>, transport?: McpTransport): DispatchContext & { rerendered: number; toasts: ToastEvent[] } {
+function makeCtx(state?: Record<string, unknown>, transport?: McpTransport): DispatchContext & { rerendered: number; toasts: ToastEvent[]; remounted: Record<string, unknown>[] } {
   const ctx = {
     store: new Store(state),
     transport: transport ?? createNoopTransport(),
     rerender: () => { ctx.rerendered++ },
+    remount: (data: Record<string, unknown>) => { ctx.remounted.push(data) },
     onToast: (t: ToastEvent) => ctx.toasts.push(t),
     rerendered: 0,
     toasts: [] as ToastEvent[],
+    remounted: [] as Record<string, unknown>[],
   }
   return ctx
 }
@@ -339,5 +342,189 @@ describe('callTool alias (Prefect compat)', () => {
     expect(transport.calls).toHaveLength(1)
     expect(transport.calls[0].name).toBe('my_tool')
     expect(ctx.store.get('out')).toEqual({ value: 99 })
+  })
+})
+
+// ── extractPrefabPayload ─────────────────────────────────────────────────────
+
+describe('extractPrefabPayload', () => {
+  it('returns null for non-object values', () => {
+    expect(extractPrefabPayload(null)).toBeNull()
+    expect(extractPrefabPayload(undefined)).toBeNull()
+    expect(extractPrefabPayload('hello')).toBeNull()
+    expect(extractPrefabPayload(42)).toBeNull()
+  })
+
+  it('returns null for plain objects without $prefab', () => {
+    expect(extractPrefabPayload({ data: 42 })).toBeNull()
+    expect(extractPrefabPayload({ ok: true })).toBeNull()
+  })
+
+  it('detects direct prefab wire payload', () => {
+    const payload = { $prefab: { version: '0.2' }, view: { type: 'Text', text: 'hi' } }
+    expect(extractPrefabPayload(payload)).toBe(payload)
+  })
+
+  it('extracts from structuredContent wrapper', () => {
+    const inner = { $prefab: { version: '0.2' }, view: { type: 'Text', text: 'hi' } }
+    const result = { content: [{ type: 'text', text: 'ok' }], structuredContent: inner }
+    expect(extractPrefabPayload(result)).toBe(inner)
+  })
+
+  it('extracts from MCP content array text block', () => {
+    const inner = { $prefab: { version: '0.2' }, view: { type: 'Text', text: 'hi' } }
+    const result = { content: [{ type: 'text', text: JSON.stringify(inner) }] }
+    expect(extractPrefabPayload(result)).toEqual(inner)
+  })
+
+  it('ignores content blocks that are not JSON', () => {
+    const result = { content: [{ type: 'text', text: 'not json' }] }
+    expect(extractPrefabPayload(result)).toBeNull()
+  })
+
+  it('ignores structuredContent without $prefab', () => {
+    const result = { structuredContent: { data: 42 } }
+    expect(extractPrefabPayload(result)).toBeNull()
+  })
+
+  it('ignores display_update payloads (has $prefab but no view)', () => {
+    // display_update() returns { $prefab, update: { state } } — no view
+    const updatePayload = { $prefab: { version: '0.2' }, update: { state: { count: 5 } } }
+    expect(extractPrefabPayload(updatePayload)).toBeNull()
+  })
+
+  it('ignores display_update in structuredContent wrapper', () => {
+    const updatePayload = { $prefab: { version: '0.2' }, update: { state: { count: 5 } } }
+    const result = { content: [], structuredContent: updatePayload }
+    expect(extractPrefabPayload(result)).toBeNull()
+  })
+
+  it('ignores display_update in MCP content text block', () => {
+    const updatePayload = { $prefab: { version: '0.2' }, update: { state: { count: 5 } } }
+    const result = { content: [{ type: 'text', text: JSON.stringify(updatePayload) }] }
+    expect(extractPrefabPayload(result)).toBeNull()
+  })
+})
+
+// ── extractPrefabUpdate ──────────────────────────────────────────────────────
+
+describe('extractPrefabUpdate', () => {
+  it('returns null for non-object values', () => {
+    expect(extractPrefabUpdate(null)).toBeNull()
+    expect(extractPrefabUpdate('hello')).toBeNull()
+    expect(extractPrefabUpdate(42)).toBeNull()
+  })
+
+  it('returns null for plain objects', () => {
+    expect(extractPrefabUpdate({ data: 42 })).toBeNull()
+  })
+
+  it('returns null for view payloads (not updates)', () => {
+    const payload = { $prefab: { version: '0.2' }, view: { type: 'Text', text: 'hi' } }
+    expect(extractPrefabUpdate(payload)).toBeNull()
+  })
+
+  it('detects direct display_update payload', () => {
+    const payload = { $prefab: { version: '0.2' }, update: { state: { count: 5 } } }
+    expect(extractPrefabUpdate(payload)).toBe(payload)
+  })
+
+  it('extracts from structuredContent wrapper', () => {
+    const inner = { $prefab: { version: '0.2' }, update: { state: { x: 1 } } }
+    const result = { content: [], structuredContent: inner }
+    expect(extractPrefabUpdate(result)).toBe(inner)
+  })
+
+  it('extracts from MCP content text block', () => {
+    const inner = { $prefab: { version: '0.2' }, update: { state: { y: 2 } } }
+    const result = { content: [{ type: 'text', text: JSON.stringify(inner) }] }
+    expect(extractPrefabUpdate(result)).toEqual(inner)
+  })
+
+  it('ignores malformed update (missing state)', () => {
+    const payload = { $prefab: { version: '0.2' }, update: {} }
+    expect(extractPrefabUpdate(payload)).toBeNull()
+  })
+})
+
+// ── toolCall remount (server-rendered pattern) ───────────────────────────────
+
+describe('toolCall remount', () => {
+  it('calls remount when tool returns a prefab wire payload', async () => {
+    const newView = { $prefab: { version: '0.2' }, view: { type: 'Text', text: 'new' } }
+    const transport = mockTransport(newView)
+    const ctx = makeCtx({}, transport)
+
+    await dispatchActions({
+      action: 'toolCall',
+      tool: 'next_view',
+      arguments: {},
+    }, ctx)
+
+    expect(ctx.remounted).toHaveLength(1)
+    expect(ctx.remounted[0]).toBe(newView)
+    expect(ctx.rerendered).toBe(0) // remount, not rerender
+  })
+
+  it('calls remount when tool returns structuredContent with $prefab', async () => {
+    const inner = { $prefab: { version: '0.2' }, view: { type: 'Text', text: 'updated' } }
+    const transport = mockTransport({ content: [], structuredContent: inner })
+    const ctx = makeCtx({}, transport)
+
+    await dispatchActions({
+      action: 'toolCall',
+      tool: 'next_view',
+      arguments: {},
+    }, ctx)
+
+    expect(ctx.remounted).toHaveLength(1)
+    expect(ctx.remounted[0]).toBe(inner)
+    expect(ctx.rerendered).toBe(0)
+  })
+
+  it('falls back to rerender when tool returns non-prefab result', async () => {
+    const transport = mockTransport({ data: 42 })
+    const ctx = makeCtx({}, transport)
+
+    await dispatchActions({
+      action: 'toolCall',
+      tool: 'regular_tool',
+      arguments: {},
+    }, ctx)
+
+    expect(ctx.remounted).toHaveLength(0)
+    expect(ctx.rerendered).toBeGreaterThan(0)
+  })
+
+  it('still stores result in resultKey when remounting', async () => {
+    const newView = { $prefab: { version: '0.2' }, view: { type: 'Text', text: 'new' } }
+    const transport = mockTransport(newView)
+    const ctx = makeCtx({}, transport)
+
+    await dispatchActions({
+      action: 'toolCall',
+      tool: 'next_view',
+      arguments: {},
+      resultKey: 'last_result',
+    }, ctx)
+
+    expect(ctx.store.get('last_result')).toBe(newView)
+    expect(ctx.remounted).toHaveLength(1)
+  })
+
+  it('fires onSuccess after remount', async () => {
+    const newView = { $prefab: { version: '0.2' }, view: { type: 'Text', text: 'x' } }
+    const transport = mockTransport(newView)
+    const ctx = makeCtx({ done: false }, transport)
+
+    await dispatchActions({
+      action: 'toolCall',
+      tool: 'next_view',
+      arguments: {},
+      onSuccess: { action: 'setState', key: 'done', value: true },
+    }, ctx)
+
+    expect(ctx.store.get('done')).toBe(true)
+    expect(ctx.remounted).toHaveLength(1)
   })
 })

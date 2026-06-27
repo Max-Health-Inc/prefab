@@ -111,6 +111,7 @@ export class Bridge {
   private rpcIdCounter = 0
   private sentRpcIds = new Set<number | string>()
   private postFn: ((msg: unknown) => void) | undefined
+  private _hostSupportsSubscriptions = false
 
   constructor(hostOrigin = '*') {
     this.hostOrigin = hostOrigin
@@ -282,6 +283,43 @@ export class Bridge {
     }
   }
 
+  /**
+   * Subscribe to a resource URI for real-time push updates.
+   *
+   * Sends `ui/resources/subscribe` (JSON-RPC) or `prefab:subscribe` (prefab)
+   * to the host and registers a listener for incoming update notifications.
+   *
+   * @returns Cleanup function that unsubscribes from the resource.
+   */
+  subscribe(uri: string, onData: (data: unknown) => void): () => void {
+    const handler = (payload: Record<string, unknown>): void => {
+      if (payload.uri !== uri) return
+      onData(payload.contents ?? payload.data ?? payload)
+    }
+
+    if (this.protocol === 'jsonrpc') {
+      this.on('prefab:resource-updated', handler)
+      void this.sendRpcRequest('resources/subscribe', { uri })
+    } else {
+      this.on('prefab:resource-updated', handler)
+      this.sendPrefab('prefab:subscribe', { uri })
+    }
+
+    return () => {
+      this.off('prefab:resource-updated', handler)
+      if (this.protocol === 'jsonrpc') {
+        void this.sendRpcRequest('resources/unsubscribe', { uri })
+      } else {
+        this.sendPrefab('prefab:unsubscribe', { uri })
+      }
+    }
+  }
+
+  /** Whether the host indicated subscription support during handshake. */
+  get supportsSubscriptions(): boolean {
+    return this._hostSupportsSubscriptions
+  }
+
   /** Register a handler for a message type (prefab:* or internal). */
   on(type: string, handler: (payload: Record<string, unknown>) => void): void {
     if (!this.listeners.has(type)) {
@@ -327,6 +365,9 @@ export class Bridge {
         settled = true
         this.off('prefab:init-response', onResponse)
         this.protocol = 'prefab'
+        // Detect subscription support from host capabilities
+        const caps = (payload as unknown as HostContext).capabilities as Record<string, unknown> | undefined
+        this._hostSupportsSubscriptions = caps?.subscriptions === true
         resolve(payload as unknown as HostContext)
       }
       this.on('prefab:init-response', onResponse)
@@ -362,6 +403,10 @@ export class Bridge {
         this.sendPrefab('prefab:send-message', { message })
         return Promise.resolve()
       },
+      subscribe: (uri: string, onData: (data: unknown) => void): (() => void) => {
+        return this.subscribe(uri, onData)
+      },
+      capabilities: { subscriptions: this._hostSupportsSubscriptions },
     }
   }
 
@@ -427,10 +472,16 @@ export class Bridge {
           if (typeof styles.css?.fonts === 'string') theme.fontCss = styles.css.fonts
         }
         this.dispatch('prefab:theme-update', theme as Record<string, unknown>)
+        // Dispatch full params so components can react to arbitrary host context fields
+        this.dispatch('prefab:host-context-changed', params)
         break
       }
       case 'ui/resource-teardown':
         this.dispatch('prefab:teardown', params)
+        break
+      case 'ui/notifications/resource-updated':
+      case 'notifications/resources/updated':
+        this.dispatch('prefab:resource-updated', params)
         break
     }
   }
@@ -472,6 +523,12 @@ export class Bridge {
             method: 'ui/notifications/initialized',
             params: {},
           })
+
+          // Detect subscription support from host capabilities
+          const resourcesCaps = hostCaps.resources as Record<string, unknown> | undefined
+          this._hostSupportsSubscriptions =
+            hostCaps.subscriptions === true ||
+            resourcesCaps?.subscribe === true
 
           resolve({
             hostName: hostInfo.name,
@@ -533,6 +590,10 @@ export class Bridge {
           content: { type: 'text', text: message },
         }) as Promise<void>
       },
+      subscribe: (uri: string, onData: (data: unknown) => void): (() => void) => {
+        return this.subscribe(uri, onData)
+      },
+      capabilities: { subscriptions: this._hostSupportsSubscriptions },
     }
   }
 

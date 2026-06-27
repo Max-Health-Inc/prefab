@@ -65,6 +65,8 @@ export interface PrefabApp {
   onToolCancelled: (handler: VoidHandler) => void
   /** Register a handler for partial/streaming tool input. */
   onToolInputPartial: (handler: ToolInputHandler) => void
+  /** Register a handler for host context changes (full params from host-context-changed). */
+  onHostContextChanged: (handler: (context: Record<string, unknown>) => void) => void
   /** Render a component tree into a DOM element. */
   render: (target: string | HTMLElement, ...components: ComponentNode[]) => MountHandle
   /** Mount full wire-format data (legacy API). */
@@ -151,6 +153,7 @@ export async function app(options?: AppOptions): Promise<PrefabApp> {
   let toolResultHandler: ToolResultHandler | undefined
   let toolCancelledHandler: VoidHandler | undefined
   let toolInputPartialHandler: ToolInputHandler | undefined
+  let hostContextChangedHandler: ((context: Record<string, unknown>) => void) | undefined
 
   // Buffer initial tool input — delivered when onToolInput is registered
   let pendingToolInput: Record<string, unknown> | undefined = hostContext.toolInput
@@ -187,6 +190,9 @@ export async function app(options?: AppOptions): Promise<PrefabApp> {
       if (typeof document !== 'undefined') {
         applyHostTheme(document.documentElement, payload as unknown as HostTheme)
       }
+    })
+    bridge.on('prefab:host-context-changed', (payload) => {
+      hostContextChangedHandler?.(payload)
     })
   }
 
@@ -243,6 +249,7 @@ export async function app(options?: AppOptions): Promise<PrefabApp> {
     },
     onToolCancelled: (handler) => { toolCancelledHandler = handler },
     onToolInputPartial: (handler) => { toolInputPartialHandler = handler },
+    onHostContextChanged: (handler) => { hostContextChangedHandler = handler },
     render,
     mount: (target, data, opts) => {
       const root = resolveTarget(target)

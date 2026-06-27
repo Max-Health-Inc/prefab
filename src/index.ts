@@ -12,8 +12,10 @@ export { validateWireFormat, isValidWireFormat } from './core/validate.js'
 export type { ValidationError, ValidationResult } from './core/validate.js'
 
 // ── App ──────────────────────────────────────────────────────────────────────
-export { PrefabApp } from './app.js'
-export type { PrefabAppOptions, PrefabWireFormat, Theme, LayoutHints } from './app.js'
+export { PrefabApp, PROTOCOL_VERSION } from './app.js'
+export type { PrefabAppOptions, PrefabWireFormat, Theme, LayoutHints, ColorMode } from './app.js'
+export { compileThemeCss } from './core/theme-css.js'
+export type { ThemeVars } from './core/theme-css.js'
 
 // ── Layout ───────────────────────────────────────────────────────────────────
 export { Column, Row, Grid, GridItem, Container, Div, Span, Dashboard, DashboardItem, Pages, Page, Detail, MasterDetail } from './components/layout/index.js'
@@ -63,7 +65,7 @@ export type { PdfViewerProps, PdfZoom } from './components/pdf/index.js'
 
 // ── Charts ───────────────────────────────────────────────────────────────────
 export { BarChart, LineChart, AreaChart, PieChart, RadarChart, ScatterChart, Sparkline, RadialChart, Histogram } from './components/charts/index.js'
-export type { ChartSeries, BaseChartProps, BarChartProps, SparklineProps, RadialChartProps, HistogramProps } from './components/charts/index.js'
+export type { ChartSeries, BaseChartProps, BarChartProps, CategoricalChartProps, PieChartProps, ScatterChartProps, RadarChartProps, SparklineProps, RadialChartProps, HistogramProps } from './components/charts/index.js'
 
 // ── Auto-rendering ───────────────────────────────────────────────────────────
 export { autoDetail, autoTable, statusVariant, registerStatusVariants } from './auto/index.js'
@@ -82,8 +84,8 @@ export type { AutoTimelineEvent, AutoTimelineOptions } from './auto/timeline.js'
 export type { AutoProgressStep, AutoProgressOptions } from './auto/progress.js'
 
 // ── MCP Display Helpers ──────────────────────────────────────────────────────
-export { display, display_form, display_update, display_error, displayForm, displayUpdate, displayError, resourceMeta, PREFAB_CDN_META, PREFAB_RESOURCE_URI, rendererHtml, registerViewerResource } from './mcp/display.js'
-export type { DisplayOptions, DisplayFormOptions, DisplayErrorOptions, StateUpdate, PrefabUpdateWire, McpAppCsp, McpAppPermissions, ResourceMetaOptions, RendererHtmlOptions, ViewerResourceOptions } from './mcp/display.js'
+export { display, display_form, display_update, display_error, display_success, displayForm, displayUpdate, displayError, displaySuccess, resourceMeta, PREFAB_CDN_META, PREFAB_RESOURCE_URI, rendererHtml, registerViewerResource } from './mcp/display.js'
+export type { DisplayOptions, DisplayFormOptions, DisplayUpdateOptions, DisplayErrorOptions, DisplaySuccessOptions, StateUpdate, PrefabUpdateWire, McpAppCsp, McpAppPermissions, ResourceMetaOptions, RendererHtmlOptions, ViewerResourceOptions } from './mcp/display.js'
 export type { McpToolResult, McpContent, McpTextContent } from './mcp/types.js'
 
 // ── Re-export actions and rx for convenience ─────────────────────────────────
@@ -91,6 +93,8 @@ export { rx, Rx, ITEM, INDEX, EVENT, ERROR, RESULT, STATE, signal, Signal, colle
 export type { SignalValue, SignalOptions, PipeFn } from './rx/index.js'
 export { SetState, ToggleState, AppendState, PopState, ShowToast, CloseOverlay, OpenLink, SetInterval, Fetch, OpenFilePicker, CallHandler } from './actions/client.js'
 export { CallTool, SendMessage, UpdateContext, RequestDisplayMode } from './actions/mcp.js'
+export { Subscribe, Unsubscribe } from './actions/subscribe.js'
+export type { SubscribeOpts } from './actions/subscribe.js'
 export { set, toggle, append, pop } from './actions/sugar.js'
 export type { StateTarget } from './actions/sugar.js'
 export type { Action, ActionJSON } from './actions/types.js'

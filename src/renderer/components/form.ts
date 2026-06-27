@@ -151,12 +151,6 @@ function renderButton(node: ComponentNode, ctx: RenderContext): HTMLElement {
   if (node.size != null) btn.setAttribute('data-size', node.size as string)
   if (node.disabled === true) btn.disabled = true
 
-  if (node.onClick != null) {
-    btn.addEventListener('click', () => {
-      void dispatchActions(node.onClick as ActionJSON | ActionJSON[], makeDispatchCtx(ctx))
-    })
-  }
-
   return btn
 }
 
@@ -608,12 +602,6 @@ function renderChoiceCard(node: ComponentNode, ctx: RenderContext): HTMLElement 
   }
 
   renderChildren(node, e, ctx)
-
-  if (node.onClick != null) {
-    e.addEventListener('click', () => {
-      void dispatchActions(node.onClick as ActionJSON | ActionJSON[], makeDispatchCtx(ctx))
-    })
-  }
 
   return e
 }

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://max-health-inc.github.io/prefab/sitemap.xml

@@ -8,7 +8,7 @@ KPI metrics on top, chart + table below.
 
 ```json
 {
-  "$prefab": { "version": "0.2" },
+  "$prefab": { "version": "0.3" },
   "view": {
     "type": "Column", "gap": 16,
     "children": [
@@ -67,7 +67,7 @@ Entity summary with metadata, status badges, and key-value data.
 
 ```json
 {
-  "$prefab": { "version": "0.2" },
+  "$prefab": { "version": "0.3" },
   "view": {
     "type": "Card",
     "children": [
@@ -102,7 +102,7 @@ Form with inputs, dropdown, actions, and reactive state.
 
 ```json
 {
-  "$prefab": { "version": "0.2" },
+  "$prefab": { "version": "0.3" },
   "view": {
     "type": "Card",
     "children": [
@@ -146,7 +146,7 @@ Multi-section settings with alerts, toggles, and selects.
 
 ```json
 {
-  "$prefab": { "version": "0.2" },
+  "$prefab": { "version": "0.3" },
   "view": {
     "type": "Column", "gap": 16,
     "children": [
@@ -186,7 +186,7 @@ Side-by-side bar chart with multiple series and metrics.
 
 ```json
 {
-  "$prefab": { "version": "0.2" },
+  "$prefab": { "version": "0.3" },
   "view": {
     "type": "Column", "gap": 16,
     "children": [
@@ -226,7 +226,7 @@ Reactive list with add/remove using state actions.
 
 ```json
 {
-  "$prefab": { "version": "0.2" },
+  "$prefab": { "version": "0.3" },
   "view": {
     "type": "Card",
     "children": [
@@ -268,7 +268,7 @@ Form that calls an MCP tool and displays results.
 
 ```json
 {
-  "$prefab": { "version": "0.2" },
+  "$prefab": { "version": "0.3" },
   "view": {
     "type": "Column", "gap": 16,
     "children": [
@@ -304,7 +304,7 @@ Form that calls an MCP tool and displays results.
 
 ## Anti-Patterns to Avoid
 
-1. **Missing envelope** — Always wrap in `{ "$prefab": { "version": "0.2" }, "view": { ... } }`
+1. **Missing envelope** — Always wrap in `{ "$prefab": { "version": "0.3" }, "view": { ... } }`
 2. **Flat layout** — Don't put 10 children at root level. Group into Cards/Rows/Columns.
 3. **Missing state** — If you use `{{ state.x }}`, declare `x` in `"state"`
 4. **camelCase types** — Wrong: `"type": "dataTable"` → Right: `"type": "DataTable"`

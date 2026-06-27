@@ -37,6 +37,11 @@ export function toCamelCase(key: string): string {
   return key.replace(/_([a-z])/g, (_, c: string) => c.toUpperCase())
 }
 
+/** Convert camelCase or snake_case prop name to snake_case */
+export function toSnakeCase(key: string): string {
+  return key.replace(/[A-Z]/g, (c) => `_${c.toLowerCase()}`)
+}
+
 /** Serialize a value for JSON output */
 export function serializeValue(v: unknown): unknown {
   if (v === undefined || v === null) return undefined
@@ -50,7 +55,7 @@ export function serializeValue(v: unknown): unknown {
     const result: Record<string, unknown> = {}
     for (const [k, val] of Object.entries(v as Record<string, unknown>)) {
       const serialized = serializeValue(val)
-      if (serialized !== undefined) result[toCamelCase(k)] = serialized
+      if (serialized !== undefined) result[k] = serialized
     }
     return result
   }
@@ -61,20 +66,23 @@ export function serializeValue(v: unknown): unknown {
 
 export interface ComponentProps {
   id?: string
-  cssClass?: string
+  cssClass?: RxStr
+  onClick?: Action | Action[]
   onMount?: Action | Action[]
 }
 
 export class Component {
   readonly componentType: string
   id?: string
-  cssClass?: string
+  cssClass?: RxStr
+  onClick?: Action | Action[]
   onMount?: Action | Action[]
 
   constructor(type: string, props?: ComponentProps) {
     this.componentType = type
     if (props?.id) this.id = props.id
-    if (props?.cssClass) this.cssClass = props.cssClass
+    if (props?.cssClass != null) this.cssClass = props.cssClass
+    if (props?.onClick) this.onClick = props.onClick
     if (props?.onMount) this.onMount = props.onMount
   }
 
@@ -87,7 +95,12 @@ export class Component {
     const json: ComponentJSON = { type: this.componentType }
 
     if (this.id) json.id = this.id
-    if (this.cssClass) json.cssClass = this.cssClass
+    if (this.cssClass != null) json.cssClass = serializeValue(this.cssClass) as string
+    if (this.onClick) {
+      json.onClick = Array.isArray(this.onClick)
+        ? this.onClick.map(a => a.toJSON())
+        : this.onClick.toJSON()
+    }
     if (this.onMount) {
       json.onMount = Array.isArray(this.onMount)
         ? this.onMount.map(a => a.toJSON())
@@ -99,7 +112,7 @@ export class Component {
     for (const [key, value] of Object.entries(props)) {
       const serialized = serializeValue(value)
       if (serialized !== undefined) {
-        json[toCamelCase(key)] = serialized
+        json[key] = serialized
       }
     }
 

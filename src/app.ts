@@ -10,9 +10,20 @@ import type { ComponentJSON } from './core/component.js'
 import type { Action, ActionJSON } from './actions/types.js'
 import { drainAutoState } from './rx/state-collector.js'
 import type { PipeFn } from './rx/pipes.js'
+import { compileThemeCss } from './core/theme-css.js'
 
 /** Package version — injected by build script, updated at release time. */
-export const VERSION = '0.2.27'
+export const VERSION = '0.3.0'
+
+/**
+ * Wire protocol version emitted in `$prefab.version`.
+ *
+ * `0.3` matches upstream PrefectHQ/prefab: the theme is folded into the
+ * `css` array, `stylesheets` carries external URLs, and `mode` forces a
+ * color scheme (PR #431, "Wire Transfer"). The renderer still accepts `0.2`
+ * payloads for backward compatibility.
+ */
+export const PROTOCOL_VERSION = '0.3'
 
 // ── Theme ────────────────────────────────────────────────────────────────────
 
@@ -20,6 +31,9 @@ export interface Theme {
   light?: Record<string, string>
   dark?: Record<string, string>
 }
+
+/** Forced color scheme for the renderer, independent of OS preference. */
+export type ColorMode = 'light' | 'dark'
 
 // ── Layout hints ─────────────────────────────────────────────────────────────
 
@@ -39,11 +53,15 @@ export interface PrefabWireFormat {
   $prefab: { version: string }
   view: ComponentJSON
   state?: Record<string, unknown>
-  theme?: Theme
   defs?: Record<string, ComponentJSON>
   keyBindings?: Record<string, ActionJSON | ActionJSON[]>
   onMount?: ActionJSON | ActionJSON[]
+  /** Inline CSS blocks injected as `<style>` (protocol 0.3). Includes the compiled theme. */
+  css?: string[]
+  /** External CSS URLs loaded as `<link rel="stylesheet">` (protocol 0.3). */
   stylesheets?: string[]
+  /** Forced color scheme, independent of OS preference (protocol 0.3). */
+  mode?: ColorMode
   /** Custom pipe source code — hydrated by the renderer on mount. */
   pipes?: Record<string, string>
   /** Size hints for the host container. */
@@ -58,8 +76,13 @@ export interface PrefabAppOptions {
   state?: Record<string, unknown>
   theme?: Theme
   defs?: Record<string, Component>
+  /** Inline CSS blocks injected as `<style>`. Merged after the compiled theme. */
+  css?: string[]
+  /** External CSS URLs loaded as `<link rel="stylesheet">`. */
   stylesheets?: string[]
   scripts?: string[]
+  /** Forced color scheme, independent of OS preference. */
+  mode?: ColorMode
   onMount?: Action | Action[]
   keyBindings?: Record<string, Action | Action[]>
   cssClass?: string
@@ -75,8 +98,10 @@ export class PrefabApp {
   readonly state?: Record<string, unknown>
   readonly theme?: Theme
   readonly defs?: Record<string, Component>
+  readonly css?: string[]
   readonly stylesheets?: string[]
   readonly scripts?: string[]
+  readonly mode?: ColorMode
   readonly onMount?: Action | Action[]
   readonly keyBindings?: Record<string, Action | Action[]>
   readonly cssClass?: string
@@ -96,8 +121,10 @@ export class PrefabApp {
     this.state = merged
     this.theme = opts.theme
     this.defs = opts.defs
+    this.css = opts.css
     this.stylesheets = opts.stylesheets
     this.scripts = opts.scripts
+    this.mode = opts.mode
     this.onMount = opts.onMount
     this.keyBindings = opts.keyBindings
     this.cssClass = opts.cssClass
@@ -119,13 +146,21 @@ export class PrefabApp {
     }
 
     const wire: PrefabWireFormat = {
-      $prefab: { version: '0.2' },
+      $prefab: { version: PROTOCOL_VERSION },
       view: rootView,
     }
 
     if (this.state) wire.state = this.state
-    if (this.theme) wire.theme = this.theme
+
+    // Theme is compiled into the `css` array (protocol 0.3) — the wire no
+    // longer carries a structured `theme` object. Compiled theme CSS comes
+    // first so user-supplied `css` can override it.
+    const cssParts = [compileThemeCss(this.theme), ...(this.css ?? [])]
+      .filter(s => s.trim().length > 0)
+    if (cssParts.length > 0) wire.css = cssParts
+
     if (this.stylesheets != null && this.stylesheets.length > 0) wire.stylesheets = this.stylesheets
+    if (this.mode != null) wire.mode = this.mode
 
     if (this.defs) {
       wire.defs = {}
@@ -191,9 +226,15 @@ export class PrefabApp {
   toHTML(opts?: { cdnVersion?: string; pretty?: boolean; includeStyles?: boolean }): string {
     const cdnVersion = opts?.cdnVersion ?? VERSION
     const includeStyles = opts?.includeStyles !== false
+
+    // css / stylesheets / mode are emitted into <head> below, so strip them
+    // from the embedded wire data to avoid the renderer injecting them twice.
+    const wire = this.toJSON()
+    const { css: cssBlocks, stylesheets, mode, ...embedded } = wire
+    void cssBlocks; void stylesheets; void mode
     const jsonStr = opts?.pretty
-      ? JSON.stringify(this.toJSON(), null, 2)
-      : JSON.stringify(this.toJSON())
+      ? JSON.stringify(embedded, null, 2)
+      : JSON.stringify(embedded)
 
     // Escape </script> in JSON to prevent breaking out of the inline script tag
     const safeJsonStr = jsonStr.replace(/<\//g, '<\\/')
@@ -202,6 +243,12 @@ export class PrefabApp {
       ? `\n    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@maxhealth.tech/prefab@${cdnVersion}/dist/prefab.css">`
       : ''
 
+    // Inline CSS blocks (compiled theme + user css) as <style> tags.
+    const cssTags = (wire.css ?? [])
+      .map(c => `<style>${c.replace(/<\/(style)/gi, '<\\/$1')}</style>`)
+      .join('\n    ')
+
+    // External stylesheet URLs as <link> tags.
     const stylesheetTags = (this.stylesheets ?? [])
       .map(s => s.startsWith('<') ? s : `<link rel="stylesheet" href="${escapeHtml(s)}">`)
       .join('\n    ')
@@ -210,13 +257,19 @@ export class PrefabApp {
       .map(s => `<script src="${escapeHtml(s)}"></script>`)
       .join('\n    ')
 
+    // Force the color scheme on the document root using both conventions.
+    const modeAttr = this.mode ? ` data-theme="${this.mode}" class="${this.mode}"` : ''
+
+    const headExtras = [baseStyleTag, cssTags && `\n    ${cssTags}`, stylesheetTags && `\n    ${stylesheetTags}`]
+      .filter(Boolean)
+      .join('')
+
     return `<!DOCTYPE html>
-<html lang="en">
+<html lang="en"${modeAttr}>
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>${escapeHtml(this.title)}</title>${baseStyleTag}
-    ${stylesheetTags}
+    <title>${escapeHtml(this.title)}</title>${headExtras}
     <script src="https://cdn.jsdelivr.net/npm/@maxhealth.tech/prefab@${cdnVersion}/dist/renderer.min.js"></script>
     ${scriptTags}
   </head>

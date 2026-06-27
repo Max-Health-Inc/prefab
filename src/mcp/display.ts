@@ -18,12 +18,19 @@
  */
 
 import { type Component } from '../core/component.js'
-import { PrefabApp } from '../app.js'
-import type { Theme, LayoutHints } from '../app.js'
-import type { Action } from '../actions/types.js'
+import { PrefabApp, VERSION, PROTOCOL_VERSION } from '../app.js'
+import type { Theme, LayoutHints, ColorMode } from '../app.js'
+import type { Action, ActionJSON } from '../actions/types.js'
+import type { PipeFn } from '../rx/pipes.js'
 import type { McpToolResult } from './types.js'
 
 // ── display() ────────────────────────────────────────────────────────────────
+
+/** Concatenate two optional arrays, returning undefined when both are empty/absent. */
+function concatArrays<T>(a?: T[], b?: T[]): T[] | undefined {
+  if (a == null && b == null) return undefined
+  return [...(a ?? []), ...(b ?? [])]
+}
 
 export interface DisplayOptions {
   /** Page / app title. */
@@ -42,6 +49,14 @@ export interface DisplayOptions {
   cssClass?: string
   /** Size hints for the host container (iframe, panel, etc.). */
   layout?: LayoutHints
+  /** Inline CSS blocks injected as `<style>` (merged after the compiled theme). */
+  css?: string[]
+  /** External CSS URLs loaded as `<link rel="stylesheet">`. */
+  stylesheets?: string[]
+  /** Force a color scheme regardless of OS preference. */
+  mode?: ColorMode
+  /** Custom pipe functions for reactive expressions. */
+  pipes?: Record<string, PipeFn>
 }
 
 /**
@@ -56,19 +71,55 @@ export function display(
   viewOrApp: Component | PrefabApp,
   options?: DisplayOptions,
 ): McpToolResult {
-  const app = viewOrApp instanceof PrefabApp
-    ? viewOrApp
-    : new PrefabApp({
-        title: options?.title ?? 'Prefab',
-        view: viewOrApp,
-        state: options?.state,
-        theme: options?.theme,
-        defs: options?.defs,
-        onMount: options?.onMount,
-        keyBindings: options?.keyBindings,
-        cssClass: options?.cssClass,
-        layout: options?.layout,
+  let app: PrefabApp
+
+  if (viewOrApp instanceof PrefabApp) {
+    if (options != null && Object.keys(options).length > 0) {
+      // Merge options into a new PrefabApp wrapping the same view.
+      // Options override the existing app's values; arrays (stylesheets) are concatenated.
+      app = new PrefabApp({
+        title: options.title ?? viewOrApp.title,
+        view: viewOrApp.view,
+        state: viewOrApp.state || options.state
+          ? { ...viewOrApp.state, ...options.state }
+          : undefined,
+        theme: options.theme ?? viewOrApp.theme,
+        defs: viewOrApp.defs || options.defs
+          ? { ...viewOrApp.defs, ...options.defs }
+          : undefined,
+        onMount: options.onMount ?? viewOrApp.onMount,
+        keyBindings: viewOrApp.keyBindings || options.keyBindings
+          ? { ...viewOrApp.keyBindings, ...options.keyBindings }
+          : undefined,
+        cssClass: options.cssClass ?? viewOrApp.cssClass,
+        layout: options.layout ?? viewOrApp.layout,
+        css: concatArrays(viewOrApp.css, options.css),
+        stylesheets: concatArrays(viewOrApp.stylesheets, options.stylesheets),
+        mode: options.mode ?? viewOrApp.mode,
+        pipes: viewOrApp.pipes || options.pipes
+          ? { ...viewOrApp.pipes, ...options.pipes }
+          : undefined,
       })
+    } else {
+      app = viewOrApp
+    }
+  } else {
+    app = new PrefabApp({
+      title: options?.title ?? 'Prefab',
+      view: viewOrApp,
+      state: options?.state,
+      theme: options?.theme,
+      defs: options?.defs,
+      onMount: options?.onMount,
+      keyBindings: options?.keyBindings,
+      cssClass: options?.cssClass,
+      layout: options?.layout,
+      css: options?.css,
+      stylesheets: options?.stylesheets,
+      mode: options?.mode,
+      pipes: options?.pipes,
+    })
+  }
 
   const wire = app.toJSON()
   return {
@@ -82,12 +133,7 @@ export function display(
 import { autoForm } from '../auto/form.js'
 import type { AutoFormField, AutoFormOptions } from '../auto/form.js'
 
-export interface DisplayFormOptions extends AutoFormOptions {
-  /** Initial state values for form fields. */
-  state?: Record<string, unknown>
-  /** Theme overrides. */
-  theme?: Theme
-}
+export interface DisplayFormOptions extends AutoFormOptions, DisplayOptions {}
 
 /**
  * Return a form UI as an MCP tool result.
@@ -109,6 +155,15 @@ export function display_form(
     view,
     state: options?.state,
     theme: options?.theme,
+    defs: options?.defs,
+    onMount: options?.onMount,
+    keyBindings: options?.keyBindings,
+    cssClass: options?.cssClass,
+    layout: options?.layout,
+    css: options?.css,
+    stylesheets: options?.stylesheets,
+    mode: options?.mode,
+    pipes: options?.pipes,
   })
 
   const wire = app.toJSON()
@@ -123,6 +178,8 @@ export function display_form(
 export interface StateUpdate {
   /** State key-value pairs to merge into the existing UI state. */
   state: Record<string, unknown>
+  /** Actions to fire after the state delta is applied. */
+  actions?: ActionJSON | ActionJSON[]
 }
 
 export interface PrefabUpdateWire {
@@ -130,20 +187,33 @@ export interface PrefabUpdateWire {
   update: StateUpdate
 }
 
+export interface DisplayUpdateOptions {
+  /** Actions to fire after the state delta is applied. */
+  actions?: Action | Action[]
+}
+
 /**
  * Return a partial state update for an existing prefab UI.
  *
  * Instead of re-rendering the entire UI, this sends a state delta
- * that the renderer merges into its reactive store.
+ * that the renderer merges into its reactive store. Optionally fires
+ * actions after the state is applied.
  *
  * @returns MCP tool result with a $prefab update payload.
  */
 export function display_update(
   state: Record<string, unknown>,
+  options?: DisplayUpdateOptions,
 ): McpToolResult {
+  const update: StateUpdate = { state }
+  if (options?.actions != null) {
+    const acts = Array.isArray(options.actions) ? options.actions : [options.actions]
+    update.actions = acts.map(a => a.toJSON())
+  }
+
   const payload: PrefabUpdateWire = {
-    $prefab: { version: '0.2' },
-    update: { state },
+    $prefab: { version: PROTOCOL_VERSION },
+    update,
   }
 
   return {
@@ -371,8 +441,10 @@ export const PREFAB_RESOURCE_URI = 'ui://prefab/viewer'
 /** MIME type required by MCP Apps hosts. */
 const MCP_APP_MIME = 'text/html;profile=mcp-app'
 
-/** CDN base for the @maxhealth.tech/prefab package (major.minor pinned). */
-const CDN_BASE = 'https://cdn.jsdelivr.net/npm/@maxhealth.tech/prefab@0.2/dist'
+/** CDN base for the @maxhealth.tech/prefab package (exact version, never stale). */
+function cdnBase(): string {
+  return `https://cdn.jsdelivr.net/npm/@maxhealth.tech/prefab@${VERSION}/dist`
+}
 
 export interface RendererHtmlOptions {
   /** Page title. @default 'Prefab' */
@@ -401,7 +473,7 @@ export interface RendererHtmlOptions {
  */
 export function rendererHtml(options?: RendererHtmlOptions): string {
   const title = options?.title ?? 'Prefab'
-  const base = options?.cdnBase ?? CDN_BASE
+  const base = options?.cdnBase ?? cdnBase()
   const extraStyles = (options?.stylesheets ?? [])
     .map(url => `  <link rel="stylesheet" crossorigin href="${escapeAttr(url)}">`)
     .join('\n')

@@ -30,6 +30,10 @@ export default defineConfig({
   head: [
     ['link', { rel: 'icon', href: '/prefab/favicon.ico' }],
     ['link', { rel: 'icon', type: 'image/svg+xml', href: '/prefab/brand/logo.svg' }],
+    // LLM and crawler discovery
+    ['link', { rel: 'sitemap', type: 'application/xml', href: `${SITE_URL}${SITE_BASE}sitemap.xml` }],
+    ['link', { rel: 'index', type: 'text/markdown', href: `${SITE_URL}${SITE_BASE}llms.txt`, title: 'LLM-friendly index of Prefab docs' }],
+    ['link', { rel: 'alternate', type: 'text/markdown', href: `${SITE_URL}${SITE_BASE}llms-full.txt`, title: 'Full LLM-friendly Prefab docs corpus' }],
     // Open Graph
     ['meta', { property: 'og:type', content: 'website' }],
     ['meta', { property: 'og:site_name', content: '@maxhealth.tech/prefab' }],
@@ -50,6 +54,7 @@ export default defineConfig({
       .replace(/\.md$/, '')
     pageData.frontmatter.head ??= []
     pageData.frontmatter.head.push(['link', { rel: 'canonical', href: canonicalUrl }])
+    pageData.frontmatter.head.push(['meta', { property: 'og:url', content: canonicalUrl }])
 
     // Per-page OG tags from frontmatter description
     if (pageData.frontmatter.description) {

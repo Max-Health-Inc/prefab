@@ -32,9 +32,9 @@ import { renderNode } from './engine.js'
 import type { ComponentNode, RenderContext } from './engine.js'
 import { DestroyRegistry } from './engine.js'
 import { registerAllComponents } from './components/index.js'
-import { applyTheme, applyKeyBindings, createThemeToggle } from './theme.js'
+import { applyTheme, applyKeyBindings, createThemeToggle, setThemeAttrs } from './theme.js'
 import type { ThemeToggleOptions } from './theme.js'
-import { dispatchActions, clearAllIntervals } from './actions.js'
+import { dispatchActions, clearAllIntervals, clearAllSubscriptions } from './actions.js'
 import type { McpTransport, ToastEvent, ActionJSON } from './actions.js'
 import { createHttpTransport, createNoopTransport } from './transport.js'
 import type { McpTransportOptions } from './transport.js'
@@ -70,10 +70,16 @@ export interface PrefabWireData {
   $prefab: { version: string }
   view: ComponentNode
   state?: Record<string, unknown>
+  /** Legacy structured theme (protocol 0.2). Protocol 0.3 ships the theme in `css`. */
   theme?: { light?: Record<string, string>; dark?: Record<string, string> }
   defs?: Record<string, ComponentNode>
   keyBindings?: Record<string, ActionJSON | ActionJSON[]>
+  /** Inline CSS blocks injected as `<style>` (protocol 0.3). */
+  css?: string[]
+  /** External CSS URLs loaded as `<link rel="stylesheet">` (protocol 0.3). */
   stylesheets?: string[]
+  /** Forced color scheme, independent of OS preference (protocol 0.3). */
+  mode?: 'light' | 'dark'
   /** Custom pipe source code strings — hydrated by the renderer on mount. */
   pipes?: Record<string, string>
   /** Size hints for the host container. */
@@ -82,7 +88,7 @@ export interface PrefabWireData {
 
 export interface PrefabUpdateData {
   $prefab: { version: string }
-  update: { state: Record<string, unknown> }
+  update: { state: Record<string, unknown>; actions?: ActionJSON | ActionJSON[] }
 }
 
 export interface MountOptions {
@@ -116,9 +122,12 @@ export const PrefabRenderer = {
    * @param options - Optional transport and toast handler.
    * @returns A MountedApp handle for updates and cleanup.
    */
-  mount(root: HTMLElement, data: PrefabWireData, options?: MountOptions): MountedApp {
+  mount(root: HTMLElement, initialData: PrefabWireData, options?: MountOptions): MountedApp {
     // Register all built-in components (idempotent)
     registerAllComponents()
+
+    // Mutable reference — remount() replaces this with new wire data
+    let data = initialData
 
     // Hydrate custom pipes from wire format (before any rendering)
     const wirePipeNames: string[] = []
@@ -147,41 +156,71 @@ export const PrefabRenderer = {
     // Destroy registry — tracks component cleanup callbacks
     const destroyRegistry = new DestroyRegistry()
 
+    // Remount function — replaces current view with a new wire payload
+    function remount(wireData: Record<string, unknown>): void {
+      const newData = wireData as unknown as PrefabWireData
+      // Update the mutable reference so render() uses the new view
+      data = newData
+      // Merge new state into existing store (preserves transport-set keys)
+      if (newData.state) store.merge(newData.state)
+      // Update defs if provided
+      if (newData.defs) ctx.defs = newData.defs
+      // Re-apply theme / mode if changed
+      if (newData.theme) applyTheme(root, newData.theme)
+      if (newData.mode) applyMode(root, newData.mode)
+
+      // Hydrate new pipes (if any)
+      if (newData.pipes) {
+        for (const [name, source] of Object.entries(newData.pipes)) {
+          hydratePipe(name, source, wirePipeNames)
+        }
+      }
+
+      // Swap injected styles: remove old, inject new (css blocks + stylesheet links)
+      for (const s of styleEls) s.remove()
+      styleEls.length = 0
+      styleEls.push(...injectStyles(newData.css, newData.stylesheets))
+
+      // Update layout hints
+      applyLayout(root, newData.layout)
+
+      // Update key bindings
+      cleanupKeys?.()
+      cleanupKeys = undefined
+      if (newData.keyBindings) {
+        cleanupKeys = applyKeyBindings(newData.keyBindings, async (actions) => {
+          await dispatchActions(actions as ActionJSON | ActionJSON[], {
+            store, transport, scope: {}, rerender: () => render(), remount, onToast,
+          })
+        })
+      }
+
+      render()
+    }
+
     // Build render context
     const ctx: RenderContext = {
       store,
       scope: {},
       transport,
       rerender: () => render(),
+      remount,
       onToast,
       defs: data.defs,
       destroyRegistry,
     }
 
-    // Apply theme
+    // Apply legacy structured theme (protocol 0.2 back-compat; 0.3 ships theme in `css`)
     applyTheme(root, data.theme)
 
-    // Apply layout hints as inline styles on the root element
-    if (data.layout) {
-      if (data.layout.preferredHeight != null) root.style.height = `${data.layout.preferredHeight}px`
-      if (data.layout.minHeight != null) root.style.minHeight = `${data.layout.minHeight}px`
-      if (data.layout.maxHeight != null) {
-        root.style.maxHeight = `${data.layout.maxHeight}px`
-        root.style.overflow = 'auto'
-      }
-    }
+    // Force color scheme if specified (protocol 0.3)
+    if (data.mode) applyMode(root, data.mode)
 
-    // Inject stylesheets
-    const styleEls: HTMLStyleElement[] = []
-    if (data.stylesheets) {
-      for (const css of data.stylesheets) {
-        const style = document.createElement('style')
-        style.textContent = css
-        style.dataset.prefab = 'injected'
-        document.head.appendChild(style)
-        styleEls.push(style)
-      }
-    }
+    // Apply layout hints
+    applyLayout(root, data.layout)
+
+    // Inject CSS blocks (<style>) and external stylesheets (<link>)
+    const styleEls: Element[] = injectStyles(data.css, data.stylesheets)
 
     // Keyboard bindings
     let cleanupKeys: (() => void) | undefined
@@ -192,6 +231,7 @@ export const PrefabRenderer = {
           transport,
           scope: {},
           rerender: () => render(),
+          remount,
           onToast,
         })
       })
@@ -228,6 +268,10 @@ export const PrefabRenderer = {
       update(updateData: PrefabUpdateData) {
         store.merge(updateData.update.state)
         render()
+        // Fire actions after state is applied (if any)
+        if (updateData.update.actions != null) {
+          void dispatchActions(updateData.update.actions, ctx)
+        }
       },
       store,
       destroy() {
@@ -235,6 +279,7 @@ export const PrefabRenderer = {
         cleanupToggle?.()
         cleanupKeys?.()
         clearAllIntervals()
+        clearAllSubscriptions()
         for (const s of styleEls) s.remove()
         // Unregister wire-hydrated pipes (scoped to this mount)
         for (const name of wirePipeNames) unregisterPipe(name)
@@ -332,6 +377,81 @@ function defaultToastHandler(toast: ToastEvent): void {
     toastEl.style.opacity = '0'
     setTimeout(() => toastEl.remove(), 300)
   }, duration)
+}
+
+// ── Style / theme helpers ────────────────────────────────────────────────────
+
+/** Force a color scheme on the mount root and document root (protocol 0.3 `mode`). */
+function applyMode(root: HTMLElement, mode: 'light' | 'dark'): void {
+  setThemeAttrs(root, mode)
+  if (typeof document !== 'undefined') setThemeAttrs(document.documentElement, mode)
+}
+
+/**
+ * Heuristic: does a `stylesheets` entry name an external URL (→ `<link>`)
+ * rather than inline CSS (→ `<style>`)? Protocol 0.3 stylesheets are URLs,
+ * but protocol 0.2 payloads put inline CSS here, so the renderer tolerates both.
+ */
+function isStylesheetUrl(s: string): boolean {
+  const t = s.trim()
+  if (t.includes('{') || t.includes('}')) return false // contains CSS rules → inline
+  return /^(https?:)?\/\//i.test(t) || t.startsWith('/') || /\.css(\?|#|$)/i.test(t)
+}
+
+/**
+ * Inject inline CSS blocks (`css`) as `<style>` and external stylesheet URLs
+ * (`stylesheets`) as `<link>`. Returns the created elements for later cleanup.
+ */
+function injectStyles(css?: string[], stylesheets?: string[]): Element[] {
+  const els: Element[] = []
+  if (typeof document === 'undefined') return els
+
+  for (const block of css ?? []) {
+    const style = document.createElement('style')
+    style.textContent = block
+    style.dataset.prefab = 'injected'
+    document.head.appendChild(style)
+    els.push(style)
+  }
+
+  for (const entry of stylesheets ?? []) {
+    if (isStylesheetUrl(entry)) {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = entry
+      link.dataset.prefab = 'injected'
+      document.head.appendChild(link)
+      els.push(link)
+    } else {
+      // Legacy protocol 0.2: inline CSS shipped in `stylesheets`.
+      const style = document.createElement('style')
+      style.textContent = entry
+      style.dataset.prefab = 'injected'
+      document.head.appendChild(style)
+      els.push(style)
+    }
+  }
+
+  return els
+}
+
+// ── Layout helpers ───────────────────────────────────────────────────────────
+
+/** Apply layout hints as inline styles on the root element. Clears previous hints. */
+function applyLayout(root: HTMLElement, layout?: PrefabWireData['layout']): void {
+  // Clear previous layout styles
+  root.style.height = ''
+  root.style.minHeight = ''
+  root.style.maxHeight = ''
+  root.style.overflow = ''
+
+  if (!layout) return
+  if (layout.preferredHeight != null) root.style.height = `${layout.preferredHeight}px`
+  if (layout.minHeight != null) root.style.minHeight = `${layout.minHeight}px`
+  if (layout.maxHeight != null) {
+    root.style.maxHeight = `${layout.maxHeight}px`
+    root.style.overflow = 'auto'
+  }
 }
 
 function getOrCreateToastContainer(): HTMLElement {

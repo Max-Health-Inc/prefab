@@ -240,16 +240,16 @@ describe('autoTable', () => {
     const columns = table.columns as { key: string; header: string }[]
     const rowData = table.rows as Record<string, unknown>[]
 
-    // After serialization, row keys are camelCase
-    expect(rowData[0]).toHaveProperty('proposedStart')
-    expect(rowData[0]).toHaveProperty('durationMinutes')
-    expect(rowData[0]).toHaveProperty('patientName')
+    // Row keys stay as-is (snake_case preserved)
+    expect(rowData[0]).toHaveProperty('proposed_start')
+    expect(rowData[0]).toHaveProperty('duration_minutes')
+    expect(rowData[0]).toHaveProperty('patient_name')
 
-    // Column keys must match the serialized row keys
+    // Column keys must match the raw row keys
     const colKeys = columns.map(c => c.key)
-    expect(colKeys).toContain('proposedStart')
-    expect(colKeys).toContain('durationMinutes')
-    expect(colKeys).toContain('patientName')
+    expect(colKeys).toContain('proposed_start')
+    expect(colKeys).toContain('duration_minutes')
+    expect(colKeys).toContain('patient_name')
 
     // Headers should still be humanized
     const headers = columns.map(c => c.header)
@@ -283,7 +283,7 @@ describe('autoTable', () => {
     const columns = table.columns as { key: string }[]
     const rowData = table.rows as Record<string, unknown>[]
 
-    // All keys should be camelCase after serialization
+    // Keys stay as-is (no conversion)
     const rowKeys = Object.keys(rowData[0])
     const colKeys = columns.map(c => c.key)
 

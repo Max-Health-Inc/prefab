@@ -4,7 +4,7 @@
  * @maxhealth.tech/prefab builder + renderer.
  *
  * Test strategy:
- *   1. Parse: Each golden fixture is valid $prefab v0.2 wire format
+ *   1. Parse: Each golden fixture is valid $prefab v0.3 wire format
  *   2. Render: The TS renderer can mount each fixture without errors
  *   3. Build: The TS builder produces structurally equivalent JSON
  *   4. Round-trip: TS builder → JSON → renderer → DOM succeeds
@@ -118,8 +118,8 @@ describe('Wire compat: Golden fixture parsing', () => {
 
   for (const { name, data } of fixtures) {
     describe(name, () => {
-      it('has $prefab.version = "0.2"', () => {
-        expect(data.$prefab).toEqual({ version: '0.2' })
+      it('has $prefab.version = "0.3"', () => {
+        expect(data.$prefab).toEqual({ version: '0.3' })
       })
 
       it('has a view with type and children', () => {
@@ -207,7 +207,7 @@ describe('Wire compat: TS builder structural equivalence', () => {
     const tsInner = innerView(tsWire as unknown as Record<string, unknown>)
 
     it('envelope matches', () => {
-      expect(tsWire.$prefab).toEqual({ version: '0.2' })
+      expect(tsWire.$prefab).toEqual({ version: '0.3' })
       expect((tsWire.view as ComponentJSON).type).toBe('Div')
       expect((tsWire.view as ComponentJSON).cssClass).toContain('pf-app-root')
     })

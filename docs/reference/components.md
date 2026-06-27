@@ -26,7 +26,8 @@ Column([Text('No gap')])                          // shorthand
 | `gap` | `number \| GapToken` | Spacing between children. Accepts a number or semantic token: `'none'`, `'xs'`, `'sm'`, `'md'`, `'lg'`, `'xl'`, `'2xl'` |
 | `align` | `string` | Cross-axis alignment (`start`, `center`, `end`, `stretch`) |
 | `justify` | `string` | Main-axis alignment |
-| `cssClass` | `string` | Extra CSS class |
+| `cssClass` | `RxStr` | Extra CSS class — supports reactive expressions (e.g. `rx('active').then('bg-green', 'bg-red')`) |
+| `onClick` | `Action \| Action[]` | Action(s) dispatched on click. Non-button elements get `role="button"` and keyboard support automatically |
 
 **Gap tokens** map to numbers: `none`=0, `xs`=1, `sm`=2, `md`=3, `lg`=4, `xl`=6, `2xl`=8.
 
@@ -477,8 +478,9 @@ All charts accept a `data` prop (array of objects) and a `series` array.
 ```ts
 BarChart({
   data: [{ month: 'Jan', revenue: 100 }, { month: 'Feb', revenue: 150 }],
-  series: [{ key: 'revenue', label: 'Revenue', color: '#3b82f6' }],
+  series: [{ dataKey: 'revenue', label: 'Revenue', color: '#3b82f6' }],
   xAxis: 'month',
+  valueFormat: 'currency',
   height: 300,
 })
 ```
@@ -495,10 +497,13 @@ BarChart({
 | `showTooltip` | `boolean` | Show tooltip on hover (default `true`) |
 | `showGrid` | `boolean` | Show horizontal grid lines |
 | `showYAxis` | `boolean` | Show Y axis labels (default `true`) |
-| `yAxisFormat` | `string` | Y axis label format: `'currency'`, `'percent'`, or auto-compact |
+| `valueFormat` | `string` | **Canonical** value-axis tick + tooltip format: `'currency'`, `'percent:1'`, `'compact'`, … (`'auto'` = none). Matches upstream prefab (PR #454). |
+| `yAxisFormat` | `string` | Left-axis override for dual-axis charts (overrides `valueFormat`) |
 | `showYAxisRight` | `boolean` | Show secondary Y axis on the right |
 | `yAxisRightFormat` | `string` | Format for the right Y axis |
 | `showLegend` | `boolean` | Show legend below chart |
+
+`PieChart` takes `dataKey` (numeric value) + `nameKey` (slice label) instead of `series`/`xAxis` (the legacy series form is still accepted), plus `innerRadius`, `showLabel`, `paddingAngle`, and `valueFormat`.
 
 #### `ChartSeries`
 
@@ -529,9 +534,33 @@ LineChart({
 
 All built-in pipes work: `upper`, `lower`, `truncate`, `currency`, `percent`, `compact`, `date`, `time`, `datetime`, `number`, `round`, plus custom wire pipes.
 
-### `RadarChart(props)` / `ScatterChart(props)`
+### `RadarChart(props)`
 
-Same base props. The renderer provides SVG rendering for Bar, Line, Area, and Pie; other types use a placeholder or external library.
+Spider/radar chart — one polygon per series across angular axes.
+
+```ts
+RadarChart({
+  data: [{ subject: 'Math', alice: 120 }, { subject: 'English', alice: 98 }],
+  series: [{ dataKey: 'alice', label: 'Alice' }],
+  axisKey: 'subject',   // spoke labels (falls back to xAxis)
+  filled: true,         // fill polygons (default true)
+  showDots: false,      // vertices
+})
+```
+
+### `ScatterChart(props)`
+
+Scatter / bubble chart.
+
+```ts
+ScatterChart({
+  data: [{ h: 170, w: 65, age: 25 }, { h: 180, w: 80, age: 30 }],
+  series: [{ dataKey: 'people', label: 'People' }],
+  xAxis: 'h',
+  yAxis: 'w',
+  zAxis: 'age',   // optional — sizes each point (bubble chart)
+})
+```
 
 ### `Sparkline(props)`
 
@@ -543,7 +572,18 @@ Sparkline({ data: [10, 20, 15, 30, 25], color: '#22c55e', height: 32 })
 
 ### `RadialChart(props)` / `Histogram(props)`
 
-Radial progress chart and histogram distribution chart.
+Radial bar chart (concentric value arcs) and histogram distribution chart.
+
+```ts
+RadialChart({
+  data: [{ browser: 'Chrome', visitors: 275 }, { browser: 'Safari', visitors: 200 }],
+  dataKey: 'visitors',   // value (legacy series form still accepted)
+  nameKey: 'browser',    // label
+  innerRadius: 30, startAngle: 180, endAngle: 0,
+})
+```
+
+> All chart types now render natively as SVG in the built-in renderer.
 
 ---
 

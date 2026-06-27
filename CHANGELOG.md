@@ -2,6 +2,140 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.0] — 2026-06-16
+
+### Wire Format (Breaking) — protocol `0.3`
+
+Catches up to upstream PrefectHQ/prefab v0.20.x ("Wire Transfer", PR #431). The `$prefab.version` envelope is now **`0.3`**. The renderer still accepts `0.2` payloads, so existing stored wire data keeps rendering.
+
+- **New top-level `css` field** — an array of inline CSS blocks, injected as `<style>` tags. The **theme is now compiled into this array** (`:root` for light, `.dark, [data-theme="dark"]` for dark) instead of shipping a structured `theme` object; `PrefabApp.toJSON()` no longer emits a `theme` key. New `compileThemeCss()` / `ThemeVars` exports expose the compiler.
+- **`stylesheets` redefined as external URLs** — rendered as `<link rel="stylesheet" href="…">`. The renderer keeps a heuristic that still injects inline CSS found in `stylesheets` as `<style>` for backward compatibility with `0.2` payloads.
+- **New top-level `mode` field** (`'light' | 'dark'`) — forces a color scheme. The renderer applies it via both the `data-theme` attribute and the `dark`/`light` class (so upstream-compiled `.dark {}` CSS resolves), and `toHTML()` stamps it on `<html>`.
+- **`PrefabApp` / `DisplayOptions`** gain `css` and `mode` options; `display()` merges `css` (concatenated) and `mode` (override) like the other options.
+- `toHTML()` now emits `css`/`stylesheets`/`mode` into `<head>` and strips them from the embedded JSON to avoid double-injection (mirrors upstream `html()`).
+
+### Charts
+
+- **`valueFormat` parity (PR #454)** — added the canonical `valueFormat` prop to cartesian/pie/radial charts (value-axis ticks + tooltip values), matching upstream's field name so chart formats are wire-compatible in both directions. `yAxisFormat` / `yAxisRightFormat` remain TS-only overrides for dual-axis charts. The renderer reads `valueFormat` as the base format and treats `"auto"` as "no explicit format".
+- **Pie/Radial/Scatter data-binding parity** — `PieChart` and `RadialChart` now use upstream's `dataKey` (value) + `nameKey` (label) model, and `ScatterChart` gains `xAxis`/`yAxis`/`zAxis` (z = bubble size). The legacy `series`/`xAxis` inputs are still accepted and mapped onto the canonical fields (**dual-accept**, non-breaking), and the Pie renderer reads both shapes — so these charts now round-trip with the Python renderer. New exports: `CategoricalChartProps`, `PieChartProps`, `ScatterChartProps`.
+- **Native Radial, Scatter & Radar renderers** — replaced the "not yet supported" placeholders with real SVG renderers, so **every chart type now draws natively** (the fallback is gone):
+  - `RadialChart` — concentric value arcs (muted track + coloured value), configurable `innerRadius`/`startAngle`/`endAngle`.
+  - `ScatterChart` — points over min/max axes with optional grid, tooltips, and **bubble sizing** from `zAxis`.
+  - `RadarChart` — one polygon per series over angular axes, with `axisKey` spoke labels, `filled`, and `showDots`; legacy `xAxis` maps to `axisKey`.
+  - All honour `valueFormat`.
+- **Refactor** — the chart renderers' shared toolkit (colours, axes, SVG primitives, value formatting, legend) was extracted into `chart-helpers.ts` to keep each renderer file under the 700-LOC limit.
+
+### Internal
+
+- **DRY theme compilation** — `applyTheme()` (the legacy `theme`-object path) now routes its dark block through the same `compileThemeCss()` the wire path uses, so both paths emit byte-identical dark CSS. The CSS sanitizers are shared too.
+
+> **Fixtures verified against upstream.** Golden fixtures were regenerated from upstream `prefab-ui` **0.20.2**: 9/10 are byte-identical to the previous `0.2` fixtures apart from the version bump (confirming parity, and that upstream emits `0.3`). The 10th (chart) now carries upstream's `valueFormat`, which the builder also emits.
+
+## [0.2.40] — 2026-05-15
+
+### New Features
+- **`onHostContextChanged` callback** — `PrefabApp` now exposes `onHostContextChanged((ctx) => {...})` so components can react to arbitrary fields in `ui/notifications/host-context-changed` (e.g. refreshed access tokens, locale, custom app config). The existing `prefab:theme-update` event continues to fire for backward-compat theme handling (closes #14)
+- **`prefab:host-context-changed` bridge event** — the bridge now dispatches the full params object from `host-context-changed` as a separate `prefab:host-context-changed` event, in addition to the existing `prefab:theme-update`
+
+## [0.2.39] — 2026-05-10
+
+### New Features
+- **`display_update()` actions** — `display_update()` now accepts an optional `actions` parameter to fire actions alongside state deltas. Actions execute after the state is merged into the store (closes #13)
+  ```ts
+  display_update(
+    { 'game.turn': 'b', 'game.fen': '...' },
+    { actions: [new SendMessage("Your turn. Pick a move.")] }
+  )
+  ```
+
+## [0.2.38] — 2026-05-09
+
+### Bug Fixes
+- **Fixed**: `display()` now merges options into an existing `PrefabApp` instance — previously `state`, `stylesheets`, `theme`, `layout`, `pipes`, and all other options were silently discarded when a `PrefabApp` was passed. State and defs are shallow-merged (options win on conflict), stylesheets are concatenated, and scalar options (theme, layout, cssClass, onMount) fall back to the app's value (closes #12)
+
+## [0.2.37] — 2026-05-09
+
+### New Features
+- **Reactive `cssClass`** — `cssClass` now accepts `RxStr` (reactive expressions) on all components. Use `rx()` to dynamically set CSS classes based on state (closes #11 part 1)
+- **`onClick` on all components** — `Div`, `Span`, `Column`, `Row`, `Grid`, `GridItem`, `Container`, and all other components now support `onClick` actions. Non-button elements automatically get `role="button"`, `tabindex="0"`, and keyboard (Enter/Space) support for accessibility (closes #11 part 2)
+
+## [0.2.36] — 2026-05-09
+
+### Bug Fixes
+- **Fixed**: Subscribe `onDataCallback` no longer clobbers merged state with raw response data — when `display_update()` merges a state delta via `applyPrefabUpdate()`, `store.set(stateKey, data)` is now skipped, preventing `stateKey` collision with delta keys (closes #10)
+- **Fixed**: ESLint config now ignores `docs/` (VitePress cache/dist) and `eslint.config.ts` — previously caused 60 spurious parsing errors
+
+## [0.2.35] — 2026-05-09
+
+### Bug Fixes
+- **Fixed**: `display_form()` now forwards all `DisplayOptions` — `layout`, `cssClass`, `stylesheets`, `pipes`, `onMount`, `keyBindings`, and `defs` were silently dropped (only `state` and `theme` worked). `DisplayFormOptions` now extends `DisplayOptions`
+- **Fixed**: `display_success` / `displaySuccess` and `DisplaySuccessOptions` are now exported from the package entry point
+
+## [0.2.34] — 2026-05-09
+
+### Bug Fixes
+- **Fixed**: Subscribe fallback poll handler now detects `$prefab` responses — poll results containing full views trigger `remount()`, and `display_update` payloads merge state into the store. Previously poll results were stored as raw data, leaving the DOM frozen (closes #9)
+
+## [0.2.33] — 2026-05-09
+
+### Bug Fixes
+- **Fixed**: `display()` now forwards `stylesheets` and `pipes` options to `PrefabApp` — previously these were silently dropped since `DisplayOptions` didn't include them (closes #8)
+
+## [0.2.32] — 2026-05-09
+
+### Bug Fixes
+- **Fixed**: `If()` / `Elif()` shorthand now correctly detects `Rx` expression objects — the previous inline type check only matched strings and `Ref` (subscribe), silently treating `Rx({ expression })` as a props object
+- **Fixed**: Action handlers (`toolCall`, `callHandler`, `fetch`) now handle `display_update()` state delta payloads (`{ $prefab, update: { state } }`) by merging into the store — previously these were silently dropped while `onToolResult` in auto-mount already handled them correctly (closes #7)
+
+## [0.2.31] — 2026-05-09
+
+### New Features
+- **CallTool structuredContent remount** — when a `toolCall`, `callHandler`, or `fetch` action returns a full prefab view (`{ $prefab, view }`), the renderer remounts with the new view instead of just storing the raw result (#7)
+  - Supports direct payloads, MCP `structuredContent` wrappers, and `content[].text` JSON blocks
+  - Preserves existing store state across remounts
+  - Handles pipes, stylesheets, layout hints, key bindings, defs, and theme on remount
+
+## [0.2.30] — 2026-05-09
+
+### Bug Fixes
+- **Fixed**: Reverted serializer output back to **camelCase** (`cssClass`, `onMount`, `onClick`, `resultKey`, etc.), matching the upstream PrefectHQ/prefab wire format (`by_alias=True`). The snake_case serializer in v0.2.28 was a breaking change based on an incorrect assumption about the wire spec.
+- **Kept**: Renderer normalization layer — `renderNode()` and `dispatchOne()` accept **both** snake_case and camelCase input, so Python-SDK-generated wire data still renders correctly.
+- **Fixed**: `autoTable` column keys now match raw data keys (no `toCamelCase` conversion) — snake_case row keys like `proposed_start` render correctly without column/key mismatch.
+- **Fixed**: `cdnBase()` now uses the **exact** version (`@0.2.30`) instead of a semver range (`@0.2`) — eliminates stale jsDelivr cache serving old renderer bundles after a new patch publish (closes #6)
+
+## [0.2.29] — 2026-05-09 *(unpublished — included the faulty snake_case serializer from v0.2.28)*
+
+### Bug Fixes
+- **Fixed**: `rendererHtml()` CDN URL now derives major.minor from `VERSION` automatically — no more hardcoded `@0.2` constant that would go stale on a minor/major bump
+
+## [0.2.28] — 2026-05-09 *(unpublished — snake_case serializer was a breaking change, reverted in v0.2.30)*
+
+### New Features
+- **`Subscribe` action** — real-time resource updates via `subscribe(uri, stateKey, opts)` with automatic fallback polling when the host doesn't support MCP `notifications/resources/updated` (#3)
+  - Supports `fallbackInterval`, `fallbackTool`, `fallbackArgs` for polling-based hosts
+  - `onData` / `onError` callbacks for reactive state binding
+- **`PdfViewer` component** — embed PDF documents with `pdfViewer(src, opts)` (#2)
+
+### ~~Wire Format (Breaking)~~
+- ~~**snake_case wire format** — all structural keys in the `$prefab` JSON output are now snake_case~~ *(reverted in v0.2.30)*
+- Renderer normalizes incoming JSON at entry points (`renderNode`, `dispatchOne`), accepting both snake_case and camelCase input for backwards compatibility
+- User-data containers (`state`, `arguments`, `context`, `overrides`) are **not** converted — keys inside them are preserved as-is
+
+### Bug Fixes
+- **Fixed**: `fallbackArgs` reactive expressions now resolve correctly in Subscribe action
+- **Fixed**: resilient cleanup for Subscribe timers and listeners
+- **Fixed**: chart series structural keys (`dataKey` → `data_key`) now correctly serialized
+- **Fixed**: `PrefabApp.toJSON()` root view outputs `css_class` (was bypassing `Component.toJSON()`)
+- **Fixed**: wire format validator accepts both camelCase and snake_case action prop names
+
+### Documentation
+- SEO & LLM visibility improvements for documentation site
+
+### Tests
+- 22 new TDD tests for snake_case serialization and renderer normalization
+- All 10 golden fixtures updated to snake_case wire format
+- **1237 tests** passing across 36 files
+
 ## [0.2.27] — 2026-05-02
 
 ### Bug Fixes

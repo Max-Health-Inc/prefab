@@ -96,6 +96,6 @@ export default defineConfig(
   },
   // ── Ignored paths ──────────────────────────────────────────────────────
   {
-    ignores: ['dist/', 'node_modules/', 'scripts/', 'happydom.ts'],
+    ignores: ['dist/', 'node_modules/', 'scripts/', 'happydom.ts', 'docs/', 'eslint.config.ts'],
   },
 )

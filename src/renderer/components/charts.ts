@@ -1,213 +1,34 @@
 /**
- * Chart component renderers — BarChart, LineChart, AreaChart, PieChart, etc.
+ * Chart component renderers — BarChart, LineChart, AreaChart, PieChart,
+ * ScatterChart, RadialChart, Histogram.
  *
- * Charts render as SVG using simple built-in drawing.
- * For production use, these can be enhanced with a charting library.
+ * Charts render as SVG using simple built-in drawing. Shared axis/SVG/format
+ * helpers live in [chart-helpers.ts]; tooltip hit-zones in [chart-tooltip.ts].
  */
 
 import { registerComponent, resolveValue, el } from '../engine.js'
 import type { ComponentNode, RenderContext } from '../engine.js'
 import { createTooltip, addBarTooltipZones, addLineTooltipZones, showTooltipAt } from './chart-tooltip.js'
+import {
+  COLORS, AXIS_COLOR, GRID_COLOR, AXIS_FONT,
+  chartLayout, createSvg, svgEl, svgText, polar, arcPath,
+  drawYAxis, drawYAxisRight, drawXAxisLabels, drawBaseline,
+  applyPipeFormat, resolveValueFormat, makeTooltipFormatter, addLegend,
+} from './chart-helpers.js'
+import type { SeriesEntry } from './chart-helpers.js'
 
 export function registerChartComponents(): void {
   registerComponent('BarChart', renderBarChart)
   registerComponent('LineChart', renderLineChart)
   registerComponent('AreaChart', renderLineChart) // Same renderer, different fill
   registerComponent('PieChart', renderPieChart)
-  registerComponent('RadarChart', renderFallbackChart)
-  registerComponent('ScatterChart', renderFallbackChart)
-  registerComponent('RadialChart', renderFallbackChart)
+  registerComponent('RadarChart', renderRadarChart)
+  registerComponent('ScatterChart', renderScatterChart)
+  registerComponent('RadialChart', renderRadialChart)
   registerComponent('Histogram', renderHistogram)
 }
 
-const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899']
-const AXIS_COLOR = 'var(--muted-foreground, #6b7280)'
-const GRID_COLOR = 'var(--border, #e5e7eb)'
-const AXIS_FONT = '10'
-
-export interface SeriesEntry {
-  dataKey: string
-  label?: string
-  color?: string
-  yAxisId?: 'left' | 'right'
-  tooltipFormat?: string
-}
-
-// ── Shared axis / grid helpers ───────────────────────────────────────────────
-
-export interface ChartLayout {
-  /** Usable plot area after axis padding */
-  plotLeft: number
-  plotRight: number
-  plotTop: number
-  plotBottom: number
-  plotWidth: number
-  plotHeight: number
-}
-
-/** Compute chart layout accounting for optional Y-axis label space. */
-function chartLayout(
-  svgWidth: number,
-  svgHeight: number,
-  hasYAxis: boolean,
-  hasYAxisRight = false,
-): ChartLayout {
-  const plotLeft = hasYAxis ? 44 : 0
-  const plotRight = svgWidth - (hasYAxisRight ? 44 : 0)
-  const plotTop = 10
-  const plotBottom = svgHeight - 24
-  return {
-    plotLeft,
-    plotRight,
-    plotTop,
-    plotBottom,
-    plotWidth: plotRight - plotLeft,
-    plotHeight: plotBottom - plotTop,
-  }
-}
-
-/** Nice round tick values for a 0..max range, returning ~tickCount values. */
-function niceYTicks(max: number, tickCount = 5): number[] {
-  if (max <= 0) return [0]
-  const rawStep = max / tickCount
-  const magnitude = Math.pow(10, Math.floor(Math.log10(rawStep)))
-  const residual = rawStep / magnitude
-  const niceStep =
-    residual <= 1.5 ? magnitude
-      : residual <= 3 ? 2 * magnitude
-        : residual <= 7 ? 5 * magnitude
-          : 10 * magnitude
-  const ticks: number[] = []
-  for (let v = 0; v <= max + niceStep * 0.01; v += niceStep) {
-    ticks.push(Math.round(v * 1000) / 1000)
-  }
-  return ticks
-}
-
-/** Draw Y-axis labels + optional horizontal grid lines into SVG. */
-function drawYAxis(
-  svg: SVGSVGElement,
-  layout: ChartLayout,
-  max: number,
-  showGrid: boolean,
-  format?: string,
-): void {
-  const ticks = niceYTicks(max)
-  for (const tick of ticks) {
-    const y = layout.plotBottom - (max > 0 ? (tick / max) * layout.plotHeight : 0)
-
-    // Y label
-    const label = document.createElementNS('http://www.w3.org/2000/svg', 'text')
-    label.setAttribute('x', String(layout.plotLeft - 6))
-    label.setAttribute('y', String(y + 3))
-    label.setAttribute('text-anchor', 'end')
-    label.setAttribute('font-size', AXIS_FONT)
-    label.setAttribute('fill', AXIS_COLOR)
-    label.textContent = formatYValue(tick, format)
-    svg.appendChild(label)
-
-    // Grid line
-    if (showGrid && tick > 0) {
-      const line = document.createElementNS('http://www.w3.org/2000/svg', 'line')
-      line.setAttribute('x1', String(layout.plotLeft))
-      line.setAttribute('y1', String(y))
-      line.setAttribute('x2', String(layout.plotRight))
-      line.setAttribute('y2', String(y))
-      line.setAttribute('stroke', GRID_COLOR)
-      line.setAttribute('stroke-width', '1')
-      line.setAttribute('stroke-dasharray', '4 3')
-      svg.appendChild(line)
-    }
-  }
-}
-
-/** Draw secondary Y-axis labels on the right side of the plot. */
-function drawYAxisRight(
-  svg: SVGSVGElement,
-  layout: ChartLayout,
-  max: number,
-  format?: string,
-): void {
-  const ticks = niceYTicks(max)
-  for (const tick of ticks) {
-    const y = layout.plotBottom - (max > 0 ? (tick / max) * layout.plotHeight : 0)
-    const label = document.createElementNS('http://www.w3.org/2000/svg', 'text')
-    label.setAttribute('x', String(layout.plotRight + 6))
-    label.setAttribute('y', String(y + 3))
-    label.setAttribute('text-anchor', 'start')
-    label.setAttribute('font-size', AXIS_FONT)
-    label.setAttribute('fill', AXIS_COLOR)
-    label.textContent = formatYValue(tick, format)
-    svg.appendChild(label)
-  }
-}
-
-/** Draw X-axis labels under the plot area. */
-function drawXAxisLabels(
-  svg: SVGSVGElement,
-  data: Record<string, unknown>[],
-  xAxisKey: string,
-  getX: (index: number) => number,
-  yBase: number,
-  format?: (raw: unknown) => string,
-): void {
-  for (let i = 0; i < data.length; i++) {
-    const label = document.createElementNS('http://www.w3.org/2000/svg', 'text')
-    label.setAttribute('x', String(getX(i)))
-    label.setAttribute('y', String(yBase + 14))
-    label.setAttribute('text-anchor', 'middle')
-    label.setAttribute('font-size', AXIS_FONT)
-    label.setAttribute('fill', AXIS_COLOR)
-    const val = data[i][xAxisKey]
-    label.textContent = val == null ? '' : (format ? format(val) : String(val as string | number))
-    svg.appendChild(label)
-  }
-}
-
-/** Draw a baseline (X-axis line) at the bottom of the plot. */
-function drawBaseline(
-  svg: SVGSVGElement,
-  layout: ChartLayout,
-): void {
-  const line = document.createElementNS('http://www.w3.org/2000/svg', 'line')
-  line.setAttribute('x1', String(layout.plotLeft))
-  line.setAttribute('y1', String(layout.plotBottom))
-  line.setAttribute('x2', String(layout.plotRight))
-  line.setAttribute('y2', String(layout.plotBottom))
-  line.setAttribute('stroke', AXIS_COLOR)
-  line.setAttribute('stroke-width', '1')
-  svg.appendChild(line)
-}
-
-/** Apply a pipe expression to a value using the Rx engine. */
-function applyPipeFormat(value: unknown, pipe: string, ctx: RenderContext): string {
-  if (value == null) return ''
-  const result = resolveValue(`{{ __v | ${pipe} }}`, { ...ctx, scope: { ...ctx.scope, __v: value } })
-  return result == null ? String(value as string | number) : String(result as string | number)
-}
-
-export function formatYValue(value: number, format?: string): string {
-  if (format === 'currency') return `$${value.toLocaleString()}`
-  if (format === 'percent') return `${value}%`
-  if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(1)}M`
-  if (value >= 1_000) return `${(value / 1_000).toFixed(1)}K`
-  return String(value)
-}
-
-/** Create a format callback for tooltip entries that handles per-axis formats + null. */
-function makeTooltipFormatter(
-  ctx: RenderContext,
-  yAxisFormat?: string,
-  yAxisRightFormat?: string,
-): (raw: unknown, s: SeriesEntry) => string {
-  return (raw, s) => {
-    if (raw === null || raw === undefined) return '\u2014'
-    // Per-series tooltipFormat overrides axis format
-    if (s.tooltipFormat) return applyPipeFormat(raw, s.tooltipFormat, ctx)
-    const fmt = s.yAxisId === 'right' ? yAxisRightFormat : yAxisFormat
-    return formatYValue(Number(raw), fmt)
-  }
-}
+// ── BarChart ─────────────────────────────────────────────────────────────────
 
 function renderBarChart(node: ComponentNode, ctx: RenderContext): HTMLElement {
   const wrapper = el('div', 'pf-chart pf-bar-chart')
@@ -245,7 +66,7 @@ function renderBarChart(node: ComponentNode, ctx: RenderContext): HTMLElement {
   const svg = createSvg(w, height, 'Bar')
 
   // Axes + grid (behind bars)
-  if (showYAxis) drawYAxis(svg, layout, leftMax, showGrid, node.yAxisFormat as string | undefined)
+  if (showYAxis) drawYAxis(svg, layout, leftMax, showGrid, resolveValueFormat(node))
   if (hasRight) drawYAxisRight(svg, layout, rightMax, node.yAxisRightFormat as string | undefined)
   drawBaseline(svg, layout)
 
@@ -287,7 +108,7 @@ function renderBarChart(node: ComponentNode, ctx: RenderContext): HTMLElement {
     const ttCtx = createTooltip(wrapper, svg)
     const fmt = makeTooltipFormatter(
       ctx,
-      node.yAxisFormat as string | undefined,
+      resolveValueFormat(node),
       node.yAxisRightFormat as string | undefined,
     )
     const ttLabelFmt = tooltipXFormat ? (v: unknown) => applyPipeFormat(v, tooltipXFormat, ctx) : undefined
@@ -298,6 +119,8 @@ function renderBarChart(node: ComponentNode, ctx: RenderContext): HTMLElement {
   wrapper.appendChild(svg)
   return wrapper
 }
+
+// ── LineChart / AreaChart ────────────────────────────────────────────────────
 
 function renderLineChart(node: ComponentNode, ctx: RenderContext): HTMLElement {
   const wrapper = el('div', `pf-chart pf-${node.type.toLowerCase()}-chart`)
@@ -338,7 +161,7 @@ function renderLineChart(node: ComponentNode, ctx: RenderContext): HTMLElement {
   const isArea = node.type === 'AreaChart'
 
   // Draw grid + axes (behind data)
-  if (showYAxis) drawYAxis(svg, layout, leftMax, showGrid, node.yAxisFormat as string | undefined)
+  if (showYAxis) drawYAxis(svg, layout, leftMax, showGrid, resolveValueFormat(node))
   if (hasRight) drawYAxisRight(svg, layout, rightMax, node.yAxisRightFormat as string | undefined)
   drawBaseline(svg, layout)
 
@@ -448,7 +271,7 @@ function renderLineChart(node: ComponentNode, ctx: RenderContext): HTMLElement {
     const ttCtx = createTooltip(wrapper, svg)
     const fmt = makeTooltipFormatter(
       ctx,
-      node.yAxisFormat as string | undefined,
+      resolveValueFormat(node),
       node.yAxisRightFormat as string | undefined,
     )
     const ttLabelFmt = tooltipXFormat ? (v: unknown) => applyPipeFormat(v, tooltipXFormat, ctx) : undefined
@@ -460,15 +283,28 @@ function renderLineChart(node: ComponentNode, ctx: RenderContext): HTMLElement {
   return wrapper
 }
 
+// ── PieChart ─────────────────────────────────────────────────────────────────
+
 function renderPieChart(node: ComponentNode, ctx: RenderContext): HTMLElement {
   const wrapper = el('div', 'pf-chart pf-pie-chart')
   const data = (resolveValue(node.data, ctx) as Record<string, unknown>[] | undefined) ?? []
-  const series = (node.series as SeriesEntry[] | undefined) ?? []
+  const seriesIn = (node.series as SeriesEntry[] | undefined) ?? []
   const height = (node.height as number | undefined) ?? 300
   const size = Math.min(height, 300)
   const showTooltipProp = (node.showTooltip as boolean | undefined) !== false
 
-  if (data.length === 0 || series.length === 0) {
+  // Value field: upstream `dataKey`, falling back to series[0] (legacy series-based input).
+  const key = (node.dataKey as string | undefined) ?? seriesIn[0]?.dataKey
+  // Slice-label field: upstream `nameKey`, falling back to tooltipXKey / xAxis (legacy).
+  const nameKey = (node.nameKey as string | undefined)
+    ?? (node.tooltipXKey as string | undefined)
+    ?? (node.xAxis as string | undefined)
+  // Synthesize a single series for the legend/tooltip when only dataKey/nameKey is given.
+  const series: SeriesEntry[] = seriesIn.length > 0
+    ? seriesIn
+    : (key ? [{ dataKey: key, label: key }] : [])
+
+  if (data.length === 0 || !key) {
     wrapper.textContent = 'No chart data'
     return wrapper
   }
@@ -478,11 +314,9 @@ function renderPieChart(node: ComponentNode, ctx: RenderContext): HTMLElement {
   const cy = size / 2
   const r = size / 2 - 10
 
-  // Use first series key, each data point is a slice
-  const key = series[0].dataKey
-  const xAxisKey = node.xAxis as string | undefined
-  const tooltipXKey = node.tooltipXKey as string | undefined
   const tooltipXFormat = node.tooltipXFormat as string | undefined
+  const valueFmt = resolveValueFormat(node)
+  const fmtValue = (v: number): string => valueFmt ? applyPipeFormat(v, valueFmt, ctx) : String(v)
   const values = data.map(d => Number(d[key] ?? 0))
   const total = values.reduce((a, b) => a + b, 0)
 
@@ -512,8 +346,7 @@ function renderPieChart(node: ComponentNode, ctx: RenderContext): HTMLElement {
     path.style.cursor = 'default'
 
     if (ttCtx) {
-      const sliceKey = tooltipXKey ?? xAxisKey
-      const rawSlice = sliceKey ? data[i][sliceKey] : undefined
+      const rawSlice = nameKey ? data[i][nameKey] : undefined
       const sliceLabel = rawSlice != null
         ? (tooltipXFormat ? applyPipeFormat(rawSlice, tooltipXFormat, ctx) : String(rawSlice as string | number))
         : `Slice ${i + 1}`
@@ -522,7 +355,7 @@ function renderPieChart(node: ComponentNode, ctx: RenderContext): HTMLElement {
       const tipX = cx + (r * 0.6) * Math.cos(midAngle)
       path.addEventListener('mouseenter', () => {
         showTooltipAt(ttCtx, tipX, cy, sliceLabel, [
-          { label: series[0].label ?? key, value: `${values[i]} (${pct})`, color },
+          { label: series[0].label ?? key, value: `${fmtValue(values[i])} (${pct})`, color },
         ])
       })
       path.addEventListener('mouseleave', () => {
@@ -530,7 +363,7 @@ function renderPieChart(node: ComponentNode, ctx: RenderContext): HTMLElement {
       })
       path.addEventListener('touchstart', () => {
         showTooltipAt(ttCtx, tipX, cy, sliceLabel, [
-          { label: series[0].label ?? key, value: `${values[i]} (${pct})`, color },
+          { label: series[0].label ?? key, value: `${fmtValue(values[i])} (${pct})`, color },
         ])
       }, { passive: true })
       path.addEventListener('touchend', () => {
@@ -547,61 +380,268 @@ function renderPieChart(node: ComponentNode, ctx: RenderContext): HTMLElement {
   return wrapper
 }
 
-function renderFallbackChart(node: ComponentNode, _ctx: RenderContext): HTMLElement {
-  const e = el('div', `pf-chart pf-${node.type.toLowerCase()}`)
-  e.textContent = `${node.type} — not yet supported in renderer`
-  e.style.padding = '24px'
-  e.style.textAlign = 'center'
-  return e
+// ── ScatterChart ─────────────────────────────────────────────────────────────
+
+function renderScatterChart(node: ComponentNode, ctx: RenderContext): HTMLElement {
+  const wrapper = el('div', 'pf-chart pf-scatter-chart')
+  const data = (resolveValue(node.data, ctx) as Record<string, unknown>[] | undefined) ?? []
+  const xKey = node.xAxis as string | undefined
+  const yKey = node.yAxis as string | undefined
+  const zKey = node.zAxis as string | undefined
+  const series = (node.series as SeriesEntry[] | undefined) ?? []
+  const height = (node.height as number | undefined) ?? 300
+
+  if (data.length === 0 || !xKey || !yKey) {
+    wrapper.textContent = 'No chart data'
+    return wrapper
+  }
+
+  const showGrid = (node.showGrid as boolean | undefined) !== false
+  const showTooltipProp = (node.showTooltip as boolean | undefined) !== false
+  const color = series[0]?.color ?? COLORS[0]
+  const valueFmt = resolveValueFormat(node)
+  const fmt = (v: number): string => valueFmt ? applyPipeFormat(v, valueFmt, ctx) : String(Math.round(v * 100) / 100)
+
+  const xs = data.map(d => Number(d[xKey] ?? 0))
+  const ys = data.map(d => Number(d[yKey] ?? 0))
+  const xMin = Math.min(...xs), xMax = Math.max(...xs)
+  const yMin = Math.min(...ys), yMax = Math.max(...ys)
+  const xRange = (xMax - xMin) || 1
+  const yRange = (yMax - yMin) || 1
+  const zs = zKey ? data.map(d => Number(d[zKey] ?? 0)) : []
+  const zMax = zKey ? Math.max(...zs, 1) : 1
+
+  const W = 400
+  const layout = chartLayout(W, height, true)
+  const svg = createSvg(W, height, 'Scatter')
+
+  const sx = (v: number): number => layout.plotLeft + ((v - xMin) / xRange) * layout.plotWidth
+  const sy = (v: number): number => layout.plotBottom - ((v - yMin) / yRange) * layout.plotHeight
+
+  // Y axis ticks across the actual [min, max] range (+ optional grid).
+  const Y_TICKS = 4
+  for (let t = 0; t <= Y_TICKS; t++) {
+    const val = yMin + (yRange * t) / Y_TICKS
+    const y = sy(val)
+    svg.appendChild(svgText(
+      { x: layout.plotLeft - 6, y: y + 3, 'text-anchor': 'end', 'font-size': AXIS_FONT, fill: AXIS_COLOR },
+      fmt(val),
+    ))
+    if (showGrid && t > 0) {
+      svg.appendChild(svgEl('line', {
+        x1: layout.plotLeft, y1: y, x2: layout.plotRight, y2: y,
+        stroke: GRID_COLOR, 'stroke-width': 1, 'stroke-dasharray': '4 3',
+      }))
+    }
+  }
+  drawBaseline(svg, layout)
+
+  // X axis: min / mid / max labels.
+  for (const xv of [xMin, (xMin + xMax) / 2, xMax]) {
+    svg.appendChild(svgText(
+      { x: sx(xv), y: layout.plotBottom + 14, 'text-anchor': 'middle', 'font-size': AXIS_FONT, fill: AXIS_COLOR },
+      String(Math.round(xv * 100) / 100),
+    ))
+  }
+
+  const ttCtx = showTooltipProp ? createTooltip(wrapper, svg) : undefined
+
+  for (let i = 0; i < data.length; i++) {
+    const px = sx(xs[i])
+    const py = sy(ys[i])
+    // Bubble radius from z (sqrt → area-proportional); fixed dot otherwise.
+    const rad = zKey ? 4 + Math.sqrt(zs[i] / zMax) * 14 : 4
+    const dot = svgEl('circle', { cx: px, cy: py, r: rad, fill: color, 'fill-opacity': zKey ? 0.6 : 0.85 })
+    if (ttCtx) {
+      const entries = [
+        { label: xKey, value: fmt(xs[i]), color },
+        { label: yKey, value: fmt(ys[i]), color },
+        ...(zKey ? [{ label: zKey, value: fmt(zs[i]), color }] : []),
+      ]
+      const title = series[0]?.label ?? 'Point'
+      dot.addEventListener('mouseenter', () => showTooltipAt(ttCtx, px, py, title, entries))
+      dot.addEventListener('mouseleave', () => ttCtx.tooltip.classList.remove('pf-visible'))
+      dot.addEventListener('touchstart', () => showTooltipAt(ttCtx, px, py, title, entries), { passive: true })
+      dot.addEventListener('touchend', () => ttCtx.tooltip.classList.remove('pf-visible'), { passive: true })
+    }
+    svg.appendChild(dot)
+  }
+
+  addLegend(wrapper, series, node.showLegend as boolean | undefined)
+  wrapper.appendChild(svg)
+  return wrapper
 }
 
-// ── Helpers ──────────────────────────────────────────────────────────────────
+// ── RadialChart ──────────────────────────────────────────────────────────────
 
-function createSvg(width: number, height: number, chartType?: string): SVGSVGElement {
-  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
-  svg.setAttribute('width', '100%')
-  svg.setAttribute('height', String(height))
-  svg.setAttribute('viewBox', `0 0 ${width} ${height}`)
-  svg.setAttribute('role', 'img')
-  if (chartType) {
-    svg.setAttribute('aria-label', `${chartType} chart`)
+function renderRadialChart(node: ComponentNode, ctx: RenderContext): HTMLElement {
+  const wrapper = el('div', 'pf-chart pf-radial-chart')
+  const data = (resolveValue(node.data, ctx) as Record<string, unknown>[] | undefined) ?? []
+  const seriesIn = (node.series as SeriesEntry[] | undefined) ?? []
+  const dataKey = (node.dataKey as string | undefined) ?? seriesIn[0]?.dataKey
+  const nameKey = (node.nameKey as string | undefined)
+    ?? (node.tooltipXKey as string | undefined)
+    ?? (node.xAxis as string | undefined)
+  const height = (node.height as number | undefined) ?? 300
+
+  if (data.length === 0 || !dataKey) {
+    wrapper.textContent = 'No chart data'
+    return wrapper
   }
-  svg.style.overflow = 'visible'
-  return svg
+
+  const size = Math.min(height, 300)
+  const cx = size / 2
+  const cy = size / 2
+  const outer = size / 2 - 10
+  const inner = Math.max(0, Math.min((node.innerRadius as number | undefined) ?? 30, outer - 10))
+  const startAngle = (node.startAngle as number | undefined) ?? 180
+  const endAngle = (node.endAngle as number | undefined) ?? 0
+  const showTooltipProp = (node.showTooltip as boolean | undefined) !== false
+
+  const values = data.map(d => Number(d[dataKey] ?? 0))
+  const max = Math.max(...values, 1)
+
+  const svg = createSvg(size, size, 'Radial')
+  const band = (outer - inner) / data.length
+  const thickness = Math.max(2, band * 0.7)
+  const valueFmt = resolveValueFormat(node)
+  const fmt = (v: number): string => valueFmt ? applyPipeFormat(v, valueFmt, ctx) : String(v)
+  const ttCtx = showTooltipProp ? createTooltip(wrapper, svg) : undefined
+  const legendSeries: SeriesEntry[] = []
+
+  for (let i = 0; i < data.length; i++) {
+    // First row is the outermost ring.
+    const rMid = outer - band * i - band / 2
+    const color = seriesIn[i]?.color ?? COLORS[i % COLORS.length]
+    const frac = values[i] / max
+    const valueEnd = startAngle + frac * (endAngle - startAngle)
+    const rawName = nameKey ? data[i][nameKey] : null
+    const name = rawName != null ? String(rawName as string | number) : (seriesIn[i]?.label ?? dataKey)
+    legendSeries.push({ dataKey: name || dataKey, label: name || dataKey, color })
+
+    // Muted full-range track.
+    svg.appendChild(svgEl('path', {
+      d: arcPath(cx, cy, rMid, startAngle, endAngle),
+      fill: 'none', stroke: GRID_COLOR, 'stroke-width': thickness, 'stroke-linecap': 'round',
+    }))
+
+    // Coloured value arc.
+    const arc = svgEl('path', {
+      d: arcPath(cx, cy, rMid, startAngle, valueEnd),
+      fill: 'none', stroke: color, 'stroke-width': thickness, 'stroke-linecap': 'round',
+    })
+    if (ttCtx) {
+      const mid = polar(cx, cy, rMid, (startAngle + valueEnd) / 2)
+      const entries = [{ label: dataKey, value: fmt(values[i]), color }]
+      const title = name || dataKey
+      arc.addEventListener('mouseenter', () => showTooltipAt(ttCtx, mid.x, mid.y, title, entries))
+      arc.addEventListener('mouseleave', () => ttCtx.tooltip.classList.remove('pf-visible'))
+      arc.addEventListener('touchstart', () => showTooltipAt(ttCtx, mid.x, mid.y, title, entries), { passive: true })
+      arc.addEventListener('touchend', () => ttCtx.tooltip.classList.remove('pf-visible'), { passive: true })
+    }
+    svg.appendChild(arc)
+  }
+
+  addLegend(wrapper, legendSeries, node.showLegend as boolean | undefined)
+  wrapper.appendChild(svg)
+  return wrapper
 }
 
-function addLegend(
-  wrapper: HTMLElement,
-  series: SeriesEntry[],
-  show?: boolean,
-): void {
-  if (show === false || series.length <= 1) return
-  const legend = el('div', 'pf-chart-legend')
-  legend.style.display = 'flex'
-  legend.style.gap = '12px'
-  legend.style.fontSize = '12px'
-  legend.style.marginBottom = '8px'
+// ── RadarChart ───────────────────────────────────────────────────────────────
 
-  for (let i = 0; i < series.length; i++) {
-    const item = el('div', 'pf-chart-legend-item')
-    item.style.display = 'flex'
-    item.style.alignItems = 'center'
-    item.style.gap = '4px'
+function renderRadarChart(node: ComponentNode, ctx: RenderContext): HTMLElement {
+  const wrapper = el('div', 'pf-chart pf-radar-chart')
+  const data = (resolveValue(node.data, ctx) as Record<string, unknown>[] | undefined) ?? []
+  const series = (node.series as SeriesEntry[] | undefined) ?? []
+  const axisKey = (node.axisKey as string | undefined) ?? (node.xAxis as string | undefined)
+  const height = (node.height as number | undefined) ?? 300
 
-    const dot = el('span')
-    dot.style.width = '8px'
-    dot.style.height = '8px'
-    dot.style.borderRadius = '50%'
-    dot.style.backgroundColor = series[i].color ?? COLORS[i % COLORS.length]
-
-    const label = el('span')
-    label.textContent = series[i].label ?? series[i].dataKey
-
-    item.appendChild(dot)
-    item.appendChild(label)
-    legend.appendChild(item)
+  if (data.length === 0 || series.length === 0) {
+    wrapper.textContent = 'No chart data'
+    return wrapper
   }
-  wrapper.appendChild(legend)
+
+  const filled = (node.filled as boolean | undefined) !== false
+  const showDots = (node.showDots as boolean | undefined) === true
+  const showGrid = (node.showGrid as boolean | undefined) !== false
+  const showTooltipProp = (node.showTooltip as boolean | undefined) !== false
+
+  const size = Math.min(height, 320)
+  const cx = size / 2
+  const cy = size / 2
+  const R = size / 2 - 24 // leave room for spoke labels
+  const N = data.length
+  const max = Math.max(...data.flatMap(d => series.map(s => Number(d[s.dataKey] ?? 0))), 1)
+
+  // Spokes start at the top and go clockwise.
+  const angleAt = (i: number): number => 90 - (360 * i) / N
+  const ptStr = (pts: { x: number; y: number }[]): string =>
+    pts.map(p => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ')
+
+  const svg = createSvg(size, size, 'Radar')
+
+  // Polar grid: concentric rings + spokes.
+  if (showGrid) {
+    const rings = 4
+    for (let r = 1; r <= rings; r++) {
+      const rr = (R * r) / rings
+      const ring = Array.from({ length: N }, (_unused, i) => polar(cx, cy, rr, angleAt(i)))
+      svg.appendChild(svgEl('polygon', { points: ptStr(ring), fill: 'none', stroke: GRID_COLOR, 'stroke-width': 1 }))
+    }
+    for (let i = 0; i < N; i++) {
+      const p = polar(cx, cy, R, angleAt(i))
+      svg.appendChild(svgEl('line', { x1: cx, y1: cy, x2: p.x, y2: p.y, stroke: GRID_COLOR, 'stroke-width': 1 }))
+    }
+  }
+
+  // Spoke labels.
+  for (let i = 0; i < N; i++) {
+    const p = polar(cx, cy, R + 12, angleAt(i))
+    const raw = axisKey ? data[i][axisKey] : null
+    svg.appendChild(svgText(
+      { x: p.x, y: p.y + 3, 'text-anchor': 'middle', 'font-size': AXIS_FONT, fill: AXIS_COLOR },
+      raw != null ? String(raw as string | number) : '',
+    ))
+  }
+
+  const ttCtx = showTooltipProp ? createTooltip(wrapper, svg) : undefined
+  const valueFmt = resolveValueFormat(node)
+  const fmt = (v: number): string => valueFmt ? applyPipeFormat(v, valueFmt, ctx) : String(v)
+
+  // One polygon per series.
+  for (let si = 0; si < series.length; si++) {
+    const s = series[si]
+    const color = s.color ?? COLORS[si % COLORS.length]
+    const pts = data.map((d, i) => polar(cx, cy, (Number(d[s.dataKey] ?? 0) / max) * R, angleAt(i)))
+    svg.appendChild(svgEl('polygon', {
+      points: ptStr(pts),
+      fill: filled ? color : 'none', 'fill-opacity': filled ? 0.2 : 0,
+      stroke: color, 'stroke-width': 2,
+    }))
+
+    if (showDots || ttCtx) {
+      for (let i = 0; i < pts.length; i++) {
+        const dot = svgEl('circle', {
+          cx: pts[i].x, cy: pts[i].y, r: showDots ? 3 : 6,
+          fill: showDots ? color : 'transparent', 'fill-opacity': showDots ? 1 : 0,
+        })
+        if (ttCtx) {
+          const raw = axisKey ? data[i][axisKey] : null
+          const title = raw != null ? String(raw as string | number) : (s.label ?? s.dataKey)
+          const entries = [{ label: s.label ?? s.dataKey, value: fmt(Number(data[i][s.dataKey] ?? 0)), color }]
+          dot.addEventListener('mouseenter', () => showTooltipAt(ttCtx, pts[i].x, pts[i].y, title, entries))
+          dot.addEventListener('mouseleave', () => ttCtx.tooltip.classList.remove('pf-visible'))
+          dot.addEventListener('touchstart', () => showTooltipAt(ttCtx, pts[i].x, pts[i].y, title, entries), { passive: true })
+          dot.addEventListener('touchend', () => ttCtx.tooltip.classList.remove('pf-visible'), { passive: true })
+        }
+        svg.appendChild(dot)
+      }
+    }
+  }
+
+  addLegend(wrapper, series, node.showLegend as boolean | undefined)
+  wrapper.appendChild(svg)
+  return wrapper
 }
 
 // ── Histogram ────────────────────────────────────────────────────────────────
