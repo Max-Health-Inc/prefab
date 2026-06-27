@@ -40,5 +40,5 @@ features:
     details: autoTable, autoChart, autoForm, autoMetrics — generate full UIs from raw data in one call.
   - icon: 🐍
     title: Wire-Compatible
-    details: Same $prefab v0.2 wire protocol as the Python prefab-ui. TS is a superset — chart formatting extensions are TS-only.
+    details: $prefab v0.3 wire protocol, a superset of the Python prefab-ui (still renders legacy 0.2). Chart formatting extensions are TS-only.
 ---

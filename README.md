@@ -3,11 +3,11 @@
 [![CI](https://github.com/Max-Health-Inc/prefab/actions/workflows/ci.yml/badge.svg)](https://github.com/Max-Health-Inc/prefab/actions/workflows/ci.yml)
 [![tests](https://img.shields.io/badge/tests-1077%20passing%20(100%25)-brightgreen)](https://github.com/Max-Health-Inc/prefab/actions/workflows/ci.yml)
 [![@maxhealth.tech/prefab](https://img.shields.io/npm/v/@maxhealth.tech/prefab?label=%40maxhealth.tech%2Fprefab)](https://www.npmjs.com/package/@maxhealth.tech/prefab)
-[![prefab-protocol](https://img.shields.io/badge/prefab--protocol-v0.2-brightgreen)](https://maxhealth.tech/prefab/reference/wire-format.html)
+[![prefab-protocol](https://img.shields.io/badge/prefab--protocol-v0.3-brightgreen)](https://maxhealth.tech/prefab/reference/wire-format.html)
 [![TypeScript](https://img.shields.io/badge/TypeScript-6.0-blue?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-TypeScript declarative UI component library for MCP apps. Wire-compatible with PrefectHQ's Python [prefab-ui](https://github.com/PrefectHQ/prefab) — **same `$prefab` v0.2 wire protocol**.
+TypeScript declarative UI component library for MCP apps. Wire-compatible with PrefectHQ's Python [prefab-ui](https://github.com/PrefectHQ/prefab) — **`$prefab` v0.3 wire protocol** (still renders legacy `0.2` payloads).
 
 **[Live Demo](https://maxhealth.tech/prefab/demo/)** · **[Playground](https://maxhealth.tech/prefab/playground/)**
 
