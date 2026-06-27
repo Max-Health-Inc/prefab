@@ -13,7 +13,7 @@ import type { PipeFn } from './rx/pipes.js'
 import { compileThemeCss } from './core/theme-css.js'
 
 /** Package version — injected by build script, updated at release time. */
-export const VERSION = '0.3.0'
+export const VERSION = '0.3.1'
 
 /**
  * Wire protocol version emitted in `$prefab.version`.
