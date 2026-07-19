@@ -5,7 +5,7 @@ url: /prefab/reference/api/auto/interfaces/AutoComparisonOptions.md
 
 # Interface: AutoComparisonOptions
 
-Defined in: [auto/comparison.ts:13](https://github.com/Max-Health-Inc/prefab/blob/c512f3bb2fb808f4335797b98c7b93774e2b1b30/src/auto/comparison.ts#L13)
+Defined in: [auto/comparison.ts:13](https://github.com/Max-Health-Inc/prefab/blob/89a71686ef8a402c953104a66e893262cc245e62/src/auto/comparison.ts#L13)
 
 ## Properties
 
@@ -15,7 +15,7 @@ Defined in: [auto/comparison.ts:13](https://github.com/Max-Health-Inc/prefab/blo
 optional title?: string;
 ```
 
-Defined in: [auto/comparison.ts:15](https://github.com/Max-Health-Inc/prefab/blob/c512f3bb2fb808f4335797b98c7b93774e2b1b30/src/auto/comparison.ts#L15)
+Defined in: [auto/comparison.ts:15](https://github.com/Max-Health-Inc/prefab/blob/89a71686ef8a402c953104a66e893262cc245e62/src/auto/comparison.ts#L15)
 
 Heading above the comparison.
 
@@ -27,7 +27,7 @@ Heading above the comparison.
 optional subtitle?: string;
 ```
 
-Defined in: [auto/comparison.ts:17](https://github.com/Max-Health-Inc/prefab/blob/c512f3bb2fb808f4335797b98c7b93774e2b1b30/src/auto/comparison.ts#L17)
+Defined in: [auto/comparison.ts:17](https://github.com/Max-Health-Inc/prefab/blob/89a71686ef8a402c953104a66e893262cc245e62/src/auto/comparison.ts#L17)
 
 Optional subtitle.
 
@@ -39,7 +39,7 @@ Optional subtitle.
 optional highlightKey?: string;
 ```
 
-Defined in: [auto/comparison.ts:19](https://github.com/Max-Health-Inc/prefab/blob/c512f3bb2fb808f4335797b98c7b93774e2b1b30/src/auto/comparison.ts#L19)
+Defined in: [auto/comparison.ts:19](https://github.com/Max-Health-Inc/prefab/blob/89a71686ef8a402c953104a66e893262cc245e62/src/auto/comparison.ts#L19)
 
 Key whose value gets a colored Badge for emphasis.
 
@@ -51,6 +51,6 @@ Key whose value gets a colored Badge for emphasis.
 optional columns?: number;
 ```
 
-Defined in: [auto/comparison.ts:21](https://github.com/Max-Health-Inc/prefab/blob/c512f3bb2fb808f4335797b98c7b93774e2b1b30/src/auto/comparison.ts#L21)
+Defined in: [auto/comparison.ts:21](https://github.com/Max-Health-Inc/prefab/blob/89a71686ef8a402c953104a66e893262cc245e62/src/auto/comparison.ts#L21)
 
 Number of grid columns. Defaults to number of items (max 4).

@@ -5,7 +5,7 @@ url: /prefab/reference/api/actions/interfaces/FetchOpts.md
 
 # Interface: FetchOpts
 
-Defined in: [actions/client.ts:143](https://github.com/Max-Health-Inc/prefab/blob/c512f3bb2fb808f4335797b98c7b93774e2b1b30/src/actions/client.ts#L143)
+Defined in: [actions/client.ts:143](https://github.com/Max-Health-Inc/prefab/blob/89a71686ef8a402c953104a66e893262cc245e62/src/actions/client.ts#L143)
 
 ## Properties
 
@@ -15,7 +15,7 @@ Defined in: [actions/client.ts:143](https://github.com/Max-Health-Inc/prefab/blo
 optional method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
 ```
 
-Defined in: [actions/client.ts:144](https://github.com/Max-Health-Inc/prefab/blob/c512f3bb2fb808f4335797b98c7b93774e2b1b30/src/actions/client.ts#L144)
+Defined in: [actions/client.ts:144](https://github.com/Max-Health-Inc/prefab/blob/89a71686ef8a402c953104a66e893262cc245e62/src/actions/client.ts#L144)
 
 ***
 
@@ -25,7 +25,7 @@ Defined in: [actions/client.ts:144](https://github.com/Max-Health-Inc/prefab/blo
 optional headers?: Record<string, string>;
 ```
 
-Defined in: [actions/client.ts:145](https://github.com/Max-Health-Inc/prefab/blob/c512f3bb2fb808f4335797b98c7b93774e2b1b30/src/actions/client.ts#L145)
+Defined in: [actions/client.ts:145](https://github.com/Max-Health-Inc/prefab/blob/89a71686ef8a402c953104a66e893262cc245e62/src/actions/client.ts#L145)
 
 ***
 
@@ -35,7 +35,7 @@ Defined in: [actions/client.ts:145](https://github.com/Max-Health-Inc/prefab/blo
 optional body?: unknown;
 ```
 
-Defined in: [actions/client.ts:146](https://github.com/Max-Health-Inc/prefab/blob/c512f3bb2fb808f4335797b98c7b93774e2b1b30/src/actions/client.ts#L146)
+Defined in: [actions/client.ts:146](https://github.com/Max-Health-Inc/prefab/blob/89a71686ef8a402c953104a66e893262cc245e62/src/actions/client.ts#L146)
 
 ***
 
@@ -45,7 +45,7 @@ Defined in: [actions/client.ts:146](https://github.com/Max-Health-Inc/prefab/blo
 optional resultKey?: string;
 ```
 
-Defined in: [actions/client.ts:147](https://github.com/Max-Health-Inc/prefab/blob/c512f3bb2fb808f4335797b98c7b93774e2b1b30/src/actions/client.ts#L147)
+Defined in: [actions/client.ts:147](https://github.com/Max-Health-Inc/prefab/blob/89a71686ef8a402c953104a66e893262cc245e62/src/actions/client.ts#L147)
 
 ***
 
@@ -55,7 +55,7 @@ Defined in: [actions/client.ts:147](https://github.com/Max-Health-Inc/prefab/blo
 optional onSuccess?: Action | Action[];
 ```
 
-Defined in: [actions/client.ts:148](https://github.com/Max-Health-Inc/prefab/blob/c512f3bb2fb808f4335797b98c7b93774e2b1b30/src/actions/client.ts#L148)
+Defined in: [actions/client.ts:148](https://github.com/Max-Health-Inc/prefab/blob/89a71686ef8a402c953104a66e893262cc245e62/src/actions/client.ts#L148)
 
 ***
 
@@ -65,4 +65,4 @@ Defined in: [actions/client.ts:148](https://github.com/Max-Health-Inc/prefab/blo
 optional onError?: Action | Action[];
 ```
 
-Defined in: [actions/client.ts:149](https://github.com/Max-Health-Inc/prefab/blob/c512f3bb2fb808f4335797b98c7b93774e2b1b30/src/actions/client.ts#L149)
+Defined in: [actions/client.ts:149](https://github.com/Max-Health-Inc/prefab/blob/89a71686ef8a402c953104a66e893262cc245e62/src/actions/client.ts#L149)

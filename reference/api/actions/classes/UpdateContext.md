@@ -5,7 +5,7 @@ url: /prefab/reference/api/actions/classes/UpdateContext.md
 
 # Class: UpdateContext
 
-Defined in: [actions/mcp.ts:50](https://github.com/Max-Health-Inc/prefab/blob/c512f3bb2fb808f4335797b98c7b93774e2b1b30/src/actions/mcp.ts#L50)
+Defined in: [actions/mcp.ts:50](https://github.com/Max-Health-Inc/prefab/blob/89a71686ef8a402c953104a66e893262cc245e62/src/actions/mcp.ts#L50)
 
 Base interface all actions implement
 
@@ -21,7 +21,7 @@ Base interface all actions implement
 new UpdateContext(context): UpdateContext;
 ```
 
-Defined in: [actions/mcp.ts:51](https://github.com/Max-Health-Inc/prefab/blob/c512f3bb2fb808f4335797b98c7b93774e2b1b30/src/actions/mcp.ts#L51)
+Defined in: [actions/mcp.ts:51](https://github.com/Max-Health-Inc/prefab/blob/89a71686ef8a402c953104a66e893262cc245e62/src/actions/mcp.ts#L51)
 
 #### Parameters
 
@@ -41,7 +41,7 @@ Defined in: [actions/mcp.ts:51](https://github.com/Max-Health-Inc/prefab/blob/c5
 readonly context: Record<string, unknown>;
 ```
 
-Defined in: [actions/mcp.ts:51](https://github.com/Max-Health-Inc/prefab/blob/c512f3bb2fb808f4335797b98c7b93774e2b1b30/src/actions/mcp.ts#L51)
+Defined in: [actions/mcp.ts:51](https://github.com/Max-Health-Inc/prefab/blob/89a71686ef8a402c953104a66e893262cc245e62/src/actions/mcp.ts#L51)
 
 ## Methods
 
@@ -51,7 +51,7 @@ Defined in: [actions/mcp.ts:51](https://github.com/Max-Health-Inc/prefab/blob/c5
 toJSON(): ActionJSON;
 ```
 
-Defined in: [actions/mcp.ts:53](https://github.com/Max-Health-Inc/prefab/blob/c512f3bb2fb808f4335797b98c7b93774e2b1b30/src/actions/mcp.ts#L53)
+Defined in: [actions/mcp.ts:53](https://github.com/Max-Health-Inc/prefab/blob/89a71686ef8a402c953104a66e893262cc245e62/src/actions/mcp.ts#L53)
 
 #### Returns
 

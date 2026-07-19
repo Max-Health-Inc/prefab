@@ -5,7 +5,7 @@ url: /prefab/reference/api/auto/interfaces/AutoMetricsOptions.md
 
 # Interface: AutoMetricsOptions
 
-Defined in: [auto/metrics.ts:31](https://github.com/Max-Health-Inc/prefab/blob/c512f3bb2fb808f4335797b98c7b93774e2b1b30/src/auto/metrics.ts#L31)
+Defined in: [auto/metrics.ts:31](https://github.com/Max-Health-Inc/prefab/blob/89a71686ef8a402c953104a66e893262cc245e62/src/auto/metrics.ts#L31)
 
 ## Properties
 
@@ -15,7 +15,7 @@ Defined in: [auto/metrics.ts:31](https://github.com/Max-Health-Inc/prefab/blob/c
 optional title?: string;
 ```
 
-Defined in: [auto/metrics.ts:33](https://github.com/Max-Health-Inc/prefab/blob/c512f3bb2fb808f4335797b98c7b93774e2b1b30/src/auto/metrics.ts#L33)
+Defined in: [auto/metrics.ts:33](https://github.com/Max-Health-Inc/prefab/blob/89a71686ef8a402c953104a66e893262cc245e62/src/auto/metrics.ts#L33)
 
 Dashboard heading.
 
@@ -27,7 +27,7 @@ Dashboard heading.
 optional subtitle?: string;
 ```
 
-Defined in: [auto/metrics.ts:35](https://github.com/Max-Health-Inc/prefab/blob/c512f3bb2fb808f4335797b98c7b93774e2b1b30/src/auto/metrics.ts#L35)
+Defined in: [auto/metrics.ts:35](https://github.com/Max-Health-Inc/prefab/blob/89a71686ef8a402c953104a66e893262cc245e62/src/auto/metrics.ts#L35)
 
 Optional subtitle.
 
@@ -39,6 +39,6 @@ Optional subtitle.
 optional columns?: number;
 ```
 
-Defined in: [auto/metrics.ts:37](https://github.com/Max-Health-Inc/prefab/blob/c512f3bb2fb808f4335797b98c7b93774e2b1b30/src/auto/metrics.ts#L37)
+Defined in: [auto/metrics.ts:37](https://github.com/Max-Health-Inc/prefab/blob/89a71686ef8a402c953104a66e893262cc245e62/src/auto/metrics.ts#L37)
 
 Number of grid columns. Default 4.

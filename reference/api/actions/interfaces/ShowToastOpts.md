@@ -5,7 +5,7 @@ url: /prefab/reference/api/actions/interfaces/ShowToastOpts.md
 
 # Interface: ShowToastOpts
 
-Defined in: [actions/client.ts:82](https://github.com/Max-Health-Inc/prefab/blob/c512f3bb2fb808f4335797b98c7b93774e2b1b30/src/actions/client.ts#L82)
+Defined in: [actions/client.ts:82](https://github.com/Max-Health-Inc/prefab/blob/89a71686ef8a402c953104a66e893262cc245e62/src/actions/client.ts#L82)
 
 ## Properties
 
@@ -15,7 +15,7 @@ Defined in: [actions/client.ts:82](https://github.com/Max-Health-Inc/prefab/blob
 optional description?: string;
 ```
 
-Defined in: [actions/client.ts:83](https://github.com/Max-Health-Inc/prefab/blob/c512f3bb2fb808f4335797b98c7b93774e2b1b30/src/actions/client.ts#L83)
+Defined in: [actions/client.ts:83](https://github.com/Max-Health-Inc/prefab/blob/89a71686ef8a402c953104a66e893262cc245e62/src/actions/client.ts#L83)
 
 ***
 
@@ -25,7 +25,7 @@ Defined in: [actions/client.ts:83](https://github.com/Max-Health-Inc/prefab/blob
 optional variant?: ToastVariant;
 ```
 
-Defined in: [actions/client.ts:84](https://github.com/Max-Health-Inc/prefab/blob/c512f3bb2fb808f4335797b98c7b93774e2b1b30/src/actions/client.ts#L84)
+Defined in: [actions/client.ts:84](https://github.com/Max-Health-Inc/prefab/blob/89a71686ef8a402c953104a66e893262cc245e62/src/actions/client.ts#L84)
 
 ***
 
@@ -35,4 +35,4 @@ Defined in: [actions/client.ts:84](https://github.com/Max-Health-Inc/prefab/blob
 optional duration?: number;
 ```
 
-Defined in: [actions/client.ts:85](https://github.com/Max-Health-Inc/prefab/blob/c512f3bb2fb808f4335797b98c7b93774e2b1b30/src/actions/client.ts#L85)
+Defined in: [actions/client.ts:85](https://github.com/Max-Health-Inc/prefab/blob/89a71686ef8a402c953104a66e893262cc245e62/src/actions/client.ts#L85)

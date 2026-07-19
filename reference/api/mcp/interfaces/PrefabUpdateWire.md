@@ -5,7 +5,7 @@ url: /prefab/reference/api/mcp/interfaces/PrefabUpdateWire.md
 
 # Interface: PrefabUpdateWire
 
-Defined in: [mcp/display.ts:185](https://github.com/Max-Health-Inc/prefab/blob/c512f3bb2fb808f4335797b98c7b93774e2b1b30/src/mcp/display.ts#L185)
+Defined in: [mcp/display.ts:185](https://github.com/Max-Health-Inc/prefab/blob/89a71686ef8a402c953104a66e893262cc245e62/src/mcp/display.ts#L185)
 
 ## Properties
 
@@ -15,7 +15,7 @@ Defined in: [mcp/display.ts:185](https://github.com/Max-Health-Inc/prefab/blob/c
 $prefab: object;
 ```
 
-Defined in: [mcp/display.ts:186](https://github.com/Max-Health-Inc/prefab/blob/c512f3bb2fb808f4335797b98c7b93774e2b1b30/src/mcp/display.ts#L186)
+Defined in: [mcp/display.ts:186](https://github.com/Max-Health-Inc/prefab/blob/89a71686ef8a402c953104a66e893262cc245e62/src/mcp/display.ts#L186)
 
 #### version
 
@@ -31,4 +31,4 @@ version: string;
 update: StateUpdate;
 ```
 
-Defined in: [mcp/display.ts:187](https://github.com/Max-Health-Inc/prefab/blob/c512f3bb2fb808f4335797b98c7b93774e2b1b30/src/mcp/display.ts#L187)
+Defined in: [mcp/display.ts:187](https://github.com/Max-Health-Inc/prefab/blob/89a71686ef8a402c953104a66e893262cc245e62/src/mcp/display.ts#L187)

@@ -1,6 +1,6 @@
 {
   "$prefab": {
-    "version": "0.2"
+    "version": "0.3"
   },
   "view": {
     "type": "Column",
@@ -47,7 +47,7 @@
       {
         "type": "If",
         "condition": "{{ status == 'success' }}",
-        "then": [
+        "children": [
           {
             "type": "Alert",
             "variant": "default",
@@ -67,7 +67,7 @@
       {
         "type": "If",
         "condition": "{{ status == 'error' }}",
-        "then": [
+        "children": [
           {
             "type": "Alert",
             "variant": "destructive",
@@ -87,7 +87,7 @@
       {
         "type": "If",
         "condition": "{{ status == 'loading' }}",
-        "then": [
+        "children": [
           {
             "type": "Card",
             "children": [
