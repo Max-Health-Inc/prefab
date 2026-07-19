@@ -637,7 +637,7 @@ function renderPreview() {
 
   try {
     currentMount = PrefabRenderer.mount(root, json, {
-      onToast: (t) => showToast(t.title || 'Toast', t.description || '', t.variant || 'default'),
+      onToast: (t) => showToast(t.message || 'Toast', t.description || '', t.variant || 'default'),
     });
     statusDot.className = 'pg-status-dot';
     statusText.textContent = 'Rendered';
