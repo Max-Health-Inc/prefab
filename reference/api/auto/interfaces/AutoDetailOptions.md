@@ -5,7 +5,7 @@ url: /prefab/reference/api/auto/interfaces/AutoDetailOptions.md
 
 # Interface: AutoDetailOptions
 
-Defined in: [auto/index.ts:118](https://github.com/Max-Health-Inc/prefab/blob/0b875c7d37ce621a7701a86ade4497710f4b2a08/src/auto/index.ts#L118)
+Defined in: [auto/index.ts:118](https://github.com/Max-Health-Inc/prefab/blob/c512f3bb2fb808f4335797b98c7b93774e2b1b30/src/auto/index.ts#L118)
 
 ## Properties
 
@@ -15,7 +15,7 @@ Defined in: [auto/index.ts:118](https://github.com/Max-Health-Inc/prefab/blob/0b
 optional title?: string;
 ```
 
-Defined in: [auto/index.ts:120](https://github.com/Max-Health-Inc/prefab/blob/0b875c7d37ce621a7701a86ade4497710f4b2a08/src/auto/index.ts#L120)
+Defined in: [auto/index.ts:120](https://github.com/Max-Health-Inc/prefab/blob/c512f3bb2fb808f4335797b98c7b93774e2b1b30/src/auto/index.ts#L120)
 
 Title shown at the top of the card. Defaults to auto-detect from data.
 
@@ -27,7 +27,7 @@ Title shown at the top of the card. Defaults to auto-detect from data.
 optional exclude?: string[];
 ```
 
-Defined in: [auto/index.ts:122](https://github.com/Max-Health-Inc/prefab/blob/0b875c7d37ce621a7701a86ade4497710f4b2a08/src/auto/index.ts#L122)
+Defined in: [auto/index.ts:122](https://github.com/Max-Health-Inc/prefab/blob/c512f3bb2fb808f4335797b98c7b93774e2b1b30/src/auto/index.ts#L122)
 
 Fields to exclude from the detail view.
 
@@ -39,7 +39,7 @@ Fields to exclude from the detail view.
 optional include?: string[];
 ```
 
-Defined in: [auto/index.ts:124](https://github.com/Max-Health-Inc/prefab/blob/0b875c7d37ce621a7701a86ade4497710f4b2a08/src/auto/index.ts#L124)
+Defined in: [auto/index.ts:124](https://github.com/Max-Health-Inc/prefab/blob/c512f3bb2fb808f4335797b98c7b93774e2b1b30/src/auto/index.ts#L124)
 
 Fields to include (if set, only these are shown).
 
@@ -51,6 +51,6 @@ Fields to include (if set, only these are shown).
 optional maxDepth?: number;
 ```
 
-Defined in: [auto/index.ts:126](https://github.com/Max-Health-Inc/prefab/blob/0b875c7d37ce621a7701a86ade4497710f4b2a08/src/auto/index.ts#L126)
+Defined in: [auto/index.ts:126](https://github.com/Max-Health-Inc/prefab/blob/c512f3bb2fb808f4335797b98c7b93774e2b1b30/src/auto/index.ts#L126)
 
 Max nested depth to render (default 1).

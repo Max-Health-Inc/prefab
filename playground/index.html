@@ -198,6 +198,10 @@ html, body {
   overflow: auto;
   padding: 24px;
   background: var(--pg-preview-bg);
+  /* Use the prefab theme's foreground so rendered content follows the preview
+     theme, instead of inheriting the playground chrome's --pg-text (which is a
+     light gray sized for the dark toolbar — invisible on a light preview). */
+  color: var(--foreground);
   transition: background 0.2s;
 }
 

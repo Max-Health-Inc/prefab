@@ -9,7 +9,7 @@ url: /prefab/reference/api/mcp/functions/display.md
 function display(viewOrApp, options?): McpToolResult;
 ```
 
-Defined in: [mcp/display.ts:70](https://github.com/Max-Health-Inc/prefab/blob/0b875c7d37ce621a7701a86ade4497710f4b2a08/src/mcp/display.ts#L70)
+Defined in: [mcp/display.ts:70](https://github.com/Max-Health-Inc/prefab/blob/c512f3bb2fb808f4335797b98c7b93774e2b1b30/src/mcp/display.ts#L70)
 
 Wrap a Component (or PrefabApp) as an MCP tool result.
 

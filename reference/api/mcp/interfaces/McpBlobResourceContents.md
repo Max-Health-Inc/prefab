@@ -5,7 +5,7 @@ url: /prefab/reference/api/mcp/interfaces/McpBlobResourceContents.md
 
 # Interface: McpBlobResourceContents
 
-Defined in: [mcp/types.ts:37](https://github.com/Max-Health-Inc/prefab/blob/0b875c7d37ce621a7701a86ade4497710f4b2a08/src/mcp/types.ts#L37)
+Defined in: [mcp/types.ts:37](https://github.com/Max-Health-Inc/prefab/blob/c512f3bb2fb808f4335797b98c7b93774e2b1b30/src/mcp/types.ts#L37)
 
 Blob resource contents (has `blob`, never `text`).
 
@@ -17,7 +17,7 @@ Blob resource contents (has `blob`, never `text`).
 uri: string;
 ```
 
-Defined in: [mcp/types.ts:38](https://github.com/Max-Health-Inc/prefab/blob/0b875c7d37ce621a7701a86ade4497710f4b2a08/src/mcp/types.ts#L38)
+Defined in: [mcp/types.ts:38](https://github.com/Max-Health-Inc/prefab/blob/c512f3bb2fb808f4335797b98c7b93774e2b1b30/src/mcp/types.ts#L38)
 
 ***
 
@@ -27,7 +27,7 @@ Defined in: [mcp/types.ts:38](https://github.com/Max-Health-Inc/prefab/blob/0b87
 optional mimeType?: string;
 ```
 
-Defined in: [mcp/types.ts:39](https://github.com/Max-Health-Inc/prefab/blob/0b875c7d37ce621a7701a86ade4497710f4b2a08/src/mcp/types.ts#L39)
+Defined in: [mcp/types.ts:39](https://github.com/Max-Health-Inc/prefab/blob/c512f3bb2fb808f4335797b98c7b93774e2b1b30/src/mcp/types.ts#L39)
 
 ***
 
@@ -37,7 +37,7 @@ Defined in: [mcp/types.ts:39](https://github.com/Max-Health-Inc/prefab/blob/0b87
 blob: string;
 ```
 
-Defined in: [mcp/types.ts:40](https://github.com/Max-Health-Inc/prefab/blob/0b875c7d37ce621a7701a86ade4497710f4b2a08/src/mcp/types.ts#L40)
+Defined in: [mcp/types.ts:40](https://github.com/Max-Health-Inc/prefab/blob/c512f3bb2fb808f4335797b98c7b93774e2b1b30/src/mcp/types.ts#L40)
 
 ***
 
@@ -47,4 +47,4 @@ Defined in: [mcp/types.ts:40](https://github.com/Max-Health-Inc/prefab/blob/0b87
 optional _meta?: Record<string, unknown>;
 ```
 
-Defined in: [mcp/types.ts:41](https://github.com/Max-Health-Inc/prefab/blob/0b875c7d37ce621a7701a86ade4497710f4b2a08/src/mcp/types.ts#L41)
+Defined in: [mcp/types.ts:41](https://github.com/Max-Health-Inc/prefab/blob/c512f3bb2fb808f4335797b98c7b93774e2b1b30/src/mcp/types.ts#L41)
