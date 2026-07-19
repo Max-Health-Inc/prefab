@@ -311,12 +311,12 @@ is interactive.
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Prefab</title>
   <link rel="stylesheet" crossorigin
-        href="https://cdn.jsdelivr.net/npm/@maxhealth.tech/prefab@0.2/dist/prefab.css">
+        href="https://cdn.jsdelivr.net/npm/@maxhealth.tech/prefab@0.3/dist/prefab.css">
 </head>
 <body>
   <div id="root"></div>
   <script crossorigin
-          src="https://cdn.jsdelivr.net/npm/@maxhealth.tech/prefab@0.2/dist/renderer.auto.min.js"></script>
+          src="https://cdn.jsdelivr.net/npm/@maxhealth.tech/prefab@0.3/dist/renderer.auto.min.js"></script>
 </body>
 </html>
 ```
@@ -348,12 +348,12 @@ protocol yourself:
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Prefab</title>
   <link rel="stylesheet" crossorigin
-        href="https://cdn.jsdelivr.net/npm/@maxhealth.tech/prefab@0.2/dist/prefab.css">
+        href="https://cdn.jsdelivr.net/npm/@maxhealth.tech/prefab@0.3/dist/prefab.css">
 </head>
 <body>
   <div id="root"></div>
   <script crossorigin
-          src="https://cdn.jsdelivr.net/npm/@maxhealth.tech/prefab@0.2/dist/renderer.min.js"></script>
+          src="https://cdn.jsdelivr.net/npm/@maxhealth.tech/prefab@0.3/dist/renderer.min.js"></script>
   <script>
     (function () {
       var api = typeof acquireVsCodeApi === 'function' ? acquireVsCodeApi() : null;

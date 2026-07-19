@@ -8,8 +8,8 @@
 <meta name="description" content="Type MCP tool JSON and see it render instantly. Interactive playground for @maxhealth.tech/prefab.">
 
 <!-- prefab renderer + theme -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@maxhealth.tech/prefab@0.2/dist/prefab.css">
-<script src="https://cdn.jsdelivr.net/npm/@maxhealth.tech/prefab@0.2/dist/renderer.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@maxhealth.tech/prefab@0.3/dist/prefab.css">
+<script src="https://cdn.jsdelivr.net/npm/@maxhealth.tech/prefab@0.3/dist/renderer.min.js"></script>
 
 <!-- Monaco Editor from CDN -->
 <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.52.2/min/vs/loader.js"></script>
@@ -530,20 +530,54 @@ window.addEventListener('DOMContentLoaded', () => {
   // Format button
   document.getElementById('btn-format').addEventListener('click', formatJson);
 
-  // Dark mode toggle
+  // ── Theme: single source of truth shared with the library's pf-theme-toggle ──
+  // The renderer's createThemeToggle (default syncDocument:true) persists to
+  // localStorage['prefab-theme'], stamps data-theme on <html>, and observes <html>
+  // to mirror the preview + flip its icon. We reuse that exact contract so the
+  // toolbar checkbox and the floating toggle are two VIEWS of one state — not two
+  // independent theme systems that drift (checkbox=class-only, toggle=data-theme).
+  const THEME_KEY = 'prefab-theme';
   const darkToggle = document.getElementById('dark-toggle');
   const previewRoot = document.getElementById('preview-root');
-  // Default: dark (checked)
-  previewRoot.classList.add('dark');
-  darkToggle.addEventListener('change', (e) => {
-    if (e.target.checked) {
-      previewRoot.classList.add('dark');
-      previewRoot.classList.remove('light');
-    } else {
-      previewRoot.classList.remove('dark');
-      previewRoot.classList.add('light');
-    }
-  });
+
+  // Mirror the library's setThemeAttrs: keep BOTH the class (upstream convention)
+  // and data-theme (this port's convention) in sync so compiled theme CSS matches
+  // regardless of which selector it keys off.
+  function setThemeAttrs(el, theme) {
+    el.setAttribute('data-theme', theme);
+    el.classList.toggle('dark', theme === 'dark');
+    el.classList.toggle('light', theme === 'light');
+  }
+
+  // Canonical writer — every control funnels through here.
+  function setTheme(theme) {
+    setThemeAttrs(previewRoot, theme);
+    setThemeAttrs(document.documentElement, theme);
+    try { localStorage.setItem(THEME_KEY, theme); } catch (_) { /* storage unavailable */ }
+    darkToggle.checked = theme === 'dark';
+  }
+
+  // Initial theme honors the persisted choice (same precedence as detectTheme),
+  // else OS preference, else dark. This also survives the mount-on-every-edit cycle,
+  // since createThemeToggle re-reads the same localStorage key on each remount.
+  function initialTheme() {
+    try {
+      const stored = localStorage.getItem(THEME_KEY);
+      if (stored === 'light' || stored === 'dark') return stored;
+    } catch (_) { /* storage unavailable */ }
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+  }
+  setTheme(initialTheme());
+
+  // Toolbar checkbox drives the shared state.
+  darkToggle.addEventListener('change', (e) => setTheme(e.target.checked ? 'dark' : 'light'));
+
+  // The floating pf-theme-toggle writes data-theme onto <html> (syncDocument).
+  // Reflect that back into the checkbox so the two controls can never disagree.
+  new MutationObserver(() => {
+    const t = document.documentElement.getAttribute('data-theme');
+    if (t === 'light' || t === 'dark') darkToggle.checked = t === 'dark';
+  }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
 
   // AI prompt modal
   document.getElementById('btn-ai-prompt').addEventListener('click', () => {
