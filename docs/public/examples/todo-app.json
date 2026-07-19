@@ -1,6 +1,6 @@
 {
   "$prefab": {
-    "version": "0.2"
+    "version": "0.3"
   },
   "view": {
     "type": "Card",
@@ -23,11 +23,11 @@
         "children": [
           {
             "type": "Column",
-            "gap": 12,
+            "cssClass": "gap-3",
             "children": [
               {
                 "type": "Row",
-                "gap": 8,
+                "cssClass": "gap-2",
                 "children": [
                   {
                     "type": "Input",
@@ -56,16 +56,20 @@
                 "type": "Separator"
               },
               {
-                "type": "DataTable",
-                "columns": [
+                "type": "ForEach",
+                "expression": "{{ tasks }}",
+                "children": [
                   {
-                    "key": "value",
-                    "header": "Task"
+                    "type": "Row",
+                    "cssClass": "gap-2 items-center",
+                    "children": [
+                      {
+                        "type": "Text",
+                        "content": "• {{ $item }}"
+                      }
+                    ]
                   }
-                ],
-                "rows": "{{ tasks }}",
-                "search": false,
-                "paginated": false
+                ]
               }
             ]
           }
