@@ -5,7 +5,7 @@ url: /prefab/reference/api/renderer/interfaces/ThemeToggleOptions.md
 
 # Interface: ThemeToggleOptions
 
-Defined in: [renderer/theme.ts:13](https://github.com/Max-Health-Inc/prefab/blob/b83a59c5090bb060486e2f2a8a35c743b2b469d8/src/renderer/theme.ts#L13)
+Defined in: [renderer/theme.ts:13](https://github.com/Max-Health-Inc/prefab/blob/0b875c7d37ce621a7701a86ade4497710f4b2a08/src/renderer/theme.ts#L13)
 
 ## Properties
 
@@ -15,7 +15,7 @@ Defined in: [renderer/theme.ts:13](https://github.com/Max-Health-Inc/prefab/blob
 optional position?: "top-right" | "top-left" | "bottom-right" | "bottom-left";
 ```
 
-Defined in: [renderer/theme.ts:15](https://github.com/Max-Health-Inc/prefab/blob/b83a59c5090bb060486e2f2a8a35c743b2b469d8/src/renderer/theme.ts#L15)
+Defined in: [renderer/theme.ts:15](https://github.com/Max-Health-Inc/prefab/blob/0b875c7d37ce621a7701a86ade4497710f4b2a08/src/renderer/theme.ts#L15)
 
 Position of the toggle inside the prefab root. Default: 'top-right'.
 
@@ -27,7 +27,7 @@ Position of the toggle inside the prefab root. Default: 'top-right'.
 optional storageKey?: string;
 ```
 
-Defined in: [renderer/theme.ts:17](https://github.com/Max-Health-Inc/prefab/blob/b83a59c5090bb060486e2f2a8a35c743b2b469d8/src/renderer/theme.ts#L17)
+Defined in: [renderer/theme.ts:17](https://github.com/Max-Health-Inc/prefab/blob/0b875c7d37ce621a7701a86ade4497710f4b2a08/src/renderer/theme.ts#L17)
 
 localStorage key for persistence. Default: 'prefab-theme'.
 
@@ -39,6 +39,6 @@ localStorage key for persistence. Default: 'prefab-theme'.
 optional syncDocument?: boolean;
 ```
 
-Defined in: [renderer/theme.ts:19](https://github.com/Max-Health-Inc/prefab/blob/b83a59c5090bb060486e2f2a8a35c743b2b469d8/src/renderer/theme.ts#L19)
+Defined in: [renderer/theme.ts:19](https://github.com/Max-Health-Inc/prefab/blob/0b875c7d37ce621a7701a86ade4497710f4b2a08/src/renderer/theme.ts#L19)
 
 Whether to sync with document.documentElement\[data-theme]. Default: true.

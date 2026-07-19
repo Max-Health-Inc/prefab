@@ -5,7 +5,7 @@ url: /prefab/reference/api/mcp/interfaces/McpTextContent.md
 
 # Interface: McpTextContent
 
-Defined in: [mcp/types.ts:12](https://github.com/Max-Health-Inc/prefab/blob/b83a59c5090bb060486e2f2a8a35c743b2b469d8/src/mcp/types.ts#L12)
+Defined in: [mcp/types.ts:12](https://github.com/Max-Health-Inc/prefab/blob/0b875c7d37ce621a7701a86ade4497710f4b2a08/src/mcp/types.ts#L12)
 
 MCP text content block (compatible with SDK's TextContent)
 
@@ -17,7 +17,7 @@ MCP text content block (compatible with SDK's TextContent)
 type: "text";
 ```
 
-Defined in: [mcp/types.ts:13](https://github.com/Max-Health-Inc/prefab/blob/b83a59c5090bb060486e2f2a8a35c743b2b469d8/src/mcp/types.ts#L13)
+Defined in: [mcp/types.ts:13](https://github.com/Max-Health-Inc/prefab/blob/0b875c7d37ce621a7701a86ade4497710f4b2a08/src/mcp/types.ts#L13)
 
 ***
 
@@ -27,7 +27,7 @@ Defined in: [mcp/types.ts:13](https://github.com/Max-Health-Inc/prefab/blob/b83a
 text: string;
 ```
 
-Defined in: [mcp/types.ts:14](https://github.com/Max-Health-Inc/prefab/blob/b83a59c5090bb060486e2f2a8a35c743b2b469d8/src/mcp/types.ts#L14)
+Defined in: [mcp/types.ts:14](https://github.com/Max-Health-Inc/prefab/blob/0b875c7d37ce621a7701a86ade4497710f4b2a08/src/mcp/types.ts#L14)
 
 ***
 
@@ -37,7 +37,7 @@ Defined in: [mcp/types.ts:14](https://github.com/Max-Health-Inc/prefab/blob/b83a
 optional annotations?: Record<string, unknown>;
 ```
 
-Defined in: [mcp/types.ts:15](https://github.com/Max-Health-Inc/prefab/blob/b83a59c5090bb060486e2f2a8a35c743b2b469d8/src/mcp/types.ts#L15)
+Defined in: [mcp/types.ts:15](https://github.com/Max-Health-Inc/prefab/blob/0b875c7d37ce621a7701a86ade4497710f4b2a08/src/mcp/types.ts#L15)
 
 ***
 
@@ -47,4 +47,4 @@ Defined in: [mcp/types.ts:15](https://github.com/Max-Health-Inc/prefab/blob/b83a
 optional _meta?: Record<string, unknown>;
 ```
 
-Defined in: [mcp/types.ts:16](https://github.com/Max-Health-Inc/prefab/blob/b83a59c5090bb060486e2f2a8a35c743b2b469d8/src/mcp/types.ts#L16)
+Defined in: [mcp/types.ts:16](https://github.com/Max-Health-Inc/prefab/blob/0b875c7d37ce621a7701a86ade4497710f4b2a08/src/mcp/types.ts#L16)

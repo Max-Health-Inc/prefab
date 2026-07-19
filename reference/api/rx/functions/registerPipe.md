@@ -9,7 +9,7 @@ url: /prefab/reference/api/rx/functions/registerPipe.md
 function registerPipe(name, fn): void;
 ```
 
-Defined in: [rx/pipes.ts:19](https://github.com/Max-Health-Inc/prefab/blob/b83a59c5090bb060486e2f2a8a35c743b2b469d8/src/rx/pipes.ts#L19)
+Defined in: [rx/pipes.ts:19](https://github.com/Max-Health-Inc/prefab/blob/0b875c7d37ce621a7701a86ade4497710f4b2a08/src/rx/pipes.ts#L19)
 
 Register a custom pipe filter.
 Re-registration warns and overwrites (HMR-friendly).

@@ -5,7 +5,7 @@ url: /prefab/reference/api/actions/interfaces/SetStateOpts.md
 
 # Interface: SetStateOpts
 
-Defined in: [actions/client.ts:11](https://github.com/Max-Health-Inc/prefab/blob/b83a59c5090bb060486e2f2a8a35c743b2b469d8/src/actions/client.ts#L11)
+Defined in: [actions/client.ts:11](https://github.com/Max-Health-Inc/prefab/blob/0b875c7d37ce621a7701a86ade4497710f4b2a08/src/actions/client.ts#L11)
 
 ## Properties
 
@@ -15,7 +15,7 @@ Defined in: [actions/client.ts:11](https://github.com/Max-Health-Inc/prefab/blob
 optional onSuccess?: Action | Action[];
 ```
 
-Defined in: [actions/client.ts:12](https://github.com/Max-Health-Inc/prefab/blob/b83a59c5090bb060486e2f2a8a35c743b2b469d8/src/actions/client.ts#L12)
+Defined in: [actions/client.ts:12](https://github.com/Max-Health-Inc/prefab/blob/0b875c7d37ce621a7701a86ade4497710f4b2a08/src/actions/client.ts#L12)
 
 ***
 
@@ -25,4 +25,4 @@ Defined in: [actions/client.ts:12](https://github.com/Max-Health-Inc/prefab/blob
 optional onError?: Action | Action[];
 ```
 
-Defined in: [actions/client.ts:13](https://github.com/Max-Health-Inc/prefab/blob/b83a59c5090bb060486e2f2a8a35c743b2b469d8/src/actions/client.ts#L13)
+Defined in: [actions/client.ts:13](https://github.com/Max-Health-Inc/prefab/blob/0b875c7d37ce621a7701a86ade4497710f4b2a08/src/actions/client.ts#L13)

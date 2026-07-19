@@ -5,7 +5,7 @@ url: /prefab/reference/api/actions/classes/OpenFilePicker.md
 
 # Class: OpenFilePicker
 
-Defined in: [actions/client.ts:179](https://github.com/Max-Health-Inc/prefab/blob/b83a59c5090bb060486e2f2a8a35c743b2b469d8/src/actions/client.ts#L179)
+Defined in: [actions/client.ts:179](https://github.com/Max-Health-Inc/prefab/blob/0b875c7d37ce621a7701a86ade4497710f4b2a08/src/actions/client.ts#L179)
 
 Base interface all actions implement
 
@@ -21,7 +21,7 @@ Base interface all actions implement
 new OpenFilePicker(opts?): OpenFilePicker;
 ```
 
-Defined in: [actions/client.ts:180](https://github.com/Max-Health-Inc/prefab/blob/b83a59c5090bb060486e2f2a8a35c743b2b469d8/src/actions/client.ts#L180)
+Defined in: [actions/client.ts:180](https://github.com/Max-Health-Inc/prefab/blob/0b875c7d37ce621a7701a86ade4497710f4b2a08/src/actions/client.ts#L180)
 
 #### Parameters
 
@@ -41,7 +41,7 @@ Defined in: [actions/client.ts:180](https://github.com/Max-Health-Inc/prefab/blo
 toJSON(): ActionJSON;
 ```
 
-Defined in: [actions/client.ts:182](https://github.com/Max-Health-Inc/prefab/blob/b83a59c5090bb060486e2f2a8a35c743b2b469d8/src/actions/client.ts#L182)
+Defined in: [actions/client.ts:182](https://github.com/Max-Health-Inc/prefab/blob/0b875c7d37ce621a7701a86ade4497710f4b2a08/src/actions/client.ts#L182)
 
 #### Returns
 

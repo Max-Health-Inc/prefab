@@ -5,7 +5,7 @@ url: /prefab/reference/api/mcp/interfaces/ViewerResourceOptions.md
 
 # Interface: ViewerResourceOptions
 
-Defined in: [mcp/display.ts:501](https://github.com/Max-Health-Inc/prefab/blob/b83a59c5090bb060486e2f2a8a35c743b2b469d8/src/mcp/display.ts#L501)
+Defined in: [mcp/display.ts:501](https://github.com/Max-Health-Inc/prefab/blob/0b875c7d37ce621a7701a86ade4497710f4b2a08/src/mcp/display.ts#L501)
 
 ## Properties
 
@@ -15,7 +15,7 @@ Defined in: [mcp/display.ts:501](https://github.com/Max-Health-Inc/prefab/blob/b
 optional uri?: string;
 ```
 
-Defined in: [mcp/display.ts:503](https://github.com/Max-Health-Inc/prefab/blob/b83a59c5090bb060486e2f2a8a35c743b2b469d8/src/mcp/display.ts#L503)
+Defined in: [mcp/display.ts:503](https://github.com/Max-Health-Inc/prefab/blob/0b875c7d37ce621a7701a86ade4497710f4b2a08/src/mcp/display.ts#L503)
 
 Resource URI.
 
@@ -33,7 +33,7 @@ PREFAB_RESOURCE_URI
 optional title?: string;
 ```
 
-Defined in: [mcp/display.ts:505](https://github.com/Max-Health-Inc/prefab/blob/b83a59c5090bb060486e2f2a8a35c743b2b469d8/src/mcp/display.ts#L505)
+Defined in: [mcp/display.ts:505](https://github.com/Max-Health-Inc/prefab/blob/0b875c7d37ce621a7701a86ade4497710f4b2a08/src/mcp/display.ts#L505)
 
 Resource title.
 
@@ -51,7 +51,7 @@ Resource title.
 optional csp?: McpAppCsp;
 ```
 
-Defined in: [mcp/display.ts:507](https://github.com/Max-Health-Inc/prefab/blob/b83a59c5090bb060486e2f2a8a35c743b2b469d8/src/mcp/display.ts#L507)
+Defined in: [mcp/display.ts:507](https://github.com/Max-Health-Inc/prefab/blob/0b875c7d37ce621a7701a86ade4497710f4b2a08/src/mcp/display.ts#L507)
 
 CSP configuration.
 
@@ -69,7 +69,7 @@ CSP configuration.
 optional permissions?: McpAppPermissions;
 ```
 
-Defined in: [mcp/display.ts:509](https://github.com/Max-Health-Inc/prefab/blob/b83a59c5090bb060486e2f2a8a35c743b2b469d8/src/mcp/display.ts#L509)
+Defined in: [mcp/display.ts:509](https://github.com/Max-Health-Inc/prefab/blob/0b875c7d37ce621a7701a86ade4497710f4b2a08/src/mcp/display.ts#L509)
 
 Permission Policy requests.
 
@@ -81,7 +81,7 @@ Permission Policy requests.
 optional scripts?: string[];
 ```
 
-Defined in: [mcp/display.ts:511](https://github.com/Max-Health-Inc/prefab/blob/b83a59c5090bb060486e2f2a8a35c743b2b469d8/src/mcp/display.ts#L511)
+Defined in: [mcp/display.ts:511](https://github.com/Max-Health-Inc/prefab/blob/0b875c7d37ce621a7701a86ade4497710f4b2a08/src/mcp/display.ts#L511)
 
 Additional `<script>` URLs to load after the renderer.
 
@@ -93,7 +93,7 @@ Additional `<script>` URLs to load after the renderer.
 optional stylesheets?: string[];
 ```
 
-Defined in: [mcp/display.ts:513](https://github.com/Max-Health-Inc/prefab/blob/b83a59c5090bb060486e2f2a8a35c743b2b469d8/src/mcp/display.ts#L513)
+Defined in: [mcp/display.ts:513](https://github.com/Max-Health-Inc/prefab/blob/0b875c7d37ce621a7701a86ade4497710f4b2a08/src/mcp/display.ts#L513)
 
 Additional `<link rel="stylesheet">` URLs.
 
@@ -105,6 +105,6 @@ Additional `<link rel="stylesheet">` URLs.
 optional cdnBase?: string;
 ```
 
-Defined in: [mcp/display.ts:515](https://github.com/Max-Health-Inc/prefab/blob/b83a59c5090bb060486e2f2a8a35c743b2b469d8/src/mcp/display.ts#L515)
+Defined in: [mcp/display.ts:515](https://github.com/Max-Health-Inc/prefab/blob/0b875c7d37ce621a7701a86ade4497710f4b2a08/src/mcp/display.ts#L515)
 
 Override CDN base URL (no trailing slash).
