@@ -7,7 +7,9 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-6.0-blue?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-TypeScript declarative UI component library for MCP apps. Wire-compatible with PrefectHQ's Python [prefab-ui](https://github.com/PrefectHQ/prefab) — **`$prefab` v0.3 wire protocol** (still renders legacy `0.2` payloads).
+The TypeScript full-stack framework for MCP app UIs: author server-side, ship JSON, render anywhere.
+
+A superset of PrefectHQ's Python [prefab-ui](https://github.com/PrefectHQ/prefab), on the **`$prefab` v0.3 wire protocol** (still renders legacy `0.2` payloads).
 
 **[Live Demo](https://maxhealth.tech/prefab/demo/)** · **[Playground](https://maxhealth.tech/prefab/playground/)**
 
