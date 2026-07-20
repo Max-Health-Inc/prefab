@@ -5,7 +5,7 @@ url: /prefab/reference/api/renderer/classes/DestroyRegistry.md
 
 # Class: DestroyRegistry
 
-Defined in: [renderer/engine.ts:80](https://github.com/Max-Health-Inc/prefab/blob/89a71686ef8a402c953104a66e893262cc245e62/src/renderer/engine.ts#L80)
+Defined in: [renderer/engine.ts:80](https://github.com/Max-Health-Inc/prefab/blob/88d9aa00d6a50ef0286767079c6345c808f6a0a9/src/renderer/engine.ts#L80)
 
 Tracks destroy callbacks for mounted components within a render cycle.
 
@@ -31,7 +31,7 @@ new DestroyRegistry(): DestroyRegistry;
 get size(): number;
 ```
 
-Defined in: [renderer/engine.ts:97](https://github.com/Max-Health-Inc/prefab/blob/89a71686ef8a402c953104a66e893262cc245e62/src/renderer/engine.ts#L97)
+Defined in: [renderer/engine.ts:97](https://github.com/Max-Health-Inc/prefab/blob/88d9aa00d6a50ef0286767079c6345c808f6a0a9/src/renderer/engine.ts#L97)
 
 Number of registered callbacks (for testing).
 
@@ -47,7 +47,7 @@ Number of registered callbacks (for testing).
 track(cb): void;
 ```
 
-Defined in: [renderer/engine.ts:84](https://github.com/Max-Health-Inc/prefab/blob/89a71686ef8a402c953104a66e893262cc245e62/src/renderer/engine.ts#L84)
+Defined in: [renderer/engine.ts:84](https://github.com/Max-Health-Inc/prefab/blob/88d9aa00d6a50ef0286767079c6345c808f6a0a9/src/renderer/engine.ts#L84)
 
 Register a destroy callback.
 
@@ -69,7 +69,7 @@ Register a destroy callback.
 flush(): void;
 ```
 
-Defined in: [renderer/engine.ts:89](https://github.com/Max-Health-Inc/prefab/blob/89a71686ef8a402c953104a66e893262cc245e62/src/renderer/engine.ts#L89)
+Defined in: [renderer/engine.ts:89](https://github.com/Max-Health-Inc/prefab/blob/88d9aa00d6a50ef0286767079c6345c808f6a0a9/src/renderer/engine.ts#L89)
 
 Call all registered destroy callbacks and clear the list.
 

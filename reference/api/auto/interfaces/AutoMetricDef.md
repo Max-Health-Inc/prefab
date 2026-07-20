@@ -5,7 +5,7 @@ url: /prefab/reference/api/auto/interfaces/AutoMetricDef.md
 
 # Interface: AutoMetricDef
 
-Defined in: [auto/metrics.ts:14](https://github.com/Max-Health-Inc/prefab/blob/89a71686ef8a402c953104a66e893262cc245e62/src/auto/metrics.ts#L14)
+Defined in: [auto/metrics.ts:14](https://github.com/Max-Health-Inc/prefab/blob/88d9aa00d6a50ef0286767079c6345c808f6a0a9/src/auto/metrics.ts#L14)
 
 ## Properties
 
@@ -15,7 +15,7 @@ Defined in: [auto/metrics.ts:14](https://github.com/Max-Health-Inc/prefab/blob/8
 label: string;
 ```
 
-Defined in: [auto/metrics.ts:16](https://github.com/Max-Health-Inc/prefab/blob/89a71686ef8a402c953104a66e893262cc245e62/src/auto/metrics.ts#L16)
+Defined in: [auto/metrics.ts:16](https://github.com/Max-Health-Inc/prefab/blob/88d9aa00d6a50ef0286767079c6345c808f6a0a9/src/auto/metrics.ts#L16)
 
 Metric label (e.g. 'Revenue').
 
@@ -27,7 +27,7 @@ Metric label (e.g. 'Revenue').
 value: string;
 ```
 
-Defined in: [auto/metrics.ts:18](https://github.com/Max-Health-Inc/prefab/blob/89a71686ef8a402c953104a66e893262cc245e62/src/auto/metrics.ts#L18)
+Defined in: [auto/metrics.ts:18](https://github.com/Max-Health-Inc/prefab/blob/88d9aa00d6a50ef0286767079c6345c808f6a0a9/src/auto/metrics.ts#L18)
 
 Metric value (e.g. '$42K').
 
@@ -39,7 +39,7 @@ Metric value (e.g. '$42K').
 optional delta?: string;
 ```
 
-Defined in: [auto/metrics.ts:20](https://github.com/Max-Health-Inc/prefab/blob/89a71686ef8a402c953104a66e893262cc245e62/src/auto/metrics.ts#L20)
+Defined in: [auto/metrics.ts:20](https://github.com/Max-Health-Inc/prefab/blob/88d9aa00d6a50ef0286767079c6345c808f6a0a9/src/auto/metrics.ts#L20)
 
 Delta string (e.g. '+12%').
 
@@ -51,7 +51,7 @@ Delta string (e.g. '+12%').
 optional trend?: "flat" | "up" | "down";
 ```
 
-Defined in: [auto/metrics.ts:22](https://github.com/Max-Health-Inc/prefab/blob/89a71686ef8a402c953104a66e893262cc245e62/src/auto/metrics.ts#L22)
+Defined in: [auto/metrics.ts:22](https://github.com/Max-Health-Inc/prefab/blob/88d9aa00d6a50ef0286767079c6345c808f6a0a9/src/auto/metrics.ts#L22)
 
 Trend direction.
 
@@ -63,7 +63,7 @@ Trend direction.
 optional trendSentiment?: "positive" | "negative" | "neutral";
 ```
 
-Defined in: [auto/metrics.ts:24](https://github.com/Max-Health-Inc/prefab/blob/89a71686ef8a402c953104a66e893262cc245e62/src/auto/metrics.ts#L24)
+Defined in: [auto/metrics.ts:24](https://github.com/Max-Health-Inc/prefab/blob/88d9aa00d6a50ef0286767079c6345c808f6a0a9/src/auto/metrics.ts#L24)
 
 Trend sentiment (positive = green, negative = red).
 
@@ -75,7 +75,7 @@ Trend sentiment (positive = green, negative = red).
 optional description?: string;
 ```
 
-Defined in: [auto/metrics.ts:26](https://github.com/Max-Health-Inc/prefab/blob/89a71686ef8a402c953104a66e893262cc245e62/src/auto/metrics.ts#L26)
+Defined in: [auto/metrics.ts:26](https://github.com/Max-Health-Inc/prefab/blob/88d9aa00d6a50ef0286767079c6345c808f6a0a9/src/auto/metrics.ts#L26)
 
 Description text below the metric.
 
@@ -87,6 +87,6 @@ Description text below the metric.
 optional sparkline?: number[];
 ```
 
-Defined in: [auto/metrics.ts:28](https://github.com/Max-Health-Inc/prefab/blob/89a71686ef8a402c953104a66e893262cc245e62/src/auto/metrics.ts#L28)
+Defined in: [auto/metrics.ts:28](https://github.com/Max-Health-Inc/prefab/blob/88d9aa00d6a50ef0286767079c6345c808f6a0a9/src/auto/metrics.ts#L28)
 
 Sparkline data points.

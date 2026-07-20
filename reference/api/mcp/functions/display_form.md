@@ -12,7 +12,7 @@ function display_form(
    options?): McpToolResult;
 ```
 
-Defined in: [mcp/display.ts:147](https://github.com/Max-Health-Inc/prefab/blob/89a71686ef8a402c953104a66e893262cc245e62/src/mcp/display.ts#L147)
+Defined in: [mcp/display.ts:147](https://github.com/Max-Health-Inc/prefab/blob/88d9aa00d6a50ef0286767079c6345c808f6a0a9/src/mcp/display.ts#L147)
 
 Return a form UI as an MCP tool result.
 

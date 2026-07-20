@@ -5,7 +5,7 @@ url: /prefab/reference/api/actions/interfaces/OpenFilePickerOpts.md
 
 # Interface: OpenFilePickerOpts
 
-Defined in: [actions/client.ts:172](https://github.com/Max-Health-Inc/prefab/blob/89a71686ef8a402c953104a66e893262cc245e62/src/actions/client.ts#L172)
+Defined in: [actions/client.ts:172](https://github.com/Max-Health-Inc/prefab/blob/88d9aa00d6a50ef0286767079c6345c808f6a0a9/src/actions/client.ts#L172)
 
 ## Properties
 
@@ -15,7 +15,7 @@ Defined in: [actions/client.ts:172](https://github.com/Max-Health-Inc/prefab/blo
 optional accept?: string;
 ```
 
-Defined in: [actions/client.ts:173](https://github.com/Max-Health-Inc/prefab/blob/89a71686ef8a402c953104a66e893262cc245e62/src/actions/client.ts#L173)
+Defined in: [actions/client.ts:173](https://github.com/Max-Health-Inc/prefab/blob/88d9aa00d6a50ef0286767079c6345c808f6a0a9/src/actions/client.ts#L173)
 
 ***
 
@@ -25,7 +25,7 @@ Defined in: [actions/client.ts:173](https://github.com/Max-Health-Inc/prefab/blo
 optional multiple?: boolean;
 ```
 
-Defined in: [actions/client.ts:174](https://github.com/Max-Health-Inc/prefab/blob/89a71686ef8a402c953104a66e893262cc245e62/src/actions/client.ts#L174)
+Defined in: [actions/client.ts:174](https://github.com/Max-Health-Inc/prefab/blob/88d9aa00d6a50ef0286767079c6345c808f6a0a9/src/actions/client.ts#L174)
 
 ***
 
@@ -35,7 +35,7 @@ Defined in: [actions/client.ts:174](https://github.com/Max-Health-Inc/prefab/blo
 optional resultKey?: string;
 ```
 
-Defined in: [actions/client.ts:175](https://github.com/Max-Health-Inc/prefab/blob/89a71686ef8a402c953104a66e893262cc245e62/src/actions/client.ts#L175)
+Defined in: [actions/client.ts:175](https://github.com/Max-Health-Inc/prefab/blob/88d9aa00d6a50ef0286767079c6345c808f6a0a9/src/actions/client.ts#L175)
 
 ***
 
@@ -45,4 +45,4 @@ Defined in: [actions/client.ts:175](https://github.com/Max-Health-Inc/prefab/blo
 optional onSuccess?: Action | Action[];
 ```
 
-Defined in: [actions/client.ts:176](https://github.com/Max-Health-Inc/prefab/blob/89a71686ef8a402c953104a66e893262cc245e62/src/actions/client.ts#L176)
+Defined in: [actions/client.ts:176](https://github.com/Max-Health-Inc/prefab/blob/88d9aa00d6a50ef0286767079c6345c808f6a0a9/src/actions/client.ts#L176)

@@ -5,7 +5,7 @@ url: /prefab/reference/api/renderer/interfaces/MountOptions.md
 
 # Interface: MountOptions
 
-Defined in: [renderer/index.ts:94](https://github.com/Max-Health-Inc/prefab/blob/89a71686ef8a402c953104a66e893262cc245e62/src/renderer/index.ts#L94)
+Defined in: [renderer/index.ts:94](https://github.com/Max-Health-Inc/prefab/blob/88d9aa00d6a50ef0286767079c6345c808f6a0a9/src/renderer/index.ts#L94)
 
 ## Properties
 
@@ -15,7 +15,7 @@ Defined in: [renderer/index.ts:94](https://github.com/Max-Health-Inc/prefab/blob
 optional transport?: McpTransport | McpTransportOptions;
 ```
 
-Defined in: [renderer/index.ts:96](https://github.com/Max-Health-Inc/prefab/blob/89a71686ef8a402c953104a66e893262cc245e62/src/renderer/index.ts#L96)
+Defined in: [renderer/index.ts:96](https://github.com/Max-Health-Inc/prefab/blob/88d9aa00d6a50ef0286767079c6345c808f6a0a9/src/renderer/index.ts#L96)
 
 MCP transport configuration.
 
@@ -27,7 +27,7 @@ MCP transport configuration.
 optional onToast?: (toast) => void;
 ```
 
-Defined in: [renderer/index.ts:98](https://github.com/Max-Health-Inc/prefab/blob/89a71686ef8a402c953104a66e893262cc245e62/src/renderer/index.ts#L98)
+Defined in: [renderer/index.ts:98](https://github.com/Max-Health-Inc/prefab/blob/88d9aa00d6a50ef0286767079c6345c808f6a0a9/src/renderer/index.ts#L98)
 
 Toast notification handler.
 
@@ -49,6 +49,6 @@ Toast notification handler.
 optional themeToggle?: boolean | ThemeToggleOptions;
 ```
 
-Defined in: [renderer/index.ts:100](https://github.com/Max-Health-Inc/prefab/blob/89a71686ef8a402c953104a66e893262cc245e62/src/renderer/index.ts#L100)
+Defined in: [renderer/index.ts:100](https://github.com/Max-Health-Inc/prefab/blob/88d9aa00d6a50ef0286767079c6345c808f6a0a9/src/renderer/index.ts#L100)
 
 Show a built-in theme toggle. Default: true. Set false to suppress.

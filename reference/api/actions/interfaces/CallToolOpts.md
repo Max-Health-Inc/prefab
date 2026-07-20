@@ -5,7 +5,7 @@ url: /prefab/reference/api/actions/interfaces/CallToolOpts.md
 
 # Interface: CallToolOpts
 
-Defined in: [actions/mcp.ts:11](https://github.com/Max-Health-Inc/prefab/blob/89a71686ef8a402c953104a66e893262cc245e62/src/actions/mcp.ts#L11)
+Defined in: [actions/mcp.ts:11](https://github.com/Max-Health-Inc/prefab/blob/88d9aa00d6a50ef0286767079c6345c808f6a0a9/src/actions/mcp.ts#L11)
 
 ## Properties
 
@@ -15,7 +15,7 @@ Defined in: [actions/mcp.ts:11](https://github.com/Max-Health-Inc/prefab/blob/89
 optional arguments?: Record<string, unknown>;
 ```
 
-Defined in: [actions/mcp.ts:12](https://github.com/Max-Health-Inc/prefab/blob/89a71686ef8a402c953104a66e893262cc245e62/src/actions/mcp.ts#L12)
+Defined in: [actions/mcp.ts:12](https://github.com/Max-Health-Inc/prefab/blob/88d9aa00d6a50ef0286767079c6345c808f6a0a9/src/actions/mcp.ts#L12)
 
 ***
 
@@ -25,7 +25,7 @@ Defined in: [actions/mcp.ts:12](https://github.com/Max-Health-Inc/prefab/blob/89
 optional resultKey?: string;
 ```
 
-Defined in: [actions/mcp.ts:13](https://github.com/Max-Health-Inc/prefab/blob/89a71686ef8a402c953104a66e893262cc245e62/src/actions/mcp.ts#L13)
+Defined in: [actions/mcp.ts:13](https://github.com/Max-Health-Inc/prefab/blob/88d9aa00d6a50ef0286767079c6345c808f6a0a9/src/actions/mcp.ts#L13)
 
 ***
 
@@ -35,7 +35,7 @@ Defined in: [actions/mcp.ts:13](https://github.com/Max-Health-Inc/prefab/blob/89
 optional onSuccess?: Action | Action[];
 ```
 
-Defined in: [actions/mcp.ts:14](https://github.com/Max-Health-Inc/prefab/blob/89a71686ef8a402c953104a66e893262cc245e62/src/actions/mcp.ts#L14)
+Defined in: [actions/mcp.ts:14](https://github.com/Max-Health-Inc/prefab/blob/88d9aa00d6a50ef0286767079c6345c808f6a0a9/src/actions/mcp.ts#L14)
 
 ***
 
@@ -45,4 +45,4 @@ Defined in: [actions/mcp.ts:14](https://github.com/Max-Health-Inc/prefab/blob/89
 optional onError?: Action | Action[];
 ```
 
-Defined in: [actions/mcp.ts:15](https://github.com/Max-Health-Inc/prefab/blob/89a71686ef8a402c953104a66e893262cc245e62/src/actions/mcp.ts#L15)
+Defined in: [actions/mcp.ts:15](https://github.com/Max-Health-Inc/prefab/blob/88d9aa00d6a50ef0286767079c6345c808f6a0a9/src/actions/mcp.ts#L15)
