@@ -55,6 +55,9 @@ function renderDataTable(node: ComponentNode, ctx: RenderContext): HTMLElement {
       const tr = document.createElement('tr')
       tr.className = 'pf-datatable-row'
       const rec = row as Record<string, unknown>
+      // A primitive row (string/number/boolean) IS the cell value — `row[col.key]`
+      // would be undefined and render blank. Common for a plain string list.
+      const isPrimitiveRow = row === null || typeof row !== 'object'
 
       // Highlight selected row
       if (rowKey && selectedVal != null && rec[rowKey] != null && String(rec[rowKey] as string | number) === String(selectedVal as string | number)) {
@@ -80,7 +83,7 @@ function renderDataTable(node: ComponentNode, ctx: RenderContext): HTMLElement {
           // accessor already includes any formatting, so skip format when accessor is present
           cellVal = resolveValue(`{{ $item.${col.accessor} }}`, { ...ctx, scope: { ...ctx.scope, $item: rec } })
         } else {
-          cellVal = rec[col.key]
+          cellVal = isPrimitiveRow ? row : rec[col.key]
           // Apply format pipe if specified (works for both built-in and custom pipes)
           if (col.format && cellVal != null) {
             cellVal = resolveValue(`{{ __fmtVal | ${col.format} }}`, { ...ctx, scope: { ...ctx.scope, __fmtVal: cellVal } })

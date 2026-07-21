@@ -43,8 +43,10 @@ import { Bridge, isIframe } from './bridge.js'
 import { registerPipe, unregisterPipe, listPipes } from '../rx/pipes.js'
 import type { PipeFn } from '../rx/pipes.js'
 import { registerComponent } from './engine.js'
+import { validateWireFormat } from '../core/validate.js'
 
 // Re-export new APIs
+export { validateWireFormat, isValidWireFormat } from '../core/validate.js'
 export { app } from './app.js'
 export type { AppOptions, PrefabApp, MountHandle } from './app.js'
 export { Bridge, isIframe, applyHostTheme } from './bridge.js'
@@ -98,6 +100,8 @@ export interface MountOptions {
   onToast?: (toast: ToastEvent) => void
   /** Show a built-in theme toggle. Default: true. Set false to suppress. */
   themeToggle?: boolean | ThemeToggleOptions
+  /** Warn (console) on wire-format problems before rendering. Default: true. Non-fatal. */
+  validate?: boolean
 }
 
 export interface MountedApp {
@@ -125,6 +129,16 @@ export const PrefabRenderer = {
   mount(root: HTMLElement, initialData: PrefabWireData, options?: MountOptions): MountedApp {
     // Register all built-in components (idempotent)
     registerAllComponents()
+
+    // Surface wire-format problems as non-fatal console warnings. Catches the
+    // silent-failure class (children under a wrong key, showToast without a
+    // message) that otherwise renders as "nothing happens". Opt out with
+    // { validate: false }.
+    if (options?.validate !== false) {
+      for (const e of validateWireFormat(initialData).errors) {
+        console.warn(`[prefab] wire validation ${e.path}: ${e.message}`)
+      }
+    }
 
     // Mutable reference — remount() replaces this with new wire data
     let data = initialData
@@ -488,6 +502,7 @@ if (typeof window !== 'undefined') {
     listPipes,
     registerComponent,
     createThemeToggle,
+    validateWireFormat,
   }
 
   // Auto-mount if data is available
