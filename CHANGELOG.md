@@ -7,6 +7,8 @@ All notable changes to this project will be documented in this file.
 ### Fixed
 
 - `validateWireFormat` no longer false-flags legitimate component slots. `trigger` (Dialog), `empty` (Detail/MasterDetail), `else` (Condition), and `summary` (ExpandableRow) are read by the renderer as component nodes, so they are no longer reported as misplaced children.
+- **`Popover` and `HoverCard` now accept a `trigger` component** (like `Dialog`). Previously they rendered all children into hidden content with no visible trigger, so there was nothing to click or hover. The `trigger` is rendered as the always-visible target; `children` are the content.
+- **`Slot` now receives injected content from `Use`.** A `Use` node's own `children` fill the default slot, and a `slots` map fills named slots, so a `Slot` inside a `Define` template renders the caller's content instead of only its fallback.
 
 ### Docs
 
