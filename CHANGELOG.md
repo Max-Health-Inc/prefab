@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.3.4] — 2026-07-22
+
 ### Fixed
 
 - Action dispatch failures are no longer silent. Every fire-and-forget handler (`onClick`, `onMount`, `onChange`, `onSubmit`, `onRowClick`, keyboard bindings, interval ticks, and `display_update` actions) now routes rejections through the logger via a new `fireAndForget` helper, so a throwing action surfaces instead of vanishing. The async actions (`toolCall`, `fetch`, `callHandler`, `subscribe`) report through a shared `reportActionError`: at `debug` when an `onError` handler is wired, at `warn` when none is, so an unhandled failure is never fully quiet.
