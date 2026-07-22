@@ -8,6 +8,10 @@ All notable changes to this project will be documented in this file.
 
 - Action dispatch failures are no longer silent. Every fire-and-forget handler (`onClick`, `onMount`, `onChange`, `onSubmit`, `onRowClick`, keyboard bindings, interval ticks, and `display_update` actions) now routes rejections through the logger via a new `fireAndForget` helper, so a throwing action surfaces instead of vanishing. The async actions (`toolCall`, `fetch`, `callHandler`, `subscribe`) report through a shared `reportActionError`: at `debug` when an `onError` handler is wired, at `warn` when none is, so an unhandled failure is never fully quiet.
 
+### Internal
+
+- The release workflow now requires a changelog entry: it fails if `## [Unreleased]` has no entries for the version about to ship, and otherwise promotes that section to the new version heading (`scripts/changelog-release.ts`). This keeps the changelog from drifting behind published releases.
+
 ## [0.3.3] — 2026-07-22
 
 ### Added
