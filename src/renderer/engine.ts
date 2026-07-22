@@ -10,6 +10,7 @@ import type { Store } from './state.js'
 import type { EvalScope } from './rx.js'
 import type { DispatchContext, McpTransport, ToastEvent, ActionJSON } from './actions.js'
 import { evaluateTemplate, isRxExpression } from './rx.js'
+import { log } from '../core/logger.js'
 import { dispatchActions } from './actions.js'
 import { toCamelCase } from '../core/component.js'
 
@@ -88,7 +89,7 @@ export class DestroyRegistry {
   /** Call all registered destroy callbacks and clear the list. */
   flush(): void {
     for (const cb of this.callbacks) {
-      try { cb() } catch (e) { console.warn('[prefab] destroy callback error:', e) }
+      try { cb() } catch (e) { log.warn('destroy callback error:', e) }
     }
     this.callbacks = []
   }
@@ -111,7 +112,7 @@ const registry = new Map<string, RenderFn>()
 /** Register a render function for a component type */
 export function registerComponent(type: string, fn: RenderFn): void {
   if (registry.has(type)) {
-    console.warn(`[prefab] overriding existing renderer for "${type}"`)
+    log.warn(`overriding existing renderer for "${type}"`)
   }
   registry.set(type, fn)
 }

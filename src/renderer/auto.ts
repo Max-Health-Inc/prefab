@@ -23,7 +23,9 @@
 import { app } from './app.js'
 import { PrefabRenderer } from './index.js'
 import type { PrefabWireData, PrefabUpdateData, MountedApp } from './index.js'
+import { createLogger } from '../core/logger.js'
 
+const log = createLogger('auto')
 const ROOT_SELECTOR = '#root'
 
 function isPrefabWire(data: unknown): data is PrefabWireData {
@@ -69,7 +71,7 @@ function extractWireData(payload: unknown): PrefabWireData | null {
 async function boot(): Promise<void> {
   const root = document.querySelector<HTMLElement>(ROOT_SELECTOR)
   if (!root) {
-    console.error(`[prefab:auto] Mount target "${ROOT_SELECTOR}" not found`)
+    log.error(`Mount target "${ROOT_SELECTOR}" not found`)
     return
   }
 
@@ -119,7 +121,7 @@ function deferBoot(): void {
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
       boot().catch((err: unknown) => {
-        console.error('[prefab:auto] Boot failed:', err)
+        log.error('Boot failed:', err)
       })
     }, { once: true })
   } else {
@@ -127,7 +129,7 @@ function deferBoot(): void {
     // any synchronous host setup finish
     queueMicrotask(() => {
       boot().catch((err: unknown) => {
-        console.error('[prefab:auto] Boot failed:', err)
+        log.error('Boot failed:', err)
       })
     })
   }

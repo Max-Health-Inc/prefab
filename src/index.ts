@@ -10,6 +10,8 @@ export { Component, ContainerComponent, StatefulComponent } from './core/index.j
 export type { ComponentJSON, ComponentProps, ContainerProps, StatefulProps, RxStr } from './core/index.js'
 export { validateWireFormat, isValidWireFormat } from './core/validate.js'
 export type { ValidationError, ValidationResult } from './core/validate.js'
+export { createLogger, log, setLogLevel, getLogLevel } from './core/logger.js'
+export type { LogLevel, Logger } from './core/logger.js'
 
 // ── App ──────────────────────────────────────────────────────────────────────
 export { PrefabApp, PROTOCOL_VERSION } from './app.js'

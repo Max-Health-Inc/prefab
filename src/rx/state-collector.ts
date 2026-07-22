@@ -7,6 +7,8 @@
  * app captures exactly the state created before it.
  */
 
+import { log } from '../core/logger.js'
+
 export interface StateEntry {
   toState(): Record<string, unknown>
 }
@@ -28,7 +30,7 @@ export function drainAutoState(): Record<string, unknown> {
     const state = entry.toState()
     for (const key of Object.keys(state)) {
       if (key in merged) {
-        console.warn(`[prefab] state key "${key}" registered multiple times — last value wins`)
+        log.warn(`state key "${key}" registered multiple times — last value wins`)
       }
     }
     Object.assign(merged, state)

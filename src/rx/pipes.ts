@@ -6,6 +6,8 @@
  * Built-in pipes in applyFilter always take precedence over custom pipes.
  */
 
+import { log } from '../core/logger.js'
+
 /** A pipe function receives the current value and optional arguments. */
 export type PipeFn = (value: unknown, ...args: unknown[]) => unknown
 
@@ -18,7 +20,7 @@ const pipes = new Map<string, PipeFn>()
  */
 export function registerPipe(name: string, fn: PipeFn): void {
   if (pipes.has(name) && pipes.get(name) !== fn) {
-    console.warn(`[prefab] pipe "${name}" re-registered`)
+    log.warn(`pipe "${name}" re-registered`)
   }
   pipes.set(name, fn)
 }

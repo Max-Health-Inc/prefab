@@ -44,9 +44,12 @@ import { registerPipe, unregisterPipe, listPipes } from '../rx/pipes.js'
 import type { PipeFn } from '../rx/pipes.js'
 import { registerComponent } from './engine.js'
 import { validateWireFormat } from '../core/validate.js'
+import { log, setLogLevel } from '../core/logger.js'
 
 // Re-export new APIs
 export { validateWireFormat, isValidWireFormat } from '../core/validate.js'
+export { createLogger, log, setLogLevel, getLogLevel } from '../core/logger.js'
+export type { LogLevel, Logger } from '../core/logger.js'
 export { app } from './app.js'
 export type { AppOptions, PrefabApp, MountHandle } from './app.js'
 export { Bridge, isIframe, applyHostTheme } from './bridge.js'
@@ -136,7 +139,7 @@ export const PrefabRenderer = {
     // { validate: false }.
     if (options?.validate !== false) {
       for (const e of validateWireFormat(initialData).errors) {
-        console.warn(`[prefab] wire validation ${e.path}: ${e.message}`)
+        log.warn(`wire validation ${e.path}: ${e.message}`)
       }
     }
 
@@ -339,7 +342,7 @@ const BUILTIN_PIPES = new Set([
  */
 function hydratePipe(name: string, source: string, tracked: string[]): void {
   if (BUILTIN_PIPES.has(name)) {
-    console.warn(`[prefab] wire pipe "${name}" ignored — shadows built-in`)
+    log.warn(`wire pipe "${name}" ignored — shadows built-in`)
     return
   }
   try {
@@ -348,13 +351,13 @@ function hydratePipe(name: string, source: string, tracked: string[]): void {
     // eslint-disable-next-line @typescript-eslint/no-implied-eval, @typescript-eslint/no-unsafe-call
     const fn = new Function('return (' + source + ')')() as PipeFn
     if (typeof fn !== 'function') {
-      console.warn(`[prefab] wire pipe "${name}" — source did not evaluate to a function`)
+      log.warn(`wire pipe "${name}" — source did not evaluate to a function`)
       return
     }
     registerPipe(name, fn)
     tracked.push(name)
   } catch (e) {
-    console.warn(`[prefab] wire pipe "${name}" — failed to hydrate:`, e)
+    log.warn(`wire pipe "${name}" — failed to hydrate:`, e)
   }
 }
 
@@ -503,6 +506,7 @@ if (typeof window !== 'undefined') {
     registerComponent,
     createThemeToggle,
     validateWireFormat,
+    setLogLevel,
   }
 
   // Auto-mount if data is available
