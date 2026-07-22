@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Fixed
+
+- `validateWireFormat` no longer false-flags legitimate component slots. `trigger` (Dialog), `empty` (Detail/MasterDetail), `else` (Condition), and `summary` (ExpandableRow) are read by the renderer as component nodes, so they are no longer reported as misplaced children.
+
+### Docs
+
+- Added playground showcase examples: **Chart Gallery** (all six chart types as native SVG), **Analytics Dashboard** (KPI metrics, charts, tabs, and range controls driving reactive state), and **Interactive Components** (Dialog, Accordion, and Switch/Slider bound to a live readout).
+- Corrected the playground's AI system prompt: it now teaches the `0.3` wire format, the real component and action set, control flow, and pipes, replacing the stale `0.2` guidance (`showToast` `title`, `appendState` `item`, and non-existent components).
+
 ## [0.3.4] — 2026-07-22
 
 ### Fixed
