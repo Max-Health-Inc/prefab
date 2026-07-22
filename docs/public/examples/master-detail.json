@@ -1,0 +1,58 @@
+{
+  "$prefab": { "version": "0.3" },
+  "view": {
+    "type": "Column",
+    "cssClass": "gap-4",
+    "children": [
+      { "type": "Heading", "content": "Master / Detail", "level": 2 },
+      { "type": "Muted", "content": "A two-pane layout: pick a row on the left, the detail panel on the right reacts. Selection is driven by onClick → setState; the Detail shows its `empty` placeholder until something is chosen." },
+      { "type": "MasterDetail", "masterWidth": "260px", "gap": 4, "children": [
+        { "type": "Column", "cssClass": "gap-2", "children": [
+          { "type": "ForEach", "expression": "{{ users }}", "children": [
+            { "type": "ChoiceCard",
+              "label": "{{ $item.name }}",
+              "description": "{{ $item.role }}",
+              "onClick": [
+                { "action": "setState", "key": "sel.name", "value": "{{ $item.name }}" },
+                { "action": "setState", "key": "sel.role", "value": "{{ $item.role }}" },
+                { "action": "setState", "key": "sel.email", "value": "{{ $item.email }}" },
+                { "action": "setState", "key": "sel.bio", "value": "{{ $item.bio }}" }
+              ]
+            }
+          ]}
+        ]},
+        { "type": "Detail", "of": "{{ sel.name }}",
+          "empty": { "type": "Card", "children": [ { "type": "CardContent", "children": [
+            { "type": "Muted", "content": "Select a teammate to see their details." }
+          ]}]},
+          "children": [
+            { "type": "Card", "children": [
+              { "type": "CardHeader", "children": [
+                { "type": "CardTitle", "content": "{{ sel.name }}" },
+                { "type": "CardDescription", "content": "{{ sel.role }}" }
+              ]},
+              { "type": "CardContent", "children": [
+                { "type": "Column", "cssClass": "gap-2", "children": [
+                  { "type": "Row", "cssClass": "gap-2 items-center", "children": [
+                    { "type": "Badge", "variant": "secondary", "content": "{{ sel.email }}" }
+                  ]},
+                  { "type": "Separator" },
+                  { "type": "Text", "content": "{{ sel.bio }}" }
+                ]}
+              ]}
+            ]}
+          ]
+        }
+      ]}
+    ]
+  },
+  "state": {
+    "sel": { "name": "", "role": "", "email": "", "bio": "" },
+    "users": [
+      { "name": "Ada Lovelace", "role": "Engineering", "email": "ada@example.com", "bio": "Works on the analytical engine team. Enjoys recursion and long walks through loops." },
+      { "name": "Alan Turing", "role": "Research", "email": "alan@example.com", "bio": "Cryptography and computability. Currently formalizing what 'done' means." },
+      { "name": "Grace Hopper", "role": "Compilers", "email": "grace@example.com", "bio": "Ships the first compiler and coins 'debugging'. Allergic to \"we've always done it this way\"." },
+      { "name": "Katherine Johnson", "role": "Trajectory", "email": "katherine@example.com", "bio": "Orbital mechanics and precision. Double-checks the machine's arithmetic." }
+    ]
+  }
+}

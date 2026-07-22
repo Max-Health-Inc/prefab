@@ -1,0 +1,59 @@
+{
+  "$prefab": { "version": "0.3" },
+  "view": {
+    "type": "Column",
+    "cssClass": "gap-4",
+    "children": [
+      { "type": "Heading", "content": "Templates & Control Flow", "level": 2 },
+      { "type": "Muted", "content": "Define a template once, Use it for every item in a ForEach. Then drive a Condition and an If/Elif/Else chain from a slider." },
+
+      { "type": "Define", "name": "statCard", "children": [
+        { "type": "Card", "children": [ { "type": "CardContent", "children": [
+          { "type": "Column", "cssClass": "gap-1", "children": [
+            { "type": "Muted", "content": "{{ $item.label }}" },
+            { "type": "Large", "content": "{{ $item.value }}" }
+          ]}
+        ]}]}
+      ]},
+      { "type": "Grid", "columns": 3, "gap": 4, "children": [
+        { "type": "ForEach", "expression": "{{ stats }}", "children": [
+          { "type": "Use", "def": "statCard" }
+        ]}
+      ]},
+
+      { "type": "Separator" },
+
+      { "type": "Heading", "content": "Grade", "level": 3 },
+      { "type": "Label", "content": "Score: {{ score }}" },
+      { "type": "Slider", "name": "score", "min": 0, "max": 100, "step": 1,
+        "onChange": { "action": "setState", "key": "score", "value": "{{ $event }}" } },
+
+      { "type": "Row", "cssClass": "gap-2 items-center", "children": [
+        { "type": "Text", "content": "Condition:" },
+        { "type": "Condition",
+          "cases": [
+            { "when": "{{ score >= 90 }}", "children": [ { "type": "Badge", "variant": "success", "content": "A — Excellent" } ] },
+            { "when": "{{ score >= 75 }}", "children": [ { "type": "Badge", "variant": "default", "content": "B — Good" } ] },
+            { "when": "{{ score >= 60 }}", "children": [ { "type": "Badge", "variant": "warning", "content": "C — Pass" } ] }
+          ],
+          "else": [ { "type": "Badge", "variant": "destructive", "content": "F — Fail" } ]
+        }
+      ]},
+
+      { "type": "Row", "cssClass": "gap-2 items-center", "children": [
+        { "type": "Text", "content": "If / Elif / Else:" },
+        { "type": "If", "condition": "{{ score >= 90 }}", "children": [ { "type": "Text", "content": "Top tier 🏆" } ] },
+        { "type": "Elif", "condition": "{{ score >= 60 }}", "children": [ { "type": "Text", "content": "Passing ✅" } ] },
+        { "type": "Else", "children": [ { "type": "Text", "content": "Needs work ✍️" } ] }
+      ]}
+    ]
+  },
+  "state": {
+    "score": 82,
+    "stats": [
+      { "label": "Active Users", "value": "18,430" },
+      { "label": "Revenue", "value": "$284k" },
+      { "label": "Uptime", "value": "99.9%" }
+    ]
+  }
+}

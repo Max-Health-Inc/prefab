@@ -1,0 +1,96 @@
+{
+  "$prefab": { "version": "0.3" },
+  "view": {
+    "type": "Column",
+    "cssClass": "gap-4",
+    "children": [
+      { "type": "Heading", "content": "Content, Media & Widgets", "level": 2 },
+      { "type": "Muted", "content": "Prose, code, inline SVG, radial/histogram charts, mini data widgets, and hover/carousel interactions — all declarative." },
+
+      { "type": "Card", "children": [
+        { "type": "CardHeader", "children": [ { "type": "CardTitle", "content": "Markdown" } ] },
+        { "type": "CardContent", "children": [
+          { "type": "Markdown", "content": "### Rendered from a string\n\nSupports **bold**, _italic_, `inline code`, and [links](https://maxhealth.tech/prefab/).\n\n- Lists render too\n- With multiple items\n\n> And blockquotes via markdown." }
+        ]}
+      ]},
+
+      { "type": "Card", "children": [
+        { "type": "CardHeader", "children": [ { "type": "CardTitle", "content": "Code" } ] },
+        { "type": "CardContent", "children": [
+          { "type": "Code", "language": "ts", "content": "import { display, H1, Column } from '@maxhealth.tech/prefab'\n\nreturn display(Column({ children: [ H1('Hello') ] }), { title: 'Demo' })" },
+          { "type": "Row", "cssClass": "gap-1 items-center mt-2", "children": [
+            { "type": "Text", "content": "Shortcut:" },
+            { "type": "Kbd", "content": "Ctrl" },
+            { "type": "Text", "content": "+" },
+            { "type": "Kbd", "content": "K" }
+          ]},
+          { "type": "BlockQuote", "content": "The best interface is the one you don't have to hand-code twice." }
+        ]}
+      ]},
+
+      { "type": "Row", "cssClass": "gap-4", "children": [
+        { "type": "Card", "cssClass": "flex-1", "children": [
+          { "type": "CardHeader", "children": [ { "type": "CardTitle", "content": "Inline SVG" } ] },
+          { "type": "CardContent", "children": [
+            { "type": "Svg", "content": "<svg viewBox='0 0 100 100' width='96' height='96'><circle cx='50' cy='50' r='44' fill='#6366f1'/><circle cx='50' cy='50' r='24' fill='#10b981'/><circle cx='50' cy='50' r='8' fill='#f59e0b'/></svg>" }
+          ]}
+        ]},
+        { "type": "Card", "cssClass": "flex-1", "children": [
+          { "type": "CardHeader", "children": [ { "type": "CardTitle", "content": "Ring & Sparkline" } ] },
+          { "type": "CardContent", "children": [
+            { "type": "Column", "cssClass": "gap-2 items-center", "children": [
+              { "type": "Ring", "value": 72, "size": 90, "label": "72% capacity" },
+              { "type": "Sparkline", "data": [8, 12, 9, 15, 13, 18, 16, 22, 20, 26] },
+              { "type": "Row", "cssClass": "gap-2 items-center", "children": [
+                { "type": "Dot", "color": "#22c55e" },
+                { "type": "Text", "content": "Operational" }
+              ]}
+            ]}
+          ]}
+        ]}
+      ]},
+
+      { "type": "Row", "cssClass": "gap-4", "children": [
+        { "type": "Card", "cssClass": "flex-1", "children": [
+          { "type": "CardHeader", "children": [ { "type": "CardTitle", "content": "RadialChart" } ] },
+          { "type": "CardContent", "children": [
+            { "type": "RadialChart",
+              "data": [
+                { "name": "Storage", "value": 68 },
+                { "name": "Compute", "value": 82 },
+                { "name": "Network", "value": 45 }
+              ],
+              "dataKey": "value", "nameKey": "name", "height": 220 }
+          ]}
+        ]},
+        { "type": "Card", "cssClass": "flex-1", "children": [
+          { "type": "CardHeader", "children": [ { "type": "CardTitle", "content": "Histogram" } ] },
+          { "type": "CardContent", "children": [
+            { "type": "Histogram",
+              "data": [12, 15, 14, 18, 21, 22, 19, 24, 25, 27, 26, 23, 20, 31, 33, 29, 28, 30, 34, 36, 22, 24, 26, 40],
+              "binCount": 8, "height": 220 }
+          ]}
+        ]}
+      ]},
+
+      { "type": "Card", "children": [
+        { "type": "CardHeader", "children": [ { "type": "CardTitle", "content": "Tooltip & Carousel" } ] },
+        { "type": "CardContent", "children": [
+          { "type": "Column", "cssClass": "gap-3", "children": [
+            { "type": "Row", "cssClass": "gap-2 items-center", "children": [
+              { "type": "Tooltip", "content": "Rendered from JSON on hover", "children": [
+                { "type": "Button", "label": "Hover me", "variant": "outline" }
+              ]},
+              { "type": "Muted", "content": "hover the button" }
+            ]},
+            { "type": "Carousel", "children": [
+              { "type": "Card", "children": [ { "type": "CardContent", "children": [ { "type": "Lead", "content": "Slide 1 — author server-side" } ] } ] },
+              { "type": "Card", "children": [ { "type": "CardContent", "children": [ { "type": "Lead", "content": "Slide 2 — ship JSON" } ] } ] },
+              { "type": "Card", "children": [ { "type": "CardContent", "children": [ { "type": "Lead", "content": "Slide 3 — render anywhere" } ] } ] }
+            ]}
+          ]}
+        ]}
+      ]}
+    ]
+  }
+}
