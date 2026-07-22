@@ -221,8 +221,13 @@ function validateComponent(
   }
 }
 
-/** Keys that legitimately hold component nodes (everything else uses `children`). */
-const COMPONENT_SLOT_KEYS = new Set(['children', 'fallback'])
+/**
+ * Keys the renderer legitimately reads as component nodes (besides `children`):
+ * `trigger` (Dialog), `empty` (Detail/MasterDetail), `else` (Condition),
+ * `summary` (ExpandableRow), `fallback` (Slot). Anything else holding a known
+ * component (e.g. `then`/`body`) is the silent-failure mistake we flag.
+ */
+const COMPONENT_SLOT_KEYS = new Set(['children', 'fallback', 'trigger', 'empty', 'else', 'summary'])
 
 /** Is the value a component node of a recognized type? */
 function isComponentLike(value: unknown): boolean {

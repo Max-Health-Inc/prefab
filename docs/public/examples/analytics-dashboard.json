@@ -1,0 +1,77 @@
+{
+  "$prefab": { "version": "0.3" },
+  "view": {
+    "type": "Column",
+    "cssClass": "gap-4",
+    "children": [
+      { "type": "Row", "cssClass": "gap-2 items-center", "children": [
+        { "type": "Heading", "content": "Analytics", "level": 2 },
+        { "type": "Div", "cssClass": "flex-1" },
+        { "type": "Badge", "variant": "secondary", "content": "Range: {{ range }}" }
+      ]},
+
+      { "type": "Row", "cssClass": "gap-2", "children": [
+        { "type": "Button", "label": "7 days", "variant": "outline", "onClick": { "action": "setState", "key": "range", "value": "7d" } },
+        { "type": "Button", "label": "30 days", "variant": "outline", "onClick": { "action": "setState", "key": "range", "value": "30d" } },
+        { "type": "Button", "label": "90 days", "variant": "outline", "onClick": { "action": "setState", "key": "range", "value": "90d" } }
+      ]},
+
+      { "type": "Row", "cssClass": "gap-4", "children": [
+        { "type": "Card", "cssClass": "flex-1", "children": [ { "type": "CardContent", "children": [
+          { "type": "Metric", "label": "Revenue", "value": "$284,120", "delta": "+12.4%", "description": "vs. previous {{ range }}" } ] } ] },
+        { "type": "Card", "cssClass": "flex-1", "children": [ { "type": "CardContent", "children": [
+          { "type": "Metric", "label": "Active Users", "value": "18,430", "delta": "+5.1%", "description": "vs. previous {{ range }}" } ] } ] },
+        { "type": "Card", "cssClass": "flex-1", "children": [ { "type": "CardContent", "children": [
+          { "type": "Metric", "label": "Conversion", "value": "3.8%", "delta": "+0.6pp", "description": "checkout rate" } ] } ] },
+        { "type": "Card", "cssClass": "flex-1", "children": [ { "type": "CardContent", "children": [
+          { "type": "Metric", "label": "Churn", "value": "1.9%", "delta": "-0.3pp", "description": "monthly" } ] } ] }
+      ]},
+
+      { "type": "Card", "children": [
+        { "type": "CardHeader", "children": [ { "type": "CardTitle", "content": "Revenue by Month" } ] },
+        { "type": "CardContent", "children": [
+          { "type": "BarChart",
+            "data": [
+              { "month": "Jan", "revenue": 42000 },
+              { "month": "Feb", "revenue": 38000 },
+              { "month": "Mar", "revenue": 51000 },
+              { "month": "Apr", "revenue": 47000 },
+              { "month": "May", "revenue": 58000 },
+              { "month": "Jun", "revenue": 64000 }
+            ],
+            "series": [ { "dataKey": "revenue", "label": "Revenue", "color": "#4f46e5" } ],
+            "xAxis": "month", "height": 240, "barRadius": 4, "valueFormat": "currency" }
+        ]}
+      ]},
+
+      { "type": "Tabs", "children": [
+        { "type": "Tab", "title": "Top Pages", "children": [
+          { "type": "DataTable",
+            "columns": [
+              { "key": "page", "header": "Page" },
+              { "key": "views", "header": "Views" },
+              { "key": "avg", "header": "Avg. time" }
+            ],
+            "rows": [
+              { "page": "/", "views": "48,201", "avg": "1m 12s" },
+              { "page": "/pricing", "views": "22,840", "avg": "2m 03s" },
+              { "page": "/docs", "views": "19,553", "avg": "3m 41s" },
+              { "page": "/blog", "views": "12,004", "avg": "1m 55s" }
+            ],
+            "search": true }
+        ]},
+        { "type": "Tab", "title": "Sources", "children": [
+          { "type": "PieChart",
+            "data": [
+              { "source": "Organic", "visits": 4200 },
+              { "source": "Referral", "visits": 2100 },
+              { "source": "Social", "visits": 1600 },
+              { "source": "Direct", "visits": 1200 }
+            ],
+            "dataKey": "visits", "nameKey": "source", "height": 240 }
+        ]}
+      ]}
+    ]
+  },
+  "state": { "range": "30d" }
+}

@@ -1,0 +1,24 @@
+{
+  "$prefab": { "version": "0.3" },
+  "view": {
+    "type": "Column",
+    "cssClass": "gap-4",
+    "children": [
+      { "type": "Heading", "content": "Server-driven Counter", "level": 2 },
+      { "type": "Muted", "content": "Each button calls a tool on an in-page mock MCP server, which replies with a display_update. The count is server-authoritative — the client never mutates it directly. This is the CallTool('_action', …) pattern real prefab MCP apps use." },
+      { "type": "Card", "children": [
+        { "type": "CardContent", "children": [
+          { "type": "Column", "cssClass": "gap-3 items-center", "children": [
+            { "type": "Large", "content": "Count: {{ count }}" },
+            { "type": "Row", "cssClass": "gap-2", "children": [
+              { "type": "Button", "label": "-1", "variant": "outline", "onClick": { "action": "callTool", "tool": "_action", "arguments": { "action": "decrement" } } },
+              { "type": "Button", "label": "Reset", "variant": "secondary", "onClick": { "action": "callTool", "tool": "_action", "arguments": { "action": "reset_count" } } },
+              { "type": "Button", "label": "+1", "variant": "default", "onClick": { "action": "callTool", "tool": "_action", "arguments": { "action": "increment" } } }
+            ]}
+          ]}
+        ]}
+      ]}
+    ]
+  },
+  "state": { "count": 0 }
+}

@@ -1,0 +1,137 @@
+{
+  "$prefab": { "version": "0.3" },
+  "view": {
+    "type": "Column",
+    "cssClass": "gap-4",
+    "children": [
+      { "type": "Heading", "content": "Chart Gallery", "level": 2 },
+      { "type": "Muted", "content": "Every chart type renders natively as zero-dependency SVG, with declarative value formatting." },
+
+      { "type": "Card", "children": [
+        { "type": "CardHeader", "children": [
+          { "type": "CardTitle", "content": "Revenue vs. Costs" },
+          { "type": "CardDescription", "content": "Grouped BarChart, currency-formatted axis" }
+        ]},
+        { "type": "CardContent", "children": [
+          { "type": "BarChart",
+            "data": [
+              { "month": "Jan", "revenue": 42000, "costs": 24000 },
+              { "month": "Feb", "revenue": 38000, "costs": 21000 },
+              { "month": "Mar", "revenue": 51000, "costs": 28000 },
+              { "month": "Apr", "revenue": 47000, "costs": 26000 },
+              { "month": "May", "revenue": 58000, "costs": 30000 },
+              { "month": "Jun", "revenue": 64000, "costs": 32000 }
+            ],
+            "series": [
+              { "dataKey": "revenue", "label": "Revenue", "color": "#4f46e5" },
+              { "dataKey": "costs", "label": "Costs", "color": "#ef4444" }
+            ],
+            "xAxis": "month", "height": 260, "barRadius": 4, "valueFormat": "currency" }
+        ]}
+      ]},
+
+      { "type": "Card", "children": [
+        { "type": "CardHeader", "children": [
+          { "type": "CardTitle", "content": "Active Users" },
+          { "type": "CardDescription", "content": "LineChart with two series" }
+        ]},
+        { "type": "CardContent", "children": [
+          { "type": "LineChart",
+            "data": [
+              { "day": "Mon", "web": 1200, "mobile": 900 },
+              { "day": "Tue", "web": 1400, "mobile": 1100 },
+              { "day": "Wed", "web": 1350, "mobile": 1250 },
+              { "day": "Thu", "web": 1600, "mobile": 1400 },
+              { "day": "Fri", "web": 1800, "mobile": 1700 },
+              { "day": "Sat", "web": 1500, "mobile": 1900 },
+              { "day": "Sun", "web": 1300, "mobile": 2000 }
+            ],
+            "series": [
+              { "dataKey": "web", "label": "Web", "color": "#4f46e5" },
+              { "dataKey": "mobile", "label": "Mobile", "color": "#10b981" }
+            ],
+            "xAxis": "day", "height": 260, "valueFormat": "compact" }
+        ]}
+      ]},
+
+      { "type": "Card", "children": [
+        { "type": "CardHeader", "children": [
+          { "type": "CardTitle", "content": "Cumulative Signups" },
+          { "type": "CardDescription", "content": "Stacked AreaChart" }
+        ]},
+        { "type": "CardContent", "children": [
+          { "type": "AreaChart",
+            "data": [
+              { "week": "W1", "free": 400, "pro": 120 },
+              { "week": "W2", "free": 720, "pro": 260 },
+              { "week": "W3", "free": 980, "pro": 410 },
+              { "week": "W4", "free": 1320, "pro": 640 }
+            ],
+            "series": [
+              { "dataKey": "free", "label": "Free", "color": "#6366f1" },
+              { "dataKey": "pro", "label": "Pro", "color": "#f59e0b" }
+            ],
+            "xAxis": "week", "height": 240, "stacked": true, "valueFormat": "compact" }
+        ]}
+      ]},
+
+      { "type": "Card", "children": [
+        { "type": "CardHeader", "children": [
+          { "type": "CardTitle", "content": "Traffic Sources" },
+          { "type": "CardDescription", "content": "PieChart with nameKey / dataKey" }
+        ]},
+        { "type": "CardContent", "children": [
+          { "type": "PieChart",
+            "data": [
+              { "source": "Organic", "visits": 4200 },
+              { "source": "Referral", "visits": 2100 },
+              { "source": "Social", "visits": 1600 },
+              { "source": "Direct", "visits": 1200 }
+            ],
+            "dataKey": "visits", "nameKey": "source", "height": 260 }
+        ]}
+      ]},
+
+      { "type": "Card", "children": [
+        { "type": "CardHeader", "children": [
+          { "type": "CardTitle", "content": "Skill Coverage" },
+          { "type": "CardDescription", "content": "RadarChart across dimensions" }
+        ]},
+        { "type": "CardContent", "children": [
+          { "type": "RadarChart",
+            "data": [
+              { "axis": "Speed", "current": 80, "target": 95 },
+              { "axis": "Reliability", "current": 90, "target": 98 },
+              { "axis": "Cost", "current": 70, "target": 85 },
+              { "axis": "DX", "current": 85, "target": 90 },
+              { "axis": "Coverage", "current": 75, "target": 92 }
+            ],
+            "series": [
+              { "dataKey": "current", "label": "Current", "color": "#4f46e5" },
+              { "dataKey": "target", "label": "Target", "color": "#10b981" }
+            ],
+            "axisKey": "axis", "height": 280, "filled": true }
+        ]}
+      ]},
+
+      { "type": "Card", "children": [
+        { "type": "CardHeader", "children": [
+          { "type": "CardTitle", "content": "Latency vs. Load" },
+          { "type": "CardDescription", "content": "ScatterChart with bubble sizing (zAxis)" }
+        ]},
+        { "type": "CardContent", "children": [
+          { "type": "ScatterChart",
+            "data": [
+              { "load": 10, "latency": 45, "errors": 2 },
+              { "load": 25, "latency": 60, "errors": 5 },
+              { "load": 40, "latency": 90, "errors": 9 },
+              { "load": 55, "latency": 140, "errors": 18 },
+              { "load": 70, "latency": 210, "errors": 30 },
+              { "load": 85, "latency": 320, "errors": 52 }
+            ],
+            "xAxis": "load", "yAxis": "latency", "zAxis": "errors", "height": 260 }
+        ]}
+      ]}
+    ]
+  }
+}

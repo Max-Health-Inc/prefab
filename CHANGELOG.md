@@ -4,6 +4,23 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Fixed
+
+- `validateWireFormat` no longer false-flags legitimate component slots. `trigger` (Dialog), `empty` (Detail/MasterDetail), `else` (Condition), and `summary` (ExpandableRow) are read by the renderer as component nodes, so they are no longer reported as misplaced children.
+- **`Popover` and `HoverCard` now accept a `trigger` component** (like `Dialog`). Previously they rendered all children into hidden content with no visible trigger, so there was nothing to click or hover. The `trigger` is rendered as the always-visible target; `children` are the content.
+- **`Slot` now receives injected content from `Use`.** A `Use` node's own `children` fill the default slot, and a `slots` map fills named slots, so a `Slot` inside a `Define` template renders the caller's content instead of only its fallback.
+
+### Docs
+
+- Added playground showcase examples: **Chart Gallery** (all six chart types as native SVG), **Analytics Dashboard** (KPI metrics, charts, tabs, and range controls driving reactive state), and **Interactive Components** (Dialog, Accordion, and Switch/Slider bound to a live readout).
+- Added **MCP app examples** with an in-page mock MCP server, so the playground demonstrates the round-trip (not just on-demand rendering): **MCP: Tool Call** (`callTool` → `display_update`, server-authoritative counter), **MCP: Form → Tool** (form submit → tool → updated list), and **MCP: Live Data** (`Subscribe` with polling fallback → live metrics and chart). Modeled on the `_action` + `chess://` subscription pattern from real prefab MCP apps.
+- Added coverage-filling examples that raise demonstrated component coverage from ~37% to ~60%: **Master / Detail** (`MasterDetail` + `Detail` + selection), **Form Controls** (`RadioGroup`, `Combobox`, `DatePicker`, `Switch`, `Slider` with a live readout), **Composition & Control Flow** (`Define`/`Use` template reuse + `Condition` + `If`/`Elif`/`Else`), and **Content & Media** (`Markdown`, `Code`, `Kbd`, inline `Svg`, `Ring`, `Sparkline`, `RadialChart`, `Histogram`, `Tooltip`, `Carousel`).
+- Corrected the playground's AI system prompt: it now teaches the `0.3` wire format, the real component and action set, control flow, and pipes, replacing the stale `0.2` guidance (`showToast` `title`, `appendState` `item`, and non-existent components).
+
+### Internal
+
+- Expanded regression coverage with TDD probes across formatting pipes, expressions, state ops, `ForEach`, the semantic `Table`, `DataTable` interactions (accessor, row click, search), and chart edge cases (empty data, single point), alongside tests for the `Popover`/`HoverCard`/`Slot` fixes above.
+
 ## [0.3.4] — 2026-07-22
 
 ### Fixed

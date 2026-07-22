@@ -233,13 +233,24 @@ function renderPopover(node: ComponentNode, ctx: RenderContext): HTMLElement {
     content.appendChild(title)
   }
 
+  // Children are the popover content; `trigger` is the always-visible target.
   renderChildren(node, content, ctx)
 
-  wrapper.addEventListener('click', (e) => {
-    // Don't toggle if the click originated inside the content
-    if (content.contains(e.target as Node) && content.style.display !== 'none') return
+  const toggle = (): void => {
     content.style.display = content.style.display === 'none' ? 'block' : 'none'
-  })
+  }
+
+  if (node.trigger != null) {
+    const triggerEl = renderNode(node.trigger as ComponentNode, ctx) as HTMLElement
+    triggerEl.addEventListener('click', (e) => { e.stopPropagation(); toggle() })
+    wrapper.appendChild(triggerEl)
+  } else {
+    // No explicit trigger — the wrapper itself toggles (legacy behavior).
+    wrapper.addEventListener('click', (e) => {
+      if (content.contains(e.target as Node) && content.style.display !== 'none') return
+      toggle()
+    })
+  }
 
   wrapper.appendChild(content)
   return wrapper
@@ -293,6 +304,10 @@ function renderHoverCard(node: ComponentNode, ctx: RenderContext): HTMLElement {
   content.style.boxShadow = '0 4px 6px -1px rgb(0 0 0 / 0.1)'
   content.style.minWidth = '200px'
 
+  // `trigger` is the always-visible hover target; children are the card content.
+  if (node.trigger != null) {
+    wrapper.appendChild(renderNode(node.trigger as ComponentNode, ctx) as HTMLElement)
+  }
   renderChildren(node, content, ctx)
 
   wrapper.addEventListener('mouseenter', () => { content.style.display = 'block' })

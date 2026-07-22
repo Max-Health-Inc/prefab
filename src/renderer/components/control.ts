@@ -155,7 +155,17 @@ function renderUse(node: ComponentNode, ctx: RenderContext): DocumentFragment {
 
   const overrides = (node.overrides ?? {}) as Record<string, unknown>
   const childScope = { ...ctx.scope, ...overrides }
-  const childCtx = { ...ctx, scope: childScope }
+
+  // Slot content: the Use node's own children fill the default slot, and a
+  // `slots` map fills named slots. Without this, a Slot inside the template
+  // could only ever render its fallback.
+  const slots: Record<string, ComponentNode[]> = {
+    ...(ctx.slots ?? {}),
+    ...((node.slots as Record<string, ComponentNode[]> | undefined) ?? {}),
+  }
+  if (Array.isArray(node.children)) slots.default = node.children
+
+  const childCtx = { ...ctx, scope: childScope, slots }
 
   for (const child of children) {
     frag.appendChild(renderNode(child, childCtx))
