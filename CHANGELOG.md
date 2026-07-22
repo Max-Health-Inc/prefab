@@ -17,6 +17,10 @@ All notable changes to this project will be documented in this file.
 - Added coverage-filling examples that raise demonstrated component coverage from ~37% to ~60%: **Master / Detail** (`MasterDetail` + `Detail` + selection), **Form Controls** (`RadioGroup`, `Combobox`, `DatePicker`, `Switch`, `Slider` with a live readout), **Composition & Control Flow** (`Define`/`Use` template reuse + `Condition` + `If`/`Elif`/`Else`), and **Content & Media** (`Markdown`, `Code`, `Kbd`, inline `Svg`, `Ring`, `Sparkline`, `RadialChart`, `Histogram`, `Tooltip`, `Carousel`).
 - Corrected the playground's AI system prompt: it now teaches the `0.3` wire format, the real component and action set, control flow, and pipes, replacing the stale `0.2` guidance (`showToast` `title`, `appendState` `item`, and non-existent components).
 
+### Internal
+
+- Expanded regression coverage with TDD probes across formatting pipes, expressions, state ops, `ForEach`, the semantic `Table`, `DataTable` interactions (accessor, row click, search), and chart edge cases (empty data, single point), alongside tests for the `Popover`/`HoverCard`/`Slot` fixes above.
+
 ## [0.3.4] — 2026-07-22
 
 ### Fixed
