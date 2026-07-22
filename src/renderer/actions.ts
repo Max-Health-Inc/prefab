@@ -78,6 +78,34 @@ export async function dispatchActions(
   }
 }
 
+/**
+ * Run a promise fire-and-forget, but route any rejection to the logger instead
+ * of swallowing it. Use for event handlers (onClick, onMount, intervals) that
+ * have no caller to await — a throwing action must not vanish silently.
+ */
+export function fireAndForget(promise: Promise<unknown>, label: string): void {
+  void promise.catch((err: unknown) => log.error(`${label} failed:`, err))
+}
+
+/**
+ * Report an async action failure. If the author wired an `onError`, run it and
+ * log at debug (traceable when debugging); otherwise surface at warn so an
+ * unhandled failure is never fully silent.
+ */
+async function reportActionError(
+  label: string,
+  err: unknown,
+  onError: unknown,
+  ctx: DispatchContext,
+): Promise<void> {
+  if (onError != null) {
+    log.debug(`${label} failed:`, err)
+    await runCallbacks(onError, ctx, { $error: err })
+  } else {
+    log.warn(`${label} failed:`, err)
+  }
+}
+
 async function dispatchOne(raw: ActionJSON, ctx: DispatchContext): Promise<void> {
   const action = normalizeAction(raw)
   const type = action.action as string
@@ -198,7 +226,7 @@ function handleSetInterval(action: ActionJSON, ctx: DispatchContext): void {
     log.warn('Max intervals reached, ignoring new setInterval')
     return
   }
-  const id = globalThis.setInterval(() => void dispatchActions(onTick, ctx), ms)
+  const id = globalThis.setInterval(() => fireAndForget(dispatchActions(onTick, ctx), 'interval action'), ms)
   activeIntervals.add(id)
 }
 
@@ -237,7 +265,7 @@ async function handleToolCall(action: ActionJSON, ctx: DispatchContext): Promise
 
     await runCallbacks(action.onSuccess, ctx, { $result: result })
   } catch (err) {
-    await runCallbacks(action.onError, ctx, { $error: err })
+    await reportActionError('toolCall', err, action.onError, ctx)
   }
 }
 
@@ -291,7 +319,7 @@ async function handleFetch(action: ActionJSON, ctx: DispatchContext): Promise<vo
 
     await runCallbacks(action.onSuccess, ctx, { $result: result })
   } catch (err) {
-    await runCallbacks(action.onError, ctx, { $error: err })
+    await reportActionError('fetch', err, action.onError, ctx)
   }
 }
 
@@ -342,7 +370,7 @@ async function handleCallHandler(action: ActionJSON, ctx: DispatchContext): Prom
 
     await runCallbacks(action.onSuccess, ctx, { $result: result })
   } catch (err) {
-    await runCallbacks(action.onError, ctx, { $error: err })
+    await reportActionError('callHandler', err, action.onError, ctx)
   }
 }
 
@@ -426,7 +454,7 @@ function handleSubscribe(action: ActionJSON, ctx: DispatchContext): void {
         const result = await transport.callTool(fallbackTool, resolvedArgs)
         onDataCallback(result)
       } catch (err) {
-        void runCallbacks(action.onError, ctx, { $error: err })
+        void reportActionError('subscribe', err, action.onError, ctx)
       }
     })()
   }, ms)
@@ -552,7 +580,7 @@ function applyPrefabUpdate(result: unknown, ctx: DispatchContext): boolean {
   const update = (updateData as { update: { state: Record<string, unknown>; actions?: ActionJSON | ActionJSON[] } }).update
   ctx.store.merge(update.state)
   if (update.actions != null) {
-    void dispatchActions(update.actions, ctx)
+    fireAndForget(dispatchActions(update.actions, ctx), 'update action')
   }
   return true
 }

@@ -11,7 +11,7 @@ import type { EvalScope } from './rx.js'
 import type { DispatchContext, McpTransport, ToastEvent, ActionJSON } from './actions.js'
 import { evaluateTemplate, isRxExpression } from './rx.js'
 import { log } from '../core/logger.js'
-import { dispatchActions } from './actions.js'
+import { dispatchActions, fireAndForget } from './actions.js'
 import { toCamelCase } from '../core/component.js'
 
 // ── Key normalisation ────────────────────────────────────────────────────────
@@ -169,7 +169,7 @@ export function renderNode(node: ComponentNode, ctx: RenderContext): HTMLElement
     }
     if (n.onClick != null) {
       el.addEventListener('click', () => {
-        void dispatchActions(n.onClick as ActionJSON | ActionJSON[], makeDispatchCtx(ctx))
+        fireAndForget(dispatchActions(n.onClick as ActionJSON | ActionJSON[], makeDispatchCtx(ctx)), 'onClick')
       })
       if (el.tagName !== 'BUTTON' && el.tagName !== 'A') {
         el.setAttribute('role', 'button')
@@ -178,7 +178,7 @@ export function renderNode(node: ComponentNode, ctx: RenderContext): HTMLElement
           const key = (e as KeyboardEvent).key
           if (key === 'Enter' || key === ' ') {
             e.preventDefault()
-            void dispatchActions(n.onClick as ActionJSON | ActionJSON[], makeDispatchCtx(ctx))
+            fireAndForget(dispatchActions(n.onClick as ActionJSON | ActionJSON[], makeDispatchCtx(ctx)), 'onClick')
           }
         })
       }
@@ -189,7 +189,7 @@ export function renderNode(node: ComponentNode, ctx: RenderContext): HTMLElement
   if (n.onMount) {
     const onMount = n.onMount
     const dispCtx = makeDispatchCtx(ctx)
-    queueMicrotask(() => void dispatchActions(onMount, dispCtx))
+    queueMicrotask(() => fireAndForget(dispatchActions(onMount, dispCtx), 'onMount'))
   }
 
   return el

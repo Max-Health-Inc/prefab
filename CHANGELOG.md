@@ -2,6 +2,43 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+### Fixed
+
+- Action dispatch failures are no longer silent. Every fire-and-forget handler (`onClick`, `onMount`, `onChange`, `onSubmit`, `onRowClick`, keyboard bindings, interval ticks, and `display_update` actions) now routes rejections through the logger via a new `fireAndForget` helper, so a throwing action surfaces instead of vanishing. The async actions (`toolCall`, `fetch`, `callHandler`, `subscribe`) report through a shared `reportActionError`: at `debug` when an `onError` handler is wired, at `warn` when none is, so an unhandled failure is never fully quiet.
+
+### Internal
+
+- The release workflow now requires a changelog entry: it fails if `## [Unreleased]` has no entries for the version about to ship, and otherwise promotes that section to the new version heading (`scripts/changelog-release.ts`). This keeps the changelog from drifting behind published releases.
+
+## [0.3.3] — 2026-07-22
+
+### Added
+
+- **Centralized logger** (`src/core/logger.ts`), zero runtime dependencies. Mirrors the `@maxhealth.tech/utils` `createLogger` contract (scoped `error`/`warn`/`info`/`debug`, `[prefab]` / `[prefab:scope]` prefix) and adds a runtime `setLogLevel()` so an embedding host can mute or raise prefab's console output. All internal `console.*` calls now route through it. New exports: `createLogger`, `log`, `setLogLevel`, `getLogLevel`, `LogLevel`, `Logger` (and `window.prefab.setLogLevel`).
+- **Wire validation now catches silent authoring mistakes.** `validateWireFormat` flags child components placed under a non-`children` key (e.g. `then`/`else`/`body`), which the renderer never reads, and requires a non-empty `message` on `showToast`. `PrefabRenderer.mount()` runs validation and reports any problems as non-fatal console warnings (opt out with `{ validate: false }`), so a payload that renders nothing now tells you why. `validateWireFormat` / `isValidWireFormat` are also exported from the renderer entry.
+
+### Fixed
+
+- **DataTable renders primitive rows.** A table over an array of strings or numbers rendered blank cells, because `row[column.key]` is undefined on a primitive. A primitive row is now used directly as the cell value, so a plain string list displays.
+
+### Docs
+
+- Repaired the playground examples, each verified against the live renderer: Conditional UI declared its branches under a non-existent `then` key (renamed to `children`), Todo List could not display its string tasks through a DataTable (now a `ForEach` list), and the Contact form toast passed `title` instead of `message`. The playground's own toast handler read `t.title` (never present on `ToastEvent`) and now reads `t.message`. All example payloads bumped to wire version `0.3`.
+- Reframed the project tagline across the README and the site description: from a declarative UI component library "wire-compatible with" PrefectHQ's Python `prefab-ui` to a full-stack framework and a superset of it.
+
+## [0.3.2] — 2026-07-19
+
+### Fixed
+
+- **Badge no longer stretches to full width.** `.pf-badge` is `inline-flex`, but as a flex child it was blockified and stretched to the container's cross size (full width inside a column, full height inside a row). It now uses `align-self: flex-start` to stay intrinsically sized; an explicit `w-full` or width utility still overrides it.
+
+### Docs
+
+- **Playground preview text contrast.** The mounted preview inherited the playground chrome's light-gray text color, leaving content near-invisible on a light preview. The preview now applies the theme's `--foreground`.
+- **Single-sourced the playground theme state.** The toolbar "Dark" checkbox and the renderer's floating theme toggle were independent (one toggled a class, the other set `data-theme` plus localStorage and document sync) and drifted apart. They now share one source of truth. The demo and playground CDN example pins were bumped from `@0.2` to `@0.3`.
+
 ## [0.3.1] — 2026-06-27
 
 Documentation and tooling release. No runtime or API changes: `src/` is unchanged aside from the version bump, so the published bundle is functionally identical to 0.3.0.

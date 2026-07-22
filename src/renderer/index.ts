@@ -34,7 +34,7 @@ import { DestroyRegistry } from './engine.js'
 import { registerAllComponents } from './components/index.js'
 import { applyTheme, applyKeyBindings, createThemeToggle, setThemeAttrs } from './theme.js'
 import type { ThemeToggleOptions } from './theme.js'
-import { dispatchActions, clearAllIntervals, clearAllSubscriptions } from './actions.js'
+import { dispatchActions, fireAndForget, clearAllIntervals, clearAllSubscriptions } from './actions.js'
 import type { McpTransport, ToastEvent, ActionJSON } from './actions.js'
 import { createHttpTransport, createNoopTransport } from './transport.js'
 import type { McpTransportOptions } from './transport.js'
@@ -205,10 +205,10 @@ export const PrefabRenderer = {
       cleanupKeys?.()
       cleanupKeys = undefined
       if (newData.keyBindings) {
-        cleanupKeys = applyKeyBindings(newData.keyBindings, async (actions) => {
-          await dispatchActions(actions as ActionJSON | ActionJSON[], {
+        cleanupKeys = applyKeyBindings(newData.keyBindings, (actions) => {
+          fireAndForget(dispatchActions(actions as ActionJSON | ActionJSON[], {
             store, transport, scope: {}, rerender: () => render(), remount, onToast,
-          })
+          }), 'keyBinding')
         })
       }
 
@@ -242,15 +242,15 @@ export const PrefabRenderer = {
     // Keyboard bindings
     let cleanupKeys: (() => void) | undefined
     if (data.keyBindings) {
-      cleanupKeys = applyKeyBindings(data.keyBindings, async (actions) => {
-        await dispatchActions(actions as ActionJSON | ActionJSON[], {
+      cleanupKeys = applyKeyBindings(data.keyBindings, (actions) => {
+        fireAndForget(dispatchActions(actions as ActionJSON | ActionJSON[], {
           store,
           transport,
           scope: {},
           rerender: () => render(),
           remount,
           onToast,
-        })
+        }), 'keyBinding')
       })
     }
 
@@ -287,7 +287,7 @@ export const PrefabRenderer = {
         render()
         // Fire actions after state is applied (if any)
         if (updateData.update.actions != null) {
-          void dispatchActions(updateData.update.actions, ctx)
+          fireAndForget(dispatchActions(updateData.update.actions, ctx), 'update action')
         }
       },
       store,

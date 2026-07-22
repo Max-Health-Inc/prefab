@@ -4,7 +4,7 @@
 
 import { registerComponent, resolveStr, resolveValue, el, makeDispatchCtx } from '../engine.js'
 import type { ComponentNode, RenderContext } from '../engine.js'
-import { dispatchActions } from '../actions.js'
+import { dispatchActions, fireAndForget } from '../actions.js'
 import type { ActionJSON } from '../actions.js'
 
 export function registerDataComponents(): void {
@@ -70,7 +70,7 @@ function renderDataTable(node: ComponentNode, ctx: RenderContext): HTMLElement {
         tr.addEventListener('click', () => {
           const rowScope = { ...ctx.scope, $item: rec, $index: rows.indexOf(row) }
           const dispCtx = makeDispatchCtx({ ...ctx, scope: rowScope })
-          void dispatchActions(node.onRowClick as ActionJSON[], dispCtx)
+          fireAndForget(dispatchActions(node.onRowClick as ActionJSON[], dispCtx), 'onRowClick')
         })
       }
 

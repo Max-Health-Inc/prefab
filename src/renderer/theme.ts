@@ -70,7 +70,7 @@ export function applyTheme(root: HTMLElement, theme?: ThemeConfig): void {
  */
 export function applyKeyBindings(
   bindings: Record<string, unknown> | undefined,
-  dispatch: (actions: unknown) => Promise<void>,
+  dispatch: (actions: unknown) => void | Promise<void>,
 ): (() => void) | undefined {
   if (!bindings || typeof document === 'undefined') return undefined
 
