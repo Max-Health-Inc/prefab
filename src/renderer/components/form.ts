@@ -4,7 +4,7 @@
 
 import { registerComponent, renderChildren, renderNode, resolveStr, el, makeDispatchCtx } from '../engine.js'
 import type { ComponentNode, RenderContext } from '../engine.js'
-import { dispatchActions } from '../actions.js'
+import { dispatchActions, fireAndForget } from '../actions.js'
 import type { ActionJSON } from '../actions.js'
 
 export function registerFormComponents(): void {
@@ -56,7 +56,7 @@ function renderForm(node: ComponentNode, ctx: RenderContext): HTMLElement {
       const dispCtx = makeDispatchCtx(ctx)
       // Resolve form field values into tool call arguments
       dispCtx.scope = { ...ctx.scope, ...values }
-      void dispatchActions(node.onSubmit as ActionJSON | ActionJSON[], dispCtx)
+      fireAndForget(dispatchActions(node.onSubmit as ActionJSON | ActionJSON[], dispCtx), 'onSubmit')
     }
   })
 
@@ -100,7 +100,7 @@ function renderInput(node: ComponentNode, ctx: RenderContext): HTMLElement {
     input.addEventListener('input', () => {
       ctx.store.set(name, input.value)
       if (node.onChange != null) {
-        void dispatchActions(node.onChange as ActionJSON | ActionJSON[], { ...makeDispatchCtx(ctx), scope: { ...ctx.scope, $event: input.value } })
+        fireAndForget(dispatchActions(node.onChange as ActionJSON | ActionJSON[], { ...makeDispatchCtx(ctx), scope: { ...ctx.scope, $event: input.value } }), 'onChange')
       }
     })
   }
@@ -128,7 +128,7 @@ function renderTextarea(node: ComponentNode, ctx: RenderContext): HTMLElement {
     textarea.addEventListener('input', () => {
       ctx.store.set(name, textarea.value)
       if (node.onChange != null) {
-        void dispatchActions(node.onChange as ActionJSON | ActionJSON[], { ...makeDispatchCtx(ctx), scope: { ...ctx.scope, $event: textarea.value } })
+        fireAndForget(dispatchActions(node.onChange as ActionJSON | ActionJSON[], { ...makeDispatchCtx(ctx), scope: { ...ctx.scope, $event: textarea.value } }), 'onChange')
       }
     })
   }
@@ -213,7 +213,7 @@ function renderSelect(node: ComponentNode, ctx: RenderContext): HTMLElement {
     select.addEventListener('change', () => {
       ctx.store.set(name, select.value)
       if (node.onChange != null) {
-        void dispatchActions(node.onChange as ActionJSON | ActionJSON[], { ...makeDispatchCtx(ctx), scope: { ...ctx.scope, $event: select.value } })
+        fireAndForget(dispatchActions(node.onChange as ActionJSON | ActionJSON[], { ...makeDispatchCtx(ctx), scope: { ...ctx.scope, $event: select.value } }), 'onChange')
       }
     })
   }
@@ -247,7 +247,7 @@ function renderCheckbox(node: ComponentNode, ctx: RenderContext): HTMLElement {
     input.addEventListener('change', () => {
       ctx.store.set(name, input.checked)
       if (node.onChange != null) {
-        void dispatchActions(node.onChange as ActionJSON | ActionJSON[], { ...makeDispatchCtx(ctx), scope: { ...ctx.scope, $event: input.checked } })
+        fireAndForget(dispatchActions(node.onChange as ActionJSON | ActionJSON[], { ...makeDispatchCtx(ctx), scope: { ...ctx.scope, $event: input.checked } }), 'onChange')
       }
     })
   }
@@ -282,7 +282,7 @@ function renderSwitch(node: ComponentNode, ctx: RenderContext): HTMLElement {
     input.addEventListener('change', () => {
       ctx.store.set(name, input.checked)
       if (node.onChange != null) {
-        void dispatchActions(node.onChange as ActionJSON | ActionJSON[], { ...makeDispatchCtx(ctx), scope: { ...ctx.scope, $event: input.checked } })
+        fireAndForget(dispatchActions(node.onChange as ActionJSON | ActionJSON[], { ...makeDispatchCtx(ctx), scope: { ...ctx.scope, $event: input.checked } }), 'onChange')
       }
     })
   }
@@ -315,7 +315,7 @@ function renderSlider(node: ComponentNode, ctx: RenderContext): HTMLElement {
     input.addEventListener('input', () => {
       ctx.store.set(name, Number(input.value))
       if (node.onChange != null) {
-        void dispatchActions(node.onChange as ActionJSON | ActionJSON[], { ...makeDispatchCtx(ctx), scope: { ...ctx.scope, $event: Number(input.value) } })
+        fireAndForget(dispatchActions(node.onChange as ActionJSON | ActionJSON[], { ...makeDispatchCtx(ctx), scope: { ...ctx.scope, $event: Number(input.value) } }), 'onChange')
       }
     })
   }
@@ -433,7 +433,7 @@ function renderRadioGroup(node: ComponentNode, ctx: RenderContext): HTMLElement 
     if (target.type === 'radio') {
       ctx.store.set(name, target.value)
       if (node.onChange != null) {
-        void dispatchActions(node.onChange as ActionJSON | ActionJSON[], makeDispatchCtx(ctx))
+        fireAndForget(dispatchActions(node.onChange as ActionJSON | ActionJSON[], makeDispatchCtx(ctx)), 'onChange')
       }
     }
   })
@@ -488,7 +488,7 @@ function renderCombobox(node: ComponentNode, ctx: RenderContext): HTMLElement {
   // Listen for option selection (custom event from ComboboxOption)
   if (node.onChange != null) {
     e.addEventListener('pf-combobox-select', () => {
-      void dispatchActions(node.onChange as ActionJSON | ActionJSON[], { ...makeDispatchCtx(ctx), scope: { ...ctx.scope, $event: input.value } })
+      fireAndForget(dispatchActions(node.onChange as ActionJSON | ActionJSON[], { ...makeDispatchCtx(ctx), scope: { ...ctx.scope, $event: input.value } }), 'onChange')
     })
   }
 
@@ -536,7 +536,7 @@ function renderCalendar(node: ComponentNode, ctx: RenderContext): HTMLElement {
   input.addEventListener('change', () => {
     ctx.store.set(input.name, input.value)
     if (node.onChange != null) {
-      void dispatchActions(node.onChange as ActionJSON | ActionJSON[], makeDispatchCtx(ctx))
+      fireAndForget(dispatchActions(node.onChange as ActionJSON | ActionJSON[], makeDispatchCtx(ctx)), 'onChange')
     }
   })
 
@@ -567,7 +567,7 @@ function renderDatePicker(node: ComponentNode, ctx: RenderContext): HTMLElement 
   input.addEventListener('change', () => {
     ctx.store.set(input.name, input.value)
     if (node.onChange != null) {
-      void dispatchActions(node.onChange as ActionJSON | ActionJSON[], makeDispatchCtx(ctx))
+      fireAndForget(dispatchActions(node.onChange as ActionJSON | ActionJSON[], makeDispatchCtx(ctx)), 'onChange')
     }
   })
 
