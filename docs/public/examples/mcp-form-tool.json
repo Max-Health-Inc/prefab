@@ -1,0 +1,35 @@
+{
+  "$prefab": { "version": "0.3" },
+  "view": {
+    "type": "Column",
+    "cssClass": "gap-4",
+    "children": [
+      { "type": "Heading", "content": "Task List (MCP)", "level": 2 },
+      { "type": "Muted", "content": "The form submits to a mock MCP tool. The server appends the task and returns the updated list via display_update; the same delta clears the input. No client-side list mutation." },
+      { "type": "Card", "children": [
+        { "type": "CardContent", "children": [
+          { "type": "Column", "cssClass": "gap-3", "children": [
+            { "type": "Form",
+              "onSubmit": { "action": "callTool", "tool": "_action", "arguments": { "action": "add_task", "title": "{{ newTask }}" } },
+              "children": [
+                { "type": "Row", "cssClass": "gap-2", "children": [
+                  { "type": "Input", "name": "newTask", "placeholder": "Add a task…" },
+                  { "type": "Button", "label": "Add", "variant": "default", "submit": true }
+                ]}
+              ]
+            },
+            { "type": "Separator" },
+            { "type": "Text", "content": "Tasks: {{ tasks | length }}" },
+            { "type": "ForEach", "expression": "{{ tasks }}", "children": [
+              { "type": "Row", "cssClass": "gap-2 items-center", "children": [
+                { "type": "Text", "content": "• {{ $item }}" }
+              ]}
+            ]},
+            { "type": "Button", "label": "Clear all", "variant": "outline", "onClick": { "action": "callTool", "tool": "_action", "arguments": { "action": "clear_tasks" } } }
+          ]}
+        ]}
+      ]}
+    ]
+  },
+  "state": { "newTask": "", "tasks": [] }
+}

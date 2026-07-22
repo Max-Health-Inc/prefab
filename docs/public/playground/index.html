@@ -386,7 +386,10 @@ const EXAMPLE_IDS = {
   "Tabs & Alerts": "settings-tabs",
   "Dashboard Layout": "dashboard",
   "Interactive Todo": "todo-app",
-  "Conditional UI": "conditional-ui"
+  "Conditional UI": "conditional-ui",
+  "MCP: Tool Call": "mcp-tool-call",
+  "MCP: Form → Tool": "mcp-form-tool",
+  "MCP: Live Data": "mcp-live"
 };
 
 // Resolve canonical example URLs relative to the site base (works under /prefab/).
@@ -615,6 +618,61 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 // ═══════════════════════════════════════════════════════════════════════════════
+// MOCK MCP SERVER
+// ═══════════════════════════════════════════════════════════════════════════════
+// A tiny in-page transport so the MCP examples actually round-trip: callTool()
+// mutates server-side state and replies with a display_update() payload, exactly
+// like a real prefab MCP server (see Max-Health-Inc/chess `_action`). Subscribe
+// has no native push here, so the renderer falls back to polling `_action`
+// { action: 'tick' } — the same fallback real hosts use.
+const mockServer = {
+  _s: null,
+  reset() {
+    this._s = {
+      count: 0,
+      tasks: [],
+      t: 0,
+      users: 1284,
+      req: 342,
+      series: [
+        { t: '-7', v: 300 }, { t: '-6', v: 320 }, { t: '-5', v: 315 }, { t: '-4', v: 340 },
+        { t: '-3', v: 360 }, { t: '-2', v: 355 }, { t: '-1', v: 370 }, { t: '0', v: 342 },
+      ],
+    };
+  },
+  // display_update envelope the renderer knows how to merge into the store.
+  _update(state) { return { '$prefab': { version: '0.3' }, update: { state } }; },
+  async callTool(_name, args) {
+    if (!this._s) this.reset();
+    const s = this._s;
+    const action = (args && args.action) || _name;
+    switch (action) {
+      case 'increment':  s.count += 1; return this._update({ count: s.count });
+      case 'decrement':  s.count -= 1; return this._update({ count: s.count });
+      case 'reset_count': s.count = 0; return this._update({ count: 0 });
+      case 'add_task': {
+        const title = String((args && args.title) || '').trim();
+        if (title) s.tasks = [...s.tasks, title];
+        return this._update({ tasks: s.tasks, newTask: '' });
+      }
+      case 'clear_tasks': s.tasks = []; return this._update({ tasks: [] });
+      case 'tick': {
+        s.t += 1;
+        s.users = Math.max(0, s.users + Math.round((Math.random() - 0.45) * 40));
+        s.req   = Math.max(0, s.req   + Math.round((Math.random() - 0.45) * 50));
+        s.series = [...s.series.slice(1), { t: String(s.t), v: s.req }];
+        return this._update({ users: s.users, req: s.req, series: s.series });
+      }
+      case 'refresh': return this._update({ count: s.count, tasks: s.tasks, users: s.users, req: s.req, series: s.series });
+      default: return this._update({});
+    }
+  },
+  async sendMessage(message) {
+    showToast('Message sent', String(message), 'default');
+  },
+};
+
+// ═══════════════════════════════════════════════════════════════════════════════
 // RENDER
 // ═══════════════════════════════════════════════════════════════════════════════
 function renderPreview() {
@@ -645,7 +703,10 @@ function renderPreview() {
   }
 
   try {
+    // Fresh mock-server state per (re)render so MCP examples start from a known point.
+    mockServer.reset();
     currentMount = PrefabRenderer.mount(root, json, {
+      transport: mockServer,
       onToast: (t) => showToast(t.message || 'Toast', t.description || '', t.variant || 'default'),
     });
     statusDot.className = 'pg-status-dot';

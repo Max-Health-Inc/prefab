@@ -11,6 +11,7 @@ All notable changes to this project will be documented in this file.
 ### Docs
 
 - Added playground showcase examples: **Chart Gallery** (all six chart types as native SVG), **Analytics Dashboard** (KPI metrics, charts, tabs, and range controls driving reactive state), and **Interactive Components** (Dialog, Accordion, and Switch/Slider bound to a live readout).
+- Added **MCP app examples** with an in-page mock MCP server, so the playground demonstrates the round-trip (not just on-demand rendering): **MCP: Tool Call** (`callTool` → `display_update`, server-authoritative counter), **MCP: Form → Tool** (form submit → tool → updated list), and **MCP: Live Data** (`Subscribe` with polling fallback → live metrics and chart). Modeled on the `_action` + `chess://` subscription pattern from real prefab MCP apps.
 - Corrected the playground's AI system prompt: it now teaches the `0.3` wire format, the real component and action set, control flow, and pipes, replacing the stale `0.2` guidance (`showToast` `title`, `appendState` `item`, and non-existent components).
 
 ## [0.3.4] — 2026-07-22

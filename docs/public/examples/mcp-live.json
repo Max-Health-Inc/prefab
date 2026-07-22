@@ -1,0 +1,34 @@
+{
+  "$prefab": { "version": "0.3" },
+  "view": {
+    "type": "Column",
+    "cssClass": "gap-4",
+    "onMount": { "action": "subscribe", "uri": "mock://metrics", "stateKey": "live", "fallbackInterval": 1200, "fallbackTool": "_action", "fallbackArgs": { "action": "tick" } },
+    "children": [
+      { "type": "Row", "cssClass": "gap-2 items-center", "children": [
+        { "type": "Heading", "content": "Live Metrics", "level": 2 },
+        { "type": "Div", "cssClass": "flex-1" },
+        { "type": "Badge", "variant": "success", "content": "● live" }
+      ]},
+      { "type": "Muted", "content": "Subscribed to a mock resource. With no native push, prefab polls the mock tool every 1.2s (the same fallback real MCP hosts use) and merges display_update deltas — metrics and the chart update on their own." },
+      { "type": "Row", "cssClass": "gap-4", "children": [
+        { "type": "Card", "cssClass": "flex-1", "children": [ { "type": "CardContent", "children": [ { "type": "Metric", "label": "Active Users", "value": "{{ users }}" } ] } ] },
+        { "type": "Card", "cssClass": "flex-1", "children": [ { "type": "CardContent", "children": [ { "type": "Metric", "label": "Requests / sec", "value": "{{ req }}" } ] } ] }
+      ]},
+      { "type": "Card", "children": [
+        { "type": "CardHeader", "children": [ { "type": "CardTitle", "content": "Throughput" } ] },
+        { "type": "CardContent", "children": [
+          { "type": "LineChart", "data": "{{ series }}", "series": [ { "dataKey": "v", "label": "req/s", "color": "#4f46e5" } ], "xAxis": "t", "height": 220 }
+        ]}
+      ]}
+    ]
+  },
+  "state": {
+    "users": 1284,
+    "req": 342,
+    "series": [
+      { "t": "-7", "v": 300 }, { "t": "-6", "v": 320 }, { "t": "-5", "v": 315 }, { "t": "-4", "v": 340 },
+      { "t": "-3", "v": 360 }, { "t": "-2", "v": 355 }, { "t": "-1", "v": 370 }, { "t": "0", "v": 342 }
+    ]
+  }
+}
