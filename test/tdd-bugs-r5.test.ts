@@ -84,6 +84,21 @@ describe('Goal 1 — misplaced children detection', () => {
     expect(validateWireFormat(data).valid).toBe(true)
   })
 
+  it('does NOT flag genuine component slots (trigger/empty/else/summary)', () => {
+    // These keys ARE read as component nodes by the renderer; flagging them
+    // would false-positive on valid Dialogs, Details, Conditions, and rows.
+    const slots = [
+      { type: 'Dialog', trigger: { type: 'Button', label: 'Open' }, children: [{ type: 'Text', content: 'x' }] },
+      { type: 'Detail', empty: { type: 'Text', content: 'none' }, children: [{ type: 'Text', content: 'x' }] },
+      { type: 'Condition', cases: [{ when: '{{ a }}', children: [{ type: 'Text', content: 'x' }] }], else: [{ type: 'Text', content: 'y' }] },
+      { type: 'ExpandableRow', summary: [{ type: 'TableCell', content: 'x' }], children: [{ type: 'Text', content: 'd' }] },
+    ]
+    for (const view of slots) {
+      const result = validateWireFormat({ $prefab: { version: '0.3' }, view })
+      expect(result.valid).toBe(true)
+    }
+  })
+
   it('does NOT flag chart series/data objects', () => {
     const data = {
       $prefab: { version: '0.3' },

@@ -379,7 +379,10 @@ const EXAMPLE_IDS = {
   "Patient Card": "patient-card",
   "Data Table": "user-directory",
   "Revenue Chart": "revenue-chart",
+  "Chart Gallery": "charts-gallery",
+  "Analytics Dashboard": "analytics-dashboard",
   "Contact Form": "contact-form",
+  "Interactive Components": "interactive-showcase",
   "Tabs & Alerts": "settings-tabs",
   "Dashboard Layout": "dashboard",
   "Interactive Todo": "todo-app",
@@ -411,41 +414,47 @@ const AI_PROMPT = `You are a UI generator that outputs JSON in the prefab wire f
 
 WIRE FORMAT:
 {
-  "$prefab": { "version": "0.2" },
+  "$prefab": { "version": "0.3" },
   "view": { ... component tree ... },
-  "state": { ... reactive state ... },
-  "theme": { "light": { ... }, "dark": { ... } }
+  "state": { ... reactive state ... }
 }
 
 AVAILABLE COMPONENTS:
-Layout: Column, Row, Div, Card (CardHeader, CardTitle, CardDescription, CardContent, CardFooter), Tabs (Tab), MasterDetail, Detail, Grid
-Typography: Heading (level 1-6), Text, Muted, Code, Blockquote, Badge (variant: default|secondary|success|warning|destructive|outline)
-Data: DataTable (columns, rows, search, paginated), Metric (label, value), KeyValue (items), Progress (value, max)
-Form: Input (name, inputType, placeholder), Textarea, Select (options), Checkbox, Switch, Slider, RadioGroup (options)
-Charts: BarChart, LineChart, PieChart, AreaChart (data, series, xAxis, height)
-Interactive: Button (label, variant, onClick), Accordion (AccordionItem), Dialog, Popover, Tooltip
-Alert: Alert (AlertTitle, AlertDescription, variant: default|destructive)
-Media: Image, Avatar, Icon, Separator, Spacer
+Layout: Column, Row, Grid, GridItem, Container, Div, Span, Card (CardHeader, CardTitle, CardDescription, CardContent, CardFooter), Dashboard, MasterDetail, Detail, Pages, Page
+Typography: Heading (level 1-4), H1-H4, Text, P, Lead, Large, Small, Muted, BlockQuote, Label, Link, Code, Markdown, Kbd
+Data: DataTable (columns:[{key,header}], rows:[{...}], search, paginated), Badge (variant: default|secondary|success|warning|destructive|outline), Dot, Metric (label, value, delta, description), Ring, Progress (value, max), Separator, Loader, Icon, Sparkline
+Table: Table, TableHead, TableBody, TableRow, TableHeader, TableCell, TableCaption, ExpandableRow (summary)
+Form: Form (onSubmit), Input (name, inputType, placeholder), Textarea, Button (label, variant, onClick), Select (SelectOption {label,value}), Checkbox (name,label), Switch (name,label), Slider (name,min,max,step), RadioGroup (Radio), Combobox (ComboboxOption), Calendar, DatePicker, Field, ChoiceCard
+Charts: BarChart, LineChart, AreaChart, PieChart, RadarChart, ScatterChart, RadialChart, Histogram, Sparkline. Cartesian charts take data:[{...}], series:[{dataKey,label,color}], xAxis:"<key>", height, valueFormat. PieChart/RadialChart take data, dataKey, nameKey. ScatterChart takes xAxis, yAxis, zAxis (bubble size). RadarChart takes series + axisKey.
+Interactive: Tabs (Tab {title}), Accordion (AccordionItem {title}), Dialog (trigger:<component>, title, description), Popover (title), Tooltip, HoverCard, Carousel
+Control flow: ForEach (expression:"{{ items }}", children use {{ $item }} and {{ $index }}), If (condition:"{{ expr }}"), Elif, Else
+Alert: Alert (AlertTitle, AlertDescription; variant: default|destructive)
+Media: Image, Audio, Video, Embed, Svg, Mermaid, DropZone
 
 REACTIVE EXPRESSIONS:
 Use {{ expression }} for dynamic values. State keys are global variables.
-Examples: "{{ count }}", "{{ count + 1 }}", "{{ items | length }}", "{{ name | upper }}"
+Examples: "{{ count }}", "{{ count + 1 }}", "{{ items | length }}", "{{ name | upper }}", "{{ ok ? 'Yes' : 'No' }}"
+Pipes: upper, lower, capitalize, truncate, currency, number, percent, compact, date, time, datetime, length, default, round, join
 
-ACTIONS (for onClick, onChange):
+ACTIONS (for onClick, onChange, onSubmit, onMount):
 - { "action": "setState", "key": "...", "value": ... }
 - { "action": "toggleState", "key": "..." }
-- { "action": "appendState", "key": "...", "item": ... }
-- { "action": "popState", "key": "...", "value": ... }
-- { "action": "showToast", "title": "...", "description": "..." }
-- { "action": "callHandler", "handler": "..." }
+- { "action": "appendState", "key": "...", "value": ... }
+- { "action": "popState", "key": "...", "index": ... }
+- { "action": "showToast", "message": "...", "description": "...", "variant": "success|error|warning|default" }
+- { "action": "callTool", "tool": "...", "arguments": { ... }, "resultKey": "..." }
+- { "action": "sendMessage", "message": "..." }
+- { "action": "openLink", "url": "..." }
 - Multiple actions: use an array
 
 RULES:
-1. Always include "$prefab": { "version": "0.2" } at the root
-2. Use "cssClass": "gap-N" on Column/Row for spacing (gap-2, gap-3, gap-4)
-3. Return ONLY valid JSON, no explanation
-4. Use state for interactive elements (forms, counters, toggles)
-5. Prefer Card wrapping for polished UIs`;
+1. Always include "$prefab": { "version": "0.3" } at the root
+2. Child components ALWAYS go in "children" (never "then"/"body"); If/Elif/Else are siblings
+3. DataTable "rows" must be objects whose keys match the column "key"; render a plain list of strings with ForEach + Text "{{ $item }}"
+4. showToast uses "message" (not "title")
+5. Use "cssClass": "gap-N" on Column/Row for spacing (gap-2, gap-3, gap-4); "flex-1" to share row width
+6. Bind form controls with "name"; read them back reactively via {{ name }}
+7. Return ONLY valid JSON, no explanation. Prefer Card wrapping for polished UIs`;
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // APP STATE

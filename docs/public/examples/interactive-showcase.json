@@ -1,0 +1,61 @@
+{
+  "$prefab": { "version": "0.3" },
+  "view": {
+    "type": "Column",
+    "cssClass": "gap-4",
+    "children": [
+      { "type": "Heading", "content": "Interactive Components", "level": 2 },
+      { "type": "Muted", "content": "Overlays, disclosure, and form controls that drive reactive state, all from JSON." },
+
+      { "type": "Card", "children": [
+        { "type": "CardHeader", "children": [ { "type": "CardTitle", "content": "Live controls" } ] },
+        { "type": "CardContent", "children": [
+          { "type": "Column", "cssClass": "gap-3", "children": [
+            { "type": "Switch", "name": "notifications", "label": "Enable notifications" },
+            { "type": "Text", "content": "Notifications are {{ notifications ? 'on' : 'off' }}." },
+            { "type": "Separator" },
+            { "type": "Label", "content": "Volume" },
+            { "type": "Slider", "name": "volume", "min": 0, "max": 100, "step": 1 },
+            { "type": "Progress", "value": "{{ volume }}", "max": 100 },
+            { "type": "Text", "content": "Volume: {{ volume }}%" }
+          ]}
+        ]}
+      ]},
+
+      { "type": "Card", "children": [
+        { "type": "CardHeader", "children": [ { "type": "CardTitle", "content": "Dialog" } ] },
+        { "type": "CardContent", "children": [
+          { "type": "Dialog",
+            "title": "Delete project?",
+            "description": "This action cannot be undone.",
+            "trigger": { "type": "Button", "label": "Open dialog", "variant": "destructive" },
+            "children": [
+              { "type": "Row", "cssClass": "gap-2 mt-4", "children": [
+                { "type": "Button", "label": "Cancel", "variant": "outline", "onClick": { "action": "closeOverlay" } },
+                { "type": "Button", "label": "Delete", "variant": "destructive", "onClick": [
+                  { "action": "closeOverlay" },
+                  { "action": "showToast", "message": "Project deleted", "variant": "success" }
+                ]}
+              ]}
+            ]
+          }
+        ]}
+      ]},
+
+      { "type": "Card", "children": [
+        { "type": "CardHeader", "children": [ { "type": "CardTitle", "content": "FAQ" } ] },
+        { "type": "CardContent", "children": [
+          { "type": "Accordion", "children": [
+            { "type": "AccordionItem", "title": "Is the renderer really zero-dependency?", "children": [
+              { "type": "Text", "content": "Yes. The browser bundle is vanilla DOM with no runtime dependencies." } ] },
+            { "type": "AccordionItem", "title": "Does it work outside MCP?", "children": [
+              { "type": "Text", "content": "Any web app can mount the wire format: React, Vue, Svelte, plain HTML, or an iframe." } ] },
+            { "type": "AccordionItem", "title": "How do actions work?", "children": [
+              { "type": "Text", "content": "onClick / onChange dispatch declarative actions like setState, toggleState, callTool, and showToast." } ] }
+          ]}
+        ]}
+      ]}
+    ]
+  },
+  "state": { "notifications": true, "volume": 60 }
+}
