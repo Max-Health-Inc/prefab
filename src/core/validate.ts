@@ -204,6 +204,31 @@ function validateComponent(
       validateAction(comp[prop], `${path}.${prop}`, errors)
     }
   }
+
+  // Misplaced children — child components parked under a key the renderer never
+  // reads (e.g. `then`/`else`/`body`) render nothing and fail silently. Flag any
+  // prop, other than a real component slot, whose value is (or contains) a known
+  // component node. Gating on KNOWN_TYPES avoids false positives on data rows
+  // that merely carry a `type` field.
+  for (const [key, value] of Object.entries(comp)) {
+    if (key === 'type' || COMPONENT_SLOT_KEYS.has(key) || actionProps.includes(key)) continue
+    if (isComponentLike(value) || (Array.isArray(value) && value.some(isComponentLike))) {
+      errors.push({
+        path: `${path}.${key}`,
+        message: `Components under "${key}" are ignored by the renderer; move them into "children"`,
+      })
+    }
+  }
+}
+
+/** Keys that legitimately hold component nodes (everything else uses `children`). */
+const COMPONENT_SLOT_KEYS = new Set(['children', 'fallback'])
+
+/** Is the value a component node of a recognized type? */
+function isComponentLike(value: unknown): boolean {
+  if (value == null || typeof value !== 'object' || Array.isArray(value)) return false
+  const t = (value as Record<string, unknown>).type
+  return typeof t === 'string' && KNOWN_TYPES.has(t)
 }
 
 function validateAction(action: unknown, path: string, errors: ValidationError[]): void {
@@ -224,6 +249,16 @@ function validateAction(action: unknown, path: string, errors: ValidationError[]
   const hasAction = typeof act.action === 'string' && act.action.length > 0
   if (!hasType && !hasAction) {
     errors.push({ path: `${path}.type`, message: 'Action must have a non-empty "type" or "action" string' })
+    return
+  }
+
+  // Required-field checks for known actions. showToast without `message` fires an
+  // empty heading (a real bug when authors reach for `title` instead).
+  const name = (hasAction ? act.action : act.type) as string
+  if (name.toLowerCase() === 'showtoast') {
+    if (typeof act.message !== 'string' || act.message.length === 0) {
+      errors.push({ path: `${path}.message`, message: 'showToast requires a non-empty "message" string' })
+    }
   }
 }
 

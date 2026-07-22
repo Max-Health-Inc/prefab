@@ -9,6 +9,7 @@ import type { Store } from './state.js'
 import type { EvalScope } from './rx.js'
 import { evaluateTemplate, isRxExpression } from './rx.js'
 import { toCamelCase } from '../core/component.js'
+import { log } from '../core/logger.js'
 
 /**
  * Recursively normalise action JSON keys from snake_case to camelCase.
@@ -117,7 +118,7 @@ async function dispatchOne(raw: ActionJSON, ctx: DispatchContext): Promise<void>
     case 'unsubscribe':
       { handleUnsubscribe(action); return; }
     default:
-      console.warn(`[prefab] Unknown action: ${type}`)
+      log.warn(`Unknown action: ${type}`)
   }
 }
 
@@ -173,11 +174,11 @@ function handleOpenLink(action: ActionJSON): void {
   if (typeof window !== 'undefined') {
     const url = action.url as string | undefined
     if (!url) {
-      console.warn('[prefab] openLink: missing url')
+      log.warn('openLink: missing url')
       return
     }
     if (!isSafeUrl(url)) {
-      console.warn(`[prefab] Blocked unsafe URL scheme: ${url}`)
+      log.warn(`Blocked unsafe URL scheme: ${url}`)
       return
     }
     window.open(url, (action.target as string | undefined) ?? '_blank')
@@ -194,7 +195,7 @@ function handleSetInterval(action: ActionJSON, ctx: DispatchContext): void {
   const onTick = action.onTick as ActionJSON | ActionJSON[]
   if (typeof globalThis.setInterval !== 'function') return
   if (activeIntervals.size >= MAX_INTERVALS) {
-    console.warn('[prefab] Max intervals reached, ignoring new setInterval')
+    log.warn('Max intervals reached, ignoring new setInterval')
     return
   }
   const id = globalThis.setInterval(() => void dispatchActions(onTick, ctx), ms)
@@ -211,7 +212,7 @@ export function clearAllIntervals(): void {
 
 async function handleToolCall(action: ActionJSON, ctx: DispatchContext): Promise<void> {
   if (!ctx.transport) {
-    console.warn('[prefab] No MCP transport configured for toolCall')
+    log.warn('No MCP transport configured for toolCall')
     return
   }
 
@@ -242,7 +243,7 @@ async function handleToolCall(action: ActionJSON, ctx: DispatchContext): Promise
 
 async function handleSendMessage(action: ActionJSON, ctx: DispatchContext): Promise<void> {
   if (!ctx.transport) {
-    console.warn('[prefab] No MCP transport configured for sendMessage')
+    log.warn('No MCP transport configured for sendMessage')
     return
   }
   await ctx.transport.sendMessage(resolveStr(action.message, ctx))
@@ -259,7 +260,7 @@ function handleUpdateContext(action: ActionJSON, ctx: DispatchContext): void {
 async function handleFetch(action: ActionJSON, ctx: DispatchContext): Promise<void> {
   const url = resolveStr(action.url, ctx)
   if (!isSafeUrl(url)) {
-    console.warn(`[prefab] Blocked unsafe URL in fetch: ${url}`)
+    log.warn(`Blocked unsafe URL in fetch: ${url}`)
     return
   }
 
@@ -319,7 +320,7 @@ async function handleCallHandler(action: ActionJSON, ctx: DispatchContext): Prom
 
   // callHandler delegates to the transport like toolCall
   if (!ctx.transport) {
-    console.warn(`[prefab] No transport configured for callHandler: ${handler}`)
+    log.warn(`No transport configured for callHandler: ${handler}`)
     return
   }
 
@@ -365,7 +366,7 @@ function handleSubscribe(action: ActionJSON, ctx: DispatchContext): void {
   const stateKey = action.stateKey as string
 
   if (!uri || !stateKey) {
-    console.warn('[prefab] subscribe: missing uri or stateKey')
+    log.warn('subscribe: missing uri or stateKey')
     return
   }
 
@@ -375,7 +376,7 @@ function handleSubscribe(action: ActionJSON, ctx: DispatchContext): void {
   }
 
   if (activeSubscriptions.size >= MAX_SUBSCRIPTIONS) {
-    console.warn('[prefab] Max subscriptions reached, ignoring new subscribe')
+    log.warn('Max subscriptions reached, ignoring new subscribe')
     return
   }
 
@@ -405,12 +406,12 @@ function handleSubscribe(action: ActionJSON, ctx: DispatchContext): void {
   const fallbackInterval = (action.fallbackInterval as number | undefined) ?? DEFAULT_FALLBACK_INTERVAL
 
   if (!fallbackTool) {
-    console.warn('[prefab] subscribe: host lacks subscriptions and no fallbackTool specified')
+    log.warn('subscribe: host lacks subscriptions and no fallbackTool specified')
     return
   }
 
   if (!ctx.transport) {
-    console.warn('[prefab] No MCP transport configured for subscribe fallback')
+    log.warn('No MCP transport configured for subscribe fallback')
     return
   }
 
@@ -436,7 +437,7 @@ function handleSubscribe(action: ActionJSON, ctx: DispatchContext): void {
 function handleUnsubscribe(action: ActionJSON): void {
   const uri = action.uri as string
   if (!uri) {
-    console.warn('[prefab] unsubscribe: missing uri')
+    log.warn('unsubscribe: missing uri')
     return
   }
   const cleanup = activeSubscriptions.get(uri)
@@ -452,7 +453,7 @@ export function clearAllSubscriptions(): void {
     try {
       cleanup()
     } catch (err) {
-      console.warn(`[prefab] Error cleaning up subscription '${uri}':`, err)
+      log.warn(`Error cleaning up subscription '${uri}':`, err)
     }
   }
   activeSubscriptions.clear()

@@ -5,6 +5,8 @@
  * Supports dot-path access (e.g. "user.name") and array operations.
  */
 
+import { log } from '../core/logger.js'
+
 export type Subscriber = () => void
 export type Unsubscribe = () => void
 
@@ -132,7 +134,7 @@ const BLOCKED_KEYS = new Set(['__proto__', 'constructor', 'prototype'])
 function setPath(obj: Record<string, unknown>, path: string, value: unknown): void {
   const parts = path.split('.')
   if (parts.some(p => BLOCKED_KEYS.has(p))) {
-    console.warn(`[prefab] Blocked prototype pollution attempt: ${path}`)
+    log.warn(`Blocked prototype pollution attempt: ${path}`)
     return
   }
   let current: Record<string, unknown> = obj

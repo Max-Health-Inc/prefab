@@ -3,6 +3,7 @@
  */
 
 import type { McpTransport } from './actions.js'
+import { log } from '../core/logger.js'
 
 /** MCP JSON-RPC response shape */
 interface McpResponse {
@@ -90,11 +91,11 @@ export function createHttpTransport(opts?: McpTransportOptions): McpTransport {
 export function createNoopTransport(): McpTransport {
   return {
     callTool(name: string): Promise<unknown> {
-      console.warn(`[prefab] No MCP transport: callTool('${name}') ignored`)
+      log.warn(`No MCP transport: callTool('${name}') ignored`)
       return Promise.resolve(null)
     },
     sendMessage(message: string): Promise<void> {
-      console.warn(`[prefab] No MCP transport: sendMessage ignored`, message)
+      log.warn(`No MCP transport: sendMessage ignored`, message)
       return Promise.resolve()
     },
   }
