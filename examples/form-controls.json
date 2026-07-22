@@ -1,0 +1,60 @@
+{
+  "$prefab": { "version": "0.3" },
+  "view": {
+    "type": "Column",
+    "cssClass": "gap-4",
+    "children": [
+      { "type": "Heading", "content": "Form Controls", "level": 2 },
+      { "type": "Muted", "content": "Every control binds to a state key by name. The preview card reads those keys back with {{ }} — each control fires onChange to re-render the readout." },
+      { "type": "Row", "cssClass": "gap-4", "children": [
+        { "type": "Card", "cssClass": "flex-1", "children": [
+          { "type": "CardHeader", "children": [ { "type": "CardTitle", "content": "Inputs" } ] },
+          { "type": "CardContent", "children": [
+            { "type": "Column", "cssClass": "gap-4", "children": [
+              { "type": "RadioGroup", "name": "plan", "label": "Plan",
+                "onChange": { "action": "setState", "key": "plan", "value": "{{ plan }}" },
+                "children": [
+                  { "type": "Radio", "value": "free", "label": "Free" },
+                  { "type": "Radio", "value": "pro", "label": "Pro" },
+                  { "type": "Radio", "value": "team", "label": "Team" }
+                ]
+              },
+              { "type": "Label", "content": "Framework" },
+              { "type": "Combobox", "name": "framework", "placeholder": "Search…",
+                "onChange": { "action": "setState", "key": "framework", "value": "{{ framework }}" },
+                "children": [
+                  { "type": "ComboboxOption", "value": "React" },
+                  { "type": "ComboboxOption", "value": "Vue" },
+                  { "type": "ComboboxOption", "value": "Svelte" },
+                  { "type": "ComboboxOption", "value": "Angular" },
+                  { "type": "ComboboxOption", "value": "Solid" }
+                ]
+              },
+              { "type": "Label", "content": "Start date" },
+              { "type": "DatePicker", "name": "date",
+                "onChange": { "action": "setState", "key": "date", "value": "{{ date }}" } },
+              { "type": "Switch", "name": "newsletter", "label": "Subscribe to the newsletter",
+                "onChange": { "action": "setState", "key": "newsletter", "value": "{{ newsletter }}" } },
+              { "type": "Label", "content": "Seats: {{ seats }}" },
+              { "type": "Slider", "name": "seats", "min": 1, "max": 20, "step": 1,
+                "onChange": { "action": "setState", "key": "seats", "value": "{{ $event }}" } }
+            ]}
+          ]}
+        ]},
+        { "type": "Card", "cssClass": "flex-1", "children": [
+          { "type": "CardHeader", "children": [ { "type": "CardTitle", "content": "Live state" } ] },
+          { "type": "CardContent", "children": [
+            { "type": "Column", "cssClass": "gap-2", "children": [
+              { "type": "Text", "content": "Plan: {{ plan }}" },
+              { "type": "Text", "content": "Framework: {{ framework | default:'(none)' }}" },
+              { "type": "Text", "content": "Start date: {{ date | default:'(unset)' }}" },
+              { "type": "Text", "content": "Newsletter: {{ newsletter ? 'subscribed' : 'no' }}" },
+              { "type": "Text", "content": "Seats: {{ seats }}" }
+            ]}
+          ]}
+        ]}
+      ]}
+    ]
+  },
+  "state": { "plan": "pro", "framework": "", "date": "", "newsletter": true, "seats": 5 }
+}

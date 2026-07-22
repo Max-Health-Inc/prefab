@@ -5,7 +5,7 @@ url: /prefab/reference/api/renderer/interfaces/PrefabWireData.md
 
 # Interface: PrefabWireData
 
-Defined in: [renderer/index.ts:69](https://github.com/Max-Health-Inc/prefab/blob/88d9aa00d6a50ef0286767079c6345c808f6a0a9/src/renderer/index.ts#L69)
+Defined in: [renderer/index.ts:74](https://github.com/Max-Health-Inc/prefab/blob/de93a446678c2f2b8a07006b7acfdb8a5f593717/src/renderer/index.ts#L74)
 
 ## Properties
 
@@ -15,7 +15,7 @@ Defined in: [renderer/index.ts:69](https://github.com/Max-Health-Inc/prefab/blob
 $prefab: object;
 ```
 
-Defined in: [renderer/index.ts:70](https://github.com/Max-Health-Inc/prefab/blob/88d9aa00d6a50ef0286767079c6345c808f6a0a9/src/renderer/index.ts#L70)
+Defined in: [renderer/index.ts:75](https://github.com/Max-Health-Inc/prefab/blob/de93a446678c2f2b8a07006b7acfdb8a5f593717/src/renderer/index.ts#L75)
 
 #### version
 
@@ -31,7 +31,7 @@ version: string;
 view: ComponentNode;
 ```
 
-Defined in: [renderer/index.ts:71](https://github.com/Max-Health-Inc/prefab/blob/88d9aa00d6a50ef0286767079c6345c808f6a0a9/src/renderer/index.ts#L71)
+Defined in: [renderer/index.ts:76](https://github.com/Max-Health-Inc/prefab/blob/de93a446678c2f2b8a07006b7acfdb8a5f593717/src/renderer/index.ts#L76)
 
 ***
 
@@ -41,7 +41,7 @@ Defined in: [renderer/index.ts:71](https://github.com/Max-Health-Inc/prefab/blob
 optional state?: Record<string, unknown>;
 ```
 
-Defined in: [renderer/index.ts:72](https://github.com/Max-Health-Inc/prefab/blob/88d9aa00d6a50ef0286767079c6345c808f6a0a9/src/renderer/index.ts#L72)
+Defined in: [renderer/index.ts:77](https://github.com/Max-Health-Inc/prefab/blob/de93a446678c2f2b8a07006b7acfdb8a5f593717/src/renderer/index.ts#L77)
 
 ***
 
@@ -51,7 +51,7 @@ Defined in: [renderer/index.ts:72](https://github.com/Max-Health-Inc/prefab/blob
 optional theme?: object;
 ```
 
-Defined in: [renderer/index.ts:74](https://github.com/Max-Health-Inc/prefab/blob/88d9aa00d6a50ef0286767079c6345c808f6a0a9/src/renderer/index.ts#L74)
+Defined in: [renderer/index.ts:79](https://github.com/Max-Health-Inc/prefab/blob/de93a446678c2f2b8a07006b7acfdb8a5f593717/src/renderer/index.ts#L79)
 
 Legacy structured theme (protocol 0.2). Protocol 0.3 ships the theme in `css`.
 
@@ -75,7 +75,7 @@ optional dark?: Record<string, string>;
 optional defs?: Record<string, ComponentNode>;
 ```
 
-Defined in: [renderer/index.ts:75](https://github.com/Max-Health-Inc/prefab/blob/88d9aa00d6a50ef0286767079c6345c808f6a0a9/src/renderer/index.ts#L75)
+Defined in: [renderer/index.ts:80](https://github.com/Max-Health-Inc/prefab/blob/de93a446678c2f2b8a07006b7acfdb8a5f593717/src/renderer/index.ts#L80)
 
 ***
 
@@ -85,7 +85,7 @@ Defined in: [renderer/index.ts:75](https://github.com/Max-Health-Inc/prefab/blob
 optional keyBindings?: Record<string, ActionJSON | ActionJSON[]>;
 ```
 
-Defined in: [renderer/index.ts:76](https://github.com/Max-Health-Inc/prefab/blob/88d9aa00d6a50ef0286767079c6345c808f6a0a9/src/renderer/index.ts#L76)
+Defined in: [renderer/index.ts:81](https://github.com/Max-Health-Inc/prefab/blob/de93a446678c2f2b8a07006b7acfdb8a5f593717/src/renderer/index.ts#L81)
 
 ***
 
@@ -95,7 +95,7 @@ Defined in: [renderer/index.ts:76](https://github.com/Max-Health-Inc/prefab/blob
 optional css?: string[];
 ```
 
-Defined in: [renderer/index.ts:78](https://github.com/Max-Health-Inc/prefab/blob/88d9aa00d6a50ef0286767079c6345c808f6a0a9/src/renderer/index.ts#L78)
+Defined in: [renderer/index.ts:83](https://github.com/Max-Health-Inc/prefab/blob/de93a446678c2f2b8a07006b7acfdb8a5f593717/src/renderer/index.ts#L83)
 
 Inline CSS blocks injected as `<style>` (protocol 0.3).
 
@@ -107,7 +107,7 @@ Inline CSS blocks injected as `<style>` (protocol 0.3).
 optional stylesheets?: string[];
 ```
 
-Defined in: [renderer/index.ts:80](https://github.com/Max-Health-Inc/prefab/blob/88d9aa00d6a50ef0286767079c6345c808f6a0a9/src/renderer/index.ts#L80)
+Defined in: [renderer/index.ts:85](https://github.com/Max-Health-Inc/prefab/blob/de93a446678c2f2b8a07006b7acfdb8a5f593717/src/renderer/index.ts#L85)
 
 External CSS URLs loaded as `<link rel="stylesheet">` (protocol 0.3).
 
@@ -119,7 +119,7 @@ External CSS URLs loaded as `<link rel="stylesheet">` (protocol 0.3).
 optional mode?: "light" | "dark";
 ```
 
-Defined in: [renderer/index.ts:82](https://github.com/Max-Health-Inc/prefab/blob/88d9aa00d6a50ef0286767079c6345c808f6a0a9/src/renderer/index.ts#L82)
+Defined in: [renderer/index.ts:87](https://github.com/Max-Health-Inc/prefab/blob/de93a446678c2f2b8a07006b7acfdb8a5f593717/src/renderer/index.ts#L87)
 
 Forced color scheme, independent of OS preference (protocol 0.3).
 
@@ -131,7 +131,7 @@ Forced color scheme, independent of OS preference (protocol 0.3).
 optional pipes?: Record<string, string>;
 ```
 
-Defined in: [renderer/index.ts:84](https://github.com/Max-Health-Inc/prefab/blob/88d9aa00d6a50ef0286767079c6345c808f6a0a9/src/renderer/index.ts#L84)
+Defined in: [renderer/index.ts:89](https://github.com/Max-Health-Inc/prefab/blob/de93a446678c2f2b8a07006b7acfdb8a5f593717/src/renderer/index.ts#L89)
 
 Custom pipe source code strings — hydrated by the renderer on mount.
 
@@ -143,7 +143,7 @@ Custom pipe source code strings — hydrated by the renderer on mount.
 optional layout?: object;
 ```
 
-Defined in: [renderer/index.ts:86](https://github.com/Max-Health-Inc/prefab/blob/88d9aa00d6a50ef0286767079c6345c808f6a0a9/src/renderer/index.ts#L86)
+Defined in: [renderer/index.ts:91](https://github.com/Max-Health-Inc/prefab/blob/de93a446678c2f2b8a07006b7acfdb8a5f593717/src/renderer/index.ts#L91)
 
 Size hints for the host container.
 

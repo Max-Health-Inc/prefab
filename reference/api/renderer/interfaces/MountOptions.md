@@ -5,7 +5,7 @@ url: /prefab/reference/api/renderer/interfaces/MountOptions.md
 
 # Interface: MountOptions
 
-Defined in: [renderer/index.ts:94](https://github.com/Max-Health-Inc/prefab/blob/88d9aa00d6a50ef0286767079c6345c808f6a0a9/src/renderer/index.ts#L94)
+Defined in: [renderer/index.ts:99](https://github.com/Max-Health-Inc/prefab/blob/de93a446678c2f2b8a07006b7acfdb8a5f593717/src/renderer/index.ts#L99)
 
 ## Properties
 
@@ -15,7 +15,7 @@ Defined in: [renderer/index.ts:94](https://github.com/Max-Health-Inc/prefab/blob
 optional transport?: McpTransport | McpTransportOptions;
 ```
 
-Defined in: [renderer/index.ts:96](https://github.com/Max-Health-Inc/prefab/blob/88d9aa00d6a50ef0286767079c6345c808f6a0a9/src/renderer/index.ts#L96)
+Defined in: [renderer/index.ts:101](https://github.com/Max-Health-Inc/prefab/blob/de93a446678c2f2b8a07006b7acfdb8a5f593717/src/renderer/index.ts#L101)
 
 MCP transport configuration.
 
@@ -27,7 +27,7 @@ MCP transport configuration.
 optional onToast?: (toast) => void;
 ```
 
-Defined in: [renderer/index.ts:98](https://github.com/Max-Health-Inc/prefab/blob/88d9aa00d6a50ef0286767079c6345c808f6a0a9/src/renderer/index.ts#L98)
+Defined in: [renderer/index.ts:103](https://github.com/Max-Health-Inc/prefab/blob/de93a446678c2f2b8a07006b7acfdb8a5f593717/src/renderer/index.ts#L103)
 
 Toast notification handler.
 
@@ -49,6 +49,18 @@ Toast notification handler.
 optional themeToggle?: boolean | ThemeToggleOptions;
 ```
 
-Defined in: [renderer/index.ts:100](https://github.com/Max-Health-Inc/prefab/blob/88d9aa00d6a50ef0286767079c6345c808f6a0a9/src/renderer/index.ts#L100)
+Defined in: [renderer/index.ts:105](https://github.com/Max-Health-Inc/prefab/blob/de93a446678c2f2b8a07006b7acfdb8a5f593717/src/renderer/index.ts#L105)
 
 Show a built-in theme toggle. Default: true. Set false to suppress.
+
+***
+
+### validate?
+
+```ts
+optional validate?: boolean;
+```
+
+Defined in: [renderer/index.ts:107](https://github.com/Max-Health-Inc/prefab/blob/de93a446678c2f2b8a07006b7acfdb8a5f593717/src/renderer/index.ts#L107)
+
+Warn (console) on wire-format problems before rendering. Default: true. Non-fatal.

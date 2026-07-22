@@ -5,7 +5,7 @@ url: /prefab/reference/api/auto/interfaces/AutoChartOptions.md
 
 # Interface: AutoChartOptions
 
-Defined in: [auto/chart.ts:16](https://github.com/Max-Health-Inc/prefab/blob/88d9aa00d6a50ef0286767079c6345c808f6a0a9/src/auto/chart.ts#L16)
+Defined in: [auto/chart.ts:16](https://github.com/Max-Health-Inc/prefab/blob/de93a446678c2f2b8a07006b7acfdb8a5f593717/src/auto/chart.ts#L16)
 
 ## Properties
 
@@ -15,7 +15,7 @@ Defined in: [auto/chart.ts:16](https://github.com/Max-Health-Inc/prefab/blob/88d
 optional title?: string;
 ```
 
-Defined in: [auto/chart.ts:18](https://github.com/Max-Health-Inc/prefab/blob/88d9aa00d6a50ef0286767079c6345c808f6a0a9/src/auto/chart.ts#L18)
+Defined in: [auto/chart.ts:18](https://github.com/Max-Health-Inc/prefab/blob/de93a446678c2f2b8a07006b7acfdb8a5f593717/src/auto/chart.ts#L18)
 
 Chart heading.
 
@@ -27,7 +27,7 @@ Chart heading.
 optional subtitle?: string;
 ```
 
-Defined in: [auto/chart.ts:20](https://github.com/Max-Health-Inc/prefab/blob/88d9aa00d6a50ef0286767079c6345c808f6a0a9/src/auto/chart.ts#L20)
+Defined in: [auto/chart.ts:20](https://github.com/Max-Health-Inc/prefab/blob/de93a446678c2f2b8a07006b7acfdb8a5f593717/src/auto/chart.ts#L20)
 
 Optional subtitle.
 
@@ -39,7 +39,7 @@ Optional subtitle.
 optional chartType?: ChartType;
 ```
 
-Defined in: [auto/chart.ts:22](https://github.com/Max-Health-Inc/prefab/blob/88d9aa00d6a50ef0286767079c6345c808f6a0a9/src/auto/chart.ts#L22)
+Defined in: [auto/chart.ts:22](https://github.com/Max-Health-Inc/prefab/blob/de93a446678c2f2b8a07006b7acfdb8a5f593717/src/auto/chart.ts#L22)
 
 Chart type. Default 'bar'.
 
@@ -51,7 +51,7 @@ Chart type. Default 'bar'.
 optional xAxis?: string;
 ```
 
-Defined in: [auto/chart.ts:24](https://github.com/Max-Health-Inc/prefab/blob/88d9aa00d6a50ef0286767079c6345c808f6a0a9/src/auto/chart.ts#L24)
+Defined in: [auto/chart.ts:24](https://github.com/Max-Health-Inc/prefab/blob/de93a446678c2f2b8a07006b7acfdb8a5f593717/src/auto/chart.ts#L24)
 
 Key in data to use as X axis (e.g. 'month').
 
@@ -63,7 +63,7 @@ Key in data to use as X axis (e.g. 'month').
 optional height?: number;
 ```
 
-Defined in: [auto/chart.ts:26](https://github.com/Max-Health-Inc/prefab/blob/88d9aa00d6a50ef0286767079c6345c808f6a0a9/src/auto/chart.ts#L26)
+Defined in: [auto/chart.ts:26](https://github.com/Max-Health-Inc/prefab/blob/de93a446678c2f2b8a07006b7acfdb8a5f593717/src/auto/chart.ts#L26)
 
 Chart height in pixels.
 
@@ -75,6 +75,6 @@ Chart height in pixels.
 optional showLegend?: boolean;
 ```
 
-Defined in: [auto/chart.ts:28](https://github.com/Max-Health-Inc/prefab/blob/88d9aa00d6a50ef0286767079c6345c808f6a0a9/src/auto/chart.ts#L28)
+Defined in: [auto/chart.ts:28](https://github.com/Max-Health-Inc/prefab/blob/de93a446678c2f2b8a07006b7acfdb8a5f593717/src/auto/chart.ts#L28)
 
 Show legend. Default true.

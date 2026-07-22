@@ -5,7 +5,7 @@ url: /prefab/reference/api/mcp/interfaces/McpToolResult.md
 
 # Interface: McpToolResult
 
-Defined in: [mcp/types.ts:62](https://github.com/Max-Health-Inc/prefab/blob/88d9aa00d6a50ef0286767079c6345c808f6a0a9/src/mcp/types.ts#L62)
+Defined in: [mcp/types.ts:62](https://github.com/Max-Health-Inc/prefab/blob/de93a446678c2f2b8a07006b7acfdb8a5f593717/src/mcp/types.ts#L62)
 
 MCP tool result — returned from tool handlers.
 
@@ -27,7 +27,7 @@ without requiring an explicit cast.
 content: McpContent[];
 ```
 
-Defined in: [mcp/types.ts:63](https://github.com/Max-Health-Inc/prefab/blob/88d9aa00d6a50ef0286767079c6345c808f6a0a9/src/mcp/types.ts#L63)
+Defined in: [mcp/types.ts:63](https://github.com/Max-Health-Inc/prefab/blob/de93a446678c2f2b8a07006b7acfdb8a5f593717/src/mcp/types.ts#L63)
 
 ***
 
@@ -37,7 +37,7 @@ Defined in: [mcp/types.ts:63](https://github.com/Max-Health-Inc/prefab/blob/88d9
 optional structuredContent?: Record<string, unknown>;
 ```
 
-Defined in: [mcp/types.ts:65](https://github.com/Max-Health-Inc/prefab/blob/88d9aa00d6a50ef0286767079c6345c808f6a0a9/src/mcp/types.ts#L65)
+Defined in: [mcp/types.ts:65](https://github.com/Max-Health-Inc/prefab/blob/de93a446678c2f2b8a07006b7acfdb8a5f593717/src/mcp/types.ts#L65)
 
 Structured payload forwarded to MCP Apps iframes via ui/notifications/tool-result.
 
@@ -49,7 +49,7 @@ Structured payload forwarded to MCP Apps iframes via ui/notifications/tool-resul
 optional isError?: boolean;
 ```
 
-Defined in: [mcp/types.ts:66](https://github.com/Max-Health-Inc/prefab/blob/88d9aa00d6a50ef0286767079c6345c808f6a0a9/src/mcp/types.ts#L66)
+Defined in: [mcp/types.ts:66](https://github.com/Max-Health-Inc/prefab/blob/de93a446678c2f2b8a07006b7acfdb8a5f593717/src/mcp/types.ts#L66)
 
 ***
 
@@ -59,4 +59,4 @@ Defined in: [mcp/types.ts:66](https://github.com/Max-Health-Inc/prefab/blob/88d9
 optional _meta?: Record<string, unknown>;
 ```
 
-Defined in: [mcp/types.ts:67](https://github.com/Max-Health-Inc/prefab/blob/88d9aa00d6a50ef0286767079c6345c808f6a0a9/src/mcp/types.ts#L67)
+Defined in: [mcp/types.ts:67](https://github.com/Max-Health-Inc/prefab/blob/de93a446678c2f2b8a07006b7acfdb8a5f593717/src/mcp/types.ts#L67)

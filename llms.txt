@@ -180,6 +180,7 @@
 
 ##### Interfaces
 
+- [Interface: Logger](/reference/api/renderer/interfaces/Logger.md)
 - [Interface: AppOptions](/reference/api/renderer/interfaces/AppOptions.md)
 - [Interface: PrefabApp](/reference/api/renderer/interfaces/PrefabApp.md)
 - [Interface: MountHandle](/reference/api/renderer/interfaces/MountHandle.md)
@@ -199,16 +200,23 @@
 
 ##### Type Aliases
 
+- [Type Alias: LogLevel](/reference/api/renderer/type-aliases/LogLevel.md)
 - [Type Alias: DisplayMode](/reference/api/renderer/type-aliases/DisplayMode.md)
 - [Type Alias: RenderFnReturn](/reference/api/renderer/type-aliases/RenderFnReturn.md)
 - [Type Alias: RenderFn](/reference/api/renderer/type-aliases/RenderFn.md)
 
 ##### Variables
 
+- [Variable: log](/reference/api/renderer/variables/log.md)
 - [Variable: PrefabRenderer](/reference/api/renderer/variables/PrefabRenderer.md)
 
 ##### Functions
 
+- [Function: setLogLevel()](/reference/api/renderer/functions/setLogLevel.md)
+- [Function: getLogLevel()](/reference/api/renderer/functions/getLogLevel.md)
+- [Function: createLogger()](/reference/api/renderer/functions/createLogger.md)
+- [Function: validateWireFormat()](/reference/api/renderer/functions/validateWireFormat.md)
+- [Function: isValidWireFormat()](/reference/api/renderer/functions/isValidWireFormat.md)
 - [Function: app()](/reference/api/renderer/functions/app.md)
 - [Function: applyHostTheme()](/reference/api/renderer/functions/applyHostTheme.md)
 - [Function: isIframe()](/reference/api/renderer/functions/isIframe.md)

@@ -16,6 +16,7 @@ url: /prefab/reference/api/renderer.md
 
 | Interface | Description |
 | ------ | ------ |
+| [Logger](interfaces/Logger.md) | - |
 | [AppOptions](interfaces/AppOptions.md) | - |
 | [PrefabApp](interfaces/PrefabApp.md) | - |
 | [MountHandle](interfaces/MountHandle.md) | - |
@@ -37,6 +38,7 @@ url: /prefab/reference/api/renderer.md
 
 | Type Alias | Description |
 | ------ | ------ |
+| [LogLevel](type-aliases/LogLevel.md) | Centralized logger — the single sink for all prefab console output. |
 | [DisplayMode](type-aliases/DisplayMode.md) | - |
 | [RenderFnReturn](type-aliases/RenderFnReturn.md) | - |
 | [RenderFn](type-aliases/RenderFn.md) | - |
@@ -45,12 +47,18 @@ url: /prefab/reference/api/renderer.md
 
 | Variable | Description |
 | ------ | ------ |
+| [log](variables/log.md) | Default unscoped logger — `[prefab] …`. |
 | [PrefabRenderer](variables/PrefabRenderer.md) | - |
 
 ## Functions
 
 | Function | Description |
 | ------ | ------ |
+| [setLogLevel](functions/setLogLevel.md) | - |
+| [getLogLevel](functions/getLogLevel.md) | - |
+| [createLogger](functions/createLogger.md) | Create a scoped logger. Output is prefixed `[prefab]` (no scope) or `[prefab:<scope>]`, matching prefab's existing console convention. |
+| [validateWireFormat](functions/validateWireFormat.md) | Validate a wire format payload. Returns `{ valid: true, errors: [] }` if OK, or `{ valid: false, errors: [...] }` with details about what's wrong. |
+| [isValidWireFormat](functions/isValidWireFormat.md) | Quick boolean check — returns true if data looks like valid $prefab wire format. |
 | [app](functions/app.md) | Create a prefab app. Auto-detects iframe vs standalone. |
 | [applyHostTheme](functions/applyHostTheme.md) | - |
 | [isIframe](functions/isIframe.md) | - |
