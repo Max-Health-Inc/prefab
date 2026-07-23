@@ -138,7 +138,7 @@ export interface DisplayFormOptions extends AutoFormOptions, DisplayOptions {}
 /**
  * Return a form UI as an MCP tool result.
  *
- * The form submits back to the specified MCP tool via CallTool.
+ * Submitting the form calls the specified MCP tool (via CallTool).
  * Field definitions map to Input components; the submit action
  * invokes `submitTool` with all field values.
  *

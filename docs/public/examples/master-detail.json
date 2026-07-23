@@ -5,7 +5,7 @@
     "cssClass": "gap-4",
     "children": [
       { "type": "Heading", "content": "Master / Detail", "level": 2 },
-      { "type": "Muted", "content": "A two-pane layout: pick a row on the left, the detail panel on the right reacts. Selection is driven by onClick → setState; the Detail shows its `empty` placeholder until something is chosen." },
+      { "type": "Muted", "content": "Pick a teammate on the left and the panel on the right updates to match. It shows a placeholder until you choose someone." },
       { "type": "MasterDetail", "masterWidth": "260px", "gap": 4, "children": [
         { "type": "Column", "cssClass": "gap-2", "children": [
           { "type": "ForEach", "expression": "{{ users }}", "children": [

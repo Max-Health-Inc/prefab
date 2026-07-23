@@ -5,7 +5,7 @@
     "cssClass": "gap-4",
     "children": [
       { "type": "Heading", "content": "Content, Media & Widgets", "level": 2 },
-      { "type": "Muted", "content": "Prose, code, inline SVG, radial/histogram charts, mini data widgets, and hover/carousel interactions — all declarative." },
+      { "type": "Muted", "content": "Prose, code, inline SVG, radial and histogram charts, small data widgets, and hover/carousel interactions — all described in plain JSON." },
 
       { "type": "Card", "children": [
         { "type": "CardHeader", "children": [ { "type": "CardTitle", "content": "Markdown" } ] },

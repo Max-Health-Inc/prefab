@@ -5,7 +5,7 @@
     "cssClass": "gap-4",
     "children": [
       { "type": "Heading", "content": "Interactive Components", "level": 2 },
-      { "type": "Muted", "content": "Overlays, disclosure, and form controls that drive reactive state, all from JSON." },
+      { "type": "Muted", "content": "Dialogs, expandable sections, and controls that update the UI as you interact — all described in JSON, with no event-handler code." },
 
       { "type": "Card", "children": [
         { "type": "CardHeader", "children": [ { "type": "CardTitle", "content": "Live controls" } ] },
@@ -49,9 +49,9 @@
             { "type": "AccordionItem", "title": "Is the renderer really zero-dependency?", "children": [
               { "type": "Text", "content": "Yes. The browser bundle is vanilla DOM with no runtime dependencies." } ] },
             { "type": "AccordionItem", "title": "Does it work outside MCP?", "children": [
-              { "type": "Text", "content": "Any web app can mount the wire format: React, Vue, Svelte, plain HTML, or an iframe." } ] },
+              { "type": "Text", "content": "Any web app can render this JSON: React, Vue, Svelte, plain HTML, or an iframe." } ] },
             { "type": "AccordionItem", "title": "How do actions work?", "children": [
-              { "type": "Text", "content": "onClick / onChange dispatch declarative actions like setState, toggleState, callTool, and showToast." } ] }
+              { "type": "Text", "content": "Buttons and inputs carry their actions in the JSON — update a value, call a server, show a message — so there's no event-handler code to write." } ] }
           ]}
         ]}
       ]}

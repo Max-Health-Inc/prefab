@@ -5,7 +5,7 @@
     "cssClass": "gap-4",
     "children": [
       { "type": "Heading", "content": "Form Controls", "level": 2 },
-      { "type": "Muted", "content": "Every control binds to a state key by name. The preview card reads those keys back with {{ }} — each control fires onChange to re-render the readout." },
+      { "type": "Muted", "content": "Change any control on the left and the card on the right updates live to match — each field is wired to the readout by name." },
       { "type": "Row", "cssClass": "gap-4", "children": [
         { "type": "Card", "cssClass": "flex-1", "children": [
           { "type": "CardHeader", "children": [ { "type": "CardTitle", "content": "Inputs" } ] },

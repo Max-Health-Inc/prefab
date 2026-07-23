@@ -10,7 +10,7 @@
         { "type": "Div", "cssClass": "flex-1" },
         { "type": "Badge", "variant": "success", "content": "● live" }
       ]},
-      { "type": "Muted", "content": "Subscribed to a mock resource. With no native push, prefab polls the mock tool every 1.2s (the same fallback real MCP hosts use) and merges display_update deltas — metrics and the chart update on their own." },
+      { "type": "Muted", "content": "This panel keeps itself fresh. About once a second it calls a tool on a small server (simulated here in the page) for new numbers and updates on its own — the same live-updates pattern a real MCP app uses. Watch the values and the chart move." },
       { "type": "Row", "cssClass": "gap-4", "children": [
         { "type": "Card", "cssClass": "flex-1", "children": [ { "type": "CardContent", "children": [ { "type": "Metric", "label": "Active Users", "value": "{{ users }}" } ] } ] },
         { "type": "Card", "cssClass": "flex-1", "children": [ { "type": "CardContent", "children": [ { "type": "Metric", "label": "Requests / sec", "value": "{{ req }}" } ] } ] }

@@ -54,7 +54,7 @@ patch when only the data does.
 
 Because each handler returns a self-contained UI, tools compose naturally. A
 list view can carry a button whose click calls a detail tool; the detail view
-can carry one that opens an edit form; the form submits back to a save tool.
+can carry one that opens an edit form; submitting the form calls a save tool.
 Each step is just another handler returning its own `display(...)`, so rich,
 multi-screen flows fall out of simple pieces.
 

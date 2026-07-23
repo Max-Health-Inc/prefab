@@ -5,7 +5,7 @@
     "cssClass": "gap-4",
     "children": [
       { "type": "Heading", "content": "Server-driven Counter", "level": 2 },
-      { "type": "Muted", "content": "Each button calls a tool on an in-page mock MCP server, which replies with a display_update. The count is server-authoritative — the client never mutates it directly. This is the CallTool('_action', …) pattern real prefab MCP apps use." },
+      { "type": "Muted", "content": "The buttons don't change the number themselves. Each click calls a tool on a small server (simulated here in the page) that does the math and sends back the new value, so the count is always whatever the server says. That is how a real MCP app stays in sync with its backend." },
       { "type": "Card", "children": [
         { "type": "CardContent", "children": [
           { "type": "Column", "cssClass": "gap-3 items-center", "children": [

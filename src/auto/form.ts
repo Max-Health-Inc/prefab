@@ -1,5 +1,5 @@
 /**
- * autoForm — Generates a Form from field definitions that submits to an MCP tool.
+ * autoForm — Generates a Form from field definitions that calls an MCP tool on submit.
  *
  * Ported from mcp-generator-3.x display_tools.py → show_form.
  */
@@ -42,7 +42,7 @@ export interface AutoFormOptions {
 }
 
 /**
- * Auto-generate a Form that submits to an MCP tool.
+ * Auto-generate a Form that calls an MCP tool on submit.
  *
  * @example
  * ```ts
