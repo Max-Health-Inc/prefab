@@ -10,7 +10,7 @@
         { "type": "Div", "cssClass": "flex-1" },
         { "type": "Badge", "variant": "success", "content": "● live" }
       ]},
-      { "type": "Muted", "content": "This panel keeps itself fresh. It checks a small server (simulated here in the page) for new numbers about once a second and updates on its own — the same live-updates pattern a real app backed by a data feed uses. Watch the values and the chart move." },
+      { "type": "Muted", "content": "This panel keeps itself fresh. About once a second it calls a tool on a small server (simulated here in the page) for new numbers and updates on its own — the same live-updates pattern a real MCP app uses. Watch the values and the chart move." },
       { "type": "Row", "cssClass": "gap-4", "children": [
         { "type": "Card", "cssClass": "flex-1", "children": [ { "type": "CardContent", "children": [ { "type": "Metric", "label": "Active Users", "value": "{{ users }}" } ] } ] },
         { "type": "Card", "cssClass": "flex-1", "children": [ { "type": "CardContent", "children": [ { "type": "Metric", "label": "Requests / sec", "value": "{{ req }}" } ] } ] }
