@@ -12,11 +12,11 @@ function display_form(
    options?): McpToolResult;
 ```
 
-Defined in: [mcp/display.ts:147](https://github.com/Max-Health-Inc/prefab/blob/de93a446678c2f2b8a07006b7acfdb8a5f593717/src/mcp/display.ts#L147)
+Defined in: [mcp/display.ts:147](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/mcp/display.ts#L147)
 
 Return a form UI as an MCP tool result.
 
-The form submits back to the specified MCP tool via CallTool.
+Submitting the form calls the specified MCP tool (via CallTool).
 Field definitions map to Input components; the submit action
 invokes `submitTool` with all field values.
 

@@ -5,7 +5,7 @@ url: /prefab/reference/api/mcp/interfaces/RendererHtmlOptions.md
 
 # Interface: RendererHtmlOptions
 
-Defined in: [mcp/display.ts:449](https://github.com/Max-Health-Inc/prefab/blob/de93a446678c2f2b8a07006b7acfdb8a5f593717/src/mcp/display.ts#L449)
+Defined in: [mcp/display.ts:449](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/mcp/display.ts#L449)
 
 ## Properties
 
@@ -15,7 +15,7 @@ Defined in: [mcp/display.ts:449](https://github.com/Max-Health-Inc/prefab/blob/d
 optional title?: string;
 ```
 
-Defined in: [mcp/display.ts:451](https://github.com/Max-Health-Inc/prefab/blob/de93a446678c2f2b8a07006b7acfdb8a5f593717/src/mcp/display.ts#L451)
+Defined in: [mcp/display.ts:451](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/mcp/display.ts#L451)
 
 Page title.
 
@@ -33,7 +33,7 @@ Page title.
 optional scripts?: string[];
 ```
 
-Defined in: [mcp/display.ts:453](https://github.com/Max-Health-Inc/prefab/blob/de93a446678c2f2b8a07006b7acfdb8a5f593717/src/mcp/display.ts#L453)
+Defined in: [mcp/display.ts:453](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/mcp/display.ts#L453)
 
 Additional `<script>` URLs to load after the renderer.
 
@@ -45,7 +45,7 @@ Additional `<script>` URLs to load after the renderer.
 optional stylesheets?: string[];
 ```
 
-Defined in: [mcp/display.ts:455](https://github.com/Max-Health-Inc/prefab/blob/de93a446678c2f2b8a07006b7acfdb8a5f593717/src/mcp/display.ts#L455)
+Defined in: [mcp/display.ts:455](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/mcp/display.ts#L455)
 
 Additional `<link rel="stylesheet">` URLs.
 
@@ -57,7 +57,7 @@ Additional `<link rel="stylesheet">` URLs.
 optional cdnBase?: string;
 ```
 
-Defined in: [mcp/display.ts:457](https://github.com/Max-Health-Inc/prefab/blob/de93a446678c2f2b8a07006b7acfdb8a5f593717/src/mcp/display.ts#L457)
+Defined in: [mcp/display.ts:457](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/mcp/display.ts#L457)
 
 Override CDN base URL (no trailing slash).
 

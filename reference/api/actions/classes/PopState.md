@@ -5,7 +5,7 @@ url: /prefab/reference/api/actions/classes/PopState.md
 
 # Class: PopState
 
-Defined in: [actions/client.ts:67](https://github.com/Max-Health-Inc/prefab/blob/de93a446678c2f2b8a07006b7acfdb8a5f593717/src/actions/client.ts#L67)
+Defined in: [actions/client.ts:67](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/actions/client.ts#L67)
 
 Base interface all actions implement
 
@@ -21,7 +21,7 @@ Base interface all actions implement
 new PopState(key, index): PopState;
 ```
 
-Defined in: [actions/client.ts:68](https://github.com/Max-Health-Inc/prefab/blob/de93a446678c2f2b8a07006b7acfdb8a5f593717/src/actions/client.ts#L68)
+Defined in: [actions/client.ts:68](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/actions/client.ts#L68)
 
 #### Parameters
 
@@ -42,7 +42,7 @@ Defined in: [actions/client.ts:68](https://github.com/Max-Health-Inc/prefab/blob
 readonly key: string;
 ```
 
-Defined in: [actions/client.ts:69](https://github.com/Max-Health-Inc/prefab/blob/de93a446678c2f2b8a07006b7acfdb8a5f593717/src/actions/client.ts#L69)
+Defined in: [actions/client.ts:69](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/actions/client.ts#L69)
 
 ***
 
@@ -52,7 +52,7 @@ Defined in: [actions/client.ts:69](https://github.com/Max-Health-Inc/prefab/blob
 readonly index: string | number;
 ```
 
-Defined in: [actions/client.ts:70](https://github.com/Max-Health-Inc/prefab/blob/de93a446678c2f2b8a07006b7acfdb8a5f593717/src/actions/client.ts#L70)
+Defined in: [actions/client.ts:70](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/actions/client.ts#L70)
 
 ## Methods
 
@@ -62,7 +62,7 @@ Defined in: [actions/client.ts:70](https://github.com/Max-Health-Inc/prefab/blob
 toJSON(): ActionJSON;
 ```
 
-Defined in: [actions/client.ts:73](https://github.com/Max-Health-Inc/prefab/blob/de93a446678c2f2b8a07006b7acfdb8a5f593717/src/actions/client.ts#L73)
+Defined in: [actions/client.ts:73](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/actions/client.ts#L73)
 
 #### Returns
 

@@ -5,7 +5,7 @@ url: /prefab/reference/api/actions/classes/CallTool.md
 
 # Class: CallTool
 
-Defined in: [actions/mcp.ts:22](https://github.com/Max-Health-Inc/prefab/blob/de93a446678c2f2b8a07006b7acfdb8a5f593717/src/actions/mcp.ts#L22)
+Defined in: [actions/mcp.ts:22](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/actions/mcp.ts#L22)
 
 Invoke an MCP tool from the UI.
 Used in Form.onSubmit or Button.onClick to call backend tools.
@@ -22,7 +22,7 @@ Used in Form.onSubmit or Button.onClick to call backend tools.
 new CallTool(tool, opts?): CallTool;
 ```
 
-Defined in: [actions/mcp.ts:23](https://github.com/Max-Health-Inc/prefab/blob/de93a446678c2f2b8a07006b7acfdb8a5f593717/src/actions/mcp.ts#L23)
+Defined in: [actions/mcp.ts:23](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/actions/mcp.ts#L23)
 
 #### Parameters
 
@@ -43,7 +43,7 @@ Defined in: [actions/mcp.ts:23](https://github.com/Max-Health-Inc/prefab/blob/de
 readonly tool: string;
 ```
 
-Defined in: [actions/mcp.ts:24](https://github.com/Max-Health-Inc/prefab/blob/de93a446678c2f2b8a07006b7acfdb8a5f593717/src/actions/mcp.ts#L24)
+Defined in: [actions/mcp.ts:24](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/actions/mcp.ts#L24)
 
 ## Methods
 
@@ -53,7 +53,7 @@ Defined in: [actions/mcp.ts:24](https://github.com/Max-Health-Inc/prefab/blob/de
 toJSON(): ActionJSON;
 ```
 
-Defined in: [actions/mcp.ts:28](https://github.com/Max-Health-Inc/prefab/blob/de93a446678c2f2b8a07006b7acfdb8a5f593717/src/actions/mcp.ts#L28)
+Defined in: [actions/mcp.ts:28](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/actions/mcp.ts#L28)
 
 #### Returns
 

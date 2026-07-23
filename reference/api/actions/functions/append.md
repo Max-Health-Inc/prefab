@@ -12,7 +12,7 @@ function append(
    index?): AppendState;
 ```
 
-Defined in: [actions/sugar.ts:43](https://github.com/Max-Health-Inc/prefab/blob/de93a446678c2f2b8a07006b7acfdb8a5f593717/src/actions/sugar.ts#L43)
+Defined in: [actions/sugar.ts:43](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/actions/sugar.ts#L43)
 
 Append an item to an array state value. Optionally specify insertion index.
 

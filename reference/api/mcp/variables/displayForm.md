@@ -9,13 +9,13 @@ url: /prefab/reference/api/mcp/variables/displayForm.md
 const displayForm: (fields, submitTool, options?) => McpToolResult = display_form;
 ```
 
-Defined in: [mcp/display.ts:340](https://github.com/Max-Health-Inc/prefab/blob/de93a446678c2f2b8a07006b7acfdb8a5f593717/src/mcp/display.ts#L340)
+Defined in: [mcp/display.ts:340](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/mcp/display.ts#L340)
 
 MCP display helpers — return prefab UIs as MCP tool results.
 
 Return a form UI as an MCP tool result.
 
-The form submits back to the specified MCP tool via CallTool.
+Submitting the form calls the specified MCP tool (via CallTool).
 Field definitions map to Input components; the submit action
 invokes `submitTool` with all field values.
 

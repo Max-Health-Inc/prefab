@@ -5,7 +5,7 @@
     "cssClass": "gap-4",
     "children": [
       { "type": "Heading", "content": "Chart Gallery", "level": 2 },
-      { "type": "Muted", "content": "Every chart type renders natively as zero-dependency SVG, with declarative value formatting." },
+      { "type": "Muted", "content": "Every chart type draws as crisp SVG (no charting library), with number formatting like currency, compact, and percent built in." },
 
       { "type": "Card", "children": [
         { "type": "CardHeader", "children": [

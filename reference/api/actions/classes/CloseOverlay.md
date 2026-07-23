@@ -5,7 +5,7 @@ url: /prefab/reference/api/actions/classes/CloseOverlay.md
 
 # Class: CloseOverlay
 
-Defined in: [actions/client.ts:105](https://github.com/Max-Health-Inc/prefab/blob/de93a446678c2f2b8a07006b7acfdb8a5f593717/src/actions/client.ts#L105)
+Defined in: [actions/client.ts:105](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/actions/client.ts#L105)
 
 Base interface all actions implement
 
@@ -33,7 +33,7 @@ new CloseOverlay(): CloseOverlay;
 toJSON(): ActionJSON;
 ```
 
-Defined in: [actions/client.ts:106](https://github.com/Max-Health-Inc/prefab/blob/de93a446678c2f2b8a07006b7acfdb8a5f593717/src/actions/client.ts#L106)
+Defined in: [actions/client.ts:106](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/actions/client.ts#L106)
 
 #### Returns
 

@@ -5,7 +5,7 @@ url: /prefab/reference/api/rx/classes/Signal.md
 
 # Class: Signal\<T>
 
-Defined in: [rx/signal.ts:34](https://github.com/Max-Health-Inc/prefab/blob/de93a446678c2f2b8a07006b7acfdb8a5f593717/src/rx/signal.ts#L34)
+Defined in: [rx/signal.ts:34](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/rx/signal.ts#L34)
 
 A named reactive scalar. Carries a state key, an initial value,
 and produces rx expressions for component props.
@@ -27,7 +27,7 @@ new Signal<T>(
 options?): Signal<T>;
 ```
 
-Defined in: [rx/signal.ts:39](https://github.com/Max-Health-Inc/prefab/blob/de93a446678c2f2b8a07006b7acfdb8a5f593717/src/rx/signal.ts#L39)
+Defined in: [rx/signal.ts:39](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/rx/signal.ts#L39)
 
 #### Parameters
 
@@ -49,7 +49,7 @@ Defined in: [rx/signal.ts:39](https://github.com/Max-Health-Inc/prefab/blob/de93
 readonly key: string;
 ```
 
-Defined in: [rx/signal.ts:35](https://github.com/Max-Health-Inc/prefab/blob/de93a446678c2f2b8a07006b7acfdb8a5f593717/src/rx/signal.ts#L35)
+Defined in: [rx/signal.ts:35](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/rx/signal.ts#L35)
 
 ***
 
@@ -59,7 +59,7 @@ Defined in: [rx/signal.ts:35](https://github.com/Max-Health-Inc/prefab/blob/de93
 readonly initial: T;
 ```
 
-Defined in: [rx/signal.ts:36](https://github.com/Max-Health-Inc/prefab/blob/de93a446678c2f2b8a07006b7acfdb8a5f593717/src/rx/signal.ts#L36)
+Defined in: [rx/signal.ts:36](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/rx/signal.ts#L36)
 
 ***
 
@@ -69,7 +69,7 @@ Defined in: [rx/signal.ts:36](https://github.com/Max-Health-Inc/prefab/blob/de93
 readonly optional options?: SignalOptions;
 ```
 
-Defined in: [rx/signal.ts:37](https://github.com/Max-Health-Inc/prefab/blob/de93a446678c2f2b8a07006b7acfdb8a5f593717/src/rx/signal.ts#L37)
+Defined in: [rx/signal.ts:37](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/rx/signal.ts#L37)
 
 ## Methods
 
@@ -79,7 +79,7 @@ Defined in: [rx/signal.ts:37](https://github.com/Max-Health-Inc/prefab/blob/de93
 toRx(): Rx;
 ```
 
-Defined in: [rx/signal.ts:46](https://github.com/Max-Health-Inc/prefab/blob/de93a446678c2f2b8a07006b7acfdb8a5f593717/src/rx/signal.ts#L46)
+Defined in: [rx/signal.ts:46](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/rx/signal.ts#L46)
 
 Rx expression referencing this signal's value: `{{ key }}`
 
@@ -95,7 +95,7 @@ Rx expression referencing this signal's value: `{{ key }}`
 toString(): string;
 ```
 
-Defined in: [rx/signal.ts:51](https://github.com/Max-Health-Inc/prefab/blob/de93a446678c2f2b8a07006b7acfdb8a5f593717/src/rx/signal.ts#L51)
+Defined in: [rx/signal.ts:51](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/rx/signal.ts#L51)
 
 Serialize to the rx template string
 
@@ -111,7 +111,7 @@ Serialize to the rx template string
 toJSON(): string;
 ```
 
-Defined in: [rx/signal.ts:55](https://github.com/Max-Health-Inc/prefab/blob/de93a446678c2f2b8a07006b7acfdb8a5f593717/src/rx/signal.ts#L55)
+Defined in: [rx/signal.ts:55](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/rx/signal.ts#L55)
 
 #### Returns
 
@@ -125,7 +125,7 @@ Defined in: [rx/signal.ts:55](https://github.com/Max-Health-Inc/prefab/blob/de93
 toState(): Record<string, T>;
 ```
 
-Defined in: [rx/signal.ts:60](https://github.com/Max-Health-Inc/prefab/blob/de93a446678c2f2b8a07006b7acfdb8a5f593717/src/rx/signal.ts#L60)
+Defined in: [rx/signal.ts:60](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/rx/signal.ts#L60)
 
 State entry for PrefabApp: `{ key: initial }`
 

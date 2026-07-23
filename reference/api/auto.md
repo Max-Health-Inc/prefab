@@ -40,7 +40,7 @@ url: /prefab/reference/api/auto.md
 | ------ | ------ |
 | [autoChart](functions/autoChart.md) | Auto-generate a chart Card from data and series definitions. |
 | [autoComparison](functions/autoComparison.md) | Auto-generate a side-by-side comparison of items. |
-| [autoForm](functions/autoForm.md) | Auto-generate a Form that submits to an MCP tool. |
+| [autoForm](functions/autoForm.md) | Auto-generate a Form that calls an MCP tool on submit. |
 | [QuickForm](functions/QuickForm.md) | Factory function for the chainable QuickForm builder. |
 | [statusVariant](functions/statusVariant.md) | Get a Badge variant for a status string. Falls back to 'outline' for unknown statuses. |
 | [registerStatusVariants](functions/registerStatusVariants.md) | Register additional status→variant mappings. |

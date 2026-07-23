@@ -5,7 +5,7 @@ url: /prefab/reference/api/mcp/interfaces/McpResourceContent.md
 
 # Interface: McpResourceContent
 
-Defined in: [mcp/types.ts:45](https://github.com/Max-Health-Inc/prefab/blob/de93a446678c2f2b8a07006b7acfdb8a5f593717/src/mcp/types.ts#L45)
+Defined in: [mcp/types.ts:45](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/mcp/types.ts#L45)
 
 MCP embedded resource content block (compatible with SDK's EmbeddedResource)
 
@@ -17,7 +17,7 @@ MCP embedded resource content block (compatible with SDK's EmbeddedResource)
 type: "resource";
 ```
 
-Defined in: [mcp/types.ts:46](https://github.com/Max-Health-Inc/prefab/blob/de93a446678c2f2b8a07006b7acfdb8a5f593717/src/mcp/types.ts#L46)
+Defined in: [mcp/types.ts:46](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/mcp/types.ts#L46)
 
 ***
 
@@ -29,7 +29,7 @@ resource:
   | McpBlobResourceContents;
 ```
 
-Defined in: [mcp/types.ts:47](https://github.com/Max-Health-Inc/prefab/blob/de93a446678c2f2b8a07006b7acfdb8a5f593717/src/mcp/types.ts#L47)
+Defined in: [mcp/types.ts:47](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/mcp/types.ts#L47)
 
 ***
 
@@ -39,7 +39,7 @@ Defined in: [mcp/types.ts:47](https://github.com/Max-Health-Inc/prefab/blob/de93
 optional annotations?: Record<string, unknown>;
 ```
 
-Defined in: [mcp/types.ts:48](https://github.com/Max-Health-Inc/prefab/blob/de93a446678c2f2b8a07006b7acfdb8a5f593717/src/mcp/types.ts#L48)
+Defined in: [mcp/types.ts:48](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/mcp/types.ts#L48)
 
 ***
 
@@ -49,4 +49,4 @@ Defined in: [mcp/types.ts:48](https://github.com/Max-Health-Inc/prefab/blob/de93
 optional _meta?: Record<string, unknown>;
 ```
 
-Defined in: [mcp/types.ts:49](https://github.com/Max-Health-Inc/prefab/blob/de93a446678c2f2b8a07006b7acfdb8a5f593717/src/mcp/types.ts#L49)
+Defined in: [mcp/types.ts:49](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/mcp/types.ts#L49)

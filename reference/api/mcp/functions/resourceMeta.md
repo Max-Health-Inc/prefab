@@ -9,7 +9,7 @@ url: /prefab/reference/api/mcp/functions/resourceMeta.md
 function resourceMeta(options?): object;
 ```
 
-Defined in: [mcp/display.ts:408](https://github.com/Max-Health-Inc/prefab/blob/de93a446678c2f2b8a07006b7acfdb8a5f593717/src/mcp/display.ts#L408)
+Defined in: [mcp/display.ts:408](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/mcp/display.ts#L408)
 
 MCP display helpers — return prefab UIs as MCP tool results.
 

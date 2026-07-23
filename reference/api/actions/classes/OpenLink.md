@@ -5,7 +5,7 @@ url: /prefab/reference/api/actions/classes/OpenLink.md
 
 # Class: OpenLink
 
-Defined in: [actions/client.ts:113](https://github.com/Max-Health-Inc/prefab/blob/de93a446678c2f2b8a07006b7acfdb8a5f593717/src/actions/client.ts#L113)
+Defined in: [actions/client.ts:113](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/actions/client.ts#L113)
 
 Base interface all actions implement
 
@@ -21,7 +21,7 @@ Base interface all actions implement
 new OpenLink(url, target?): OpenLink;
 ```
 
-Defined in: [actions/client.ts:114](https://github.com/Max-Health-Inc/prefab/blob/de93a446678c2f2b8a07006b7acfdb8a5f593717/src/actions/client.ts#L114)
+Defined in: [actions/client.ts:114](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/actions/client.ts#L114)
 
 #### Parameters
 
@@ -42,7 +42,7 @@ Defined in: [actions/client.ts:114](https://github.com/Max-Health-Inc/prefab/blo
 readonly url: string;
 ```
 
-Defined in: [actions/client.ts:115](https://github.com/Max-Health-Inc/prefab/blob/de93a446678c2f2b8a07006b7acfdb8a5f593717/src/actions/client.ts#L115)
+Defined in: [actions/client.ts:115](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/actions/client.ts#L115)
 
 ***
 
@@ -52,7 +52,7 @@ Defined in: [actions/client.ts:115](https://github.com/Max-Health-Inc/prefab/blo
 readonly target: string = '_blank';
 ```
 
-Defined in: [actions/client.ts:116](https://github.com/Max-Health-Inc/prefab/blob/de93a446678c2f2b8a07006b7acfdb8a5f593717/src/actions/client.ts#L116)
+Defined in: [actions/client.ts:116](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/actions/client.ts#L116)
 
 ## Methods
 
@@ -62,7 +62,7 @@ Defined in: [actions/client.ts:116](https://github.com/Max-Health-Inc/prefab/blo
 toJSON(): ActionJSON;
 ```
 
-Defined in: [actions/client.ts:119](https://github.com/Max-Health-Inc/prefab/blob/de93a446678c2f2b8a07006b7acfdb8a5f593717/src/actions/client.ts#L119)
+Defined in: [actions/client.ts:119](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/actions/client.ts#L119)
 
 #### Returns
 
