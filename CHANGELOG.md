@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Docs
+
+- Rewrote the playground example descriptions in plain language for first-time viewers, dropping internal jargon (`Define`/`Use`/`Condition`, `display_update`, "mock MCP tool", `onChange`/`setState`, "wire format") in favor of what the user sees and does. The Composition example is restructured into two labeled sections with natural labels ("Grade:", "Note:") instead of "Condition:" / "If / Elif / Else:".
+
 ## [0.3.5] — 2026-07-22
 
 ### Fixed
