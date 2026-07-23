@@ -4,9 +4,11 @@
     "type": "Column",
     "cssClass": "gap-4",
     "children": [
-      { "type": "Heading", "content": "Templates & Control Flow", "level": 2 },
-      { "type": "Muted", "content": "Define a template once, Use it for every item in a ForEach. Then drive a Condition and an If/Elif/Else chain from a slider." },
+      { "type": "Heading", "content": "Reusable layouts & live rules", "level": 2 },
+      { "type": "Muted", "content": "Two things almost every UI needs, straight from JSON: reuse one layout for a whole list, and change what's shown as a value changes." },
 
+      { "type": "Heading", "content": "One card design, three cards", "level": 3 },
+      { "type": "Muted", "content": "The card below is defined once, then filled from a list — add an item to the data and a fourth card appears, no extra markup." },
       { "type": "Define", "name": "statCard", "children": [
         { "type": "Card", "children": [ { "type": "CardContent", "children": [
           { "type": "Column", "cssClass": "gap-1", "children": [
@@ -23,13 +25,14 @@
 
       { "type": "Separator" },
 
-      { "type": "Heading", "content": "Grade", "level": 3 },
+      { "type": "Heading", "content": "Content that reacts to a value", "level": 3 },
+      { "type": "Muted", "content": "Drag the score. The grade and the note update the moment it crosses 90, 75, or 60 — the UI carries the rules, no callback code." },
       { "type": "Label", "content": "Score: {{ score }}" },
       { "type": "Slider", "name": "score", "min": 0, "max": 100, "step": 1,
         "onChange": { "action": "setState", "key": "score", "value": "{{ $event }}" } },
 
       { "type": "Row", "cssClass": "gap-2 items-center", "children": [
-        { "type": "Text", "content": "Condition:" },
+        { "type": "Text", "content": "Grade:" },
         { "type": "Condition",
           "cases": [
             { "when": "{{ score >= 90 }}", "children": [ { "type": "Badge", "variant": "success", "content": "A — Excellent" } ] },
@@ -39,12 +42,11 @@
           "else": [ { "type": "Badge", "variant": "destructive", "content": "F — Fail" } ]
         }
       ]},
-
       { "type": "Row", "cssClass": "gap-2 items-center", "children": [
-        { "type": "Text", "content": "If / Elif / Else:" },
-        { "type": "If", "condition": "{{ score >= 90 }}", "children": [ { "type": "Text", "content": "Top tier 🏆" } ] },
-        { "type": "Elif", "condition": "{{ score >= 60 }}", "children": [ { "type": "Text", "content": "Passing ✅" } ] },
-        { "type": "Else", "children": [ { "type": "Text", "content": "Needs work ✍️" } ] }
+        { "type": "Text", "content": "Note:" },
+        { "type": "If", "condition": "{{ score >= 90 }}", "children": [ { "type": "Text", "content": "Top of the class 🏆" } ] },
+        { "type": "Elif", "condition": "{{ score >= 60 }}", "children": [ { "type": "Text", "content": "Passing — keep going ✅" } ] },
+        { "type": "Else", "children": [ { "type": "Text", "content": "Below passing — needs work ✍️" } ] }
       ]}
     ]
   },

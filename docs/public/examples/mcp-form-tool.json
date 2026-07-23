@@ -5,7 +5,7 @@
     "cssClass": "gap-4",
     "children": [
       { "type": "Heading", "content": "Task List (MCP)", "level": 2 },
-      { "type": "Muted", "content": "The form submits to a mock MCP tool. The server appends the task and returns the updated list via display_update; the same delta clears the input. No client-side list mutation." },
+      { "type": "Muted", "content": "Type a task and submit. The app doesn't add it to the list directly — it sends the text to a small server (simulated here in the page), which adds the task and sends back the updated list. Same round-trip a real app backed by a tool server makes." },
       { "type": "Card", "children": [
         { "type": "CardContent", "children": [
           { "type": "Column", "cssClass": "gap-3", "children": [
