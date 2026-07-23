@@ -10,6 +10,7 @@ import { describe, it, expect, beforeEach, afterEach } from 'bun:test'
 import { Bridge, isIframe, applyHostTheme } from '../src/renderer/bridge'
 import type { HostTheme, BridgeMessage } from '../src/renderer/bridge'
 import { app } from '../src/renderer/app'
+import { VERSION } from '../src/core/version'
 
 // ── Bridge (prefab:* protocol) ───────────────────────────────────────────────
 
@@ -665,8 +666,9 @@ describe('Bridge (JSON-RPC ui/* protocol)', () => {
     await bridge.initialize({ toolInput: true })
 
     expect(capturedParams).toBeDefined()
-    // Must use appInfo (ext-apps SDK schema), NOT clientInfo
-    expect(capturedParams!.appInfo).toEqual({ name: 'prefab', version: '0.2' })
+    // Must use appInfo (ext-apps SDK schema), NOT clientInfo. Version is the
+    // package version (single source of truth), not a hard-coded literal.
+    expect(capturedParams!.appInfo).toEqual({ name: 'prefab', version: VERSION })
     expect(capturedParams!.clientInfo).toBeUndefined()
     expect(capturedParams!.protocolVersion).toBe('2026-01-26')
 

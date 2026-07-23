@@ -63,9 +63,9 @@ jobs:
           NEXT="${{ steps.version.outputs.next }}"
           jq --arg v "$NEXT" '.version = $v' package.json > package.json.tmp
           mv package.json.tmp package.json
-          # Sync VERSION constant in src/app.ts
-          sed -i "s/export const VERSION = '[^']*'/export const VERSION = '${NEXT}'/" src/app.ts
-          echo "Updated package.json + src/app.ts to $NEXT"
+          # Sync VERSION constant (single source of truth) in src/core/version.ts
+          sed -i "s/export const VERSION = '[^']*'/export const VERSION = '${NEXT}'/" src/core/version.ts
+          echo "Updated package.json + src/core/version.ts to $NEXT"
 
       # ── Quality gates ───────────────────────────────
       - name: Lint
@@ -87,7 +87,7 @@ jobs:
           NEXT="${{ steps.version.outputs.next }}"
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add package.json src/app.ts CHANGELOG.md
+          git add package.json src/core/version.ts CHANGELOG.md
           git commit -m "chore: release v${NEXT}" || echo "No changes to commit"
           git tag "v${NEXT}"
           git push origin main --tags

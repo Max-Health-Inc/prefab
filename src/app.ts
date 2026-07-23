@@ -11,19 +11,12 @@ import type { Action, ActionJSON } from './actions/types.js'
 import { drainAutoState } from './rx/state-collector.js'
 import type { PipeFn } from './rx/pipes.js'
 import { compileThemeCss } from './core/theme-css.js'
+import { VERSION, PROTOCOL_VERSION } from './core/version.js'
 
-/** Package version — injected by build script, updated at release time. */
-export const VERSION = '0.3.5'
-
-/**
- * Wire protocol version emitted in `$prefab.version`.
- *
- * `0.3` matches upstream PrefectHQ/prefab: the theme is folded into the
- * `css` array, `stylesheets` carries external URLs, and `mode` forces a
- * color scheme (PR #431, "Wire Transfer"). The renderer still accepts `0.2`
- * payloads for backward compatibility.
- */
-export const PROTOCOL_VERSION = '0.3'
+// Version constants live in ./core/version.ts (single source of truth, updated
+// at release time). Re-exported so existing `from './app.js'` imports and the
+// package's public API keep working.
+export { VERSION, PROTOCOL_VERSION }
 
 // ── Theme ────────────────────────────────────────────────────────────────────
 
