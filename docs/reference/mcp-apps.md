@@ -15,9 +15,11 @@ gotchas that cost us several hours of debugging.
 > **TL;DR** The renderer auto-detects the host protocol. You only need
 > an HTML page with a single `<script>` tag pointing at
 > `renderer.auto.min.js`. The server must return `structuredContent`
-> alongside `content[]`, and CSP (if the host requires it) must appear
-> on the **content item** returned by `readResource`, not on the
-> resource listing.
+> alongside `content[]`, and CSP (if the host requires it) should be
+> declared on **both** the resource listing and the content item
+> returned by `readResource`. Where both are present the content item
+> wins, and a listing-only CSP breaks on hosts that read only the
+> content item.
 
 ## Architecture overview
 
@@ -79,16 +81,23 @@ mcp.registerTool(
 `ui/notifications/tool-result`. The text in `content[]` is the LLM
 fallback for hosts without UI rendering.
 
-### 2. Renderer resource — CSP belongs on the content item
+### 2. Renderer resource — declare CSP on both, the content item wins
 
-> **All hosts** read `_meta.ui.csp` from the content item returned by
-> `readResource`. VS Code injects it as a `<meta>` tag; Claude Desktop
-> and ChatGPT enforce it via HTTP headers on a sandboxed origin. Always
-> declare your CSP on the content item.
+> Per the MCP Apps spec: "When `_meta.ui` is present on **both**, the
+> content-item value takes precedence. Hosts MUST check both locations,
+> preferring the content item and falling back to the listing entry."
+> The reference host implementation is literally
+> `contentMeta?.ui ?? listingMeta?.ui`.
 
-This is the bug that wastes everyone's afternoon. `_meta` on the
-resource **listing** is ignored by most hosts. CSP must appear on
-the **individual content item** returned by `readResource`.
+So declare `_meta.ui` in **both** places and let precedence sort it out.
+VS Code injects the resulting policy as a `<meta>` tag; Claude Desktop
+and ChatGPT enforce it via HTTP headers on a sandboxed origin.
+
+This is the bug that wastes everyone's afternoon, and it is specifically
+a **listing-only** CSP. Some hosts (VS Code among them) read only the
+content item, so a policy declared solely on the resource listing is
+silently dropped and you get a black iframe. Setting it on both is
+always safe, since the content item takes precedence anyway.
 
 ```ts
 const CSP_META = {
@@ -111,14 +120,14 @@ mcp.resource(
   {
     title: 'My Viewer',
     mimeType: 'text/html;profile=mcp-app',
-    _meta: CSP_META,                       // for the resource listing
+    _meta: CSP_META,                       // listing-level fallback
   },
   async (uri) => ({
     contents: [{
       uri: uri.toString(),
       mimeType: 'text/html;profile=mcp-app',
       text: rendererHtml(),
-      _meta: CSP_META,                     // ← THIS one is what VS Code reads
+      _meta: CSP_META,                     // ← takes precedence; required by VS Code
     }],
   }),
 );
@@ -435,13 +444,14 @@ protocol yourself:
 
 ### "Black iframe" / nothing renders (VS Code)
 
-Cause: CSP is blocking the external script load. Hosts only add your
-`resourceDomains` to `script-src` if `_meta.ui.csp` is present on the
-**content item**, not on the resource listing.
+Cause: CSP is blocking the external script load. You most likely
+declared `_meta.ui.csp` only on the resource **listing**. Hosts that
+read only the content item (VS Code among them) never see it, so your
+`resourceDomains` never reach `script-src`.
 
 Fix: add `_meta` to each entry of the `contents` array returned by
-`readResource`. This applies to all hosts (VS Code, Claude Desktop,
-ChatGPT).
+`readResource`, and keep it on the listing too. The content item takes
+precedence where both are set, so declaring both is always safe.
 
 ### `Cannot read properties of undefined (reading 'startsWith')`
 
