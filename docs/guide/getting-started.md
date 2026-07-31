@@ -32,6 +32,39 @@ When using `toHTML()`, the base CSS is injected automatically. Pass `{ includeSt
 
 The layering order is: `prefab.css` (base) → `stylesheets[]` (your overrides) → `theme` (runtime CSS variables).
 
+### Token values are host-adaptive
+
+Each token in `prefab.css` is a fallback chain rather than a literal:
+
+```css
+--background: var(--color-background-primary, var(--vscode-editor-background, #ffffff));
+```
+
+MCP Apps host variables win, then VS Code webview variables, then the static
+default. That is what makes a viewer inherit the surrounding editor or client
+theme without any configuration, so avoid replacing these with flat values
+unless you genuinely want to override the host.
+
+### Driving prefab from a shared brand
+
+The token *names* are the [brandc](https://www.npmjs.com/package/brandc) contract,
+the same vocabulary the other Max Network kits read. If you author a brand as
+data, `toPrefabTheme()` emits exactly prefab's wire `theme` shape, so no adapter
+is needed:
+
+```ts
+import { toPrefabTheme, dashboard } from 'brandc'
+import { display, autoTable } from '@maxhealth.tech/prefab'
+
+return display(autoTable(rows), { theme: toPrefabTheme(dashboard) })
+```
+
+prefab takes no runtime dependency on brandc (its `dependencies` are empty by
+design, and the CDN renderer bundle must stay that way). brandc is a
+devDependency used by `test/brand-contract.test.ts`, which fails if prefab ever
+introduces a token outside the shared contract or if a brand stops covering a
+token prefab reads.
+
 ## Usage Modes
 
 prefab has four usage modes:
