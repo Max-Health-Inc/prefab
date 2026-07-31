@@ -8,14 +8,26 @@
  * chains with literals would break host theming and change prefab's default look.
  *
  * What must not drift is the *vocabulary*. These tests pin prefab's token names
- * to brandc's `CONTRACT` in both directions that matter, and prove a brandc brand
- * drives prefab end to end through `toPrefabTheme()`, which already emits exactly
- * prefab's wire `Theme` shape.
+ * to brandc's declared `CONTRACT` and prove a brandc brand drives prefab end to
+ * end through `toPrefabTheme()`, which already emits exactly prefab's wire
+ * `Theme` shape.
+ *
+ * Everything iterates `BRANDS` rather than naming brands, so a brand added
+ * upstream is covered here automatically.
  */
 
 import { describe, it, expect } from 'bun:test'
 import { readFileSync } from 'node:fs'
-import { CONTRACT, maxhealth, dashboard, toPrefabTheme } from 'brandc'
+import {
+  BRANDS,
+  CONTRACT,
+  CONTRACT_SCALARS,
+  DEPRECATED_TOKENS,
+  brandExtras,
+  dashboard,
+  maxhealth,
+  toPrefabTheme,
+} from 'brandc'
 import { PrefabApp, Column, Text } from '../src/index'
 import type { Theme } from '../src/index'
 
@@ -36,19 +48,38 @@ describe('brandc token contract', () => {
     expect(prefabTokenNames().length).toBeGreaterThan(20)
   })
 
-  it('every prefab token name exists in the shared contract', () => {
-    const contract = new Set(CONTRACT)
+  it('every prefab token name exists in the declared contract', () => {
+    const contract = new Set<string>(CONTRACT)
     const foreign = prefabTokenNames().filter(name => !contract.has(name))
     expect(foreign).toEqual([])
   })
 
-  it('toPrefabTheme emits only contract token names', () => {
-    const contract = new Set(CONTRACT)
-    for (const brand of [maxhealth, dashboard]) {
+  it('prefab reads no token that left the contract', () => {
+    // brandc keeps deprecated names emitted as brand-private extras, so reading
+    // one would work today and silently break on the brand that drops it.
+    const deprecated = new Set(Object.keys(DEPRECATED_TOKENS))
+    const stale = prefabTokenNames().filter(name => deprecated.has(name))
+    expect(stale).toEqual([])
+  })
+
+  it('toPrefabTheme emits only contract names plus that brand’s declared extras', () => {
+    // A brand may carry private tokens beyond the contract, and brandc keeps
+    // emitting deprecated names as extras so consumers can migrate. Both are
+    // legitimate; anything else is an undeclared token.
+    for (const brand of BRANDS) {
+      const allowed = new Set<string>([...CONTRACT, ...brandExtras(brand)])
       const theme = toPrefabTheme(brand)
-      const foreign = [...Object.keys(theme.light), ...Object.keys(theme.dark)]
-        .filter(name => !contract.has(name))
-      expect(foreign).toEqual([])
+      const undeclared = [...Object.keys(theme.light), ...Object.keys(theme.dark)]
+        .filter(name => !allowed.has(name))
+      expect(undeclared).toEqual([])
+    }
+  })
+
+  it('prefab reads none of any brand’s private extras', () => {
+    // Reading an extra would tie prefab to one brand and break under another.
+    const prefabTokens = new Set(prefabTokenNames())
+    for (const brand of BRANDS) {
+      expect(brandExtras(brand).filter(name => prefabTokens.has(name))).toEqual([])
     }
   })
 
@@ -58,6 +89,26 @@ describe('brandc token contract', () => {
     const theme: Theme = toPrefabTheme(maxhealth)
     expect(Object.keys(theme.light ?? {}).length).toBeGreaterThan(0)
     expect(Object.keys(theme.dark ?? {}).length).toBeGreaterThan(0)
+  })
+
+  it('every brand supplies every token prefab reads', () => {
+    // The guarantee prefab depends on: swapping brands can never leave one of
+    // prefab's own tokens undefined.
+    const needed = prefabTokenNames()
+    const scalars = new Set<string>(CONTRACT_SCALARS)
+    const colors = needed.filter(name => !scalars.has(name))
+
+    for (const brand of BRANDS) {
+      const theme = toPrefabTheme(brand)
+
+      // `light` compiles to `:root`, so it must cover everything prefab reads.
+      expect(needed.filter(name => theme.light[name] === undefined)).toEqual([])
+
+      // `dark` only overrides scheme-dependent tokens. Scalars (radius, shadow,
+      // font) correctly live in `:root` alone, where they still apply under the
+      // dark selector via the cascade.
+      expect(colors.filter(name => theme.dark[name] === undefined)).toEqual([])
+    }
   })
 
   it('a brandc brand drives a prefab app through the wire', () => {
@@ -77,32 +128,11 @@ describe('brandc token contract', () => {
     expect(css).toContain('[data-theme="dark"]')
   })
 
-  it('any brand on the contract supplies every token prefab reads', () => {
-    // The guarantee prefab depends on: swapping brands can never leave one of
-    // prefab's own tokens undefined. Note brandc's brands are not required to
-    // define identical key sets (`maxhealth` carries two extra accent tokens
-    // `dashboard` has no use for), so this checks coverage of prefab's set
-    // rather than equality between brands.
-    const needed = prefabTokenNames()
-    for (const brand of [maxhealth, dashboard]) {
-      const theme = toPrefabTheme(brand)
-
-      // `light` compiles to `:root`, so it must cover everything prefab reads.
-      expect(needed.filter(name => theme.light[name] === undefined)).toEqual([])
-
-      // `dark` only overrides scheme-dependent tokens. Scalars (radius, shadow,
-      // font) are scheme-independent and correctly live in `:root` alone, where
-      // they still apply under the dark selector via the cascade.
-      const scalars = new Set(Object.keys(brand.scalars))
-      const colors = needed.filter(name => !scalars.has(name))
-      expect(colors.filter(name => theme.dark[name] === undefined)).toEqual([])
-    }
-  })
-
-  it('the two shipped brands are genuinely different values', () => {
+  it('the shipped brands are genuinely different values on one vocabulary', () => {
     // If this ever passes trivially (identical brands), the coverage guard above
     // stops proving the vocabulary is brand-agnostic.
-    expect(toPrefabTheme(maxhealth).light.primary)
-      .not.toBe(toPrefabTheme(dashboard).light.primary)
+    expect(BRANDS.length).toBeGreaterThan(1)
+    const primaries = BRANDS.map(b => toPrefabTheme(b).light.primary)
+    expect(new Set(primaries).size).toBe(primaries.length)
   })
 })
