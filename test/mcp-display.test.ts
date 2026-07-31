@@ -771,6 +771,20 @@ describe('registerViewerResource()', () => {
     expect(server.declared[0].extensions?.[APPS_EXTENSION]).toEqual({})
   })
 
+  /*
+   * Asserted as a LITERAL on purpose. Keying off `APPS_EXTENSION` only proves the
+   * constant is used consistently, so the previous value `io.modelcontextprotocol/apps`
+   * passed every test while declaring the capability under a key no host looks up.
+   * Spelling the spec's identifier out here is what makes a wrong value fail.
+   */
+  it('declares it under the identifier the MCP Apps spec defines', () => {
+    const server = createMockServer()
+    registerViewerResource(server)
+
+    expect(APPS_EXTENSION).toBe('io.modelcontextprotocol/ui')
+    expect(Object.keys(server.declared[0].extensions ?? {})).toEqual(['io.modelcontextprotocol/ui'])
+  })
+
   it('skips the capability when declareCapability is false', () => {
     const server = createMockServer()
     registerViewerResource(server, { declareCapability: false })

@@ -7,7 +7,7 @@
  *   - `_meta.ui` CSP / permissions on BOTH the listing and the content item,
  *   - the viewer HTML itself (CDN-pinned to this exact package version),
  *   - `ttlMs` / `cacheScope` on the read result (SEP-2549 `CacheableResult`),
- *   - the `io.modelcontextprotocol/apps` extension capability (SEP-2133).
+ *   - the `io.modelcontextprotocol/ui` extension capability (SEP-2133).
  */
 
 import { VERSION } from '../app.js'
@@ -127,8 +127,25 @@ export const PREFAB_RESOURCE_URI = 'ui://prefab/viewer'
 /** MIME type required by MCP Apps hosts. */
 export const MCP_APP_MIME = 'text/html;profile=mcp-app'
 
-/** Capability name for the MCP Apps extension (versioned independently of core). */
-export const APPS_EXTENSION = 'io.modelcontextprotocol/apps'
+/**
+ * Capability key for the MCP Apps extension (versioned independently of core).
+ *
+ * The identifier is `…/ui`, and the trap here is that `…/apps` looks right and is
+ * wrong. The normative source is the MCP Apps spec, which states "This extension is
+ * identified as: `io.modelcontextprotocol/ui`" in both the current `2026-01-26`
+ * revision and the draft, and the reference implementation agrees:
+ * `ext-apps/src/server/index.ts` exports `EXTENSION_ID = "io.modelcontextprotocol/ui"`.
+ *
+ * `io.modelcontextprotocol/apps` appears only as illustrative "e.g." text in the Rust
+ * and C# SDKs' generic `ServerCapabilities.extensions` doc comments (and their test
+ * fixtures), showing the SHAPE of the extensions map rather than naming this extension.
+ * Copying it from there declares the capability under a key no host looks up, which
+ * fails silently: rendering still works, because hosts fall back to detecting apps via
+ * `_meta.ui` plus the MIME type, so only the SEP-2133 declaration is lost.
+ *
+ * Duplicated as a literal rather than imported, because prefab ships zero dependencies.
+ */
+export const APPS_EXTENSION = 'io.modelcontextprotocol/ui'
 
 /**
  * Default cache hint for the viewer resource.
@@ -253,7 +270,7 @@ export interface ViewerResourceOptions {
    */
   cache?: McpCacheHint
   /**
-   * Declare the `io.modelcontextprotocol/apps` extension capability on the
+   * Declare the `io.modelcontextprotocol/ui` extension capability on the
    * server (SEP-2133). Must happen before the server connects; a server that
    * is already connected keeps its existing capabilities and a warning is
    * logged. @default true
