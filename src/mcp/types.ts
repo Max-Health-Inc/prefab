@@ -55,15 +55,66 @@ export type McpContent = McpTextContent | McpImageContent | McpResourceContent
 /**
  * MCP tool result — returned from tool handlers.
  *
- * Structurally assignable to `@modelcontextprotocol/sdk`'s `CallToolResult`.
- * The index signature allows the SDK's `Result` base interface to be satisfied
- * without requiring an explicit cast.
+ * Structurally assignable to the SDK's `CallToolResult`. The index signature
+ * allows the SDK's `Result` base interface to be satisfied without a cast.
+ *
+ * `structuredContent` is generic rather than `Record<string, unknown>`: protocol
+ * revision 2026-07-28 loosened it to any JSON value (SEP-2106), and keeping the
+ * payload type lets callers read it back without casting.
+ *
+ * The wire discriminator `resultType` (SEP-2322) is intentionally absent. The
+ * SDK's protocol layer stamps it on encode and strips it before results reach
+ * consumers, so handlers do not author it for ordinary complete results. The
+ * index signature still admits `resultType: 'input_required'` for the one case
+ * a handler does own — multi-round-trip interim results.
  */
-export interface McpToolResult {
+export interface McpToolResult<S = unknown> {
   content: McpContent[]
   /** Structured payload forwarded to MCP Apps iframes via ui/notifications/tool-result. */
-  structuredContent?: Record<string, unknown>
+  structuredContent?: S
   isError?: boolean
   _meta?: Record<string, unknown>
   [key: string]: unknown
+}
+
+// ── Cacheable results (SEP-2549, protocol revision 2026-07-28) ───────────────
+
+/**
+ * Cache scopes defined for cacheable results.
+ *
+ * `public` — the result may be stored by shared caches.
+ * `private` — only the requesting client may cache it.
+ */
+export type McpCacheScope = 'public' | 'private'
+
+/**
+ * Cache fields required on results from the cacheable operations
+ * (`tools/list`, `prompts/list`, `resources/list`, `resources/templates/list`,
+ * `resources/read`, `server/discover`).
+ *
+ * Values a handler returns on the result take precedence over any hint
+ * configured on the server; when neither is present the SDK falls back to the
+ * conservative `{ ttlMs: 0, cacheScope: 'private' }` — i.e. no caching.
+ */
+export interface McpCacheHint {
+  /** Cache lifetime in milliseconds. Must be a non-negative safe integer. */
+  ttlMs?: number
+  /** Whether shared caches may store the result. */
+  cacheScope?: McpCacheScope
+}
+
+/**
+ * A `resources/read` result carrying the required cache fields.
+ *
+ * Generic over the contents kind so a handler that only ever returns text (the
+ * prefab viewer, for one) does not force callers to narrow the union.
+ */
+export interface McpResourceReadResult<
+  C extends McpTextResourceContents | McpBlobResourceContents = McpTextResourceContents | McpBlobResourceContents,
+> {
+  contents: C[]
+  /** Cache lifetime in milliseconds. */
+  ttlMs: number
+  /** Whether shared caches may store the result. */
+  cacheScope: McpCacheScope
 }

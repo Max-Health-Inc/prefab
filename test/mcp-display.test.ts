@@ -22,8 +22,18 @@ import {
   PREFAB_RESOURCE_URI,
   rendererHtml,
   registerViewerResource,
+  APPS_EXTENSION,
+  DEFAULT_VIEWER_CACHE,
 } from '../src/index'
-import type { McpToolResult, PrefabWireFormat, PrefabUpdateWire } from '../src/index'
+import type {
+  McpToolResult,
+  PrefabWireFormat,
+  PrefabUpdateWire,
+  McpServerLike,
+  McpCacheScope,
+  ResourceConfig,
+  ResourceReadHandler,
+} from '../src/index'
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -139,7 +149,8 @@ describe('display()', () => {
     const result = display(Text('x'), {
       layout: { maxHeight: 400 },
     })
-    expect((result.structuredContent as Record<string, unknown>).layout).toEqual({ maxHeight: 400 })
+    // structuredContent keeps the wire type — no cast needed (SEP-2106).
+    expect(result.structuredContent?.layout).toEqual({ maxHeight: 400 })
   })
 
   it('forwards stylesheets to wire format', () => {
@@ -575,21 +586,58 @@ describe('rendererHtml()', () => {
 // ── registerViewerResource() ─────────────────────────────────────────────────
 
 describe('registerViewerResource()', () => {
-  function createMockServer() {
-    const registered: {
-      name: string
-      uri: string
-      options: Record<string, unknown>
-      handler: (uri: URL) => Promise<unknown>
-    }[] = []
+  interface Registration {
+    name: string
+    uri: string
+    config: ResourceConfig
+    handler: ResourceReadHandler
+  }
 
-    return {
+  interface MockServer extends McpServerLike {
+    registered: Registration[]
+    declared: CapabilityBag[]
+  }
+
+  interface CapabilityBag {
+    extensions?: Record<string, Record<string, unknown>>
+  }
+
+  interface MockOptions {
+    /** Expose only the deprecated v1 `resource()` overload. */
+    legacy?: boolean
+    /** Simulate an already-connected server, which refuses new capabilities. */
+    connected?: boolean
+    /** Expose no registration method at all. */
+    broken?: boolean
+  }
+
+  function createMockServer(options?: MockOptions): MockServer {
+    const registered: Registration[] = []
+    const declared: CapabilityBag[] = []
+
+    const register = (name: string, uri: string, config: ResourceConfig, handler: ResourceReadHandler): void => {
+      registered.push({ name, uri, config, handler })
+    }
+
+    const server: MockServer = {
       registered,
-      resource(name: string, uri: string, options: Record<string, unknown>, handler: (uri: URL) => Promise<unknown>) {
-        registered.push({ name, uri, options, handler })
+      declared,
+      server: {
+        registerCapabilities(capabilities: CapabilityBag) {
+          if (options?.connected) throw new Error('Cannot register capabilities after connecting to transport')
+          declared.push(capabilities)
+        },
       },
     }
+
+    if (options?.broken) return server
+    if (options?.legacy) server.resource = register
+    else server.registerResource = register
+    return server
   }
+
+  const readViewer = (server: MockServer) =>
+    server.registered[0].handler(new URL('ui://prefab/viewer'))
 
   it('registers with default URI and title', () => {
     const server = createMockServer()
@@ -598,8 +646,8 @@ describe('registerViewerResource()', () => {
     expect(server.registered).toHaveLength(1)
     const [reg] = server.registered
     expect(reg.uri).toBe('ui://prefab/viewer')
-    expect(reg.options.title).toBe('Prefab Viewer')
-    expect(reg.options.mimeType).toBe('text/html;profile=mcp-app')
+    expect(reg.config.title).toBe('Prefab Viewer')
+    expect(reg.config.mimeType).toBe('text/html;profile=mcp-app')
   })
 
   it('generates name from URI', () => {
@@ -613,7 +661,7 @@ describe('registerViewerResource()', () => {
     const server = createMockServer()
     registerViewerResource(server)
 
-    const meta = server.registered[0].options._meta as { ui: { csp: Record<string, string[]> } }
+    const meta = server.registered[0].config._meta as { ui: { csp: Record<string, string[]> } }
     expect(meta.ui.csp.resourceDomains).toContain('https://cdn.jsdelivr.net')
   })
 
@@ -621,7 +669,7 @@ describe('registerViewerResource()', () => {
     const server = createMockServer()
     registerViewerResource(server)
 
-    const result = await server.registered[0].handler(new URL('ui://prefab/viewer')) as { contents: { uri: string; mimeType: string; text: string; _meta?: unknown }[] }
+    const result = await readViewer(server)
     expect(result.contents).toHaveLength(1)
     expect(result.contents[0].mimeType).toBe('text/html;profile=mcp-app')
     expect(result.contents[0].text).toContain('<!doctype html>')
@@ -634,7 +682,7 @@ describe('registerViewerResource()', () => {
       csp: { connectDomains: ['https://api.example.com'] },
     })
 
-    const meta = server.registered[0].options._meta as { ui: { csp: Record<string, string[]> } }
+    const meta = server.registered[0].config._meta as { ui: { csp: Record<string, string[]> } }
     expect(meta.ui.csp.resourceDomains).toContain('https://cdn.jsdelivr.net')
     expect(meta.ui.csp.connectDomains).toContain('https://api.example.com')
   })
@@ -645,7 +693,7 @@ describe('registerViewerResource()', () => {
       scripts: ['https://cdn.example.com/plugin.js'],
     })
 
-    const meta = server.registered[0].options._meta as { ui: { csp: Record<string, string[]> } }
+    const meta = server.registered[0].config._meta as { ui: { csp: Record<string, string[]> } }
     expect(meta.ui.csp.resourceDomains).toContain('https://cdn.example.com')
   })
 
@@ -655,7 +703,7 @@ describe('registerViewerResource()', () => {
       permissions: { clipboardWrite: true },
     })
 
-    const meta = server.registered[0].options._meta as { ui: { permissions: Record<string, Record<string, never>> } }
+    const meta = server.registered[0].config._meta as { ui: { permissions: Record<string, Record<string, never>> } }
     expect(meta.ui.permissions.clipboardWrite).toEqual({})
   })
 
@@ -666,8 +714,90 @@ describe('registerViewerResource()', () => {
       scripts: ['https://cdn.example.com/extra.js'],
     })
 
-    const result = await server.registered[0].handler(new URL('ui://prefab/viewer')) as { contents: { text: string }[] }
+    const result = await readViewer(server)
     expect(result.contents[0].text).toContain('<title>My Custom App</title>')
     expect(result.contents[0].text).toContain('https://cdn.example.com/extra.js')
+  })
+
+  // ── CacheableResult (SEP-2549) ─────────────────────────────────────────────
+
+  it('read result carries the required cache fields', async () => {
+    const server = createMockServer()
+    registerViewerResource(server)
+
+    const result = await readViewer(server)
+    expect(result.ttlMs).toBe(DEFAULT_VIEWER_CACHE.ttlMs)
+    expect(result.cacheScope).toBe('public')
+  })
+
+  it('passes a per-resource cacheHint on registration', () => {
+    const server = createMockServer()
+    registerViewerResource(server)
+
+    expect(server.registered[0].config.cacheHint).toEqual(DEFAULT_VIEWER_CACHE)
+  })
+
+  it('honours cache overrides on both the hint and the result', async () => {
+    const server = createMockServer()
+    registerViewerResource(server, { cache: { ttlMs: 0, cacheScope: 'private' } })
+
+    expect(server.registered[0].config.cacheHint).toEqual({ ttlMs: 0, cacheScope: 'private' })
+    const result = await readViewer(server)
+    expect(result.ttlMs).toBe(0)
+    expect(result.cacheScope).toBe('private')
+  })
+
+  it('rejects a ttlMs the SDK would silently discard', () => {
+    expect(() => registerViewerResource(createMockServer(), { cache: { ttlMs: -1 } }))
+      .toThrow(RangeError)
+    expect(() => registerViewerResource(createMockServer(), { cache: { ttlMs: 1.5 } }))
+      .toThrow(RangeError)
+  })
+
+  it('rejects an unknown cacheScope', () => {
+    expect(() => registerViewerResource(createMockServer(), {
+      // Untyped JS callers are the reason this is checked at runtime.
+      cache: { cacheScope: 'session' as McpCacheScope },
+    })).toThrow(RangeError)
+  })
+
+  // ── Extension capability (SEP-2133) ────────────────────────────────────────
+
+  it('declares the MCP Apps extension capability', () => {
+    const server = createMockServer()
+    registerViewerResource(server)
+
+    expect(server.declared).toHaveLength(1)
+    expect(server.declared[0].extensions?.[APPS_EXTENSION]).toEqual({})
+  })
+
+  it('skips the capability when declareCapability is false', () => {
+    const server = createMockServer()
+    registerViewerResource(server, { declareCapability: false })
+
+    expect(server.declared).toHaveLength(0)
+    expect(server.registered).toHaveLength(1)
+  })
+
+  it('still registers when the server refuses capabilities', () => {
+    const server = createMockServer({ connected: true })
+    expect(() => registerViewerResource(server)).not.toThrow()
+    expect(server.registered).toHaveLength(1)
+  })
+
+  // ── SDK generation compatibility ───────────────────────────────────────────
+
+  it('falls back to the v1 resource() overload', async () => {
+    const server = createMockServer({ legacy: true })
+    registerViewerResource(server)
+
+    expect(server.registered).toHaveLength(1)
+    const result = await readViewer(server)
+    expect(result.contents[0].mimeType).toBe('text/html;profile=mcp-app')
+  })
+
+  it('throws when the server exposes no registration method', () => {
+    expect(() => registerViewerResource(createMockServer({ broken: true })))
+      .toThrow(/registerResource\(\) nor resource\(\)/)
   })
 })

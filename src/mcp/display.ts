@@ -18,11 +18,12 @@
  */
 
 import { type Component } from '../core/component.js'
-import { PrefabApp, VERSION, PROTOCOL_VERSION } from '../app.js'
-import type { Theme, LayoutHints, ColorMode } from '../app.js'
+import { PrefabApp, PROTOCOL_VERSION } from '../app.js'
+import type { Theme, LayoutHints, ColorMode, PrefabWireFormat } from '../app.js'
 import type { Action, ActionJSON } from '../actions/types.js'
 import type { PipeFn } from '../rx/pipes.js'
 import type { McpToolResult } from './types.js'
+import { toolResult } from './result.js'
 
 // ── display() ────────────────────────────────────────────────────────────────
 
@@ -70,7 +71,7 @@ export interface DisplayOptions {
 export function display(
   viewOrApp: Component | PrefabApp,
   options?: DisplayOptions,
-): McpToolResult {
+): McpToolResult<PrefabWireFormat> {
   let app: PrefabApp
 
   if (viewOrApp instanceof PrefabApp) {
@@ -121,11 +122,7 @@ export function display(
     })
   }
 
-  const wire = app.toJSON()
-  return {
-    content: [{ type: 'text', text: JSON.stringify(wire) }],
-    structuredContent: wire as unknown as Record<string, unknown>,
-  }
+  return toolResult(app.toJSON())
 }
 
 // ── display_form() ───────────────────────────────────────────────────────────
@@ -148,7 +145,7 @@ export function display_form(
   fields: AutoFormField[],
   submitTool: string,
   options?: DisplayFormOptions,
-): McpToolResult {
+): McpToolResult<PrefabWireFormat> {
   const view = autoForm(fields, submitTool, options)
   const app = new PrefabApp({
     title: options?.title ?? 'Form',
@@ -166,11 +163,7 @@ export function display_form(
     pipes: options?.pipes,
   })
 
-  const wire = app.toJSON()
-  return {
-    content: [{ type: 'text', text: JSON.stringify(wire) }],
-    structuredContent: wire as unknown as Record<string, unknown>,
-  }
+  return toolResult(app.toJSON())
 }
 
 // ── display_update() ─────────────────────────────────────────────────────────
@@ -204,22 +197,17 @@ export interface DisplayUpdateOptions {
 export function display_update(
   state: Record<string, unknown>,
   options?: DisplayUpdateOptions,
-): McpToolResult {
+): McpToolResult<PrefabUpdateWire> {
   const update: StateUpdate = { state }
   if (options?.actions != null) {
     const acts = Array.isArray(options.actions) ? options.actions : [options.actions]
     update.actions = acts.map(a => a.toJSON())
   }
 
-  const payload: PrefabUpdateWire = {
+  return toolResult<PrefabUpdateWire>({
     $prefab: { version: PROTOCOL_VERSION },
     update,
-  }
-
-  return {
-    content: [{ type: 'text', text: JSON.stringify(payload) }],
-    structuredContent: payload as unknown as Record<string, unknown>,
-  }
+  })
 }
 
 // ── display_error() ──────────────────────────────────────────────────────────
@@ -250,7 +238,7 @@ export function display_error(
   title: string,
   message: string,
   options?: DisplayErrorOptions,
-): McpToolResult {
+): McpToolResult<PrefabWireFormat> {
   const alertChildren: Component[] = [
     AlertTitle(title),
     AlertDescription(message),
@@ -278,12 +266,7 @@ export function display_error(
     theme: options?.theme,
   })
 
-  const wire = app.toJSON()
-  return {
-    content: [{ type: 'text', text: JSON.stringify(wire) }],
-    structuredContent: wire as unknown as Record<string, unknown>,
-    isError: true,
-  }
+  return toolResult(app.toJSON(), { isError: true })
 }
 
 // ── display_success() ────────────────────────────────────────────────────────
@@ -306,7 +289,7 @@ export function display_success(
   title: string,
   message: string,
   options?: DisplaySuccessOptions,
-): McpToolResult {
+): McpToolResult<PrefabWireFormat> {
   const alertChildren: Component[] = [
     AlertTitle(title),
     AlertDescription(message),
@@ -328,11 +311,7 @@ export function display_success(
     theme: options?.theme,
   })
 
-  const wire = app.toJSON()
-  return {
-    content: [{ type: 'text', text: JSON.stringify(wire) }],
-    structuredContent: wire as unknown as Record<string, unknown>,
-  }
+  return toolResult(app.toJSON())
 }
 
 // ── camelCase aliases (TS convention) ────────────────────────────────────────
@@ -341,266 +320,3 @@ export const displayForm = display_form
 export const displayUpdate = display_update
 export const displayError = display_error
 export const displaySuccess = display_success
-
-// ── resourceMeta() — generate _meta for ui:// resource registration ─────────
-
-/** CSP configuration for MCP Apps resources. */
-export interface McpAppCsp {
-  /** Origins allowed for scripts, styles, images, fonts, media. */
-  resourceDomains?: string[]
-  /** Origins allowed for fetch/XHR/WebSocket. */
-  connectDomains?: string[]
-  /** Origins allowed for nested iframes. */
-  frameDomains?: string[]
-  /** Additional allowed base URIs. */
-  baseUriDomains?: string[]
-}
-
-/** Permission Policy requests for MCP Apps resources. */
-export interface McpAppPermissions {
-  /** Request camera access (video capture, QR scanning). */
-  camera?: boolean
-  /** Request microphone access (audio recording, voice input). */
-  microphone?: boolean
-  /** Request geolocation access (location-aware apps, maps). */
-  geolocation?: boolean
-  /** Request clipboard write access (copy-to-clipboard). */
-  clipboardWrite?: boolean
-}
-
-export interface ResourceMetaOptions {
-  /** CSP domains configuration. */
-  csp?: McpAppCsp
-  /** Permission Policy requests (camera, mic, etc.). */
-  permissions?: McpAppPermissions
-}
-
-/**
- * Generate the `_meta` object for MCP Apps `ui://` resource registration.
- *
- * Includes CSP and Permission Policy configuration per the MCP Apps spec.
- * Use on both the resource listing AND the content item (VS Code reads
- * only the content item; other hosts may read either).
- *
- * @example
- * ```ts
- * const meta = resourceMeta({
- *   csp: { resourceDomains: ['https://cdn.jsdelivr.net'] },
- *   permissions: { camera: true },
- * })
- *
- * mcp.resource('viewer', 'ui://my/viewer', {
- *   mimeType: 'text/html;profile=mcp-app',
- *   _meta: meta,
- * }, async (uri) => ({
- *   contents: [{ uri: uri.toString(), mimeType: 'text/html;profile=mcp-app', text: html, _meta: meta }],
- * }))
- * ```
- */
-/** Spec-compliant permissions shape: each granted permission is `{}`. */
-interface McpAppPermissionsWire {
-  camera?: Record<string, never>
-  microphone?: Record<string, never>
-  geolocation?: Record<string, never>
-  clipboardWrite?: Record<string, never>
-}
-
-export function resourceMeta(options?: ResourceMetaOptions): { ui: { csp?: McpAppCsp; permissions?: McpAppPermissionsWire } } {
-  const ui: { csp?: McpAppCsp; permissions?: McpAppPermissionsWire } = {}
-
-  if (options?.csp) {
-    ui.csp = {
-      resourceDomains: options.csp.resourceDomains ?? [],
-      connectDomains: options.csp.connectDomains ?? [],
-      frameDomains: options.csp.frameDomains ?? [],
-      baseUriDomains: options.csp.baseUriDomains ?? [],
-    }
-  }
-
-  if (options?.permissions) {
-    ui.permissions = {}
-    if (options.permissions.camera) ui.permissions.camera = {}
-    if (options.permissions.microphone) ui.permissions.microphone = {}
-    if (options.permissions.geolocation) ui.permissions.geolocation = {}
-    if (options.permissions.clipboardWrite) ui.permissions.clipboardWrite = {}
-  }
-
-  return { ui }
-}
-
-/** Default CSP meta for prefab apps using jsDelivr CDN. */
-export const PREFAB_CDN_META = resourceMeta({
-  csp: { resourceDomains: ['https://cdn.jsdelivr.net'] },
-})
-
-// ── rendererHtml() — generate the viewer HTML page ──────────────────────────
-
-/** Default URI for the prefab viewer resource. */
-export const PREFAB_RESOURCE_URI = 'ui://prefab/viewer'
-
-/** MIME type required by MCP Apps hosts. */
-const MCP_APP_MIME = 'text/html;profile=mcp-app'
-
-/** CDN base for the @maxhealth.tech/prefab package (exact version, never stale). */
-function cdnBase(): string {
-  return `https://cdn.jsdelivr.net/npm/@maxhealth.tech/prefab@${VERSION}/dist`
-}
-
-export interface RendererHtmlOptions {
-  /** Page title. @default 'Prefab' */
-  title?: string
-  /** Additional `<script>` URLs to load after the renderer. */
-  scripts?: string[]
-  /** Additional `<link rel="stylesheet">` URLs. */
-  stylesheets?: string[]
-  /** Override CDN base URL (no trailing slash). @default jsdelivr CDN */
-  cdnBase?: string
-}
-
-/**
- * Generate the HTML page for a prefab MCP Apps viewer resource.
- *
- * Returns the minimal HTML that loads `prefab.css` and `renderer.auto.min.js`
- * from the CDN, plus any additional scripts/stylesheets you specify.
- *
- * @example
- * ```ts
- * import { rendererHtml } from '@maxhealth.tech/prefab/mcp'
- * const html = rendererHtml()
- * // or with extra scripts:
- * const html = rendererHtml({ scripts: ['https://cdn.example.com/plugin.js'] })
- * ```
- */
-export function rendererHtml(options?: RendererHtmlOptions): string {
-  const title = options?.title ?? 'Prefab'
-  const base = options?.cdnBase ?? cdnBase()
-  const extraStyles = (options?.stylesheets ?? [])
-    .map(url => `  <link rel="stylesheet" crossorigin href="${escapeAttr(url)}">`)
-    .join('\n')
-  const extraScripts = (options?.scripts ?? [])
-    .map(url => `  <script crossorigin src="${escapeAttr(url)}"></script>`)
-    .join('\n')
-
-  return `<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${escapeHtml(title)}</title>
-  <link rel="stylesheet" crossorigin href="${base}/prefab.css">
-${extraStyles}</head>
-<body>
-  <div id="root"></div>
-  <script crossorigin src="${base}/renderer.auto.min.js"></script>
-${extraScripts}</body>
-</html>`
-}
-
-// ── registerViewerResource() — one-liner resource registration ──────────────
-
-export interface ViewerResourceOptions {
-  /** Resource URI. @default PREFAB_RESOURCE_URI */
-  uri?: string
-  /** Resource title. @default 'Prefab Viewer' */
-  title?: string
-  /** CSP configuration. @default { resourceDomains: ['https://cdn.jsdelivr.net'] } */
-  csp?: McpAppCsp
-  /** Permission Policy requests. */
-  permissions?: McpAppPermissions
-  /** Additional `<script>` URLs to load after the renderer. */
-  scripts?: string[]
-  /** Additional `<link rel="stylesheet">` URLs. */
-  stylesheets?: string[]
-  /** Override CDN base URL (no trailing slash). */
-  cdnBase?: string
-}
-
-/**
- * MCP server interface expected by registerViewerResource.
- * Compatible with @modelcontextprotocol/sdk McpServer and fastmcp Server.
- */
-interface McpServerLike {
-  resource(
-    name: string,
-    uri: string,
-    options: { title?: string; mimeType: string; description?: string; _meta?: Record<string, unknown> },
-    handler: (uri: URL) => Promise<{ contents: { uri: string; mimeType: string; text: string; _meta?: Record<string, unknown> }[] }>,
-  ): void
-}
-
-/**
- * Register the prefab viewer as a `ui://` resource on an MCP server.
- *
- * Handles MIME type, CSP on both listing and content item, and HTML generation.
- * Eliminates the three most common registration mistakes in one call.
- *
- * @example
- * ```ts
- * import { registerViewerResource, PREFAB_RESOURCE_URI } from '@maxhealth.tech/prefab/mcp'
- *
- * registerViewerResource(server)
- *
- * server.tool('browse', schema, async (args) => ({
- *   content: [{ type: 'text', text: JSON.stringify(data) }],
- *   structuredContent: data,
- *   _meta: { ui: { resourceUri: PREFAB_RESOURCE_URI } },
- * }))
- * ```
- */
-export function registerViewerResource(server: McpServerLike, options?: ViewerResourceOptions): void {
-  const uri = options?.uri ?? PREFAB_RESOURCE_URI
-  const title = options?.title ?? 'Prefab Viewer'
-
-  // Merge CSP: always include jsdelivr for the default renderer
-  const csp: McpAppCsp = options?.csp
-    ? {
-        resourceDomains: [...new Set([...(options.csp.resourceDomains ?? []), 'https://cdn.jsdelivr.net'])],
-        connectDomains: options.csp.connectDomains ?? [],
-        frameDomains: options.csp.frameDomains ?? [],
-        baseUriDomains: options.csp.baseUriDomains ?? [],
-      }
-    : { resourceDomains: ['https://cdn.jsdelivr.net'] }
-
-  // Add script origins to CSP resourceDomains
-  if (options?.scripts && options.scripts.length > 0) {
-    const scriptOrigins = options.scripts
-      .map(url => { try { return new URL(url).origin } catch { return null } })
-      .filter((o): o is string => o !== null)
-    csp.resourceDomains = [...new Set([...(csp.resourceDomains ?? []), ...scriptOrigins])]
-  }
-
-  const meta = resourceMeta({ csp, permissions: options?.permissions })
-  const html = rendererHtml({
-    title,
-    scripts: options?.scripts,
-    stylesheets: options?.stylesheets,
-    cdnBase: options?.cdnBase,
-  })
-
-  // Extract name from URI: 'ui://prefab/viewer' -> 'prefab-viewer'
-  const name = uri.replace(/^ui:\/\//, '').replace(/\//g, '-')
-
-  server.resource(
-    name,
-    uri,
-    { title, mimeType: MCP_APP_MIME, _meta: meta },
-    (resourceUri) => Promise.resolve({
-      contents: [{
-        uri: resourceUri.toString(),
-        mimeType: MCP_APP_MIME,
-        text: html,
-        _meta: meta,
-      }],
-    }),
-  )
-}
-
-// ── HTML escaping helpers ────────────────────────────────────────────────────
-
-function escapeHtml(s: string): string {
-  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-}
-
-function escapeAttr(s: string): string {
-  return s.replace(/&/g, '&amp;').replace(/"/g, '&quot;')
-}

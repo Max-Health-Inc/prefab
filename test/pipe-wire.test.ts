@@ -17,7 +17,7 @@ import { Column, Text } from '../src/index'
 import { PrefabRenderer, registerComponent } from '../src/renderer/index'
 import { getRenderer } from '../src/renderer/engine'
 import type { ComponentNode, RenderFn } from '../src/renderer/engine'
-import { unregisterPipe, listPipes, type PipeFn } from '../src/rx/pipes'
+import { registerPipe, unregisterPipe, listPipes, type PipeFn } from '../src/rx/pipes'
 import type { PrefabWireFormat } from '../src/app'
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -309,5 +309,115 @@ describe('registerComponent', () => {
     } finally {
       console.warn = warn
     }
+  })
+})
+
+// ── 5. CSP-restricted hosts (issue #15) ──────────────────────────────────────
+
+describe('pipe hydration under a CSP that forbids eval', () => {
+  /** Replace the global Function constructor with one that throws like a CSP would. */
+  function withEvalBlocked<T>(fn: () => T): T {
+    const RealFunction = globalThis.Function
+    const blocked = function (): never {
+      throw new EvalError(
+        "Refused to evaluate a string as JavaScript because 'unsafe-eval' is not an allowed source of script",
+      )
+    }
+    // Keep the real prototype so `x instanceof Function` still behaves while swapped in.
+    blocked.prototype = RealFunction.prototype
+    globalThis.Function = blocked as unknown as FunctionConstructor
+    try {
+      return fn()
+    } finally {
+      globalThis.Function = RealFunction
+    }
+  }
+
+  /** Capture console.warn output for the duration of the callback. */
+  function captureWarnings<T>(fn: () => T): { result: T; warnings: string[] } {
+    const real = console.warn
+    const warnings: string[] = []
+    console.warn = (msg: unknown, ...rest: unknown[]) => {
+      warnings.push([msg, ...rest].map(String).join(' '))
+    }
+    try {
+      return { result: fn(), warnings }
+    } finally {
+      console.warn = real
+    }
+  }
+
+  const wireWith = (pipes: Record<string, string>, content: string): PrefabWireFormat => ({
+    $prefab: { version: '0.2' },
+    view: { type: 'Text', content },
+    state: { name: [{ given: ['John'], family: 'Doe' }] },
+    pipes,
+  })
+
+  it('uses a pre-registered pipe without evaluating the wire source', () => {
+    registerPipe('humanName', humanNameFn)
+    const wire = wireWith({ humanName: '(value) => "HACKED"' }, '{{ name | humanName }}')
+    const root = document.createElement('div')
+
+    const mounted = withEvalBlocked(() => PrefabRenderer.mount(root, wire as never))
+
+    expect(root.textContent).toContain('John Doe')
+    expect(root.textContent).not.toContain('HACKED')
+    mounted.destroy()
+  })
+
+  it('keeps a host-registered pipe rather than the wire source when eval works', () => {
+    registerPipe('humanName', humanNameFn)
+    const wire = wireWith({ humanName: '(value) => "WIRE"' }, '{{ name | humanName }}')
+    const root = document.createElement('div')
+
+    const mounted = PrefabRenderer.mount(root, wire as never)
+
+    expect(root.textContent).toContain('John Doe')
+    mounted.destroy()
+  })
+
+  it('does not unregister a host-registered pipe on destroy', () => {
+    registerPipe('humanName', humanNameFn)
+    const wire = wireWith({ humanName: '(value) => "WIRE"' }, '{{ name | humanName }}')
+
+    const mounted = PrefabRenderer.mount(document.createElement('div'), wire as never)
+    mounted.destroy()
+
+    // The mount did not register it, so the mount must not remove it either.
+    expect(listPipes()).toContain('humanName')
+  })
+
+  it('reports the CSP failure once per mount, not once per pipe', () => {
+    const wire = wireWith(
+      {
+        pipeA: '(value) => value',
+        pipeB: '(value) => value',
+        pipeC: '(value) => value',
+      },
+      '{{ name | pipeA }}',
+    )
+    const root = document.createElement('div')
+
+    const { result: mounted, warnings } = captureWarnings(() =>
+      withEvalBlocked(() => PrefabRenderer.mount(root, wire as never)),
+    )
+
+    const cspWarnings = warnings.filter(w => w.includes('CSP forbids eval'))
+    expect(cspWarnings).toHaveLength(1)
+    expect(cspWarnings[0]).toContain('registerPipe')
+    mounted.destroy()
+  })
+
+  it('renders without throwing when no pipe can be hydrated', () => {
+    const wire = wireWith({ unknownPipe: '(value) => value' }, '{{ name | unknownPipe }}')
+    const root = document.createElement('div')
+
+    const mounted = captureWarnings(() =>
+      withEvalBlocked(() => PrefabRenderer.mount(root, wire as never)),
+    ).result
+
+    expect(listPipes()).not.toContain('unknownPipe')
+    mounted.destroy()
   })
 })

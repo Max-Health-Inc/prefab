@@ -40,7 +40,7 @@ import { createHttpTransport, createNoopTransport } from './transport.js'
 import type { McpTransportOptions } from './transport.js'
 import { app } from './app.js'
 import { Bridge, isIframe } from './bridge.js'
-import { registerPipe, unregisterPipe, listPipes } from '../rx/pipes.js'
+import { registerPipe, unregisterPipe, listPipes, getCustomPipe } from '../rx/pipes.js'
 import type { PipeFn } from '../rx/pipes.js'
 import { registerComponent } from './engine.js'
 import { validateWireFormat } from '../core/validate.js'
@@ -147,10 +147,10 @@ export const PrefabRenderer = {
     let data = initialData
 
     // Hydrate custom pipes from wire format (before any rendering)
-    const wirePipeNames: string[] = []
+    const pipeHydration: PipeHydration = { tracked: [], evalBlocked: false }
     if (data.pipes) {
       for (const [name, source] of Object.entries(data.pipes)) {
-        hydratePipe(name, source, wirePipeNames)
+        hydratePipe(name, source, pipeHydration)
       }
     }
 
@@ -189,7 +189,7 @@ export const PrefabRenderer = {
       // Hydrate new pipes (if any)
       if (newData.pipes) {
         for (const [name, source] of Object.entries(newData.pipes)) {
-          hydratePipe(name, source, wirePipeNames)
+          hydratePipe(name, source, pipeHydration)
         }
       }
 
@@ -299,7 +299,7 @@ export const PrefabRenderer = {
         clearAllSubscriptions()
         for (const s of styleEls) s.remove()
         // Unregister wire-hydrated pipes (scoped to this mount)
-        for (const name of wirePipeNames) unregisterPipe(name)
+        for (const name of pipeHydration.tracked) unregisterPipe(name)
         root.innerHTML = ''
       },
     }
@@ -336,15 +336,47 @@ const BUILTIN_PIPES = new Set([
 ])
 
 /**
+ * Per-mount pipe hydration state.
+ *
+ * `tracked` names the pipes this mount registered, so destroy() unregisters
+ * exactly those and leaves host-registered ones alone. `evalBlocked` records
+ * that this host's CSP forbids eval, so the (identical) failure is reported
+ * once per mount rather than once per pipe.
+ */
+interface PipeHydration {
+  tracked: string[]
+  evalBlocked: boolean
+}
+
+/** Whether a hydration failure was the host's CSP refusing eval, not bad source. */
+function isEvalBlocked(e: unknown): boolean {
+  if (e instanceof EvalError) return true
+  return e instanceof Error && /unsafe-eval|Content Security Policy|call to Function/i.test(e.message)
+}
+
+/**
  * Safely hydrate a pipe from its source string.
  * Registers it via registerPipe if valid; skips with a warning otherwise.
- * Built-in pipe names are silently ignored (security).
+ *
+ * Pipes already present locally win over the wire source: built-ins can never be
+ * shadowed (security), and a pipe a companion script pre-registered via
+ * `prefab.registerPipe()` is kept rather than re-evaluated. That is what makes
+ * custom pipes work in CSP-restricted hosts (VS Code webviews, sandboxed iframes
+ * without 'unsafe-eval'), where `new Function()` throws — pre-register there and
+ * the wire source is never evaluated at all.
  */
-function hydratePipe(name: string, source: string, tracked: string[]): void {
+function hydratePipe(name: string, source: string, state: PipeHydration): void {
   if (BUILTIN_PIPES.has(name)) {
     log.warn(`wire pipe "${name}" ignored — shadows built-in`)
     return
   }
+  if (getCustomPipe(name) != null) {
+    // Pre-registered by a companion script — no eval needed, and overwriting it
+    // would discard the host's own (possibly richer) implementation.
+    log.debug(`wire pipe "${name}" — already registered, keeping local implementation`)
+    return
+  }
+  if (state.evalBlocked) return
   try {
     // Evaluate the source string as a function expression.
     // new Function is intentional — it's the only way to hydrate serialized pipe source from wire format.
@@ -355,8 +387,16 @@ function hydratePipe(name: string, source: string, tracked: string[]): void {
       return
     }
     registerPipe(name, fn)
-    tracked.push(name)
+    state.tracked.push(name)
   } catch (e) {
+    if (isEvalBlocked(e)) {
+      state.evalBlocked = true
+      log.warn(
+        'wire pipes cannot be hydrated — this host\'s CSP forbids eval. Pre-register them with ' +
+        'prefab.registerPipe() from a companion script (rendererHtml({ scripts })) and they are used as-is.',
+      )
+      return
+    }
     log.warn(`wire pipe "${name}" — failed to hydrate:`, e)
   }
 }
