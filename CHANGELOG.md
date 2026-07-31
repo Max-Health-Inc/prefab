@@ -25,6 +25,7 @@ All notable changes to this project will be documented in this file.
 
 ### Internal
 
+- Tracked `brandc` 0.6.0, which stops `@property`-registering the scheme-dependent colour tokens so their `light-dark()` resolves against the element that reads it rather than once at `:root` (max-network/brandc#14). That only changes `toCss` output, which prefab does not consume — it compiles its own CSS from the wire `theme` — so the drift guard passes unchanged. Worth knowing anyway, because `setThemeAttrs` accepts any element: a host that themes a container rather than `documentElement` now gets the subtree themed correctly if it loads brandc's stylesheet.
 - Added `stringifyValue` (`src/core/stringify.ts`, exported from the package root) as the single value-to-string coercion for display and identity, replacing 34 ad-hoc `String(unknown)` call sites across 11 modules.
 - Bumped dev tooling: `eslint` 10.8.0, `typescript-eslint` 8.65.0, `happy-dom` 20.11.1, `@types/bun` 1.3.14, `jiti` 2.7.0, `typedoc` 0.28.20, `vitepress-plugin-llms` 1.13.4. The `typescript-eslint` bump is what surfaced the `String(unknown)` and `cacheScope` defects above, via `no-base-to-string` and `no-unnecessary-condition`.
 - Centralized `VERSION` and `PROTOCOL_VERSION` into `src/core/version.ts` (a zero-import single source of truth) so the lean renderer bundle can read the version without pulling in the builder. `release.yml` now bumps that file.
