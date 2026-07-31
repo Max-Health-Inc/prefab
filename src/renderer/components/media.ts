@@ -68,8 +68,15 @@ const SVG_ALLOWED_TAGS = new Set([
 
 function renderSvg(node: ComponentNode, ctx: RenderContext): HTMLElement {
   const wrapper = el('div', 'pf-svg')
-  const content = resolveStr(node.content, ctx)
+  let content = resolveStr(node.content, ctx)
   if (!content.includes('<svg')) return wrapper
+
+  // DOMParser image/svg+xml is strict XML: without an explicit xmlns the
+  // elements get no namespace and render at 0x0. xmlns is optional in HTML, so
+  // authors routinely omit it — inject the SVG namespace when it's missing.
+  if (!/<svg[^>]*\sxmlns\s*=/.test(content)) {
+    content = content.replace(/<svg\b/, '<svg xmlns="http://www.w3.org/2000/svg"')
+  }
 
   // Parse via DOMParser to avoid innerHTML XSS
   const doc = new DOMParser().parseFromString(content, 'image/svg+xml')

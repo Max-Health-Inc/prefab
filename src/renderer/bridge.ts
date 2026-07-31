@@ -25,6 +25,7 @@
  */
 
 import type { McpTransport } from './actions.js'
+import { VERSION } from '../core/version.js'
 
 // ── Public types ─────────────────────────────────────────────────────────────
 
@@ -558,7 +559,7 @@ export class Bridge {
         method: 'ui/initialize',
         params: {
           protocolVersion: '2026-01-26',
-          appInfo: { name: 'prefab', version: '0.2' },
+          appInfo: { name: 'prefab', version: VERSION },
           appCapabilities: {
             ...(appCapabilities.displayModes && {
               availableDisplayModes: appCapabilities.displayModes,
