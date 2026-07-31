@@ -31,15 +31,39 @@ import {
 import { PrefabApp, Column, Text } from '../src/index'
 import type { Theme } from '../src/index'
 
+function prefabCss(): string {
+  return readFileSync(new URL('../src/prefab.css', import.meta.url), 'utf8')
+}
+
 /** Token names prefab.css defines in its `:root` block (without the leading `--`). */
 function prefabTokenNames(): string[] {
-  const css = readFileSync(new URL('../src/prefab.css', import.meta.url), 'utf8')
-  const root = /:root\s*\{([\s\S]*?)\n\}/.exec(css)
+  const root = /:root\s*\{([\s\S]*?)\n\}/.exec(prefabCss())
   if (root === null) throw new Error('prefab.css: could not locate the :root block')
   const names = new Set<string>()
   for (const m of root[1].matchAll(/^\s*--([a-z0-9-]+)\s*:/gm)) names.add(m[1])
   return [...names].sort()
 }
+
+/**
+ * Every custom property prefab.css *reads* through `var()`, anywhere in the file.
+ *
+ * Case-sensitive on purpose: VS Code's names are camelCase past the first
+ * segment (`--vscode-descriptionForeground`), and a lowercase-only pattern
+ * silently truncates them into names that look wrong but are not.
+ */
+function prefabTokenReads(): string[] {
+  const names = new Set<string>()
+  for (const m of prefabCss().matchAll(/var\(\s*--([A-Za-z0-9_-]+)/g)) names.add(m[1])
+  return [...names].sort()
+}
+
+/**
+ * Host-provided variables prefab reads as the front of each fallback chain.
+ * These are deliberately outside brandc's contract: they belong to the MCP Apps
+ * design-token spec and to VS Code's webview, and prefab reads them so a viewer
+ * inherits its host's theme.
+ */
+const HOST_VARIABLE = /^(color-|border-radius-|vscode-)/
 
 describe('brandc token contract', () => {
   it('prefab.css defines a non-trivial set of tokens', () => {
@@ -54,11 +78,28 @@ describe('brandc token contract', () => {
     expect(foreign).toEqual([])
   })
 
+  it('prefab.css reads a non-trivial set of variables', () => {
+    // Same trap as above: a `var()` pattern matching nothing would make the
+    // read-side checks below vacuous.
+    expect(prefabTokenReads().length).toBeGreaterThan(40)
+  })
+
+  it('every variable prefab.css reads is a contract token or a host variable', () => {
+    // The definition-side checks cannot catch a component rule that reads a
+    // token prefab never defines, e.g. `color: var(--maxhealth)`.
+    const contract = new Set<string>(CONTRACT)
+    const unknown = prefabTokenReads()
+      .filter(name => !contract.has(name) && !HOST_VARIABLE.test(name))
+    expect(unknown).toEqual([])
+  })
+
   it('prefab reads no token that left the contract', () => {
     // brandc keeps deprecated names emitted as brand-private extras, so reading
     // one would work today and silently break on the brand that drops it.
+    // Checked against definitions AND `var()` reads.
     const deprecated = new Set(Object.keys(DEPRECATED_TOKENS))
-    const stale = prefabTokenNames().filter(name => deprecated.has(name))
+    const stale = [...prefabTokenNames(), ...prefabTokenReads()]
+      .filter(name => deprecated.has(name))
     expect(stale).toEqual([])
   })
 
@@ -77,9 +118,9 @@ describe('brandc token contract', () => {
 
   it('prefab reads none of any brand’s private extras', () => {
     // Reading an extra would tie prefab to one brand and break under another.
-    const prefabTokens = new Set(prefabTokenNames())
+    const touched = new Set([...prefabTokenNames(), ...prefabTokenReads()])
     for (const brand of BRANDS) {
-      expect(brandExtras(brand).filter(name => prefabTokens.has(name))).toEqual([])
+      expect(brandExtras(brand).filter(name => touched.has(name))).toEqual([])
     }
   })
 
