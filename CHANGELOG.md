@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- **Inline `Svg` authored without `xmlns` now renders.** `renderSvg` parses with `DOMParser` `image/svg+xml` (strict XML), where a missing `xmlns` produced namespace-less elements that rendered at 0×0. The renderer now injects `xmlns="http://www.w3.org/2000/svg"` when it's absent (`xmlns` is optional in HTML, so authors routinely omit it).
 - The MCP Apps `ui/initialize` handshake reported a stale hard-coded app version (`0.2`) in `appInfo`. It now uses the real package `VERSION`, so a host sees the actual prefab version. (This is the *app/package* version, distinct from the `0.3` wire-format version in `$prefab.version` and the `2026-01-26` MCP Apps protocol version.)
 
 ### Internal
