@@ -9,7 +9,7 @@ url: /prefab/reference/api/renderer/functions/registerComponent.md
 function registerComponent(type, fn): void;
 ```
 
-Defined in: [renderer/engine.ts:113](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/renderer/engine.ts#L113)
+Defined in: [renderer/engine.ts:113](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/renderer/engine.ts#L113)
 
 Register a render function for a component type
 

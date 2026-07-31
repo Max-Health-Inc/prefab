@@ -5,7 +5,7 @@ url: /prefab/reference/api/renderer/classes/Bridge.md
 
 # Class: Bridge
 
-Defined in: [renderer/bridge.ts:99](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/renderer/bridge.ts#L99)
+Defined in: [renderer/bridge.ts:100](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/renderer/bridge.ts#L100)
 
 ## Constructors
 
@@ -15,7 +15,7 @@ Defined in: [renderer/bridge.ts:99](https://github.com/Max-Health-Inc/prefab/blo
 new Bridge(hostOrigin?): Bridge;
 ```
 
-Defined in: [renderer/bridge.ts:116](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/renderer/bridge.ts#L116)
+Defined in: [renderer/bridge.ts:117](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/renderer/bridge.ts#L117)
 
 #### Parameters
 
@@ -37,7 +37,7 @@ Defined in: [renderer/bridge.ts:116](https://github.com/Max-Health-Inc/prefab/bl
 get supportsSubscriptions(): boolean;
 ```
 
-Defined in: [renderer/bridge.ts:319](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/renderer/bridge.ts#L319)
+Defined in: [renderer/bridge.ts:320](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/renderer/bridge.ts#L320)
 
 Whether the host indicated subscription support during handshake.
 
@@ -55,7 +55,7 @@ Whether the host indicated subscription support during handshake.
 get activeProtocol(): "jsonrpc" | "prefab";
 ```
 
-Defined in: [renderer/bridge.ts:353](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/renderer/bridge.ts#L353)
+Defined in: [renderer/bridge.ts:354](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/renderer/bridge.ts#L354)
 
 Which protocol is active after initialize().
 
@@ -71,7 +71,7 @@ Which protocol is active after initialize().
 connect(): void;
 ```
 
-Defined in: [renderer/bridge.ts:121](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/renderer/bridge.ts#L121)
+Defined in: [renderer/bridge.ts:122](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/renderer/bridge.ts#L122)
 
 Start listening for messages (prefab:\* and JSON-RPC ui/\*).
 
@@ -87,7 +87,7 @@ Start listening for messages (prefab:\* and JSON-RPC ui/\*).
 initialize(appCapabilities): Promise<HostContext>;
 ```
 
-Defined in: [renderer/bridge.ts:173](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/renderer/bridge.ts#L173)
+Defined in: [renderer/bridge.ts:174](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/renderer/bridge.ts#L174)
 
 Init handshake. Races prefab:init and ui/initialize JSON-RPC in parallel.
 Whichever protocol responds first wins.
@@ -110,7 +110,7 @@ Whichever protocol responds first wins.
 createTransport(): McpTransport;
 ```
 
-Defined in: [renderer/bridge.ts:189](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/renderer/bridge.ts#L189)
+Defined in: [renderer/bridge.ts:190](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/renderer/bridge.ts#L190)
 
 Create an McpTransport that routes through the active protocol.
 
@@ -126,7 +126,7 @@ Create an McpTransport that routes through the active protocol.
 requestMode(mode): void;
 ```
 
-Defined in: [renderer/bridge.ts:197](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/renderer/bridge.ts#L197)
+Defined in: [renderer/bridge.ts:198](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/renderer/bridge.ts#L198)
 
 Request a display mode change.
 
@@ -148,7 +148,7 @@ Request a display mode change.
 openLink(url, target?): void;
 ```
 
-Defined in: [renderer/bridge.ts:206](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/renderer/bridge.ts#L206)
+Defined in: [renderer/bridge.ts:207](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/renderer/bridge.ts#L207)
 
 Request the host to open a URL.
 
@@ -171,7 +171,7 @@ Request the host to open a URL.
 updateContext(context): void;
 ```
 
-Defined in: [renderer/bridge.ts:215](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/renderer/bridge.ts#L215)
+Defined in: [renderer/bridge.ts:216](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/renderer/bridge.ts#L216)
 
 Send context updates to the host.
 
@@ -193,7 +193,7 @@ Send context updates to the host.
 setupAutoResize(el): () => void;
 ```
 
-Defined in: [renderer/bridge.ts:232](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/renderer/bridge.ts#L232)
+Defined in: [renderer/bridge.ts:233](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/renderer/bridge.ts#L233)
 
 Observe an element's size and notify the host whenever it changes.
 Mirrors the ext-apps SDK's `autoResize: true` behaviour — uses a
@@ -221,7 +221,7 @@ Returns a teardown function that disconnects the observer.
 notifyPreferredSize(layout): void;
 ```
 
-Defined in: [renderer/bridge.ts:278](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/renderer/bridge.ts#L278)
+Defined in: [renderer/bridge.ts:279](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/renderer/bridge.ts#L279)
 
 Notify the host of declarative layout/size hints from the wire format.
 Sends once when the UI mounts so the host can pre-allocate space.
@@ -250,7 +250,7 @@ Uses `ui/notifications/preferred-size` (JSON-RPC) or
 subscribe(uri, onData): () => void;
 ```
 
-Defined in: [renderer/bridge.ts:294](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/renderer/bridge.ts#L294)
+Defined in: [renderer/bridge.ts:295](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/renderer/bridge.ts#L295)
 
 Subscribe to a resource URI for real-time push updates.
 
@@ -278,7 +278,7 @@ Cleanup function that unsubscribes from the resource.
 on(type, handler): void;
 ```
 
-Defined in: [renderer/bridge.ts:324](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/renderer/bridge.ts#L324)
+Defined in: [renderer/bridge.ts:325](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/renderer/bridge.ts#L325)
 
 Register a handler for a message type (prefab:\* or internal).
 
@@ -301,7 +301,7 @@ Register a handler for a message type (prefab:\* or internal).
 off(type, handler): void;
 ```
 
-Defined in: [renderer/bridge.ts:333](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/renderer/bridge.ts#L333)
+Defined in: [renderer/bridge.ts:334](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/renderer/bridge.ts#L334)
 
 Remove a handler.
 
@@ -324,7 +324,7 @@ Remove a handler.
 disconnect(): void;
 ```
 
-Defined in: [renderer/bridge.ts:338](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/renderer/bridge.ts#L338)
+Defined in: [renderer/bridge.ts:339](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/renderer/bridge.ts#L339)
 
 Disconnect and clean up.
 

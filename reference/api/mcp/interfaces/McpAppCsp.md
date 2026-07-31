@@ -5,7 +5,7 @@ url: /prefab/reference/api/mcp/interfaces/McpAppCsp.md
 
 # Interface: McpAppCsp
 
-Defined in: [mcp/display.ts:348](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/mcp/display.ts#L348)
+Defined in: [mcp/display.ts:348](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/mcp/display.ts#L348)
 
 CSP configuration for MCP Apps resources.
 
@@ -17,7 +17,7 @@ CSP configuration for MCP Apps resources.
 optional resourceDomains?: string[];
 ```
 
-Defined in: [mcp/display.ts:350](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/mcp/display.ts#L350)
+Defined in: [mcp/display.ts:350](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/mcp/display.ts#L350)
 
 Origins allowed for scripts, styles, images, fonts, media.
 
@@ -29,7 +29,7 @@ Origins allowed for scripts, styles, images, fonts, media.
 optional connectDomains?: string[];
 ```
 
-Defined in: [mcp/display.ts:352](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/mcp/display.ts#L352)
+Defined in: [mcp/display.ts:352](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/mcp/display.ts#L352)
 
 Origins allowed for fetch/XHR/WebSocket.
 
@@ -41,7 +41,7 @@ Origins allowed for fetch/XHR/WebSocket.
 optional frameDomains?: string[];
 ```
 
-Defined in: [mcp/display.ts:354](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/mcp/display.ts#L354)
+Defined in: [mcp/display.ts:354](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/mcp/display.ts#L354)
 
 Origins allowed for nested iframes.
 
@@ -53,6 +53,6 @@ Origins allowed for nested iframes.
 optional baseUriDomains?: string[];
 ```
 
-Defined in: [mcp/display.ts:356](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/mcp/display.ts#L356)
+Defined in: [mcp/display.ts:356](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/mcp/display.ts#L356)
 
 Additional allowed base URIs.

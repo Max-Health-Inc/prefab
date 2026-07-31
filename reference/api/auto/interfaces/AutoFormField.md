@@ -5,7 +5,7 @@ url: /prefab/reference/api/auto/interfaces/AutoFormField.md
 
 # Interface: AutoFormField
 
-Defined in: [auto/form.ts:16](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/auto/form.ts#L16)
+Defined in: [auto/form.ts:16](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/auto/form.ts#L16)
 
 ## Properties
 
@@ -15,7 +15,7 @@ Defined in: [auto/form.ts:16](https://github.com/Max-Health-Inc/prefab/blob/688a
 name: string;
 ```
 
-Defined in: [auto/form.ts:18](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/auto/form.ts#L18)
+Defined in: [auto/form.ts:18](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/auto/form.ts#L18)
 
 Field name (used as the key in submitted data).
 
@@ -27,7 +27,7 @@ Field name (used as the key in submitted data).
 optional label?: string;
 ```
 
-Defined in: [auto/form.ts:20](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/auto/form.ts#L20)
+Defined in: [auto/form.ts:20](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/auto/form.ts#L20)
 
 Display label. Defaults to humanized name.
 
@@ -39,7 +39,7 @@ Display label. Defaults to humanized name.
 optional type?: string;
 ```
 
-Defined in: [auto/form.ts:22](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/auto/form.ts#L22)
+Defined in: [auto/form.ts:22](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/auto/form.ts#L22)
 
 Input type: 'text', 'email', 'number', 'password', 'url', etc.
 
@@ -51,7 +51,7 @@ Input type: 'text', 'email', 'number', 'password', 'url', etc.
 optional placeholder?: string;
 ```
 
-Defined in: [auto/form.ts:24](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/auto/form.ts#L24)
+Defined in: [auto/form.ts:24](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/auto/form.ts#L24)
 
 Placeholder text.
 
@@ -63,6 +63,6 @@ Placeholder text.
 optional required?: boolean;
 ```
 
-Defined in: [auto/form.ts:26](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/auto/form.ts#L26)
+Defined in: [auto/form.ts:26](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/auto/form.ts#L26)
 
 Whether the field is required.

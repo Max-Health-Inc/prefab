@@ -9,7 +9,7 @@ url: /prefab/reference/api/mcp/variables/displayError.md
 const displayError: (title, message, options?) => McpToolResult = display_error;
 ```
 
-Defined in: [mcp/display.ts:342](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/mcp/display.ts#L342)
+Defined in: [mcp/display.ts:342](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/mcp/display.ts#L342)
 
 MCP display helpers — return prefab UIs as MCP tool results.
 

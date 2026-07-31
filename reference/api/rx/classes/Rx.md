@@ -5,7 +5,7 @@ url: /prefab/reference/api/rx/classes/Rx.md
 
 # Class: Rx
 
-Defined in: [rx/rx.ts:16](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/rx/rx.ts#L16)
+Defined in: [rx/rx.ts:16](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/rx/rx.ts#L16)
 
 Rx — Reactive expression builder.
 
@@ -28,7 +28,7 @@ rx('active').then('Yes', 'No') → "{{ active ? 'Yes' : 'No' }}"
 new Rx(expression): Rx;
 ```
 
-Defined in: [rx/rx.ts:19](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/rx/rx.ts#L19)
+Defined in: [rx/rx.ts:19](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/rx/rx.ts#L19)
 
 #### Parameters
 
@@ -50,7 +50,7 @@ Defined in: [rx/rx.ts:19](https://github.com/Max-Health-Inc/prefab/blob/688ae1b6
 get expression(): string;
 ```
 
-Defined in: [rx/rx.ts:26](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/rx/rx.ts#L26)
+Defined in: [rx/rx.ts:26](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/rx/rx.ts#L26)
 
 Raw expression string without {{ }} wrapper
 
@@ -66,7 +66,7 @@ Raw expression string without {{ }} wrapper
 toString(): string;
 ```
 
-Defined in: [rx/rx.ts:31](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/rx/rx.ts#L31)
+Defined in: [rx/rx.ts:31](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/rx/rx.ts#L31)
 
 Serialize to "{{ expression }}" template string
 
@@ -82,7 +82,7 @@ Serialize to "{{ expression }}" template string
 toJSON(): string;
 ```
 
-Defined in: [rx/rx.ts:35](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/rx/rx.ts#L35)
+Defined in: [rx/rx.ts:35](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/rx/rx.ts#L35)
 
 #### Returns
 
@@ -96,7 +96,7 @@ Defined in: [rx/rx.ts:35](https://github.com/Max-Health-Inc/prefab/blob/688ae1b6
 dot(key): Rx;
 ```
 
-Defined in: [rx/rx.ts:42](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/rx/rx.ts#L42)
+Defined in: [rx/rx.ts:42](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/rx/rx.ts#L42)
 
 Dot-path access: rx('user').dot('name') → "{{ user.name }}"
 
@@ -118,7 +118,7 @@ Dot-path access: rx('user').dot('name') → "{{ user.name }}"
 at(index): Rx;
 ```
 
-Defined in: [rx/rx.ts:47](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/rx/rx.ts#L47)
+Defined in: [rx/rx.ts:47](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/rx/rx.ts#L47)
 
 Index access: rx('items').at(0) → "{{ items.0 }}"
 
@@ -140,7 +140,7 @@ Index access: rx('items').at(0) → "{{ items.0 }}"
 add(other): Rx;
 ```
 
-Defined in: [rx/rx.ts:54](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/rx/rx.ts#L54)
+Defined in: [rx/rx.ts:54](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/rx/rx.ts#L54)
 
 #### Parameters
 
@@ -160,7 +160,7 @@ Defined in: [rx/rx.ts:54](https://github.com/Max-Health-Inc/prefab/blob/688ae1b6
 sub(other): Rx;
 ```
 
-Defined in: [rx/rx.ts:58](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/rx/rx.ts#L58)
+Defined in: [rx/rx.ts:58](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/rx/rx.ts#L58)
 
 #### Parameters
 
@@ -180,7 +180,7 @@ Defined in: [rx/rx.ts:58](https://github.com/Max-Health-Inc/prefab/blob/688ae1b6
 mul(other): Rx;
 ```
 
-Defined in: [rx/rx.ts:62](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/rx/rx.ts#L62)
+Defined in: [rx/rx.ts:62](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/rx/rx.ts#L62)
 
 #### Parameters
 
@@ -200,7 +200,7 @@ Defined in: [rx/rx.ts:62](https://github.com/Max-Health-Inc/prefab/blob/688ae1b6
 div(other): Rx;
 ```
 
-Defined in: [rx/rx.ts:66](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/rx/rx.ts#L66)
+Defined in: [rx/rx.ts:66](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/rx/rx.ts#L66)
 
 #### Parameters
 
@@ -220,7 +220,7 @@ Defined in: [rx/rx.ts:66](https://github.com/Max-Health-Inc/prefab/blob/688ae1b6
 mod(other): Rx;
 ```
 
-Defined in: [rx/rx.ts:70](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/rx/rx.ts#L70)
+Defined in: [rx/rx.ts:70](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/rx/rx.ts#L70)
 
 #### Parameters
 
@@ -240,7 +240,7 @@ Defined in: [rx/rx.ts:70](https://github.com/Max-Health-Inc/prefab/blob/688ae1b6
 eq(other): Rx;
 ```
 
-Defined in: [rx/rx.ts:76](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/rx/rx.ts#L76)
+Defined in: [rx/rx.ts:76](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/rx/rx.ts#L76)
 
 #### Parameters
 
@@ -260,7 +260,7 @@ Defined in: [rx/rx.ts:76](https://github.com/Max-Health-Inc/prefab/blob/688ae1b6
 neq(other): Rx;
 ```
 
-Defined in: [rx/rx.ts:80](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/rx/rx.ts#L80)
+Defined in: [rx/rx.ts:80](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/rx/rx.ts#L80)
 
 #### Parameters
 
@@ -280,7 +280,7 @@ Defined in: [rx/rx.ts:80](https://github.com/Max-Health-Inc/prefab/blob/688ae1b6
 gt(other): Rx;
 ```
 
-Defined in: [rx/rx.ts:84](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/rx/rx.ts#L84)
+Defined in: [rx/rx.ts:84](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/rx/rx.ts#L84)
 
 #### Parameters
 
@@ -300,7 +300,7 @@ Defined in: [rx/rx.ts:84](https://github.com/Max-Health-Inc/prefab/blob/688ae1b6
 gte(other): Rx;
 ```
 
-Defined in: [rx/rx.ts:88](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/rx/rx.ts#L88)
+Defined in: [rx/rx.ts:88](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/rx/rx.ts#L88)
 
 #### Parameters
 
@@ -320,7 +320,7 @@ Defined in: [rx/rx.ts:88](https://github.com/Max-Health-Inc/prefab/blob/688ae1b6
 lt(other): Rx;
 ```
 
-Defined in: [rx/rx.ts:92](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/rx/rx.ts#L92)
+Defined in: [rx/rx.ts:92](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/rx/rx.ts#L92)
 
 #### Parameters
 
@@ -340,7 +340,7 @@ Defined in: [rx/rx.ts:92](https://github.com/Max-Health-Inc/prefab/blob/688ae1b6
 lte(other): Rx;
 ```
 
-Defined in: [rx/rx.ts:96](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/rx/rx.ts#L96)
+Defined in: [rx/rx.ts:96](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/rx/rx.ts#L96)
 
 #### Parameters
 
@@ -360,7 +360,7 @@ Defined in: [rx/rx.ts:96](https://github.com/Max-Health-Inc/prefab/blob/688ae1b6
 and(other): Rx;
 ```
 
-Defined in: [rx/rx.ts:102](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/rx/rx.ts#L102)
+Defined in: [rx/rx.ts:102](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/rx/rx.ts#L102)
 
 #### Parameters
 
@@ -380,7 +380,7 @@ Defined in: [rx/rx.ts:102](https://github.com/Max-Health-Inc/prefab/blob/688ae1b
 or(other): Rx;
 ```
 
-Defined in: [rx/rx.ts:106](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/rx/rx.ts#L106)
+Defined in: [rx/rx.ts:106](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/rx/rx.ts#L106)
 
 #### Parameters
 
@@ -400,7 +400,7 @@ Defined in: [rx/rx.ts:106](https://github.com/Max-Health-Inc/prefab/blob/688ae1b
 not(): Rx;
 ```
 
-Defined in: [rx/rx.ts:110](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/rx/rx.ts#L110)
+Defined in: [rx/rx.ts:110](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/rx/rx.ts#L110)
 
 #### Returns
 
@@ -414,7 +414,7 @@ Defined in: [rx/rx.ts:110](https://github.com/Max-Health-Inc/prefab/blob/688ae1b
 then(ifTrue, ifFalse): Rx;
 ```
 
-Defined in: [rx/rx.ts:116](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/rx/rx.ts#L116)
+Defined in: [rx/rx.ts:116](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/rx/rx.ts#L116)
 
 #### Parameters
 
@@ -435,7 +435,7 @@ Defined in: [rx/rx.ts:116](https://github.com/Max-Health-Inc/prefab/blob/688ae1b
 currency(code?): Rx;
 ```
 
-Defined in: [rx/rx.ts:122](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/rx/rx.ts#L122)
+Defined in: [rx/rx.ts:122](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/rx/rx.ts#L122)
 
 #### Parameters
 
@@ -455,7 +455,7 @@ Defined in: [rx/rx.ts:122](https://github.com/Max-Health-Inc/prefab/blob/688ae1b
 percent(decimals?): Rx;
 ```
 
-Defined in: [rx/rx.ts:126](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/rx/rx.ts#L126)
+Defined in: [rx/rx.ts:126](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/rx/rx.ts#L126)
 
 #### Parameters
 
@@ -475,7 +475,7 @@ Defined in: [rx/rx.ts:126](https://github.com/Max-Health-Inc/prefab/blob/688ae1b
 number(decimals?): Rx;
 ```
 
-Defined in: [rx/rx.ts:130](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/rx/rx.ts#L130)
+Defined in: [rx/rx.ts:130](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/rx/rx.ts#L130)
 
 #### Parameters
 
@@ -495,7 +495,7 @@ Defined in: [rx/rx.ts:130](https://github.com/Max-Health-Inc/prefab/blob/688ae1b
 round(decimals?): Rx;
 ```
 
-Defined in: [rx/rx.ts:134](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/rx/rx.ts#L134)
+Defined in: [rx/rx.ts:134](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/rx/rx.ts#L134)
 
 #### Parameters
 
@@ -515,7 +515,7 @@ Defined in: [rx/rx.ts:134](https://github.com/Max-Health-Inc/prefab/blob/688ae1b
 compact(decimals?): Rx;
 ```
 
-Defined in: [rx/rx.ts:138](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/rx/rx.ts#L138)
+Defined in: [rx/rx.ts:138](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/rx/rx.ts#L138)
 
 #### Parameters
 
@@ -535,7 +535,7 @@ Defined in: [rx/rx.ts:138](https://github.com/Max-Health-Inc/prefab/blob/688ae1b
 abs(): Rx;
 ```
 
-Defined in: [rx/rx.ts:142](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/rx/rx.ts#L142)
+Defined in: [rx/rx.ts:142](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/rx/rx.ts#L142)
 
 #### Returns
 
@@ -549,7 +549,7 @@ Defined in: [rx/rx.ts:142](https://github.com/Max-Health-Inc/prefab/blob/688ae1b
 date(format?): Rx;
 ```
 
-Defined in: [rx/rx.ts:146](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/rx/rx.ts#L146)
+Defined in: [rx/rx.ts:146](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/rx/rx.ts#L146)
 
 #### Parameters
 
@@ -569,7 +569,7 @@ Defined in: [rx/rx.ts:146](https://github.com/Max-Health-Inc/prefab/blob/688ae1b
 time(): Rx;
 ```
 
-Defined in: [rx/rx.ts:150](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/rx/rx.ts#L150)
+Defined in: [rx/rx.ts:150](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/rx/rx.ts#L150)
 
 #### Returns
 
@@ -583,7 +583,7 @@ Defined in: [rx/rx.ts:150](https://github.com/Max-Health-Inc/prefab/blob/688ae1b
 datetime(): Rx;
 ```
 
-Defined in: [rx/rx.ts:154](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/rx/rx.ts#L154)
+Defined in: [rx/rx.ts:154](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/rx/rx.ts#L154)
 
 #### Returns
 
@@ -597,7 +597,7 @@ Defined in: [rx/rx.ts:154](https://github.com/Max-Health-Inc/prefab/blob/688ae1b
 upper(): Rx;
 ```
 
-Defined in: [rx/rx.ts:158](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/rx/rx.ts#L158)
+Defined in: [rx/rx.ts:158](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/rx/rx.ts#L158)
 
 #### Returns
 
@@ -611,7 +611,7 @@ Defined in: [rx/rx.ts:158](https://github.com/Max-Health-Inc/prefab/blob/688ae1b
 lower(): Rx;
 ```
 
-Defined in: [rx/rx.ts:162](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/rx/rx.ts#L162)
+Defined in: [rx/rx.ts:162](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/rx/rx.ts#L162)
 
 #### Returns
 
@@ -625,7 +625,7 @@ Defined in: [rx/rx.ts:162](https://github.com/Max-Health-Inc/prefab/blob/688ae1b
 truncate(maxLength): Rx;
 ```
 
-Defined in: [rx/rx.ts:166](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/rx/rx.ts#L166)
+Defined in: [rx/rx.ts:166](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/rx/rx.ts#L166)
 
 #### Parameters
 
@@ -645,7 +645,7 @@ Defined in: [rx/rx.ts:166](https://github.com/Max-Health-Inc/prefab/blob/688ae1b
 pluralize(word?): Rx;
 ```
 
-Defined in: [rx/rx.ts:170](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/rx/rx.ts#L170)
+Defined in: [rx/rx.ts:170](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/rx/rx.ts#L170)
 
 #### Parameters
 
@@ -665,7 +665,7 @@ Defined in: [rx/rx.ts:170](https://github.com/Max-Health-Inc/prefab/blob/688ae1b
 length(): Rx;
 ```
 
-Defined in: [rx/rx.ts:174](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/rx/rx.ts#L174)
+Defined in: [rx/rx.ts:174](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/rx/rx.ts#L174)
 
 #### Returns
 
@@ -679,7 +679,7 @@ Defined in: [rx/rx.ts:174](https://github.com/Max-Health-Inc/prefab/blob/688ae1b
 join(separator?): Rx;
 ```
 
-Defined in: [rx/rx.ts:178](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/rx/rx.ts#L178)
+Defined in: [rx/rx.ts:178](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/rx/rx.ts#L178)
 
 #### Parameters
 
@@ -699,7 +699,7 @@ Defined in: [rx/rx.ts:178](https://github.com/Max-Health-Inc/prefab/blob/688ae1b
 first(): Rx;
 ```
 
-Defined in: [rx/rx.ts:182](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/rx/rx.ts#L182)
+Defined in: [rx/rx.ts:182](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/rx/rx.ts#L182)
 
 #### Returns
 
@@ -713,7 +713,7 @@ Defined in: [rx/rx.ts:182](https://github.com/Max-Health-Inc/prefab/blob/688ae1b
 last(): Rx;
 ```
 
-Defined in: [rx/rx.ts:186](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/rx/rx.ts#L186)
+Defined in: [rx/rx.ts:186](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/rx/rx.ts#L186)
 
 #### Returns
 
@@ -727,7 +727,7 @@ Defined in: [rx/rx.ts:186](https://github.com/Max-Health-Inc/prefab/blob/688ae1b
 selectattr(attr): Rx;
 ```
 
-Defined in: [rx/rx.ts:190](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/rx/rx.ts#L190)
+Defined in: [rx/rx.ts:190](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/rx/rx.ts#L190)
 
 #### Parameters
 
@@ -747,7 +747,7 @@ Defined in: [rx/rx.ts:190](https://github.com/Max-Health-Inc/prefab/blob/688ae1b
 rejectattr(attr): Rx;
 ```
 
-Defined in: [rx/rx.ts:194](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/rx/rx.ts#L194)
+Defined in: [rx/rx.ts:194](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/rx/rx.ts#L194)
 
 #### Parameters
 
@@ -767,7 +767,7 @@ Defined in: [rx/rx.ts:194](https://github.com/Max-Health-Inc/prefab/blob/688ae1b
 default(value): Rx;
 ```
 
-Defined in: [rx/rx.ts:198](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/rx/rx.ts#L198)
+Defined in: [rx/rx.ts:198](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/rx/rx.ts#L198)
 
 #### Parameters
 
@@ -787,7 +787,7 @@ Defined in: [rx/rx.ts:198](https://github.com/Max-Health-Inc/prefab/blob/688ae1b
 pipe(name, ...args): Rx;
 ```
 
-Defined in: [rx/rx.ts:210](https://github.com/Max-Health-Inc/prefab/blob/688ae1b61b495802665777493395730e1d463211/src/rx/rx.ts#L210)
+Defined in: [rx/rx.ts:210](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/rx/rx.ts#L210)
 
 Append an arbitrary pipe filter: `rx('x').pipe('humanName')` → `{{ x | humanName }}`
 
