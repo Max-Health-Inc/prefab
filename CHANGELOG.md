@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.3.6] — 2026-07-31
+
 ### Fixed
 
 - **A scheme set on the prefab container, rather than on `<html>`, now flips prefab's own tokens too.** `setThemeAttrs` themes the mount container (`applyMode` sets both it and `documentElement`, and `createThemeToggle({ syncDocument: false })` sets *only* the container), and the compiled wire theme has always matched at any depth via `.dark, [data-theme="dark"]`. But every scheme block in `prefab.css` was gated on `:root[…]`, so the two sheets disagreed about depth: a container-scoped toggle applied the theme's dark values over prefab's *light* `--background` and `--foreground`, a half-flipped panel. The base sheet's explicit dark and light blocks now carry the same three selectors the compiled theme emits (`:root[data-theme=…]`, the bare attribute, and the `dark`/`light` class), so both flip on the same element. The `:root[…]` branch is retained, so root-level behaviour and its specificity tie against the `prefers-color-scheme` block are unchanged; only elements below the root gain the tokens they were already asking for. Two schemes on one page work as a consequence.
