@@ -111,13 +111,24 @@
   }
 }
 
-/* Explicit dark override via data-theme attribute (standalone toggle only).
-   Specificity (0,2,0) via :root[...] to beat the @media dark :root:not(...) rule.
+/* Explicit dark override, via the data-theme attribute or the dark class.
    Static values only — NO host var references.
    In hosted mode (Claude/VS Code), data-theme is never set; the host's inline
    vars resolve through the var() chain in :root / @media-dark above.
-   data-theme is only set by the standalone theme toggle button. */
-:root[data-theme="dark"] {
+
+   Three selectors, matching what compileThemeCss() emits for a wire theme, so
+   the base tokens and the theme's tokens always flip on the same element:
+   - :root[...] keeps specificity (0,2,0) to beat the @media dark :root:not(...)
+     rule, which it ties with and wins on document order.
+   - the bare attribute and class selectors carry (0,1,0) and match at ANY depth,
+     which is what setThemeAttrs needs: it themes the prefab mount container, and
+     createThemeToggle({ syncDocument: false }) themes ONLY that container.
+     Specificity is not a concern below the root, since every other token rule
+     here is :root-scoped and so does not match a container at all — a
+     declaration on the element always beats what it would otherwise inherit. */
+:root[data-theme="dark"],
+[data-theme="dark"],
+.dark {
   --background: #09090b;
   --foreground: #fafafa;
 
@@ -153,9 +164,12 @@
   --ring: #60a5fa;
 }
 
-/* Explicit light override via data-theme attribute (standalone toggle only).
-   Same specificity + static strategy as the dark block above. */
-:root[data-theme="light"] {
+/* Explicit light override, via the data-theme attribute or the light class.
+   Same specificity, depth and static-value strategy as the dark block above.
+   This is the direction that makes a light island under a dark root work. */
+:root[data-theme="light"],
+[data-theme="light"],
+.light {
   --background: #ffffff;
   --foreground: #09090b;
 

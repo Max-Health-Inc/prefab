@@ -38,8 +38,14 @@ const DARK = block(
   /@media \(prefers-color-scheme: dark\) \{\s*:root:not\(\[data-theme="light"\]\) \{([\s\S]*?)\n {2}\}/,
 )
 
-/** The standalone toggle palette, which must stay free of host variables. */
-const TOGGLE_DARK = block(/:root\[data-theme="dark"\] \{([\s\S]*?)\n\}/)
+/**
+ * The standalone toggle palette, which must stay free of host variables.
+ *
+ * `[^{]*` absorbs the rest of the selector list: the block also matches the bare
+ * attribute and the `dark` class so a container-scoped toggle flips it, not only
+ * a root-scoped one.
+ */
+const TOGGLE_DARK = block(/:root\[data-theme="dark"\][^{]*\{([\s\S]*?)\n\}/)
 
 describe('VSCODE_BRIDGE stays in sync with prefab.css', () => {
   it('extracted the prefab.css blocks', () => {
