@@ -6,7 +6,7 @@
  *
  * @example
  * ```ts
- * const patients = collection('patients', fhirPatients, { key: 'id' })
+ * const patients = collection('patients', patientRows, { key: 'id' })
  * const selectedId = signal('selectedPatientId', patients.firstKey())
  * const selectedPatient = patients.by(selectedId)
  * // selectedPatient.expr → "{{ patients | find:'id',selectedPatientId }}"
@@ -63,8 +63,8 @@ export class Ref<T = unknown> {
    * Shorthand for `.dot(field).pipe(pipeName, ...args)`.
    * Compiles to `{{ expr | dot:'field' | pipeName }}`.
    *
-   * Use for FHIR datatype formatting:
-   * `ref.formatted('name', 'humanName')` → `{{ ... | dot:'name' | humanName }}`
+   * Use to format a nested field with any built-in or registered pipe:
+   * `ref.formatted('total', 'currency')` → `{{ ... | dot:'total' | currency }}`
    */
   formatted(field: keyof T & string | string, pipeName: string, ...args: unknown[]): Rx {
     return this.dot(field).pipe(pipeName, ...args)
@@ -72,7 +72,7 @@ export class Ref<T = unknown> {
 
   /**
    * Append a pipe filter to the ref expression.
-   * `ref.pipe('humanName')` → `{{ expr | humanName }}`
+   * `ref.pipe('upper')` → `{{ expr | upper }}`
    * `ref.pipe('date', 'long')` → `{{ expr | date:'long' }}`
    */
   pipe(name: string, ...args: unknown[]): Rx {
