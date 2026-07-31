@@ -51,7 +51,7 @@ export class UpdateContext implements Action {
   constructor(readonly context: Record<string, unknown>) {}
 
   toJSON(): ActionJSON {
-    return { action: 'updateContext', context: serializeValue(this.context) as Record<string, unknown> }
+    return { action: 'updateContext', context: serializeValue(this.context) }
   }
 }
 

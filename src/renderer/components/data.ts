@@ -6,6 +6,7 @@ import { registerComponent, resolveStr, resolveValue, el, makeDispatchCtx } from
 import type { ComponentNode, RenderContext } from '../engine.js'
 import { dispatchActions, fireAndForget } from '../actions.js'
 import type { ActionJSON } from '../actions.js'
+import { stringifyValue } from '../../core/stringify.js'
 
 export function registerDataComponents(): void {
   registerComponent('DataTable', renderDataTable)
@@ -60,7 +61,7 @@ function renderDataTable(node: ComponentNode, ctx: RenderContext): HTMLElement {
       const isPrimitiveRow = row === null || typeof row !== 'object'
 
       // Highlight selected row
-      if (rowKey && selectedVal != null && rec[rowKey] != null && String(rec[rowKey] as string | number) === String(selectedVal as string | number)) {
+      if (rowKey && selectedVal != null && rec[rowKey] != null && stringifyValue(rec[rowKey]) === stringifyValue(selectedVal)) {
         tr.classList.add('pf-datatable-row-selected')
       }
 
@@ -89,7 +90,7 @@ function renderDataTable(node: ComponentNode, ctx: RenderContext): HTMLElement {
             cellVal = resolveValue(`{{ __fmtVal | ${col.format} }}`, { ...ctx, scope: { ...ctx.scope, __fmtVal: cellVal } })
           }
         }
-        td.textContent = cellVal == null ? '' : String(cellVal as string | number | boolean)
+        td.textContent = stringifyValue(cellVal)
         td.style.padding = '8px 12px'
         tr.appendChild(td)
       }

@@ -14,6 +14,7 @@
  */
 
 import { Rx } from './rx.js'
+import { stringifyValue } from '../core/stringify.js'
 import type { Signal, SignalValue } from './signal.js'
 import { trackState } from './state-collector.js'
 
@@ -98,14 +99,14 @@ export class Collection<T extends Record<string, unknown> = Record<string, unkno
   firstKey(): string | null {
     if (this.rows.length === 0) return null
     const val = this.rows[0][this.keyField]
-    return val == null ? null : String(val as string | number)
+    return val == null ? null : stringifyValue(val)
   }
 
   /** Key of the last row, or null if empty. */
   lastKey(): string | null {
     if (this.rows.length === 0) return null
     const val = this.rows[this.rows.length - 1][this.keyField]
-    return val == null ? null : String(val as string | number)
+    return val == null ? null : stringifyValue(val)
   }
 
   /** Number of rows. */

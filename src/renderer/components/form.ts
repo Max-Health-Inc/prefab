@@ -6,6 +6,7 @@ import { registerComponent, renderChildren, renderNode, resolveStr, el, makeDisp
 import type { ComponentNode, RenderContext } from '../engine.js'
 import { dispatchActions, fireAndForget } from '../actions.js'
 import type { ActionJSON } from '../actions.js'
+import { stringifyValue } from '../../core/stringify.js'
 
 export function registerFormComponents(): void {
   registerComponent('Form', renderForm)
@@ -96,7 +97,7 @@ function renderInput(node: ComponentNode, ctx: RenderContext): HTMLElement {
   const name = node.name as string | undefined
   if (name) {
     const stateVal = ctx.store.get(name)
-    if (stateVal != null) input.value = String(stateVal as string | number)
+    if (stateVal != null) input.value = stringifyValue(stateVal)
     input.addEventListener('input', () => {
       ctx.store.set(name, input.value)
       if (node.onChange != null) {
@@ -124,7 +125,7 @@ function renderTextarea(node: ComponentNode, ctx: RenderContext): HTMLElement {
   const name = node.name as string | undefined
   if (name != null) {
     const stateVal = ctx.store.get(name)
-    if (stateVal != null) textarea.value = String(stateVal as string | number)
+    if (stateVal != null) textarea.value = stringifyValue(stateVal)
     textarea.addEventListener('input', () => {
       ctx.store.set(name, textarea.value)
       if (node.onChange != null) {
@@ -174,7 +175,7 @@ function renderSelect(node: ComponentNode, ctx: RenderContext): HTMLElement {
   if (node.placeholder != null) {
     const ph = document.createElement('option')
     ph.value = ''
-    ph.textContent = resolveStr(node.placeholder as string, ctx)
+    ph.textContent = resolveStr(node.placeholder, ctx)
     ph.disabled = true
     ph.selected = true
     ph.hidden = true
@@ -209,7 +210,7 @@ function renderSelect(node: ComponentNode, ctx: RenderContext): HTMLElement {
   const name = node.name as string | undefined
   if (name) {
     const stateVal = ctx.store.get(name)
-    if (stateVal != null) select.value = String(stateVal as string | number)
+    if (stateVal != null) select.value = stringifyValue(stateVal)
     select.addEventListener('change', () => {
       ctx.store.set(name, select.value)
       if (node.onChange != null) {
@@ -304,14 +305,14 @@ function renderSlider(node: ComponentNode, ctx: RenderContext): HTMLElement {
   input.type = 'range'
   input.className = 'pf-slider'
   if (node.name != null) input.name = node.name as string
-  if (node.min != null) input.min = String(node.min as string | number)
-  if (node.max != null) input.max = String(node.max as string | number)
-  if (node.step != null) input.step = String(node.step as string | number)
+  if (node.min != null) input.min = stringifyValue(node.min)
+  if (node.max != null) input.max = stringifyValue(node.max)
+  if (node.step != null) input.step = stringifyValue(node.step)
 
   const name = node.name as string | undefined
   if (name) {
     const stateVal = ctx.store.get(name)
-    if (stateVal != null) input.value = String(stateVal as string | number)
+    if (stateVal != null) input.value = stringifyValue(stateVal)
     input.addEventListener('input', () => {
       ctx.store.set(name, Number(input.value))
       if (node.onChange != null) {
@@ -423,7 +424,7 @@ function renderRadioGroup(node: ComponentNode, ctx: RenderContext): HTMLElement 
   const stateVal = ctx.store.get(name)
   for (const radio of Array.from(e.querySelectorAll('input[type="radio"]'))) {
     ;(radio as HTMLInputElement).name = name
-    if (stateVal != null && (radio as HTMLInputElement).value === String(stateVal as string | number)) {
+    if (stateVal != null && (radio as HTMLInputElement).value === stringifyValue(stateVal)) {
       ;(radio as HTMLInputElement).checked = true
     }
   }
@@ -454,7 +455,7 @@ function renderCombobox(node: ComponentNode, ctx: RenderContext): HTMLElement {
   // Read initial value from state
   const cbName = input.name
   const cbStateVal = ctx.store.get(cbName)
-  if (cbStateVal != null) input.value = String(cbStateVal as string | number)
+  if (cbStateVal != null) input.value = stringifyValue(cbStateVal)
 
   input.style.padding = '6px 12px'
   input.style.borderRadius = '6px'
@@ -527,7 +528,7 @@ function renderCalendar(node: ComponentNode, ctx: RenderContext): HTMLElement {
   // Read initial value from state
   const calName = input.name
   const calStateVal = ctx.store.get(calName)
-  if (calStateVal != null) input.value = String(calStateVal as string | number)
+  if (calStateVal != null) input.value = stringifyValue(calStateVal)
   if (node.minDate != null) input.min = resolveStr(node.minDate, ctx)
   if (node.maxDate != null) input.max = resolveStr(node.maxDate, ctx)
   input.style.padding = '6px 12px'
@@ -556,7 +557,7 @@ function renderDatePicker(node: ComponentNode, ctx: RenderContext): HTMLElement 
   // Read initial value from state
   const dpName = input.name
   const dpStateVal = ctx.store.get(dpName)
-  if (dpStateVal != null) input.value = String(dpStateVal as string | number)
+  if (dpStateVal != null) input.value = stringifyValue(dpStateVal)
   if (node.minDate != null) input.min = resolveStr(node.minDate, ctx)
   if (node.maxDate != null) input.max = resolveStr(node.maxDate, ctx)
   input.style.padding = '6px 12px'

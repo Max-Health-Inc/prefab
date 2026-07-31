@@ -16,6 +16,7 @@ import {
   applyPipeFormat, resolveValueFormat, makeTooltipFormatter, addLegend,
 } from './chart-helpers.js'
 import type { SeriesEntry } from './chart-helpers.js'
+import { stringifyValue } from '../../core/stringify.js'
 
 export function registerChartComponents(): void {
   registerComponent('BarChart', renderBarChart)
@@ -348,7 +349,7 @@ function renderPieChart(node: ComponentNode, ctx: RenderContext): HTMLElement {
     if (ttCtx) {
       const rawSlice = nameKey ? data[i][nameKey] : undefined
       const sliceLabel = rawSlice != null
-        ? (tooltipXFormat ? applyPipeFormat(rawSlice, tooltipXFormat, ctx) : String(rawSlice as string | number))
+        ? (tooltipXFormat ? applyPipeFormat(rawSlice, tooltipXFormat, ctx) : stringifyValue(rawSlice))
         : `Slice ${i + 1}`
       const pct = `${((values[i] / total) * 100).toFixed(1)}%`
       const midAngle = startAngle + angle / 2
@@ -516,7 +517,7 @@ function renderRadialChart(node: ComponentNode, ctx: RenderContext): HTMLElement
     const frac = values[i] / max
     const valueEnd = startAngle + frac * (endAngle - startAngle)
     const rawName = nameKey ? data[i][nameKey] : null
-    const name = rawName != null ? String(rawName as string | number) : (seriesIn[i]?.label ?? dataKey)
+    const name = rawName != null ? stringifyValue(rawName) : (seriesIn[i]?.label ?? dataKey)
     legendSeries.push({ dataKey: name || dataKey, label: name || dataKey, color })
 
     // Muted full-range track.
@@ -627,7 +628,7 @@ function renderRadarChart(node: ComponentNode, ctx: RenderContext): HTMLElement 
         })
         if (ttCtx) {
           const raw = axisKey ? data[i][axisKey] : null
-          const title = raw != null ? String(raw as string | number) : (s.label ?? s.dataKey)
+          const title = raw != null ? stringifyValue(raw) : (s.label ?? s.dataKey)
           const entries = [{ label: s.label ?? s.dataKey, value: fmt(Number(data[i][s.dataKey] ?? 0)), color }]
           dot.addEventListener('mouseenter', () => showTooltipAt(ttCtx, pts[i].x, pts[i].y, title, entries))
           dot.addEventListener('mouseleave', () => ttCtx.tooltip.classList.remove('pf-visible'))

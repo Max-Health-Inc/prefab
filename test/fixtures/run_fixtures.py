@@ -18,6 +18,12 @@ PY_DIR = Path(__file__).parent / "py"
 OUT_DIR = Path(__file__).parent / "golden"
 OUT_DIR.mkdir(exist_ok=True)
 
+# The status glyphs below are non-ASCII; a Windows console defaults to cp1252 and
+# raises UnicodeEncodeError on them, which turned any fixture failure into an
+# unrelated traceback from inside the error handler.
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+
 
 def run_fixture(py_path: Path) -> dict:
     """Import a fixture .py file and return app.to_json()."""
@@ -37,13 +43,22 @@ def main() -> None:
         print("No .py fixtures found in", PY_DIR)
         sys.exit(1)
 
+    if importlib.util.find_spec("prefab_ui") is None:
+        # The fixtures import the Python port, which is a separate package. The
+        # golden JSON is checked in, so skip rather than fail: regenerating is
+        # only needed when the port itself changes, and CI runs `bun test`
+        # directly (never this script).
+        print("Skipping fixture regeneration — the `prefab_ui` package is not installed.")
+        print(f"Using the checked-in golden fixtures in {OUT_DIR}")
+        return
+
     ok, fail = 0, 0
     for py_file in py_files:
         name = py_file.stem.replace("_", "-")
         out = OUT_DIR / f"{name}.json"
         try:
             data = run_fixture(py_file)
-            with open(out, "w") as f:
+            with open(out, "w", encoding="utf-8") as f:
                 json.dump(data, f, indent=2)
             print(f"  ✓ {py_file.name} → {out.name}")
             ok += 1

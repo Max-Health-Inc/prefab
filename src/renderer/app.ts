@@ -188,7 +188,7 @@ export async function app(options?: AppOptions): Promise<PrefabApp> {
     })
     bridge.on('prefab:theme-update', (payload) => {
       if (typeof document !== 'undefined') {
-        applyHostTheme(document.documentElement, payload as unknown as HostTheme)
+        applyHostTheme(document.documentElement, payload)
       }
     })
     bridge.on('prefab:host-context-changed', (payload) => {

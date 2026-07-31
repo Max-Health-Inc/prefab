@@ -280,7 +280,7 @@ export class Bridge {
     if (this.protocol === 'jsonrpc') {
       this.sendRpcNotification('ui/notifications/preferred-size', layout)
     } else {
-      this.sendPrefab('prefab:preferred-size', layout as Record<string, unknown>)
+      this.sendPrefab('prefab:preferred-size', layout)
     }
   }
 

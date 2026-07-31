@@ -8,6 +8,7 @@
 // ── Core ─────────────────────────────────────────────────────────────────────
 export { Component, ContainerComponent, StatefulComponent } from './core/index.js'
 export type { ComponentJSON, ComponentProps, ContainerProps, StatefulProps, RxStr } from './core/index.js'
+export { stringifyValue } from './core/stringify.js'
 export { validateWireFormat, isValidWireFormat } from './core/validate.js'
 export type { ValidationError, ValidationResult } from './core/validate.js'
 export { createLogger, log, setLogLevel, getLogLevel } from './core/logger.js'
@@ -86,9 +87,15 @@ export type { AutoTimelineEvent, AutoTimelineOptions } from './auto/timeline.js'
 export type { AutoProgressStep, AutoProgressOptions } from './auto/progress.js'
 
 // ── MCP Display Helpers ──────────────────────────────────────────────────────
-export { display, display_form, display_update, display_error, display_success, displayForm, displayUpdate, displayError, displaySuccess, resourceMeta, PREFAB_CDN_META, PREFAB_RESOURCE_URI, rendererHtml, registerViewerResource } from './mcp/display.js'
-export type { DisplayOptions, DisplayFormOptions, DisplayUpdateOptions, DisplayErrorOptions, DisplaySuccessOptions, StateUpdate, PrefabUpdateWire, McpAppCsp, McpAppPermissions, ResourceMetaOptions, RendererHtmlOptions, ViewerResourceOptions } from './mcp/display.js'
-export type { McpToolResult, McpContent, McpTextContent } from './mcp/types.js'
+export { display, display_form, display_update, display_error, display_success, displayForm, displayUpdate, displayError, displaySuccess } from './mcp/display.js'
+export type { DisplayOptions, DisplayFormOptions, DisplayUpdateOptions, DisplayErrorOptions, DisplaySuccessOptions, StateUpdate, PrefabUpdateWire } from './mcp/display.js'
+export { toolResult } from './mcp/result.js'
+export type { ToolResultOptions } from './mcp/result.js'
+export { themeBridgeCss, VSCODE_BRIDGE } from './mcp/theme-bridge.js'
+export type { ThemeBridge, VsCodeTokenSource } from './mcp/theme-bridge.js'
+export { resourceMeta, registerViewerResource, rendererHtml, PREFAB_CDN_META, PREFAB_RESOURCE_URI, MCP_APP_MIME, APPS_EXTENSION, DEFAULT_VIEWER_CACHE } from './mcp/resource.js'
+export type { McpAppCsp, McpAppPermissions, ResourceMetaOptions, RendererHtmlOptions, ViewerResourceOptions, McpServerLike, ResourceConfig, ResourceReadHandler } from './mcp/resource.js'
+export type { McpToolResult, McpContent, McpTextContent, McpCacheScope, McpCacheHint, McpResourceReadResult } from './mcp/types.js'
 
 // ── Re-export actions and rx for convenience ─────────────────────────────────
 export { rx, Rx, ITEM, INDEX, EVENT, ERROR, RESULT, STATE, signal, Signal, collection, Collection, Ref, registerPipe, unregisterPipe, listPipes, resetAutoState } from './rx/index.js'
