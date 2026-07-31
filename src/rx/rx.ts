@@ -244,7 +244,7 @@ export const RESULT = new Rx('$result')
  * STATE proxy — convenience for accessing state keys.
  * Usage: STATE.foo → rx('foo'), STATE.user.name → rx('user.name')
  */
-export const STATE: Record<string, Rx> = new Proxy({} as Record<string, Rx>, {
+export const STATE: Record<string, Rx> = new Proxy({}, {
   get(_target, prop: string) {
     return rx(prop)
   },

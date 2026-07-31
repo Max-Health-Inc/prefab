@@ -13,6 +13,7 @@
 
 import type { Store } from './state.js'
 import { getCustomPipe } from '../rx/pipes.js'
+import { stringifyValue } from '../core/stringify.js'
 
 /** Scope for expression evaluation (loop variables, event data, etc.) */
 export interface EvalScope {
@@ -61,7 +62,7 @@ export function evaluateTemplate(
   // Mixed template: interpolate all {{ }} blocks as strings
   return template.replace(RX_PATTERN, (_, expr: string) => {
     const val = evaluateExpression(expr.trim(), store, scope)
-    return val == null ? '' : String(val as string | number | boolean)
+    return stringifyValue(val)
   })
 }
 
@@ -248,12 +249,12 @@ function applyFilter(filterStr: string, value: unknown, store?: Store, scope?: E
         for (const item of value) {
           if (item != null && typeof item === 'object') {
             const fv = (item as Record<string, unknown>)[field]
-            if (fv != null) keyMap.set(String(fv as string | number), item)
+            if (fv != null) keyMap.set(stringifyValue(fv), item)
           }
         }
         fieldMap.set(field, keyMap)
       }
-      return keyMap.get(String(keyVal as string | number))
+      return keyMap.get(stringifyValue(keyVal))
     }
     case 'dot': {
       // dot:'field' — extract a property from an object

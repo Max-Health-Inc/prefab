@@ -6,6 +6,7 @@
 
 import { resolveValue, el } from '../engine.js'
 import type { ComponentNode, RenderContext } from '../engine.js'
+import { stringifyValue } from '../../core/stringify.js'
 
 export const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899']
 export const AXIS_COLOR = 'var(--muted-foreground, #6b7280)'
@@ -132,7 +133,7 @@ export function drawXAxisLabels(
     const label = svgEl('text', {
       x: getX(i), y: yBase + 14, 'text-anchor': 'middle', 'font-size': AXIS_FONT, fill: AXIS_COLOR,
     })
-    label.textContent = val == null ? '' : (format ? format(val) : String(val as string | number))
+    label.textContent = val == null ? '' : (format ? format(val) : stringifyValue(val))
     svg.appendChild(label)
   }
 }
@@ -151,7 +152,7 @@ export function drawBaseline(svg: SVGSVGElement, layout: ChartLayout): void {
 export function applyPipeFormat(value: unknown, pipe: string, ctx: RenderContext): string {
   if (value == null) return ''
   const result = resolveValue(`{{ __v | ${pipe} }}`, { ...ctx, scope: { ...ctx.scope, __v: value } })
-  return result == null ? String(value as string | number) : String(result as string | number)
+  return stringifyValue(result ?? value)
 }
 
 export function formatYValue(value: number, format?: string): string {

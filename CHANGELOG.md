@@ -9,8 +9,13 @@ All notable changes to this project will be documented in this file.
 - **Inline `Svg` authored without `xmlns` now renders.** `renderSvg` parses with `DOMParser` `image/svg+xml` (strict XML), where a missing `xmlns` produced namespace-less elements that rendered at 0×0. The renderer now injects `xmlns="http://www.w3.org/2000/svg"` when it's absent (`xmlns` is optional in HTML, so authors routinely omit it).
 - The MCP Apps `ui/initialize` handshake reported a stale hard-coded app version (`0.2`) in `appInfo`. It now uses the real package `VERSION`, so a host sees the actual prefab version. (This is the *app/package* version, distinct from the `0.3` wire-format version in `$prefab.version` and the `2026-01-26` MCP Apps protocol version.)
 
+- **Object values no longer render as `[object Object]`.** Every value that reaches a table cell, chart label, axis tick, tooltip title, heading, `{{ }}` interpolation or state-bound form input is typed `unknown` (it comes from JSON), and each site coerced it with a bare `String()`. Objects and arrays of objects therefore rendered as `[object Object]`. All of those sites now go through the new `stringifyValue` helper, which emits compact JSON for objects (honouring `toJSON()`), ISO strings for dates, and comma-joined members for arrays.
+- **Identity comparisons on object values no longer collide.** `DataTable` row-selection highlighting, the `find:` pipe's key map and `Collection.firstKey()`/`lastKey()` used the same `String()` coercion to build lookup keys, so *every* object value produced the identical key `[object Object]` and matched every other object. They use `stringifyValue` now, which is injective for distinct JSON values.
+
 ### Internal
 
+- Added `stringifyValue` (`src/core/stringify.ts`, exported from the package root) as the single value-to-string coercion for display and identity, replacing 34 ad-hoc `String(unknown)` call sites across 11 modules.
+- Bumped dev tooling: `eslint` 10.8.0, `typescript-eslint` 8.65.0, `happy-dom` 20.11.1, `@types/bun` 1.3.14, `jiti` 2.7.0, `typedoc` 0.28.20, `vitepress-plugin-llms` 1.13.4. The `typescript-eslint` bump is what surfaced the `String(unknown)` and `cacheScope` defects above, via `no-base-to-string` and `no-unnecessary-condition`.
 - Centralized `VERSION` and `PROTOCOL_VERSION` into `src/core/version.ts` (a zero-import single source of truth) so the lean renderer bundle can read the version without pulling in the builder. `release.yml` now bumps that file.
 
 ### Docs

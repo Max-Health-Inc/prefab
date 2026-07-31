@@ -8,6 +8,7 @@
 // ── Core ─────────────────────────────────────────────────────────────────────
 export { Component, ContainerComponent, StatefulComponent } from './core/index.js'
 export type { ComponentJSON, ComponentProps, ContainerProps, StatefulProps, RxStr } from './core/index.js'
+export { stringifyValue } from './core/stringify.js'
 export { validateWireFormat, isValidWireFormat } from './core/validate.js'
 export type { ValidationError, ValidationResult } from './core/validate.js'
 export { createLogger, log, setLogLevel, getLogLevel } from './core/logger.js'

@@ -5,6 +5,7 @@
  */
 
 import type { ChartLayout, SeriesEntry } from './chart-helpers.js'
+import { stringifyValue } from '../../core/stringify.js'
 
 const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899']
 
@@ -100,7 +101,7 @@ export function addBarTooltipZones(
 
     const rawLabel = xAxisKey ? data[di][xAxisKey] : undefined
     const label = rawLabel != null
-      ? (formatLabel ? formatLabel(rawLabel) : String(rawLabel as string | number))
+      ? (formatLabel ? formatLabel(rawLabel) : stringifyValue(rawLabel))
       : undefined
     const entries: TooltipEntry[] = series.map((s, si) => ({
       label: s.label ?? s.dataKey,
@@ -150,7 +151,7 @@ export function addLineTooltipZones(
 
     const rawLabel = xAxisKey ? data[di][xAxisKey] : undefined
     const label = rawLabel != null
-      ? (formatLabel ? formatLabel(rawLabel) : String(rawLabel as string | number))
+      ? (formatLabel ? formatLabel(rawLabel) : stringifyValue(rawLabel))
       : undefined
     const entries: TooltipEntry[] = allSeries.map((s, si) => ({
       label: s.label ?? s.dataKey,

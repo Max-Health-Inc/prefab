@@ -262,7 +262,7 @@ describe('setInterval action edge cases', () => {
 describe('openLink action safety', () => {
   test('undefined url should not open a page', () => {
     const openCalls: string[] = []
-    const origOpen = window.open
+    const origOpen = window.open.bind(window)
     window.open = (url?: string | URL) => { openCalls.push(String(url)); return null }
     try {
       const ctx = makeDispatchCtx()
@@ -276,7 +276,7 @@ describe('openLink action safety', () => {
 
   test('empty string url should not open a page', () => {
     const openCalls: string[] = []
-    const origOpen = window.open
+    const origOpen = window.open.bind(window)
     window.open = (url?: string | URL) => { openCalls.push(String(url)); return null }
     try {
       const ctx = makeDispatchCtx()

@@ -7,6 +7,7 @@
  */
 
 import { type Component, type ContainerComponent } from '../core/component.js'
+import { stringifyValue } from '../core/stringify.js'
 import { Column, Row } from '../components/layout/index.js'
 import { Heading, Text, Muted } from '../components/typography/index.js'
 import { Card, CardContent } from '../components/card/index.js'
@@ -237,7 +238,7 @@ function renderFieldValue(key: string, value: unknown): Component {
   if (isDateString(value)) {
     return Text(value as string, { cssClass: 'font-medium tabular-nums' })
   }
-  return Text(typeof value === 'string' ? value : String(value as number), { cssClass: 'font-medium' })
+  return Text(stringifyValue(value), { cssClass: 'font-medium' })
 }
 
 // ── autoTable ───────────────────────────────────────────────────────────────

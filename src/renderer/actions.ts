@@ -9,6 +9,7 @@ import type { Store } from './state.js'
 import type { EvalScope } from './rx.js'
 import { evaluateTemplate, isRxExpression } from './rx.js'
 import { toCamelCase } from '../core/component.js'
+import { stringifyValue } from '../core/stringify.js'
 import { log } from '../core/logger.js'
 
 /**
@@ -595,9 +596,9 @@ function isSafeUrl(url: string): boolean {
 function resolveStr(val: unknown, ctx: DispatchContext): string {
   if (isRxExpression(val)) {
     const result = evaluateTemplate(val, ctx.store, ctx.scope)
-    return result == null ? '' : String(result as string | number | boolean)
+    return stringifyValue(result)
   }
-  return val == null ? '' : String(val as string | number | boolean)
+  return stringifyValue(val)
 }
 
 function resolveArgs(

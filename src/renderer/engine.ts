@@ -13,6 +13,7 @@ import { evaluateTemplate, isRxExpression } from './rx.js'
 import { log } from '../core/logger.js'
 import { dispatchActions, fireAndForget } from './actions.js'
 import { toCamelCase } from '../core/component.js'
+import { stringifyValue } from '../core/stringify.js'
 
 // ── Key normalisation ────────────────────────────────────────────────────────
 
@@ -297,9 +298,9 @@ function renderBranchChildren(
 export function resolveStr(value: unknown, ctx: RenderContext): string {
   if (isRxExpression(value)) {
     const result = evaluateTemplate(value, ctx.store, ctx.scope)
-    return result == null ? '' : String(result as string | number | boolean)
+    return stringifyValue(result)
   }
-  return value == null ? '' : String(value as string | number | boolean)
+  return stringifyValue(value)
 }
 
 /** Resolve a possibly-reactive value, keeping original type */
