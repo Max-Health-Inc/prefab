@@ -16,6 +16,9 @@ export type {
 export { toolResult } from './result.js'
 export type { ToolResultOptions } from './result.js'
 
+export { themeBridgeCss, VSCODE_BRIDGE } from './theme-bridge.js'
+export type { ThemeBridge, VsCodeTokenSource } from './theme-bridge.js'
+
 export {
   resourceMeta,
   registerViewerResource,

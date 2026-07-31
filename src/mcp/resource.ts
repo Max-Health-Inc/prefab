@@ -13,6 +13,7 @@
 import { VERSION } from '../app.js'
 import { createLogger } from '../core/logger.js'
 import type { McpCacheHint, McpCacheScope, McpResourceReadResult, McpTextResourceContents } from './types.js'
+import { themeBridgeCss, type ThemeBridge } from './theme-bridge.js'
 
 const log = createLogger('mcp')
 
@@ -167,6 +168,15 @@ export interface RendererHtmlOptions {
   stylesheets?: string[]
   /** Override CDN base URL (no trailing slash). @default jsdelivr CDN */
   cdnBase?: string
+  /**
+   * Inject a theme bridge stylesheet after `prefab.css`.
+   *
+   * `'vscode'` re-declares the tokens VS Code can supply with the
+   * `--vscode-*` variable first, dropping the MCP Apps `--color-*` layer that
+   * would otherwise shadow it, so the viewer follows the user's editor theme.
+   * Emitted before `stylesheets`, which stay the outermost override.
+   */
+  themeBridge?: ThemeBridge
 }
 
 /**
@@ -181,11 +191,18 @@ export interface RendererHtmlOptions {
  * const html = rendererHtml()
  * // or with extra scripts:
  * const html = rendererHtml({ scripts: ['https://cdn.example.com/plugin.js'] })
+ * // inside VS Code, to follow the user's editor theme:
+ * const html = rendererHtml({ themeBridge: 'vscode' })
  * ```
  */
 export function rendererHtml(options?: RendererHtmlOptions): string {
   const title = options?.title ?? 'Prefab'
   const base = options?.cdnBase ?? cdnBase()
+  // Order in <head> is load-bearing: prefab.css, then the bridge (which must win
+  // over it), then the caller's stylesheets as the outermost override.
+  const bridge = options?.themeBridge
+    ? `  <style>\n${themeBridgeCss(options.themeBridge)}\n  </style>\n`
+    : ''
   const extraStyles = (options?.stylesheets ?? [])
     .map(url => `  <link rel="stylesheet" crossorigin href="${escapeAttr(url)}">`)
     .join('\n')
@@ -200,7 +217,7 @@ export function rendererHtml(options?: RendererHtmlOptions): string {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${escapeHtml(title)}</title>
   <link rel="stylesheet" crossorigin href="${base}/prefab.css">
-${extraStyles}</head>
+${bridge}${extraStyles}</head>
 <body>
   <div id="root"></div>
   <script crossorigin src="${base}/renderer.auto.min.js"></script>
@@ -225,6 +242,11 @@ export interface ViewerResourceOptions {
   stylesheets?: string[]
   /** Override CDN base URL (no trailing slash). */
   cdnBase?: string
+  /**
+   * Inject a theme bridge stylesheet. `'vscode'` makes the viewer follow the
+   * user's editor theme. See {@link RendererHtmlOptions.themeBridge}.
+   */
+  themeBridge?: ThemeBridge
   /**
    * Cache fields for the `resources/read` result (SEP-2549).
    * @default { ttlMs: 86_400_000, cacheScope: 'public' }
@@ -351,6 +373,7 @@ export function registerViewerResource(server: McpServerLike, options?: ViewerRe
     scripts: options?.scripts,
     stylesheets: options?.stylesheets,
     cdnBase: options?.cdnBase,
+    themeBridge: options?.themeBridge,
   })
 
   if (options?.declareCapability !== false) declareAppsExtension(server)

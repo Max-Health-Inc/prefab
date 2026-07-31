@@ -170,6 +170,40 @@ Call it **before** the server connects — capabilities cannot be registered on 
 connected server. If it is called later the resource still registers, and prefab
 logs a warning instead of throwing.
 
+#### Following the user's VS Code theme
+
+`prefab.css` resolves every token through a chain: the MCP Apps host variable
+first, then the VS Code webview variable, then a static default.
+
+```css
+--background: var(--color-background-primary, var(--vscode-editor-background, #ffffff));
+```
+
+That order is right in general, but a host which defines the MCP Apps `--color-*`
+variables shadows the VS Code ones completely, and the viewer stops tracking the
+user's editor theme. Opt into the bridge to invert the priority:
+
+```ts
+registerViewerResource(server, { themeBridge: 'vscode' })
+// or directly:
+const html = rendererHtml({ themeBridge: 'vscode' })
+```
+
+It emits a `<style>` block after `prefab.css` that re-declares the affected
+tokens with the `--vscode-*` variable first and the MCP Apps layer dropped,
+keeping prefab's own static fallbacks so nothing changes outside VS Code. Head
+order is the contract: `prefab.css`, then the bridge, then your `stylesheets`,
+so your overrides still win.
+
+It covers the `:root` default and the `prefers-color-scheme: dark` block. It
+deliberately does **not** touch `:root[data-theme="dark"]`, which is prefab's
+standalone dark palette: host theming cascades, the manual toggle does not, so an
+app that pins `data-theme="dark"` keeps its own choice.
+
+`VSCODE_BRIDGE` is the exported mapping table if you need to inspect or extend
+it; `test/theme-bridge.test.ts` cross-checks every entry against `prefab.css` so
+the two cannot drift.
+
 The MIME type is exactly `text/html;profile=mcp-app` (with no space
 around the semicolon). Plain `text/html` is silently treated as a
 non-app resource.

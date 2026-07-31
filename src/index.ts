@@ -91,6 +91,8 @@ export { display, display_form, display_update, display_error, display_success, 
 export type { DisplayOptions, DisplayFormOptions, DisplayUpdateOptions, DisplayErrorOptions, DisplaySuccessOptions, StateUpdate, PrefabUpdateWire } from './mcp/display.js'
 export { toolResult } from './mcp/result.js'
 export type { ToolResultOptions } from './mcp/result.js'
+export { themeBridgeCss, VSCODE_BRIDGE } from './mcp/theme-bridge.js'
+export type { ThemeBridge, VsCodeTokenSource } from './mcp/theme-bridge.js'
 export { resourceMeta, registerViewerResource, rendererHtml, PREFAB_CDN_META, PREFAB_RESOURCE_URI, MCP_APP_MIME, APPS_EXTENSION, DEFAULT_VIEWER_CACHE } from './mcp/resource.js'
 export type { McpAppCsp, McpAppPermissions, ResourceMetaOptions, RendererHtmlOptions, ViewerResourceOptions, McpServerLike, ResourceConfig, ResourceReadHandler } from './mcp/resource.js'
 export type { McpToolResult, McpContent, McpTextContent, McpCacheScope, McpCacheHint, McpResourceReadResult } from './mcp/types.js'
