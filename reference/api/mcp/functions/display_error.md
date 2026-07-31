@@ -9,10 +9,10 @@ url: /prefab/reference/api/mcp/functions/display_error.md
 function display_error(
    title, 
    message, 
-   options?): McpToolResult;
+options?): McpToolResult<PrefabWireFormat>;
 ```
 
-Defined in: [mcp/display.ts:249](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/mcp/display.ts#L249)
+Defined in: [mcp/display.ts:237](https://github.com/Max-Health-Inc/prefab/blob/e42e8c82c07c073f15ca30bb919aca4001f57a2f/src/mcp/display.ts#L237)
 
 Return a standardized error view as an MCP tool result.
 
@@ -29,6 +29,6 @@ code block, and optional hint. Sets `isError: true` on the MCP result.
 
 ## Returns
 
-[`McpToolResult`](../interfaces/McpToolResult.md)
+[`McpToolResult`](../interfaces/McpToolResult.md)<`PrefabWireFormat`>
 
 MCP tool result with error UI and isError flag.

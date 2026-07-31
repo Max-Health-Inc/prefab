@@ -9,9 +9,13 @@ url: /prefab/reference/api/mcp/functions/resourceMeta.md
 function resourceMeta(options?): object;
 ```
 
-Defined in: [mcp/display.ts:408](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/mcp/display.ts#L408)
+Defined in: [mcp/resource.ts:94](https://github.com/Max-Health-Inc/prefab/blob/e42e8c82c07c073f15ca30bb919aca4001f57a2f/src/mcp/resource.ts#L94)
 
-MCP display helpers — return prefab UIs as MCP tool results.
+Generate the `_meta` object for MCP Apps `ui://` resource registration.
+
+Includes CSP and Permission Policy configuration per the MCP Apps spec.
+Use on both the resource listing AND the content item (VS Code reads
+only the content item; other hosts may read either).
 
 ## Parameters
 
@@ -39,4 +43,31 @@ optional csp?: McpAppCsp;
 
 ```ts
 optional permissions?: McpAppPermissionsWire;
+```
+
+## Example
+
+```ts
+const meta = resourceMeta({
+  csp: { resourceDomains: ['https://cdn.jsdelivr.net'] },
+  permissions: { camera: true },
+})
+
+server.registerResource('viewer', 'ui://my/viewer', {
+  mimeType: 'text/html;profile=mcp-app',
+  _meta: meta,
+  cacheHint: { ttlMs: 86_400_000, cacheScope: 'public' },
+}, (uri) => Promise.resolve({
+  contents: [{ uri: uri.toString(), mimeType: 'text/html;profile=mcp-app', text: html, _meta: meta }],
+  ttlMs: 86_400_000,
+  cacheScope: 'public',
+}))
+
+// The UI resource is associated with a tool on the tool DEFINITION, not
+// on its result:
+server.registerTool('browse', {
+  title: 'Browse',
+  inputSchema: schema,
+  _meta: { ui: { resourceUri: 'ui://my/viewer' } },
+}, (args) => display(autoTable(rows)))
 ```

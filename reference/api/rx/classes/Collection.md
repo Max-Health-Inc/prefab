@@ -5,7 +5,7 @@ url: /prefab/reference/api/rx/classes/Collection.md
 
 # Class: Collection\<T>
 
-Defined in: [rx/collection.ts:86](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/rx/collection.ts#L86)
+Defined in: [rx/collection.ts:87](https://github.com/Max-Health-Inc/prefab/blob/e42e8c82c07c073f15ca30bb919aca4001f57a2f/src/rx/collection.ts#L87)
 
 A named keyed array. Serializes rows into state and provides
 typed lookup helpers that compile to pipe expressions.
@@ -27,7 +27,7 @@ new Collection<T>(
 keyField): Collection<T>;
 ```
 
-Defined in: [rx/collection.ts:91](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/rx/collection.ts#L91)
+Defined in: [rx/collection.ts:92](https://github.com/Max-Health-Inc/prefab/blob/e42e8c82c07c073f15ca30bb919aca4001f57a2f/src/rx/collection.ts#L92)
 
 #### Parameters
 
@@ -49,7 +49,7 @@ Defined in: [rx/collection.ts:91](https://github.com/Max-Health-Inc/prefab/blob/
 readonly stateKey: string;
 ```
 
-Defined in: [rx/collection.ts:87](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/rx/collection.ts#L87)
+Defined in: [rx/collection.ts:88](https://github.com/Max-Health-Inc/prefab/blob/e42e8c82c07c073f15ca30bb919aca4001f57a2f/src/rx/collection.ts#L88)
 
 ***
 
@@ -59,7 +59,7 @@ Defined in: [rx/collection.ts:87](https://github.com/Max-Health-Inc/prefab/blob/
 readonly keyField: string;
 ```
 
-Defined in: [rx/collection.ts:88](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/rx/collection.ts#L88)
+Defined in: [rx/collection.ts:89](https://github.com/Max-Health-Inc/prefab/blob/e42e8c82c07c073f15ca30bb919aca4001f57a2f/src/rx/collection.ts#L89)
 
 ***
 
@@ -69,7 +69,7 @@ Defined in: [rx/collection.ts:88](https://github.com/Max-Health-Inc/prefab/blob/
 readonly rows: T[];
 ```
 
-Defined in: [rx/collection.ts:89](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/rx/collection.ts#L89)
+Defined in: [rx/collection.ts:90](https://github.com/Max-Health-Inc/prefab/blob/e42e8c82c07c073f15ca30bb919aca4001f57a2f/src/rx/collection.ts#L90)
 
 ## Accessors
 
@@ -81,7 +81,7 @@ Defined in: [rx/collection.ts:89](https://github.com/Max-Health-Inc/prefab/blob/
 get length(): number;
 ```
 
-Defined in: [rx/collection.ts:112](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/rx/collection.ts#L112)
+Defined in: [rx/collection.ts:113](https://github.com/Max-Health-Inc/prefab/blob/e42e8c82c07c073f15ca30bb919aca4001f57a2f/src/rx/collection.ts#L113)
 
 Number of rows.
 
@@ -97,7 +97,7 @@ Number of rows.
 firstKey(): string | null;
 ```
 
-Defined in: [rx/collection.ts:98](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/rx/collection.ts#L98)
+Defined in: [rx/collection.ts:99](https://github.com/Max-Health-Inc/prefab/blob/e42e8c82c07c073f15ca30bb919aca4001f57a2f/src/rx/collection.ts#L99)
 
 Key of the first row, or null if empty.
 
@@ -113,7 +113,7 @@ Key of the first row, or null if empty.
 lastKey(): string | null;
 ```
 
-Defined in: [rx/collection.ts:105](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/rx/collection.ts#L105)
+Defined in: [rx/collection.ts:106](https://github.com/Max-Health-Inc/prefab/blob/e42e8c82c07c073f15ca30bb919aca4001f57a2f/src/rx/collection.ts#L106)
 
 Key of the last row, or null if empty.
 
@@ -129,7 +129,7 @@ Key of the last row, or null if empty.
 by<K>(key): Ref<T>;
 ```
 
-Defined in: [rx/collection.ts:120](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/rx/collection.ts#L120)
+Defined in: [rx/collection.ts:121](https://github.com/Max-Health-Inc/prefab/blob/e42e8c82c07c073f15ca30bb919aca4001f57a2f/src/rx/collection.ts#L121)
 
 Create a Ref that lazily resolves a row by signal key.
 Compiles to: `{{ stateKey | find:'keyField',signal.key }}`
@@ -158,7 +158,7 @@ Compiles to: `{{ stateKey | find:'keyField',signal.key }}`
 toRx(): Rx;
 ```
 
-Defined in: [rx/collection.ts:125](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/rx/collection.ts#L125)
+Defined in: [rx/collection.ts:126](https://github.com/Max-Health-Inc/prefab/blob/e42e8c82c07c073f15ca30bb919aca4001f57a2f/src/rx/collection.ts#L126)
 
 Rx expression referencing the full array: `{{ stateKey }}`
 
@@ -174,7 +174,7 @@ Rx expression referencing the full array: `{{ stateKey }}`
 toString(): string;
 ```
 
-Defined in: [rx/collection.ts:129](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/rx/collection.ts#L129)
+Defined in: [rx/collection.ts:130](https://github.com/Max-Health-Inc/prefab/blob/e42e8c82c07c073f15ca30bb919aca4001f57a2f/src/rx/collection.ts#L130)
 
 #### Returns
 
@@ -188,7 +188,7 @@ Defined in: [rx/collection.ts:129](https://github.com/Max-Health-Inc/prefab/blob
 toJSON(): string;
 ```
 
-Defined in: [rx/collection.ts:133](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/rx/collection.ts#L133)
+Defined in: [rx/collection.ts:134](https://github.com/Max-Health-Inc/prefab/blob/e42e8c82c07c073f15ca30bb919aca4001f57a2f/src/rx/collection.ts#L134)
 
 #### Returns
 
@@ -202,7 +202,7 @@ Defined in: [rx/collection.ts:133](https://github.com/Max-Health-Inc/prefab/blob
 toState(): Record<string, T[]>;
 ```
 
-Defined in: [rx/collection.ts:138](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/rx/collection.ts#L138)
+Defined in: [rx/collection.ts:139](https://github.com/Max-Health-Inc/prefab/blob/e42e8c82c07c073f15ca30bb919aca4001f57a2f/src/rx/collection.ts#L139)
 
 State entry for PrefabApp: `{ stateKey: rows }`
 

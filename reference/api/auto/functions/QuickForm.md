@@ -9,7 +9,7 @@ url: /prefab/reference/api/auto/functions/QuickForm.md
 function QuickForm(toolName): QuickFormBuilder;
 ```
 
-Defined in: [auto/form.ts:187](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/auto/form.ts#L187)
+Defined in: [auto/form.ts:187](https://github.com/Max-Health-Inc/prefab/blob/e42e8c82c07c073f15ca30bb919aca4001f57a2f/src/auto/form.ts#L187)
 
 Factory function for the chainable QuickForm builder.
 

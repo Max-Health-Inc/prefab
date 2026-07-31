@@ -9,7 +9,7 @@ url: /prefab/reference/api/actions/functions/pop.md
 function pop(target, indexOrValue?): PopState;
 ```
 
-Defined in: [actions/sugar.ts:48](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/actions/sugar.ts#L48)
+Defined in: [actions/sugar.ts:48](https://github.com/Max-Health-Inc/prefab/blob/e42e8c82c07c073f15ca30bb919aca4001f57a2f/src/actions/sugar.ts#L48)
 
 Remove an element from an array by index or value. Defaults to last element (-1).
 

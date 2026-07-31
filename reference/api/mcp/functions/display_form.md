@@ -9,10 +9,10 @@ url: /prefab/reference/api/mcp/functions/display_form.md
 function display_form(
    fields, 
    submitTool, 
-   options?): McpToolResult;
+options?): McpToolResult<PrefabWireFormat>;
 ```
 
-Defined in: [mcp/display.ts:147](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/mcp/display.ts#L147)
+Defined in: [mcp/display.ts:144](https://github.com/Max-Health-Inc/prefab/blob/e42e8c82c07c073f15ca30bb919aca4001f57a2f/src/mcp/display.ts#L144)
 
 Return a form UI as an MCP tool result.
 
@@ -30,6 +30,6 @@ invokes `submitTool` with all field values.
 
 ## Returns
 
-[`McpToolResult`](../interfaces/McpToolResult.md)
+[`McpToolResult`](../interfaces/McpToolResult.md)<`PrefabWireFormat`>
 
 MCP tool result with form prefab UI.

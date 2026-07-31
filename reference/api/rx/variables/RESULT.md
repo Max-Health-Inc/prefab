@@ -9,6 +9,6 @@ url: /prefab/reference/api/rx/variables/RESULT.md
 const RESULT: Rx;
 ```
 
-Defined in: [rx/rx.ts:241](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/rx/rx.ts#L241)
+Defined in: [rx/rx.ts:241](https://github.com/Max-Health-Inc/prefab/blob/e42e8c82c07c073f15ca30bb919aca4001f57a2f/src/rx/rx.ts#L241)
 
 Return value available in on\_success callbacks

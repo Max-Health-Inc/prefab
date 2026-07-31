@@ -5,7 +5,7 @@ url: /prefab/reference/api/actions/classes/SetState.md
 
 # Class: SetState
 
-Defined in: [actions/client.ts:16](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/actions/client.ts#L16)
+Defined in: [actions/client.ts:16](https://github.com/Max-Health-Inc/prefab/blob/e42e8c82c07c073f15ca30bb919aca4001f57a2f/src/actions/client.ts#L16)
 
 Base interface all actions implement
 
@@ -24,7 +24,7 @@ new SetState(
    opts?): SetState;
 ```
 
-Defined in: [actions/client.ts:17](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/actions/client.ts#L17)
+Defined in: [actions/client.ts:17](https://github.com/Max-Health-Inc/prefab/blob/e42e8c82c07c073f15ca30bb919aca4001f57a2f/src/actions/client.ts#L17)
 
 #### Parameters
 
@@ -46,7 +46,7 @@ Defined in: [actions/client.ts:17](https://github.com/Max-Health-Inc/prefab/blob
 readonly key: string;
 ```
 
-Defined in: [actions/client.ts:18](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/actions/client.ts#L18)
+Defined in: [actions/client.ts:18](https://github.com/Max-Health-Inc/prefab/blob/e42e8c82c07c073f15ca30bb919aca4001f57a2f/src/actions/client.ts#L18)
 
 ***
 
@@ -56,7 +56,7 @@ Defined in: [actions/client.ts:18](https://github.com/Max-Health-Inc/prefab/blob
 readonly value: unknown;
 ```
 
-Defined in: [actions/client.ts:19](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/actions/client.ts#L19)
+Defined in: [actions/client.ts:19](https://github.com/Max-Health-Inc/prefab/blob/e42e8c82c07c073f15ca30bb919aca4001f57a2f/src/actions/client.ts#L19)
 
 ## Methods
 
@@ -66,7 +66,7 @@ Defined in: [actions/client.ts:19](https://github.com/Max-Health-Inc/prefab/blob
 toJSON(): ActionJSON;
 ```
 
-Defined in: [actions/client.ts:23](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/actions/client.ts#L23)
+Defined in: [actions/client.ts:23](https://github.com/Max-Health-Inc/prefab/blob/e42e8c82c07c073f15ca30bb919aca4001f57a2f/src/actions/client.ts#L23)
 
 #### Returns
 

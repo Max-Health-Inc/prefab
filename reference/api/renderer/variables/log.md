@@ -9,6 +9,6 @@ url: /prefab/reference/api/renderer/variables/log.md
 const log: Logger;
 ```
 
-Defined in: [core/logger.ts:63](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/core/logger.ts#L63)
+Defined in: [core/logger.ts:63](https://github.com/Max-Health-Inc/prefab/blob/e42e8c82c07c073f15ca30bb919aca4001f57a2f/src/core/logger.ts#L63)
 
 Default unscoped logger — `[prefab] …`.

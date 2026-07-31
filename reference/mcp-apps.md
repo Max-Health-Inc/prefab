@@ -117,13 +117,14 @@ const CSP_META = {
   },
 };
 
-mcp.resource(
+mcp.registerResource(
   'viewer',
   'ui://your/viewer',
   {
     title: 'My Viewer',
     mimeType: 'text/html;profile=mcp-app',
     _meta: CSP_META,                       // listing-level fallback
+    cacheHint: { ttlMs: 86_400_000, cacheScope: 'public' },
   },
   async (uri) => ({
     contents: [{
@@ -132,11 +133,24 @@ mcp.resource(
       text: rendererHtml(),
       _meta: CSP_META,                     // ← takes precedence; required by VS Code
     }],
+    // Required on cacheable results as of protocol revision 2026-07-28
+    // (SEP-2549). Omit them and the SDK falls back to { ttlMs: 0,
+    // cacheScope: 'private' } — the viewer is re-fetched on every render.
+    ttlMs: 86_400_000,
+    cacheScope: 'public',
   }),
 );
 ```
 
-**Shortcut:** if you're using prefab's TypeScript SDK, `registerViewerResource()` handles all of the above in one call:
+Use `registerResource`, not the older `resource()` overload — v1 deprecated it
+and `@modelcontextprotocol/server` v2 removed it.
+
+Because the viewer HTML is pinned to an exact package version on the CDN, it
+cannot change for a given server build, which is what makes it safe to mark
+`public` with a long TTL. Values the handler returns win over the per-resource
+`cacheHint`, which in turn wins over the server-level `cacheHints` option.
+
+**Shortcut:** if you're using prefab's TypeScript SDK, `registerViewerResource()` handles all of the above in one call — MIME type, CSP on both locations, the cache fields, and the `io.modelcontextprotocol/apps` extension capability (SEP-2133):
 
 ```ts
 import { registerViewerResource, PREFAB_RESOURCE_URI } from '@maxhealth.tech/prefab/mcp'
@@ -151,8 +165,47 @@ registerViewerResource(server, {
   csp: { connectDomains: ['https://api.example.com'] },
   permissions: { clipboardWrite: true },
   scripts: ['https://cdn.example.com/plugin.js'],
+  cache: { ttlMs: 3_600_000, cacheScope: 'public' },  // default: 24h / public
 })
 ```
+
+Call it **before** the server connects — capabilities cannot be registered on a
+connected server. If it is called later the resource still registers, and prefab
+logs a warning instead of throwing.
+
+#### Following the user's VS Code theme
+
+`prefab.css` resolves every token through a chain: the MCP Apps host variable
+first, then the VS Code webview variable, then a static default.
+
+```css
+--background: var(--color-background-primary, var(--vscode-editor-background, #ffffff));
+```
+
+That order is right in general, but a host which defines the MCP Apps `--color-*`
+variables shadows the VS Code ones completely, and the viewer stops tracking the
+user's editor theme. Opt into the bridge to invert the priority:
+
+```ts
+registerViewerResource(server, { themeBridge: 'vscode' })
+// or directly:
+const html = rendererHtml({ themeBridge: 'vscode' })
+```
+
+It emits a `<style>` block after `prefab.css` that re-declares the affected
+tokens with the `--vscode-*` variable first and the MCP Apps layer dropped,
+keeping prefab's own static fallbacks so nothing changes outside VS Code. Head
+order is the contract: `prefab.css`, then the bridge, then your `stylesheets`,
+so your overrides still win.
+
+It covers the `:root` default and the `prefers-color-scheme: dark` block. It
+deliberately does **not** touch `:root[data-theme="dark"]`, which is prefab's
+standalone dark palette: host theming cascades, the manual toggle does not, so an
+app that pins `data-theme="dark"` keeps its own choice.
+
+`VSCODE_BRIDGE` is the exported mapping table if you need to inspect or extend
+it; `test/theme-bridge.test.ts` cross-checks every entry against `prefab.css` so
+the two cannot drift.
 
 The MIME type is exactly `text/html;profile=mcp-app` (with no space
 around the semicolon). Plain `text/html` is silently treated as a
@@ -183,6 +236,34 @@ base-uri {baseUriDomains || 'self'};
 Inline `<script>` works (`'unsafe-inline'`), but external
 `<script src="https://...">` requires the origin to be listed in
 `resourceDomains`.
+
+#### Custom pipes under this policy
+
+Note what is **not** in that template: `'unsafe-eval'`. Custom pipes travel over
+the wire as function source (`pipes: { humanName: '(value) => ...' }`) and the
+renderer hydrates them with `new Function()`, which the policy above forbids. The
+renderer degrades gracefully — values pass through unformatted and one warning is
+logged — but the pipes do not run.
+
+To use custom pipes in such a host, pre-register them from a companion script.
+Anything already registered wins over the wire source and is never evaluated:
+
+```ts
+// companion.js, served from an origin listed in resourceDomains
+window.prefab.registerPipe('humanName', (value) => {
+  const n = value ?? {}
+  return n.text ?? [n.given?.join(' '), n.family].filter(Boolean).join(' ')
+})
+```
+
+```ts
+registerViewerResource(server, {
+  scripts: ['https://cdn.example.com/companion.js'],  // origin auto-added to CSP
+})
+```
+
+Sending the pipes on the wire as well is harmless and keeps the same server
+working in hosts that do allow eval.
 
 ### 4. Permission Policy — requesting browser capabilities
 

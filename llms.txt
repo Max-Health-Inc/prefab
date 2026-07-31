@@ -140,16 +140,25 @@
 - [Interface: ResourceMetaOptions](/reference/api/mcp/interfaces/ResourceMetaOptions.md)
 - [Interface: RendererHtmlOptions](/reference/api/mcp/interfaces/RendererHtmlOptions.md)
 - [Interface: ViewerResourceOptions](/reference/api/mcp/interfaces/ViewerResourceOptions.md)
+- [Interface: ResourceConfig](/reference/api/mcp/interfaces/ResourceConfig.md)
+- [Interface: McpServerLike](/reference/api/mcp/interfaces/McpServerLike.md)
+- [Interface: ToolResultOptions](/reference/api/mcp/interfaces/ToolResultOptions.md)
+- [Interface: VsCodeTokenSource](/reference/api/mcp/interfaces/VsCodeTokenSource.md)
 - [Interface: McpTextContent](/reference/api/mcp/interfaces/McpTextContent.md)
 - [Interface: McpImageContent](/reference/api/mcp/interfaces/McpImageContent.md)
 - [Interface: McpTextResourceContents](/reference/api/mcp/interfaces/McpTextResourceContents.md)
 - [Interface: McpBlobResourceContents](/reference/api/mcp/interfaces/McpBlobResourceContents.md)
 - [Interface: McpResourceContent](/reference/api/mcp/interfaces/McpResourceContent.md)
-- [Interface: McpToolResult](/reference/api/mcp/interfaces/McpToolResult.md)
+- [Interface: McpToolResult\<S>](/reference/api/mcp/interfaces/McpToolResult.md)
+- [Interface: McpCacheHint](/reference/api/mcp/interfaces/McpCacheHint.md)
+- [Interface: McpResourceReadResult\<C>](/reference/api/mcp/interfaces/McpResourceReadResult.md)
 
 ##### Type Aliases
 
+- [Type Alias: ResourceReadHandler](/reference/api/mcp/type-aliases/ResourceReadHandler.md)
+- [Type Alias: ThemeBridge](/reference/api/mcp/type-aliases/ThemeBridge.md)
 - [Type Alias: McpContent](/reference/api/mcp/type-aliases/McpContent.md)
+- [Type Alias: McpCacheScope](/reference/api/mcp/type-aliases/McpCacheScope.md)
 
 ##### Variables
 
@@ -159,6 +168,10 @@
 - [Variable: displaySuccess](/reference/api/mcp/variables/displaySuccess.md)
 - [Variable: PREFAB\_CDN\_META](/reference/api/mcp/variables/PREFAB_CDN_META.md)
 - [Variable: PREFAB\_RESOURCE\_URI](/reference/api/mcp/variables/PREFAB_RESOURCE_URI.md)
+- [Variable: MCP\_APP\_MIME](/reference/api/mcp/variables/MCP_APP_MIME.md)
+- [Variable: APPS\_EXTENSION](/reference/api/mcp/variables/APPS_EXTENSION.md)
+- [Variable: DEFAULT\_VIEWER\_CACHE](/reference/api/mcp/variables/DEFAULT_VIEWER_CACHE.md)
+- [Variable: VSCODE\_BRIDGE](/reference/api/mcp/variables/VSCODE_BRIDGE.md)
 
 ##### Functions
 
@@ -170,6 +183,8 @@
 - [Function: resourceMeta()](/reference/api/mcp/functions/resourceMeta.md)
 - [Function: rendererHtml()](/reference/api/mcp/functions/rendererHtml.md)
 - [Function: registerViewerResource()](/reference/api/mcp/functions/registerViewerResource.md)
+- [Function: toolResult()](/reference/api/mcp/functions/toolResult.md)
+- [Function: themeBridgeCss()](/reference/api/mcp/functions/themeBridgeCss.md)
 
 #### renderer
 

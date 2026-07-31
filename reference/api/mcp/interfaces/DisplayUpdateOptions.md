@@ -5,7 +5,7 @@ url: /prefab/reference/api/mcp/interfaces/DisplayUpdateOptions.md
 
 # Interface: DisplayUpdateOptions
 
-Defined in: [mcp/display.ts:190](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/mcp/display.ts#L190)
+Defined in: [mcp/display.ts:183](https://github.com/Max-Health-Inc/prefab/blob/e42e8c82c07c073f15ca30bb919aca4001f57a2f/src/mcp/display.ts#L183)
 
 ## Properties
 
@@ -17,6 +17,6 @@ optional actions?:
   | Action[];
 ```
 
-Defined in: [mcp/display.ts:192](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/mcp/display.ts#L192)
+Defined in: [mcp/display.ts:185](https://github.com/Max-Health-Inc/prefab/blob/e42e8c82c07c073f15ca30bb919aca4001f57a2f/src/mcp/display.ts#L185)
 
 Actions to fire after the state delta is applied.

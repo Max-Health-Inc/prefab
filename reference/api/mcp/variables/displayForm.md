@@ -6,10 +6,10 @@ url: /prefab/reference/api/mcp/variables/displayForm.md
 # Variable: displayForm
 
 ```ts
-const displayForm: (fields, submitTool, options?) => McpToolResult = display_form;
+const displayForm: (fields, submitTool, options?) => McpToolResult<PrefabWireFormat> = display_form;
 ```
 
-Defined in: [mcp/display.ts:340](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/mcp/display.ts#L340)
+Defined in: [mcp/display.ts:319](https://github.com/Max-Health-Inc/prefab/blob/e42e8c82c07c073f15ca30bb919aca4001f57a2f/src/mcp/display.ts#L319)
 
 MCP display helpers — return prefab UIs as MCP tool results.
 
@@ -29,6 +29,6 @@ invokes `submitTool` with all field values.
 
 ## Returns
 
-[`McpToolResult`](../interfaces/McpToolResult.md)
+[`McpToolResult`](../interfaces/McpToolResult.md)<`PrefabWireFormat`>
 
 MCP tool result with form prefab UI.

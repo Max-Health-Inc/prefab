@@ -6,10 +6,10 @@ url: /prefab/reference/api/mcp/variables/displayError.md
 # Variable: displayError
 
 ```ts
-const displayError: (title, message, options?) => McpToolResult = display_error;
+const displayError: (title, message, options?) => McpToolResult<PrefabWireFormat> = display_error;
 ```
 
-Defined in: [mcp/display.ts:342](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/mcp/display.ts#L342)
+Defined in: [mcp/display.ts:321](https://github.com/Max-Health-Inc/prefab/blob/e42e8c82c07c073f15ca30bb919aca4001f57a2f/src/mcp/display.ts#L321)
 
 MCP display helpers — return prefab UIs as MCP tool results.
 
@@ -28,6 +28,6 @@ code block, and optional hint. Sets `isError: true` on the MCP result.
 
 ## Returns
 
-[`McpToolResult`](../interfaces/McpToolResult.md)
+[`McpToolResult`](../interfaces/McpToolResult.md)<`PrefabWireFormat`>
 
 MCP tool result with error UI and isError flag.

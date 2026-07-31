@@ -9,7 +9,7 @@ url: /prefab/reference/api/rx/functions/listPipes.md
 function listPipes(): string[];
 ```
 
-Defined in: [rx/pipes.ts:34](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/rx/pipes.ts#L34)
+Defined in: [rx/pipes.ts:34](https://github.com/Max-Health-Inc/prefab/blob/e42e8c82c07c073f15ca30bb919aca4001f57a2f/src/rx/pipes.ts#L34)
 
 List all registered custom pipe names (useful for debugging).
 

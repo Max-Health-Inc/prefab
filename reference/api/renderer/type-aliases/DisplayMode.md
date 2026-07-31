@@ -9,4 +9,4 @@ url: /prefab/reference/api/renderer/type-aliases/DisplayMode.md
 type DisplayMode = "inline" | "fullscreen" | "pip";
 ```
 
-Defined in: [renderer/bridge.ts:53](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/renderer/bridge.ts#L53)
+Defined in: [renderer/bridge.ts:53](https://github.com/Max-Health-Inc/prefab/blob/e42e8c82c07c073f15ca30bb919aca4001f57a2f/src/renderer/bridge.ts#L53)

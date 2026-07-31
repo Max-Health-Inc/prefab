@@ -9,18 +9,18 @@ url: /prefab/reference/api/mcp/functions/registerViewerResource.md
 function registerViewerResource(server, options?): void;
 ```
 
-Defined in: [mcp/display.ts:550](https://github.com/Max-Health-Inc/prefab/blob/a35624be6562c3c7b129e80c58368ed6939e09e3/src/mcp/display.ts#L550)
+Defined in: [mcp/resource.ts:364](https://github.com/Max-Health-Inc/prefab/blob/e42e8c82c07c073f15ca30bb919aca4001f57a2f/src/mcp/resource.ts#L364)
 
 Register the prefab viewer as a `ui://` resource on an MCP server.
 
-Handles MIME type, CSP on both listing and content item, and HTML generation.
-Eliminates the three most common registration mistakes in one call.
+Handles the MIME type, CSP on both listing and content item, HTML generation,
+the `CacheableResult` fields and the Apps extension capability in one call.
 
 ## Parameters
 
 | Parameter | Type |
 | ------ | ------ |
-| `server` | `McpServerLike` |
+| `server` | [`McpServerLike`](../interfaces/McpServerLike.md) |
 | `options?` | [`ViewerResourceOptions`](../interfaces/ViewerResourceOptions.md) |
 
 ## Returns
@@ -30,13 +30,14 @@ Eliminates the three most common registration mistakes in one call.
 ## Example
 
 ```ts
-import { registerViewerResource, PREFAB_RESOURCE_URI } from '@maxhealth.tech/prefab/mcp'
+import { registerViewerResource, PREFAB_RESOURCE_URI, display } from '@maxhealth.tech/prefab/mcp'
 
 registerViewerResource(server)
 
-server.tool('browse', schema, async (args) => ({
-  content: [{ type: 'text', text: JSON.stringify(data) }],
-  structuredContent: data,
+// The UI resource is attached to the tool DEFINITION via _meta.ui:
+server.registerTool('browse', {
+  title: 'Browse patients',
+  inputSchema: { query: z.string() },
   _meta: { ui: { resourceUri: PREFAB_RESOURCE_URI } },
-}))
+}, async (args) => display(autoTable(await search(args.query))))
 ```
