@@ -1,0 +1,89 @@
+name: Auto PR (dev → main)
+
+# Keeps a standing "promote dev → main" PR open and up to date after every push to
+# `dev`, so shipping is a one-click merge instead of a hand-written PR.
+#
+# WHY THIS IS A COPY, NOT A CALL:
+# Max-Health-Inc/.github publishes a parameterized reusable create-pr.yml, and calling
+# it is the org norm. That is not possible here: the .github repo is PRIVATE and this
+# repo is PUBLIC, and GitHub does not let a public repository consume a reusable
+# workflow from a private one. Every repo that calls the shared workflow
+# (maxhealth.tech, dicom-viewer, legal-web, llm-gateway) is private. The behaviour
+# below deliberately mirrors the shared workflow, and the sibling copy in
+# Max-Health-Inc/mcp-http, so the three can be reconciled if .github ever goes public.
+#
+# Tests are NOT run here. ci.yml already runs on the same push and reports onto this
+# PR as a required check, so gating the PR's existence on tests would only hide a
+# broken branch instead of showing it.
+#
+# Note: merging this PR PUBLISHES to npm. release.yml runs on push to main.
+# A merge documenting nothing under [Unreleased] skips the release instead of failing.
+
+on:
+  push:
+    branches: [dev]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+env:
+  HEAD_BRANCH: dev
+  BASE_BRANCH: main
+
+jobs:
+  promote:
+    name: Create/Update PR dev → main
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Check if PR exists
+        id: check-pr
+        run: |
+          PR_EXISTS=$(gh pr list --base "$BASE_BRANCH" --head "$HEAD_BRANCH" --state open --json number --jq length)
+          echo "pr_exists=$PR_EXISTS" >> "$GITHUB_OUTPUT"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check diff
+        id: check-diff
+        run: |
+          git fetch origin "$BASE_BRANCH"
+          COMMITS_AHEAD=$(git rev-list --count "origin/${BASE_BRANCH}..origin/${HEAD_BRANCH}")
+          echo "commits_ahead=$COMMITS_AHEAD" >> "$GITHUB_OUTPUT"
+          if [ "$COMMITS_AHEAD" -gt 0 ]; then
+            echo "has_changes=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create PR
+        if: steps.check-pr.outputs.pr_exists == '0' && steps.check-diff.outputs.has_changes == 'true'
+        run: |
+          gh pr create \
+            --base "$BASE_BRANCH" \
+            --head "$HEAD_BRANCH" \
+            --title "🚀 Promote dev → main (@maxhealth.tech/prefab)" \
+            --body "**Automated PR** — merging \`${HEAD_BRANCH}\` into \`${BASE_BRANCH}\`.
+
+          Merging **publishes to npm**: release.yml stamps the changelog, tags, and publishes.
+
+          Commits ahead of ${BASE_BRANCH}: ${{ steps.check-diff.outputs.commits_ahead }}"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update existing PR
+        if: steps.check-pr.outputs.pr_exists != '0'
+        run: |
+          PR_NUMBER=$(gh pr list --base "$BASE_BRANCH" --head "$HEAD_BRANCH" --state open --json number --jq '.[0].number')
+          gh pr edit "$PR_NUMBER" --body "**Automated PR** — merging \`${HEAD_BRANCH}\` into \`${BASE_BRANCH}\`.
+
+          Merging **publishes to npm**: release.yml stamps the changelog, tags, and publishes.
+
+          Commits ahead of ${BASE_BRANCH}: ${{ steps.check-diff.outputs.commits_ahead }}
+          _Updated: $(date -u '+%Y-%m-%d %H:%M:%S UTC')_"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

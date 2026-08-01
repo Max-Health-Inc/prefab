@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Internal
+
+- **Staging CI is now the org pattern: push to `dev` keeps a promote PR open, merging it releases.** `auto-pr.yml` creates or refreshes a standing `dev → main` PR on every push to `dev`, and `release.yml` gained an `on: push: branches: [main]` trigger, so shipping is a one-click merge instead of a hand-written PR plus a manual `workflow_dispatch`. Copied from the sibling implementation in `Max-Health-Inc/mcp-http` rather than calling `Max-Health-Inc/.github`'s reusable `create-pr.yml`: that repo is private and this one is public, and GitHub does not let a public repo consume a reusable workflow from a private one. Tests are not duplicated into the PR workflow, since `ci.yml` already runs on the same push and reports onto the PR.
+- **A merge that documents nothing now skips the release instead of failing it.** `release.yml` splits into a `gate` job and a `release` job; the gate uses the new `--check` flag on `scripts/changelog-release.ts`, which reports `promoted` / `present` / `missing` on stdout, writes nothing and always exits 0. A README or CI-only merge to `main` therefore leaves `main` green rather than red, while an explicit `workflow_dispatch` with an empty `[Unreleased]` still fails loudly, because asking for a release and having nothing to ship is an error. `--check` was added to `mcp-http`'s port of this script and is ported back here, where the script originated. Note the plain invocation was never a dry run: it rewrites `CHANGELOG.md` in place.
+- **The release now merges itself back into `dev`.** The release commit promotes `[Unreleased]` to a version heading on `main`; leaving `dev` behind means its still-open `[Unreleased]` and `main`'s new heading differ only in where the heading sits, so git's line-based merge files `dev`'s newer entries under the *older* release heading. That silently attributes unshipped work to a published version and empties `[Unreleased]`, so the next merge skips its release. It happened between v0.3.6 and v0.3.7 and had to be repaired by hand. The sync step is best-effort and never fails a completed release; a conflict is reported in the run summary instead.
+- Bumped `softprops/action-gh-release` to v3, which clears the Node 20 deprecation warning the v0.3.7 release run emitted.
+
 ## [0.3.7] — 2026-08-01
 
 ### Fixed

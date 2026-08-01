@@ -9,6 +9,10 @@
  *
  * The CLI wrapper exits non-zero on 'missing' so a release with no changelog
  * entry fails in CI. Run: `bun run scripts/changelog-release.ts <version> [date]`.
+ *
+ * `--check` reports the status on stdout and always exits 0, writing nothing.
+ * Note the plain invocation is NOT a dry run: it rewrites CHANGELOG.md in place.
+ * Use `--check <version>` to ask whether there is anything to ship.
  */
 
 import { readFileSync, writeFileSync } from 'node:fs'
@@ -62,16 +66,32 @@ export function promoteChangelog(md: string, version: string, date: string): Cha
 }
 
 // ── CLI ──────────────────────────────────────────────────────────────────────
+//
+// `--check` reports the status on stdout and always exits 0, writing nothing.
+// The release workflow uses it to decide whether a merge to `main` should cut a
+// release at all, versus one that merely documented nothing (a README or CI-only
+// merge should not redden `main`). Without it the only way to ask "is there
+// anything to ship?" is to run the promotion, which mutates the file.
 if (import.meta.main) {
-  const version = process.argv[2]
+  const argv = process.argv.slice(2)
+  const checkOnly = argv[0] === '--check'
+  const args = checkOnly ? argv.slice(1) : argv
+
+  const version = args[0]
   if (!version) {
     console.error('changelog-release: missing <version> argument')
     process.exit(2)
   }
-  const date = process.argv[3] ?? new Date().toISOString().slice(0, 10)
+  const date = args[1] ?? new Date().toISOString().slice(0, 10)
   const path = process.env.CHANGELOG_PATH ?? 'CHANGELOG.md'
 
   const result = promoteChangelog(readFileSync(path, 'utf8'), version, date)
+
+  if (checkOnly) {
+    console.log(result.status)
+    process.exit(0)
+  }
+
   if (result.status === 'missing') {
     console.error(`❌ ${result.message}`)
     process.exit(1)
