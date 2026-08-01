@@ -94,6 +94,29 @@ export default defineConfig(
       'no-console': 'off',
     },
   },
+  // ── Foreign-protocol shapes: aliases, not interfaces ───────────────────
+  //
+  // The repo default is `interface` (from stylisticTypeChecked), which matches
+  // the prevailing TypeScript style and typescript-eslint's own recommendation.
+  // This file is the documented exception rather than a second style: its types
+  // exist to be returned straight into the MCP SDK's *passthrough* result types
+  // (`{ [x: string]: unknown }`), and TypeScript grants the required implicit
+  // index signature only to aliases of object types, never to interfaces, whose
+  // key set is not final because declaration merging can reopen them
+  // (microsoft/TypeScript#15300, closed as by-design).
+  //
+  // Declaring one of these as an interface produces "Index signature for type
+  // 'string' is missing", which a consumer can only escape by casting. Scoping
+  // the flip here means the linter enforces the correct form for anything added
+  // to the file, instead of pushing the next author into the bug and then into a
+  // per-line disable. `test/mcp-types.test.ts` guards the assignability itself,
+  // since no lint rule can.
+  {
+    files: ['src/mcp/types.ts'],
+    rules: {
+      '@typescript-eslint/consistent-type-definitions': ['error', 'type'],
+    },
+  },
   // ── Ignored paths ──────────────────────────────────────────────────────
   {
     ignores: ['dist/', 'node_modules/', 'scripts/', 'happydom.ts', 'docs/', 'eslint.config.ts'],

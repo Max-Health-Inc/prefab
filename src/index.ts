@@ -95,7 +95,7 @@ export { themeBridgeCss, VSCODE_BRIDGE } from './mcp/theme-bridge.js'
 export type { ThemeBridge, VsCodeTokenSource } from './mcp/theme-bridge.js'
 export { resourceMeta, registerViewerResource, rendererHtml, PREFAB_CDN_META, PREFAB_RESOURCE_URI, MCP_APP_MIME, APPS_EXTENSION, DEFAULT_VIEWER_CACHE } from './mcp/resource.js'
 export type { McpAppCsp, McpAppPermissions, ResourceMetaOptions, RendererHtmlOptions, ViewerResourceOptions, McpServerLike, ResourceConfig, ResourceReadHandler } from './mcp/resource.js'
-export type { McpToolResult, McpContent, McpTextContent, McpCacheScope, McpCacheHint, McpResourceReadResult } from './mcp/types.js'
+export type { McpToolResult, McpContent, McpTextContent, McpImageContent, McpResourceContent, McpTextResourceContents, McpBlobResourceContents, McpCacheScope, McpCacheHint, McpResourceReadResult } from './mcp/types.js'
 
 // ── Re-export actions and rx for convenience ─────────────────────────────────
 export { rx, Rx, ITEM, INDEX, EVENT, ERROR, RESULT, STATE, signal, Signal, collection, Collection, Ref, registerPipe, unregisterPipe, listPipes, resetAutoState } from './rx/index.js'
