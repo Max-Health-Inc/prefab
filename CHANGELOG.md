@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.3.7] — 2026-08-01
+
 ### Fixed
 
 - **The MCP protocol types could not be returned to an SDK handler without a cast.** Every shape in `src/mcp/types.ts` was an `interface`, and the SDK's result types are passthrough (`{ [x: string]: unknown }`). TypeScript grants an implicit index signature only to aliases of object types, never to interfaces, whose key set is not final because declaration merging can reopen them ([microsoft/TypeScript#15300](https://github.com/microsoft/TypeScript/issues/15300), closed as by-design), so returning a `McpResourceReadResult` from a `resources/read` handler failed with "Index signature for type 'string' is missing" — the one thing the type exists for. They are all type aliases now. `McpToolResult` was unaffected because it carries an explicit index signature. Verified against `@modelcontextprotocol/server` 2.0.0 rather than a stand-in, and guarded by `test/mcp-types.test.ts`, which fails `typecheck` (not at runtime) if any of them reverts to an interface.
