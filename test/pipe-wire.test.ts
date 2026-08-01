@@ -22,7 +22,7 @@ import type { PrefabWireFormat } from '../src/app'
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
-/** Simulated FHIR humanName pipe — joins given + family. */
+/** Stand-in for a companion-registered pipe — joins given + family. */
 const humanNameFn: PipeFn = (value: unknown) => {
   if (!value || !Array.isArray(value)) return String(value)
   const first = value[0] as Record<string, unknown> | undefined
