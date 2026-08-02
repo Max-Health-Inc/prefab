@@ -15,8 +15,6 @@ A superset of PrefectHQ's Python [prefab-ui](https://github.com/PrefectHQ/prefab
 
 Write MCP servers in **TypeScript/Bun** and generate the same wire format that Python servers produce. Render the output in **any web app** with the included vanilla DOM renderer. Full circle: server-side DSL → JSON → browser UI.
 
-> **Note:** This library is a superset of the Python `prefab-ui` (v0.19.1). Core components and the wire protocol are identical. Chart formatting features (`xAxisFormat`, `tooltipXFormat`, `tooltipXKey`, per-series `tooltipFormat`, dual Y-axis) are TS-only extensions — the Python lib does not yet emit them. The renderer handles both payloads seamlessly.
-
 - **115+ components** — layout, form, data, charts, media, interactive, control flow
 - **Reactive state** — `rx()` expressions, `SetState`/`ToggleState`/`AppendState` actions
 - **MCP-native** — `display()`, `display_form()`, `CallTool`, `SendMessage` built in

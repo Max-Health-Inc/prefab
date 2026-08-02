@@ -11,6 +11,10 @@ All notable changes to this project will be documented in this file.
 - **The release now merges itself back into `dev`.** The release commit promotes `[Unreleased]` to a version heading on `main`; leaving `dev` behind means its still-open `[Unreleased]` and `main`'s new heading differ only in where the heading sits, so git's line-based merge files `dev`'s newer entries under the *older* release heading. That silently attributes unshipped work to a published version and empties `[Unreleased]`, so the next merge skips its release. It happened between v0.3.6 and v0.3.7 and had to be repaired by hand. The sync step is best-effort and never fails a completed release; a conflict is reported in the run summary instead.
 - Bumped `softprops/action-gh-release` to v3, which clears the Node 20 deprecation warning the v0.3.7 release run emitted.
 
+### Docs
+
+- Removed a stale README blockquote that restated the superset relationship six lines below the tagline already stating it, and pinned it to upstream `v0.19.1`. That pin predated 0.3.0's catch-up to upstream 0.20.x and contradicted the wire-format reference. The chart-formatting caveat it carried still lives in the Chart Formatting section, next to the props it describes.
+
 ## [0.3.7] — 2026-08-01
 
 ### Fixed
