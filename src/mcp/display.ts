@@ -181,7 +181,8 @@ export interface StateUpdate {
  * A type alias rather than an interface for the same reason as
  * {@link PrefabWireFormat}: interfaces get no implicit index signature, so an
  * interface here cannot be assigned to the SDK's
- * `structuredContent?: { [x: string]: unknown }`.
+ * `structuredContent?: { [x: string]: unknown }`. Guarded by
+ * `test/mcp-types.test.ts`.
  */
 // eslint-disable-next-line @typescript-eslint/consistent-type-definitions -- must be a type alias to get an implicit index signature; see above
 export type PrefabUpdateWire = {

@@ -54,7 +54,11 @@ export interface LayoutHints {
  * forced into a type assertion to compile. Converting this back to an interface
  * reintroduces that, and the break surfaces in consumers rather than here.
  *
- * See test/wire-format-assignability.test.ts, which fails if this regresses.
+ * Same reasoning as the aliases in `src/mcp/types.ts`, where the lint rule is
+ * scoped to enforce it file-wide. That is not an option here: this file is mostly
+ * domain types that should stay interfaces, so the exception is per-declaration.
+ * `test/mcp-types.test.ts` guards the assignability and fails `typecheck` (not at
+ * runtime) if this regresses.
  */
 // eslint-disable-next-line @typescript-eslint/consistent-type-definitions -- must be a type alias to get an implicit index signature; see above
 export type PrefabWireFormat = {
