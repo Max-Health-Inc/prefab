@@ -25,7 +25,7 @@ import { display, Column, H1, autoTable } from '@maxhealth.tech/prefab'
 
 async function listPatients() {
   const patients = await db.query('SELECT * FROM patients')
-  return display(Column([H1('Patients'), autoTable(patients)]), { title: 'Patients' })
+  return display(Column({ children: [H1('Patients'), autoTable(patients)] }), { title: 'Patients' })
 }
 ```
 

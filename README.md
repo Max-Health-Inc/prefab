@@ -355,8 +355,10 @@ return display_form(
 // Partial state update (no full re-render)
 return display_update({ count: 42, status: 'complete' })
 
-// Error display
-return display_error('User not found', { code: 404 })
+// Error display (title, message, options)
+return display_error('User not found', `No user with id ${id}.`, {
+  hint: 'Check the id and try again.',
+})
 ```
 
 ### `rendererHtml()` — Viewer HTML Shell
