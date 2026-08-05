@@ -22,7 +22,7 @@ Most actions accept `onSuccess` and `onError` options, each taking a single acti
 ```ts
 Button('Save & Notify', {
   onClick: new CallTool('save_item', {
-    arguments: { name: rx`${STATE}.name` },
+    arguments: { name: STATE.name },
     onSuccess: [new SetState('saved', true), new ShowToast('Saved!', { variant: 'success' })],
     onError: new ShowToast('Save failed', { variant: 'error' }),
   }),

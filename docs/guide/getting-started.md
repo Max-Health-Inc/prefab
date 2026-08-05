@@ -18,6 +18,8 @@ Prefab ships a base CSS theme (`prefab.css`) that provides design tokens and str
 
 **Bundler (Vite / webpack):**
 
+<!-- doccheck: skip — a CSS side-effect import, resolved by the bundler not tsc -->
+
 ```ts
 import '@maxhealth.tech/prefab/prefab.css'
 ```
@@ -233,6 +235,8 @@ The [interactive demo](/demo/) shows exactly what the remote renderer produces �
 :::
 
 ## Subpath Imports
+
+<!-- doccheck: skip — an entry-point listing, not compilable code -->
 
 ```ts
 import { ... } from '@maxhealth.tech/prefab'           // Everything

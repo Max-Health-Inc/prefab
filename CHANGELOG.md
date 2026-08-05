@@ -15,6 +15,10 @@ All notable changes to this project will be documented in this file.
 
 All five were documented in `docs/reference/components.md` with props-table entries before they existed, and were found by `bun run check:docs`.
 
+### Docs
+
+- **Every fenced `ts` example now typechecks, and CI enforces it.** `bun run check:docs` runs in `ci.yml` between the test and build steps. 71 blocks across 17 files, from 86 errors down to zero. The remaining fixes after the container-shape pass were all stale API forms rather than missing features: `rx` used as a tagged template (it is `rx(key)`, and interpolated text is a plain `'{{ key }}'` string, while `STATE.name` and `ITEM.dot('name')` cover the built-ins), `SelectOption`/`ComboboxOption` documented with an object when they take `(value, label)` positionally, `GridItem`'s `span` which is `colSpan`, `Button`'s `type: 'submit'` which is `submit: true`, `Metric`'s numeric `delta` where the type is `RxStr`, `Dialog`'s `trigger` documented as an element id when it takes a `Component`, `ForEach`'s `as` which does not exist (the loop variable is the exported `ITEM`), and `Slot('name')` which takes props. Four blocks carry `<!-- doccheck: skip -->` with a stated reason: two entry-point listings using `import { ... }`, a CSS side-effect import the bundler resolves rather than tsc, and companion-script code written against the renderer's browser global.
+
 ## [0.3.8] — 2026-08-05
 
 ### Fixed
