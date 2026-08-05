@@ -81,6 +81,10 @@
     "type": "git",
     "url": "git+https://github.com/Max-Health-Inc/prefab.git"
   },
+  "homepage": "https://maxhealth.tech/prefab",
+  "bugs": {
+    "url": "https://github.com/Max-Health-Inc/prefab/issues"
+  },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@happy-dom/global-registrator": "^20.11.1",

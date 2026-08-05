@@ -13,6 +13,7 @@ All notable changes to this project will be documented in this file.
 
 ### Docs
 
+- **The npm package page now links to `https://maxhealth.tech/prefab` as its homepage.** `package.json` carried no `homepage`, so npm fell back to `repository` + `#readme` and sent every visitor to the raw README on GitHub instead of the documentation site. `bugs.url` is set alongside it, which npm was likewise deriving from `repository`. Both fields are read from the published tarball, so the listing only changes on the next release.
 - Removed a stale README blockquote that restated the superset relationship six lines below the tagline already stating it, and pinned it to upstream `v0.19.1`. That pin predated 0.3.0's catch-up to upstream 0.20.x and contradicted the wire-format reference. The chart-formatting caveat it carried still lives in the Chart Formatting section, next to the props it describes.
 
 ## [0.3.7] — 2026-08-01
