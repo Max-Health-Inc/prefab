@@ -60,6 +60,7 @@
     "prepublishOnly": "bun run build",
     "gen:skill": "bun run scripts/gen-skill-assets.ts",
     "gen:types": "bun run scripts/gen-component-types.ts",
+    "check:docs": "bun run scripts/check-doc-examples.ts",
     "docs:api": "typedoc && bun run scripts/fix-typedoc-vue.ts",
     "predocs:dev": "bun run docs:api",
     "docs:dev": "vitepress dev docs",
