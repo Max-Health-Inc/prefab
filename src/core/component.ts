@@ -149,6 +149,28 @@ export interface StatefulProps extends ComponentProps {
   name: string
   value?: unknown
   onChange?: Action | Action[]
+  /** Visible field label. Rendered by every stateful control. */
+  label?: RxStr
+}
+
+/**
+ * Wire shape shared by every stateful control.
+ *
+ * Select, RadioGroup and Combobox are containers rather than StatefulComponents,
+ * so they cannot inherit it; they call this instead of restating it, which is how
+ * `label` went missing on them.
+ */
+export function statefulProps(props: StatefulProps): Record<string, unknown> {
+  return {
+    name: props.name,
+    ...(props.value !== undefined && { value: props.value }),
+    ...(props.label !== undefined && { label: props.label }),
+    ...(props.onChange && {
+      onChange: Array.isArray(props.onChange)
+        ? props.onChange.map(a => a.toJSON())
+        : props.onChange.toJSON(),
+    }),
+  }
 }
 
 /**
@@ -159,23 +181,17 @@ export class StatefulComponent extends Component {
   name: string
   value?: unknown
   onChange?: Action | Action[]
+  label?: RxStr
 
   constructor(type: string, props: StatefulProps) {
     super(type, props)
     this.name = props.name
     this.value = props.value
     this.onChange = props.onChange
+    this.label = props.label
   }
 
   getProps(): Record<string, unknown> {
-    return {
-      name: this.name,
-      ...(this.value !== undefined && { value: this.value }),
-      ...(this.onChange && {
-        onChange: Array.isArray(this.onChange)
-          ? this.onChange.map(a => a.toJSON())
-          : this.onChange.toJSON(),
-      }),
-    }
+    return statefulProps(this)
   }
 }

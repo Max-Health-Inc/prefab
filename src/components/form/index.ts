@@ -2,7 +2,7 @@
  * Form components — Form, Input, Button, Select, Checkbox, etc.
  */
 
-import { Component, ContainerComponent, StatefulComponent } from '../../core/component.js'
+import { Component, ContainerComponent, StatefulComponent, statefulProps } from '../../core/component.js'
 import type { ContainerProps, ComponentProps, StatefulProps, RxStr } from '../../core/component.js'
 import type { Action } from '../../actions/types.js'
 
@@ -25,7 +25,6 @@ export function Form(props: FormProps): ContainerComponent {
 // ── Input ────────────────────────────────────────────────────────────────────
 
 export interface InputProps extends StatefulProps {
-  label?: string
   placeholder?: string
   inputType?: string
   required?: boolean
@@ -37,7 +36,6 @@ export function Input(props: InputProps): StatefulComponent {
   c.getProps = () => ({
     ...origGetProps(),
     inputType: props.inputType ?? 'text',
-    ...(props.label && { label: props.label }),
     ...(props.placeholder && { placeholder: props.placeholder }),
     disabled: false,
     readOnly: false,
@@ -108,16 +106,7 @@ export function ButtonGroup(props?: ContainerProps): ContainerComponent {
 
 export function Select(props: StatefulProps & { children?: Component[] }): ContainerComponent {
   const c = new ContainerComponent('Select', props) as ContainerComponent & StatefulComponent
-  // Merge stateful props
-  c.getProps = () => ({
-    name: props.name,
-    ...(props.value !== undefined && { value: props.value }),
-    ...(props.onChange && {
-      onChange: Array.isArray(props.onChange)
-        ? props.onChange.map((a: Action) => a.toJSON())
-        : props.onChange.toJSON(),
-    }),
-  })
+  c.getProps = () => statefulProps(props)
   return c
 }
 
@@ -130,7 +119,6 @@ export function SelectOption(value: string, label?: string, props?: ComponentPro
 // ── Checkbox ─────────────────────────────────────────────────────────────────
 
 export interface CheckboxProps extends StatefulProps {
-  label?: string
   checked?: boolean
 }
 
@@ -139,7 +127,6 @@ export function Checkbox(props: CheckboxProps): StatefulComponent {
   const origGetProps = c.getProps.bind(c)
   c.getProps = () => ({
     ...origGetProps(),
-    ...(props.label && { label: props.label }),
     ...(props.checked !== undefined && { checked: props.checked }),
   })
   return c
@@ -147,18 +134,10 @@ export function Checkbox(props: CheckboxProps): StatefulComponent {
 
 // ── Switch ───────────────────────────────────────────────────────────────────
 
-export interface SwitchProps extends StatefulProps {
-  label?: string
-}
+export type SwitchProps = StatefulProps
 
 export function Switch(props: SwitchProps): StatefulComponent {
-  const c = new StatefulComponent('Switch', props)
-  const origGetProps = c.getProps.bind(c)
-  c.getProps = () => ({
-    ...origGetProps(),
-    ...(props.label && { label: props.label }),
-  })
-  return c
+  return new StatefulComponent('Switch', props)
 }
 
 // ── Slider ───────────────────────────────────────────────────────────────────
@@ -210,6 +189,7 @@ export interface RadioProps extends ComponentProps {
 
 export function Radio(props: RadioProps): Component {
   const c = new Component('Radio', props)
+  // Radio is not stateful (the RadioGroup holds the value), so it carries its own label.
   c.getProps = () => ({
     value: props.value,
     ...(props.label && { label: props.label }),
@@ -221,21 +201,11 @@ export function Radio(props: RadioProps): Component {
 
 export interface RadioGroupProps extends StatefulProps {
   children?: Component[]
-  label?: string
 }
 
 export function RadioGroup(props: RadioGroupProps): ContainerComponent {
   const c = new ContainerComponent('RadioGroup', props)
-  c.getProps = () => ({
-    name: props.name,
-    ...(props.value !== undefined && { value: props.value }),
-    ...(props.label && { label: props.label }),
-    ...(props.onChange && {
-      onChange: Array.isArray(props.onChange)
-        ? props.onChange.map((a: Action) => a.toJSON())
-        : props.onChange.toJSON(),
-    }),
-  })
+  c.getProps = () => statefulProps(props)
   return c
 }
 
@@ -250,15 +220,9 @@ export interface ComboboxProps extends StatefulProps {
 export function Combobox(props: ComboboxProps): ContainerComponent {
   const c = new ContainerComponent('Combobox', props)
   c.getProps = () => ({
-    name: props.name,
-    ...(props.value !== undefined && { value: props.value }),
+    ...statefulProps(props),
     ...(props.placeholder && { placeholder: props.placeholder }),
     ...(props.searchable !== undefined && { searchable: props.searchable }),
-    ...(props.onChange && {
-      onChange: Array.isArray(props.onChange)
-        ? props.onChange.map((a: Action) => a.toJSON())
-        : props.onChange.toJSON(),
-    }),
   })
   return c
 }
@@ -383,6 +347,7 @@ export function ChoiceCard(props: ChoiceCardProps): ContainerComponent {
   const c = new ContainerComponent('ChoiceCard', props)
   c.getProps = () => ({
     value: props.value,
+    // Not stateful, so it carries its own label.
     ...(props.label && { label: props.label }),
     ...(props.description && { description: props.description }),
     ...(props.selected !== undefined && { selected: props.selected }),

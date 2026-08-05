@@ -7,8 +7,17 @@ import type { ContainerProps, RxStr } from '../../core/component.js'
 
 // ── Tabs + Tab ───────────────────────────────────────────────────────────────
 
-export function Tabs(props?: ContainerProps): ContainerComponent {
-  return new ContainerComponent('Tabs', props)
+export interface TabsProps extends ContainerProps {
+  /** Tab open on first render: a `Tab` title, or a 0-based index. Defaults to the first. */
+  defaultTab?: string | number
+}
+
+export function Tabs(props?: TabsProps): ContainerComponent {
+  const c = new ContainerComponent('Tabs', props)
+  if (props?.defaultTab !== undefined) {
+    c.getProps = () => ({ defaultTab: props.defaultTab })
+  }
+  return c
 }
 
 export interface TabProps extends ContainerProps {

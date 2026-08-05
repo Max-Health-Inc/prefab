@@ -483,6 +483,10 @@
   font-size: 0.875rem;
 }
 .pf-table-row { }
+/* Table({ striped: true }) — shade alternate body rows. */
+.pf-table-striped tbody .pf-table-row:nth-child(even) {
+  background: color-mix(in oklab, var(--muted) 40%, transparent);
+}
 .pf-table-header {
   text-align: left;
   padding: 0.75rem 1rem;

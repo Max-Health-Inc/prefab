@@ -288,8 +288,8 @@ function renderSparkline(node: ComponentNode, _ctx: RenderContext): HTMLElement 
   const data = (node.data as number[] | undefined) ?? []
   if (data.length === 0) return e
 
-  const w = 120
-  const h = 32
+  const w = (node.width as number | undefined) ?? 120
+  const h = (node.height as number | undefined) ?? 32
   const max = Math.max(...data)
   const min = Math.min(...data)
   const range = max - min || 1

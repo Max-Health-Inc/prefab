@@ -11,26 +11,26 @@ import { stringifyValue } from '../../core/stringify.js'
 export function registerFormComponents(): void {
   registerComponent('Form', renderForm)
   registerComponent('Input', renderInput)
-  registerComponent('Textarea', renderTextarea)
+  registerComponent('Textarea', withLabel(renderTextarea))
   registerComponent('Button', renderButton)
   registerComponent('ButtonGroup', renderButtonGroup)
-  registerComponent('Select', renderSelect)
+  registerComponent('Select', withLabel(renderSelect))
   registerComponent('SelectOption', renderSelectOption)
   registerComponent('SelectGroup', renderContainerDiv('pf-select-group'))
   registerComponent('SelectLabel', renderTextSpan('pf-select-label'))
   registerComponent('SelectSeparator', renderSeparatorHr)
   registerComponent('Checkbox', renderCheckbox)
   registerComponent('Switch', renderSwitch)
-  registerComponent('Slider', renderSlider)
+  registerComponent('Slider', withLabel(renderSlider))
   registerComponent('Radio', renderRadio)
   registerComponent('RadioGroup', renderRadioGroup)
-  registerComponent('Combobox', renderCombobox)
+  registerComponent('Combobox', withLabel(renderCombobox))
   registerComponent('ComboboxOption', renderComboboxOption)
   registerComponent('ComboboxGroup', renderContainerDiv('pf-combobox-group'))
   registerComponent('ComboboxLabel', renderTextSpan('pf-combobox-label'))
   registerComponent('ComboboxSeparator', renderSeparatorHr)
   registerComponent('Calendar', renderCalendar)
-  registerComponent('DatePicker', renderDatePicker)
+  registerComponent('DatePicker', withLabel(renderDatePicker))
   registerComponent('Field', renderContainerDiv('pf-field'))
   registerComponent('FieldTitle', renderTextSpan('pf-field-title'))
   registerComponent('FieldDescription', renderTextSpan('pf-field-description'))
@@ -65,21 +65,50 @@ function renderForm(node: ComponentNode, ctx: RenderContext): HTMLElement {
   return form
 }
 
+/**
+ * Prepend the field label, if the node carries one.
+ *
+ * Every stateful control accepts `label` (see `statefulProps`), so this is shared
+ * rather than repeated per renderer.
+ */
+function prependLabel(wrapper: HTMLElement, node: ComponentNode, ctx: RenderContext): void {
+  if (node.label == null) return
+  const label = document.createElement('label')
+  label.className = 'pf-input-label'
+  label.textContent = resolveStr(node.label, ctx)
+  if (node.name != null) label.htmlFor = node.name as string
+  label.style.fontSize = '14px'
+  label.style.fontWeight = '500'
+  wrapper.insertBefore(label, wrapper.firstChild)
+}
+
+/**
+ * Add label support to a renderer that lays its control out vertically.
+ *
+ * Applied at registration rather than inside each renderer. Checkbox, Switch,
+ * Radio, RadioGroup and ChoiceCard place their own label beside the control, so
+ * they are deliberately not wrapped.
+ */
+function withLabel(
+  fn: (node: ComponentNode, ctx: RenderContext) => HTMLElement,
+): (node: ComponentNode, ctx: RenderContext) => HTMLElement {
+  return (node, ctx) => {
+    const element = fn(node, ctx)
+    element.style.display = 'flex'
+    element.style.flexDirection = 'column'
+    element.style.gap = '4px'
+    prependLabel(element, node, ctx)
+    return element
+  }
+}
+
 function renderInput(node: ComponentNode, ctx: RenderContext): HTMLElement {
   const wrapper = el('div', 'pf-input-wrapper')
   wrapper.style.display = 'flex'
   wrapper.style.flexDirection = 'column'
   wrapper.style.gap = '4px'
 
-  if (node.label != null) {
-    const label = document.createElement('label')
-    label.className = 'pf-input-label'
-    label.textContent = resolveStr(node.label, ctx)
-    if (node.name != null) label.htmlFor = node.name as string
-    label.style.fontSize = '14px'
-    label.style.fontWeight = '500'
-    wrapper.appendChild(label)
-  }
+  prependLabel(wrapper, node, ctx)
 
   const input = document.createElement('input')
   input.className = 'pf-input'
