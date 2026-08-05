@@ -6,6 +6,7 @@
  */
 
 import type { PrefabWireFormat } from '../app.js'
+import { COMPONENT_TYPES } from './component-types.js'
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -19,43 +20,12 @@ export interface ValidationResult {
   errors: ValidationError[]
 }
 
-// ── Known component types (all registered) ───────────────────────────────────
+// ── Known component types ────────────────────────────────────────────────────
 
-const KNOWN_TYPES = new Set([
-  // Layout
-  'Column', 'Row', 'Grid', 'GridItem', 'Container', 'Div', 'Span',
-  'Dashboard', 'DashboardItem', 'Pages', 'Page',
-  // Typography
-  'Heading', 'H1', 'H2', 'H3', 'H4', 'Text', 'P', 'Lead', 'Large',
-  'Small', 'Muted', 'BlockQuote', 'Label', 'Link', 'Code', 'Markdown', 'Kbd',
-  // Card
-  'Card', 'CardHeader', 'CardTitle', 'CardDescription', 'CardContent', 'CardFooter',
-  // Data
-  'DataTable', 'Badge', 'Dot', 'Metric', 'Ring', 'Progress', 'Separator', 'Loader', 'Icon',
-  // Table
-  'Table', 'TableHead', 'TableBody', 'TableFooter', 'TableRow',
-  'TableHeader', 'TableCell', 'TableCaption', 'ExpandableRow',
-  // Form
-  'Form', 'Input', 'Textarea', 'Button', 'ButtonGroup',
-  'Select', 'SelectOption', 'SelectGroup', 'SelectLabel', 'SelectSeparator',
-  'Checkbox', 'Switch', 'Slider',
-  'Radio', 'RadioGroup',
-  'Combobox', 'ComboboxOption', 'ComboboxGroup', 'ComboboxLabel', 'ComboboxSeparator',
-  'Calendar', 'DatePicker',
-  'Field', 'FieldTitle', 'FieldDescription', 'FieldContent', 'FieldError', 'ChoiceCard',
-  // Interactive
-  'Tabs', 'Tab', 'Accordion', 'AccordionItem', 'Dialog', 'Popover',
-  'Tooltip', 'HoverCard', 'Carousel',
-  // Control
-  'ForEach', 'If', 'Elif', 'Else', 'Define', 'Use', 'Slot',
-  // Alert
-  'Alert', 'AlertTitle', 'AlertDescription',
-  // Media
-  'Image', 'Audio', 'Video', 'Embed', 'Svg', 'DropZone', 'Mermaid',
-  // Charts
-  'BarChart', 'LineChart', 'AreaChart', 'PieChart', 'RadarChart',
-  'ScatterChart', 'Sparkline', 'RadialChart', 'Histogram',
-])
+// Derived from the renderer's registry (see scripts/gen-component-types.ts), not
+// restated here. A hand-maintained copy drifted and rejected four renderable
+// types as unknown; test/component-types.test.ts now fails if the two disagree.
+const KNOWN_TYPES = new Set(COMPONENT_TYPES)
 
 // ── Validator ────────────────────────────────────────────────────────────────
 
