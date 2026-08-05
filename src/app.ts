@@ -11,6 +11,7 @@ import type { Action, ActionJSON } from './actions/types.js'
 import { drainAutoState } from './rx/state-collector.js'
 import type { PipeFn } from './rx/pipes.js'
 import { compileThemeCss } from './core/theme-css.js'
+import { escapeHtml } from './core/escape.js'
 import { VERSION, PROTOCOL_VERSION } from './core/version.js'
 
 // Version constants live in ./core/version.ts (single source of truth, updated
@@ -279,12 +280,3 @@ export class PrefabApp {
   }
 }
 
-// ── Helpers ──────────────────────────────────────────────────────────────────
-
-function escapeHtml(s: string): string {
-  return s
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-}
