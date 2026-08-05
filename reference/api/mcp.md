@@ -12,7 +12,6 @@ url: /prefab/reference/api/mcp.md
 | [DisplayOptions](interfaces/DisplayOptions.md) | - |
 | [DisplayFormOptions](interfaces/DisplayFormOptions.md) | - |
 | [StateUpdate](interfaces/StateUpdate.md) | - |
-| [PrefabUpdateWire](interfaces/PrefabUpdateWire.md) | - |
 | [DisplayUpdateOptions](interfaces/DisplayUpdateOptions.md) | - |
 | [DisplayErrorOptions](interfaces/DisplayErrorOptions.md) | - |
 | [DisplaySuccessOptions](interfaces/DisplaySuccessOptions.md) | - |
@@ -25,23 +24,24 @@ url: /prefab/reference/api/mcp.md
 | [McpServerLike](interfaces/McpServerLike.md) | MCP server interface expected by registerViewerResource. |
 | [ToolResultOptions](interfaces/ToolResultOptions.md) | - |
 | [VsCodeTokenSource](interfaces/VsCodeTokenSource.md) | How one prefab token is sourced from the VS Code webview. |
-| [McpTextContent](interfaces/McpTextContent.md) | MCP text content block (compatible with SDK's TextContent) |
-| [McpImageContent](interfaces/McpImageContent.md) | MCP image content block (compatible with SDK's ImageContent) |
-| [McpTextResourceContents](interfaces/McpTextResourceContents.md) | Text resource contents (has `text`, never `blob`). |
-| [McpBlobResourceContents](interfaces/McpBlobResourceContents.md) | Blob resource contents (has `blob`, never `text`). |
-| [McpResourceContent](interfaces/McpResourceContent.md) | MCP embedded resource content block (compatible with SDK's EmbeddedResource) |
-| [McpToolResult](interfaces/McpToolResult.md) | MCP tool result — returned from tool handlers. |
-| [McpCacheHint](interfaces/McpCacheHint.md) | Cache fields required on results from the cacheable operations (`tools/list`, `prompts/list`, `resources/list`, `resources/templates/list`, `resources/read`, `server/discover`). |
-| [McpResourceReadResult](interfaces/McpResourceReadResult.md) | A `resources/read` result carrying the required cache fields. |
 
 ## Type Aliases
 
 | Type Alias | Description |
 | ------ | ------ |
+| [PrefabUpdateWire](type-aliases/PrefabUpdateWire.md) | The `$prefab` state-delta payload, sent as `structuredContent`. |
 | [ResourceReadHandler](type-aliases/ResourceReadHandler.md) | `resources/read` handler shape passed to the server — the viewer is always HTML text. |
 | [ThemeBridge](type-aliases/ThemeBridge.md) | Supported theme bridges. |
+| [McpTextContent](type-aliases/McpTextContent.md) | MCP text content block (compatible with SDK's TextContent) |
+| [McpImageContent](type-aliases/McpImageContent.md) | MCP image content block (compatible with SDK's ImageContent) |
+| [McpTextResourceContents](type-aliases/McpTextResourceContents.md) | Text resource contents (has `text`, never `blob`). |
+| [McpBlobResourceContents](type-aliases/McpBlobResourceContents.md) | Blob resource contents (has `blob`, never `text`). See [McpTextResourceContents](type-aliases/McpTextResourceContents.md) on the alias. |
+| [McpResourceContent](type-aliases/McpResourceContent.md) | MCP embedded resource content block (compatible with SDK's EmbeddedResource) |
 | [McpContent](type-aliases/McpContent.md) | Any MCP content block |
+| [McpToolResult](type-aliases/McpToolResult.md) | MCP tool result — returned from tool handlers. |
 | [McpCacheScope](type-aliases/McpCacheScope.md) | Cache scopes defined for cacheable results. |
+| [McpCacheHint](type-aliases/McpCacheHint.md) | Cache fields required on results from the cacheable operations (`tools/list`, `prompts/list`, `resources/list`, `resources/templates/list`, `resources/read`, `server/discover`). |
+| [McpResourceReadResult](type-aliases/McpResourceReadResult.md) | A `resources/read` result carrying the required cache fields. |
 
 ## Variables
 

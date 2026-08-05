@@ -5,7 +5,7 @@ url: /prefab/reference/api/actions/classes/SendMessage.md
 
 # Class: SendMessage
 
-Defined in: [actions/mcp.ts:40](https://github.com/Max-Health-Inc/prefab/blob/e42e8c82c07c073f15ca30bb919aca4001f57a2f/src/actions/mcp.ts#L40)
+Defined in: [actions/mcp.ts:40](https://github.com/Max-Health-Inc/prefab/blob/c28332f5d123b3553a0d155787630df810963a02/src/actions/mcp.ts#L40)
 
 Base interface all actions implement
 
@@ -21,7 +21,7 @@ Base interface all actions implement
 new SendMessage(message): SendMessage;
 ```
 
-Defined in: [actions/mcp.ts:41](https://github.com/Max-Health-Inc/prefab/blob/e42e8c82c07c073f15ca30bb919aca4001f57a2f/src/actions/mcp.ts#L41)
+Defined in: [actions/mcp.ts:41](https://github.com/Max-Health-Inc/prefab/blob/c28332f5d123b3553a0d155787630df810963a02/src/actions/mcp.ts#L41)
 
 #### Parameters
 
@@ -41,7 +41,7 @@ Defined in: [actions/mcp.ts:41](https://github.com/Max-Health-Inc/prefab/blob/e4
 readonly message: string;
 ```
 
-Defined in: [actions/mcp.ts:41](https://github.com/Max-Health-Inc/prefab/blob/e42e8c82c07c073f15ca30bb919aca4001f57a2f/src/actions/mcp.ts#L41)
+Defined in: [actions/mcp.ts:41](https://github.com/Max-Health-Inc/prefab/blob/c28332f5d123b3553a0d155787630df810963a02/src/actions/mcp.ts#L41)
 
 ## Methods
 
@@ -51,7 +51,7 @@ Defined in: [actions/mcp.ts:41](https://github.com/Max-Health-Inc/prefab/blob/e4
 toJSON(): ActionJSON;
 ```
 
-Defined in: [actions/mcp.ts:43](https://github.com/Max-Health-Inc/prefab/blob/e42e8c82c07c073f15ca30bb919aca4001f57a2f/src/actions/mcp.ts#L43)
+Defined in: [actions/mcp.ts:43](https://github.com/Max-Health-Inc/prefab/blob/c28332f5d123b3553a0d155787630df810963a02/src/actions/mcp.ts#L43)
 
 #### Returns
 

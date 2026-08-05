@@ -9,7 +9,7 @@ url: /prefab/reference/api/renderer/functions/setLogLevel.md
 function setLogLevel(level): void;
 ```
 
-Defined in: [core/logger.ts:26](https://github.com/Max-Health-Inc/prefab/blob/e42e8c82c07c073f15ca30bb919aca4001f57a2f/src/core/logger.ts#L26)
+Defined in: [core/logger.ts:26](https://github.com/Max-Health-Inc/prefab/blob/c28332f5d123b3553a0d155787630df810963a02/src/core/logger.ts#L26)
 
 ## Parameters
 

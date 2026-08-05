@@ -9,7 +9,7 @@ url: /prefab/reference/api/mcp/type-aliases/ResourceReadHandler.md
 type ResourceReadHandler = (uri) => Promise<McpResourceReadResult<McpTextResourceContents>>;
 ```
 
-Defined in: [mcp/resource.ts:292](https://github.com/Max-Health-Inc/prefab/blob/e42e8c82c07c073f15ca30bb919aca4001f57a2f/src/mcp/resource.ts#L292)
+Defined in: [mcp/resource.ts:293](https://github.com/Max-Health-Inc/prefab/blob/c28332f5d123b3553a0d155787630df810963a02/src/mcp/resource.ts#L293)
 
 `resources/read` handler shape passed to the server — the viewer is always HTML text.
 
@@ -21,4 +21,4 @@ Defined in: [mcp/resource.ts:292](https://github.com/Max-Health-Inc/prefab/blob/
 
 ## Returns
 
-`Promise`<[`McpResourceReadResult`](../interfaces/McpResourceReadResult.md)<[`McpTextResourceContents`](../interfaces/McpTextResourceContents.md)>>
+`Promise`<[`McpResourceReadResult`](McpResourceReadResult.md)<[`McpTextResourceContents`](McpTextResourceContents.md)>>

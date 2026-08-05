@@ -16,13 +16,16 @@ Each component is a function that returns a `Component` instance. Calling it bui
 Most components share a friendly shape: an optional **props** object first, then an array of **children**.
 
 ```ts
-Column({ gap: 6 }, [
-  H1('Patients'),
-  Text('Everyone under your care, at a glance.'),
-])
+Column({
+  gap: 6,
+  children: [
+    H1('Patients'),
+    Text('Everyone under your care, at a glance.'),
+  ],
+})
 ```
 
-Containers like `Column` and `Row` hold other nodes; leaf nodes like `Text` and `Badge` carry content. Where children are the only thing you need, most containers let you skip the props object entirely and pass the array on its own.
+Containers like `Column` and `Row` hold other nodes; leaf nodes like `Text` and `Badge` carry content. Containers take a single props object, with the child nodes under `children`. Leaf nodes take their content positionally, which is why `H1('Patients')` and `Text('…')` read the way they do.
 
 ## How components compose
 

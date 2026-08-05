@@ -9,6 +9,6 @@ url: /prefab/reference/api/mcp/variables/MCP_APP_MIME.md
 const MCP_APP_MIME: "text/html;profile=mcp-app" = 'text/html;profile=mcp-app';
 ```
 
-Defined in: [mcp/resource.ts:128](https://github.com/Max-Health-Inc/prefab/blob/e42e8c82c07c073f15ca30bb919aca4001f57a2f/src/mcp/resource.ts#L128)
+Defined in: [mcp/resource.ts:129](https://github.com/Max-Health-Inc/prefab/blob/c28332f5d123b3553a0d155787630df810963a02/src/mcp/resource.ts#L129)
 
 MIME type required by MCP Apps hosts.

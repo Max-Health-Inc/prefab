@@ -5,7 +5,7 @@ url: /prefab/reference/api/mcp/interfaces/RendererHtmlOptions.md
 
 # Interface: RendererHtmlOptions
 
-Defined in: [mcp/resource.ts:179](https://github.com/Max-Health-Inc/prefab/blob/e42e8c82c07c073f15ca30bb919aca4001f57a2f/src/mcp/resource.ts#L179)
+Defined in: [mcp/resource.ts:180](https://github.com/Max-Health-Inc/prefab/blob/c28332f5d123b3553a0d155787630df810963a02/src/mcp/resource.ts#L180)
 
 ## Properties
 
@@ -15,7 +15,7 @@ Defined in: [mcp/resource.ts:179](https://github.com/Max-Health-Inc/prefab/blob/
 optional title?: string;
 ```
 
-Defined in: [mcp/resource.ts:181](https://github.com/Max-Health-Inc/prefab/blob/e42e8c82c07c073f15ca30bb919aca4001f57a2f/src/mcp/resource.ts#L181)
+Defined in: [mcp/resource.ts:182](https://github.com/Max-Health-Inc/prefab/blob/c28332f5d123b3553a0d155787630df810963a02/src/mcp/resource.ts#L182)
 
 Page title.
 
@@ -33,7 +33,7 @@ Page title.
 optional scripts?: string[];
 ```
 
-Defined in: [mcp/resource.ts:183](https://github.com/Max-Health-Inc/prefab/blob/e42e8c82c07c073f15ca30bb919aca4001f57a2f/src/mcp/resource.ts#L183)
+Defined in: [mcp/resource.ts:184](https://github.com/Max-Health-Inc/prefab/blob/c28332f5d123b3553a0d155787630df810963a02/src/mcp/resource.ts#L184)
 
 Additional `<script>` URLs to load after the renderer.
 
@@ -45,7 +45,7 @@ Additional `<script>` URLs to load after the renderer.
 optional stylesheets?: string[];
 ```
 
-Defined in: [mcp/resource.ts:185](https://github.com/Max-Health-Inc/prefab/blob/e42e8c82c07c073f15ca30bb919aca4001f57a2f/src/mcp/resource.ts#L185)
+Defined in: [mcp/resource.ts:186](https://github.com/Max-Health-Inc/prefab/blob/c28332f5d123b3553a0d155787630df810963a02/src/mcp/resource.ts#L186)
 
 Additional `<link rel="stylesheet">` URLs.
 
@@ -57,7 +57,7 @@ Additional `<link rel="stylesheet">` URLs.
 optional cdnBase?: string;
 ```
 
-Defined in: [mcp/resource.ts:187](https://github.com/Max-Health-Inc/prefab/blob/e42e8c82c07c073f15ca30bb919aca4001f57a2f/src/mcp/resource.ts#L187)
+Defined in: [mcp/resource.ts:188](https://github.com/Max-Health-Inc/prefab/blob/c28332f5d123b3553a0d155787630df810963a02/src/mcp/resource.ts#L188)
 
 Override CDN base URL (no trailing slash).
 
@@ -75,7 +75,7 @@ jsdelivr CDN
 optional themeBridge?: "vscode";
 ```
 
-Defined in: [mcp/resource.ts:196](https://github.com/Max-Health-Inc/prefab/blob/e42e8c82c07c073f15ca30bb919aca4001f57a2f/src/mcp/resource.ts#L196)
+Defined in: [mcp/resource.ts:197](https://github.com/Max-Health-Inc/prefab/blob/c28332f5d123b3553a0d155787630df810963a02/src/mcp/resource.ts#L197)
 
 Inject a theme bridge stylesheet after `prefab.css`.
 

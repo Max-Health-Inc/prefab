@@ -5,7 +5,7 @@ url: /prefab/reference/api/actions/classes/CallHandler.md
 
 # Class: CallHandler
 
-Defined in: [actions/client.ts:201](https://github.com/Max-Health-Inc/prefab/blob/e42e8c82c07c073f15ca30bb919aca4001f57a2f/src/actions/client.ts#L201)
+Defined in: [actions/client.ts:201](https://github.com/Max-Health-Inc/prefab/blob/c28332f5d123b3553a0d155787630df810963a02/src/actions/client.ts#L201)
 
 Base interface all actions implement
 
@@ -21,7 +21,7 @@ Base interface all actions implement
 new CallHandler(handler, opts?): CallHandler;
 ```
 
-Defined in: [actions/client.ts:202](https://github.com/Max-Health-Inc/prefab/blob/e42e8c82c07c073f15ca30bb919aca4001f57a2f/src/actions/client.ts#L202)
+Defined in: [actions/client.ts:202](https://github.com/Max-Health-Inc/prefab/blob/c28332f5d123b3553a0d155787630df810963a02/src/actions/client.ts#L202)
 
 #### Parameters
 
@@ -42,7 +42,7 @@ Defined in: [actions/client.ts:202](https://github.com/Max-Health-Inc/prefab/blo
 readonly handler: string;
 ```
 
-Defined in: [actions/client.ts:203](https://github.com/Max-Health-Inc/prefab/blob/e42e8c82c07c073f15ca30bb919aca4001f57a2f/src/actions/client.ts#L203)
+Defined in: [actions/client.ts:203](https://github.com/Max-Health-Inc/prefab/blob/c28332f5d123b3553a0d155787630df810963a02/src/actions/client.ts#L203)
 
 ## Methods
 
@@ -52,7 +52,7 @@ Defined in: [actions/client.ts:203](https://github.com/Max-Health-Inc/prefab/blo
 toJSON(): ActionJSON;
 ```
 
-Defined in: [actions/client.ts:207](https://github.com/Max-Health-Inc/prefab/blob/e42e8c82c07c073f15ca30bb919aca4001f57a2f/src/actions/client.ts#L207)
+Defined in: [actions/client.ts:207](https://github.com/Max-Health-Inc/prefab/blob/c28332f5d123b3553a0d155787630df810963a02/src/actions/client.ts#L207)
 
 #### Returns
 

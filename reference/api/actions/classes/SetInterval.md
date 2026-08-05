@@ -5,7 +5,7 @@ url: /prefab/reference/api/actions/classes/SetInterval.md
 
 # Class: SetInterval
 
-Defined in: [actions/client.ts:126](https://github.com/Max-Health-Inc/prefab/blob/e42e8c82c07c073f15ca30bb919aca4001f57a2f/src/actions/client.ts#L126)
+Defined in: [actions/client.ts:126](https://github.com/Max-Health-Inc/prefab/blob/c28332f5d123b3553a0d155787630df810963a02/src/actions/client.ts#L126)
 
 Base interface all actions implement
 
@@ -21,7 +21,7 @@ Base interface all actions implement
 new SetInterval(intervalMs, onTick): SetInterval;
 ```
 
-Defined in: [actions/client.ts:127](https://github.com/Max-Health-Inc/prefab/blob/e42e8c82c07c073f15ca30bb919aca4001f57a2f/src/actions/client.ts#L127)
+Defined in: [actions/client.ts:127](https://github.com/Max-Health-Inc/prefab/blob/c28332f5d123b3553a0d155787630df810963a02/src/actions/client.ts#L127)
 
 #### Parameters
 
@@ -42,7 +42,7 @@ Defined in: [actions/client.ts:127](https://github.com/Max-Health-Inc/prefab/blo
 readonly intervalMs: number;
 ```
 
-Defined in: [actions/client.ts:128](https://github.com/Max-Health-Inc/prefab/blob/e42e8c82c07c073f15ca30bb919aca4001f57a2f/src/actions/client.ts#L128)
+Defined in: [actions/client.ts:128](https://github.com/Max-Health-Inc/prefab/blob/c28332f5d123b3553a0d155787630df810963a02/src/actions/client.ts#L128)
 
 ***
 
@@ -54,7 +54,7 @@ readonly onTick:
   | Action[];
 ```
 
-Defined in: [actions/client.ts:129](https://github.com/Max-Health-Inc/prefab/blob/e42e8c82c07c073f15ca30bb919aca4001f57a2f/src/actions/client.ts#L129)
+Defined in: [actions/client.ts:129](https://github.com/Max-Health-Inc/prefab/blob/c28332f5d123b3553a0d155787630df810963a02/src/actions/client.ts#L129)
 
 ## Methods
 
@@ -64,7 +64,7 @@ Defined in: [actions/client.ts:129](https://github.com/Max-Health-Inc/prefab/blo
 toJSON(): ActionJSON;
 ```
 
-Defined in: [actions/client.ts:132](https://github.com/Max-Health-Inc/prefab/blob/e42e8c82c07c073f15ca30bb919aca4001f57a2f/src/actions/client.ts#L132)
+Defined in: [actions/client.ts:132](https://github.com/Max-Health-Inc/prefab/blob/c28332f5d123b3553a0d155787630df810963a02/src/actions/client.ts#L132)
 
 #### Returns
 

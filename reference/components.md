@@ -15,13 +15,13 @@ All components are functions that return a `Component` instance. They serialize 
 
 Structural containers that control spacing, direction, and grid placement.
 
-### `Column(props?, children?)`
+### `Column(props?)`
 
 Vertical flex container. The most common layout primitive.
 
 ```ts
-Column({ gap: 6 }, [H1('Title'), Text('Body')])
-Column([Text('No gap')])                          // shorthand
+Column({ gap: 6, children: [H1('Title'), Text('Body')] })
+Column({ children: [Text('No gap')] })                          // shorthand
 ```
 
 | Prop | Type | Description |
@@ -35,29 +35,29 @@ Column([Text('No gap')])                          // shorthand
 **Gap tokens** map to numbers: `none`=0, `xs`=1, `sm`=2, `md`=3, `lg`=4, `xl`=6, `2xl`=8.
 
 ```ts
-Column({ gap: 'md' }, [Text('Hello')])  // same as gap: 3
-Row({ gap: 'xl' }, [Button('A'), Button('B')])
+Column({ gap: 'md', children: [Text('Hello')] })  // same as gap: 3
+Row({ gap: 'xl', children: [Button('A'), Button('B')] })
 ```
 
-### `Row(props?, children?)`
+### `Row(props?)`
 
 Horizontal flex container.
 
 ```ts
-Row({ gap: 4 }, [Button('Cancel'), Button('Save')])
+Row({ gap: 4, children: [Button('Cancel'), Button('Save')] })
 ```
 
 Same props as `Column`.
 
-### `Grid(props?, children?)`
+### `Grid(props?)`
 
 CSS Grid container.
 
 ```ts
-Grid({ columns: 3, gap: 4 }, [
-  GridItem({ span: 2 }, [Card(...)]),
-  GridItem([Card(...)]),
-])
+Grid({ columns: 3, gap: 4, children: [
+  GridItem({ span: 2, children: [Card(...)] }),
+  GridItem({ children: [Card(...)] }),
+] })
 ```
 
 | Prop | Type | Description |
@@ -65,7 +65,7 @@ Grid({ columns: 3, gap: 4 }, [
 | `columns` | `number` | Number of columns |
 | `gap` | `number \| GapToken` | Grid gap (number or semantic token) |
 
-### `GridItem(props?, children?)`
+### `GridItem(props?)`
 
 Child of `Grid`.
 
@@ -73,23 +73,23 @@ Child of `Grid`.
 |------|------|-------------|
 | `span` | `number` | Column span |
 
-### `Container(props?, children?)`
+### `Container(props?)`
 
 Generic wrapper with max-width and padding.
 
-### `Div(props?, children?)` / `Span(props?, children?)`
+### `Div(props?)` / `Span(props?)`
 
 Generic block/inline wrappers.
 
-### `Dashboard(props?, children?)` / `DashboardItem(props?, children?)`
+### `Dashboard(props?)` / `DashboardItem(props?)`
 
 Dashboard grid layout with named items.
 
-### `Pages(props?, children?)` / `Page(props?, children?)`
+### `Pages(props?)` / `Page(props?)`
 
 Paginated view container.
 
-### `Detail(props, children?)`
+### `Detail(props)`
 
 Conditional detail pane. Shows `children` when `of` resolves, shows `empty` otherwise.
 
@@ -100,10 +100,10 @@ const patients = collection('patients', data, { key: 'id' })
 const selectedId = signal('selectedPatientId', patients.firstKey())
 const selected = patients.by(selectedId)
 
-Detail({ of: selected, empty: Text('Select a patient') }, [
+Detail({ of: selected, empty: Text('Select a patient'), children: [
   Heading(selected.dot('name')),
   Text(selected.dot('dob')),
-])
+] })
 ```
 
 | Prop | Type | Description |
@@ -111,15 +111,15 @@ Detail({ of: selected, empty: Text('Select a patient') }, [
 | `of` | `Ref \| RxStr` | Reactive reference expression |
 | `empty` | `Component` | Shown when ref is null/undefined |
 
-### `MasterDetail(props?, children?)`
+### `MasterDetail(props?)`
 
 Two-pane layout (master list + detail). Expects two children.
 
 ```ts
-MasterDetail({ masterWidth: '350px', gap: 4 }, [
+MasterDetail({ masterWidth: '350px', gap: 4, children: [
   table,   // master panel
   detail,  // detail panel
-])
+] })
 ```
 
 | Prop | Type | Description |
@@ -200,17 +200,17 @@ Markdown('## Hello\n\nThis is **bold** text.')
 
 Card containers for grouped content.
 
-### `Card(props?, children?)`
+### `Card(props?)`
 
 ```ts
-Card([
-  CardHeader([CardTitle('User'), CardDescription('Profile info')]),
-  CardContent([Text('Name: Alice')]),
-  CardFooter([Button('Edit')]),
-])
+Card({ children: [
+  CardHeader({ children: [CardTitle('User'), CardDescription('Profile info')] }),
+  CardContent({ children: [Text('Name: Alice')] }),
+  CardFooter({ children: [Button('Edit')] }),
+] })
 
 // With variant:
-Card({ variant: 'elevated' }, [CardContent([Text('Raised card')])])
+Card({ variant: 'elevated', children: [CardContent({ children: [Text('Raised card')] })] })
 ```
 
 | Prop | Type | Description |
@@ -307,7 +307,7 @@ Badge('Active', { variant: 'success' })
 ### `Metric(props)`
 
 ```ts
-Metric({ label: 'Revenue', value: '$125K', change: 12.5 })
+Metric({ label: 'Revenue', value: '$125K', delta: 12.5 })
 ```
 
 | Prop | Type | Description |
@@ -336,15 +336,15 @@ Metric({ label: 'Revenue', value: '$125K', change: 12.5 })
 Low-level HTML table primitives (for custom table layouts beyond `DataTable`).
 
 ```ts
-Table({ striped: true }, [
-  TableHead([
-    TableRow([TableHeader('Name'), TableHeader('Age')]),
-  ]),
-  TableBody([
-    TableRow([TableCell({ children: [Text('Alice')] }), TableCell({ children: [Text('30')] })]),
-  ]),
+Table({ striped: true, children: [
+  TableHead({ children: [
+    TableRow({ children: [TableHeader('Name'), TableHeader('Age')] }),
+  ] }),
+  TableBody({ children: [
+    TableRow({ children: [TableCell({ children: [Text('Alice')] }), TableCell({ children: [Text('30')] })] }),
+  ] }),
   TableCaption('User list'),
-])
+] })
 ```
 
 ### Components
@@ -357,13 +357,13 @@ Table({ striped: true }, [
 
 ## Form
 
-### `Form(props?, children?)`
+### `Form(props?)`
 
 ```ts
-Form({ onSubmit: CallTool('create_user') }, [
-  Input({ name: 'email', type: 'email', required: true }),
+Form({ onSubmit: new CallTool('create_user'), children: [
+  Input({ name: 'email', inputType: 'email', required: true }),
   Button('Create', { type: 'submit' }),
-])
+] })
 ```
 
 | Prop | Type | Description |
@@ -373,7 +373,7 @@ Form({ onSubmit: CallTool('create_user') }, [
 ### `Input(props)`
 
 ```ts
-Input({ name: 'email', type: 'email', label: 'Email', placeholder: 'you@example.com', required: true })
+Input({ name: 'email', inputType: 'email', label: 'Email', placeholder: 'you@example.com', required: true })
 ```
 
 | Prop | Type | Description |
@@ -393,7 +393,7 @@ Multi-line text input. Same props as `Input` plus `rows`.
 ### `Button(content, props?)`
 
 ```ts
-Button('Save', { variant: 'default', onClick: ShowToast('Saved!') })
+Button('Save', { variant: 'default', onClick: new ShowToast('Saved!') })
 ```
 
 | Prop | Type | Description |
@@ -408,13 +408,13 @@ Button('Save', { variant: 'default', onClick: ShowToast('Saved!') })
 
 Horizontal button row.
 
-### `Select(props?, children?)`
+### `Select(props?)`
 
 ```ts
-Select({ name: 'role', label: 'Role' }, [
+Select({ name: 'role', label: 'Role', children: [
   SelectOption({ value: 'admin', label: 'Admin' }),
   SelectOption({ value: 'user', label: 'User' }),
-])
+] })
 ```
 
 Sub-components: `SelectOption`, `SelectGroup`, `SelectLabel`, `SelectSeparator`
@@ -429,25 +429,25 @@ Switch({ name: 'notifications', label: 'Enable notifications' })
 Slider({ name: 'volume', min: 0, max: 100, step: 1 })
 ```
 
-### `Radio(props)` / `RadioGroup(props?, children?)`
+### `Radio(props)` / `RadioGroup(props?)`
 
 ```ts
-RadioGroup({ name: 'color', label: 'Favorite Color' }, [
+RadioGroup({ name: 'color', label: 'Favorite Color', children: [
   Radio({ value: 'red', label: 'Red' }),
   Radio({ value: 'blue', label: 'Blue' }),
   Radio({ value: 'green', label: 'Green' }),
-])
+] })
 ```
 
-### `Combobox(props?, children?)` / `ComboboxOption(props)`
+### `Combobox(props?)` / `ComboboxOption(props)`
 
 Autocomplete select with search.
 
 ```ts
-Combobox({ name: 'country', placeholder: 'Search countries...', searchable: true }, [
+Combobox({ name: 'country', placeholder: 'Search countries...', searchable: true, children: [
   ComboboxOption({ value: 'us', label: 'United States' }),
   ComboboxOption({ value: 'de', label: 'Germany' }),
-])
+] })
 ```
 
 Sub-components: `ComboboxGroup`, `ComboboxLabel`, `ComboboxSeparator`
@@ -461,17 +461,17 @@ Calendar({ name: 'date', minDate: '2024-01-01', maxDate: '2024-12-31' })
 DatePicker({ name: 'dob', label: 'Date of Birth', placeholder: 'Pick a date' })
 ```
 
-### `Field(props?, children?)`
+### `Field(props?)`
 
 Structured form field wrapper.
 
 ```ts
-Field([
+Field({ children: [
   FieldTitle('Email'),
   FieldDescription('Your work email address'),
-  FieldContent([Input({ name: 'email', type: 'email' })]),
+  FieldContent({ children: [Input({ name: 'email', inputType: 'email' })] }),
   FieldError('Invalid email format'),
-])
+] })
 ```
 
 Sub-components: `FieldTitle`, `FieldDescription`, `FieldContent`, `FieldError`
@@ -488,44 +488,44 @@ ChoiceCard({ value: 'pro', label: 'Pro Plan', description: '$29/mo', selected: t
 
 ## Interactive
 
-### `Tabs(props?, children?)`
+### `Tabs(props?)`
 
 Tabbed interface with keyboard navigation (Arrow keys, Home/End).
 
 ```ts
-Tabs({ defaultTab: 'overview' }, [
-  Tab({ id: 'overview', label: 'Overview' }, [Text('Overview content')]),
-  Tab({ id: 'details', label: 'Details' }, [Text('Details content')]),
-])
+Tabs({ defaultTab: 'overview', children: [
+  Tab({ id: 'overview', title: 'Overview', children: [Text('Overview content')] }),
+  Tab({ id: 'details', title: 'Details', children: [Text('Details content')] }),
+] })
 ```
 
-### `Accordion(props?, children?)`
+### `Accordion(props?)`
 
 Collapsible sections.
 
 ```ts
-Accordion([
-  AccordionItem({ title: 'FAQ 1' }, [Text('Answer 1')]),
-  AccordionItem({ title: 'FAQ 2' }, [Text('Answer 2')]),
-])
+Accordion({ children: [
+  AccordionItem({ title: 'FAQ 1', children: [Text('Answer 1')] }),
+  AccordionItem({ title: 'FAQ 2', children: [Text('Answer 2')] }),
+] })
 ```
 
-### `Dialog(props?, children?)`
+### `Dialog(props?)`
 
 Modal dialog (ARIA `role="dialog"`).
 
 ```ts
-Dialog({ title: 'Confirm', trigger: 'delete-btn' }, [
+Dialog({ title: 'Confirm', trigger: 'delete-btn', children: [
   Text('Are you sure?'),
-  Button('Delete', { variant: 'destructive', onClick: CallTool('delete_item') }),
-])
+  Button('Delete', { variant: 'destructive', onClick: new CallTool('delete_item') }),
+] })
 ```
 
-### `Popover(props?, children?)` / `Tooltip(props?, children?)` / `HoverCard(props?, children?)`
+### `Popover(props?)` / `Tooltip(props?)` / `HoverCard(props?)`
 
 Overlay components.
 
-### `Carousel(props?, children?)`
+### `Carousel(props?)`
 
 Image/content carousel with prev/next buttons.
 
@@ -629,7 +629,7 @@ ScatterChart({
 Inline mini chart.
 
 ```ts
-Sparkline({ data: [10, 20, 15, 30, 25], color: '#22c55e', height: 32 })
+Sparkline({ data: [10, 20, 15, 30, 25], variant: '#22c55e', height: 32 })
 ```
 
 ### `RadialChart(props)` / `Histogram(props)`
@@ -673,7 +673,7 @@ Inline SVG content.
 File upload drop area.
 
 ```ts
-DropZone({ accept: 'image/*', multiple: true, onDrop: CallTool('upload_file') })
+DropZone({ accept: 'image/*', multiple: true, onDrop: new CallTool('upload_file') })
 ```
 
 ### `Mermaid(content)`
@@ -688,18 +688,18 @@ Mermaid('graph TD; A-->B; B-->C;')
 
 ## Alert
 
-### `Alert(props?, children?)`
+### `Alert(props?)`
 
 ```ts
-Alert({ variant: 'warning' }, [
+Alert({ variant: 'warning', children: [
   AlertTitle('Warning'),
   AlertDescription('This action cannot be undone.'),
-])
+] })
 
-Alert({ variant: 'success', icon: 'CheckCircle' }, [
+Alert({ variant: 'success', icon: 'CheckCircle', children: [
   AlertTitle('Saved'),
   AlertDescription('Changes applied successfully.'),
-])
+] })
 ```
 
 | Variant | Color |
@@ -718,14 +718,14 @@ Alert({ variant: 'success', icon: 'CheckCircle' }, [
 
 ## Control Flow
 
-### `ForEach(props?, children?)`
+### `ForEach(props?)`
 
 Iterate over a reactive array.
 
 ```ts
-ForEach({ each: rx('state.items'), as: 'item' }, [
+ForEach({ expression: rx('state.items'), as: 'item', children: [
   Text(rx`${ITEM}.name`),
-])
+] })
 ```
 
 | Prop | Type | Description |
@@ -740,25 +740,25 @@ Conditional rendering. Supports both shorthand and props form:
 ```ts
 // Shorthand (recommended):
 If('$loading', [Loader()])
-Elif('$error', [Alert({ variant: 'destructive' }, [Text('$error')])])
-Else([Text('Content loaded!')])
+Elif('$error', [Alert({ variant: 'destructive', children: [Text('$error')] })])
+Else({ children: [Text('Content loaded!')] })
 
 // Props form (also works):
 If({ condition: '$loading', children: [Loader()] })
 ```
 
-### `Define(props?, children?)` / `Use(props)` / `Slot(props?)`
+### `Define(props?)` / `Use(props)` / `Slot(props?)`
 
 Component templates for reuse.
 
 ```ts
-Define({ name: 'userCard' }, [
-  Card([CardContent([
+Define({ name: 'userCard', children: [
+  Card({ children: [CardContent({ children: [
     Text(Slot('name')),
     Badge(Slot('role')),
-  ])]),
-])
+  ] })] }),
+] })
 
 // Later:
-Use({ def: 'userCard', props: { name: 'Alice', role: 'Admin' } })
+Use({ def: 'userCard', overrides: { name: 'Alice', role: 'Admin' } })
 ```

@@ -5,7 +5,7 @@ url: /prefab/reference/api/mcp/interfaces/McpAppPermissions.md
 
 # Interface: McpAppPermissions
 
-Defined in: [mcp/resource.ts:35](https://github.com/Max-Health-Inc/prefab/blob/e42e8c82c07c073f15ca30bb919aca4001f57a2f/src/mcp/resource.ts#L35)
+Defined in: [mcp/resource.ts:36](https://github.com/Max-Health-Inc/prefab/blob/c28332f5d123b3553a0d155787630df810963a02/src/mcp/resource.ts#L36)
 
 Permission Policy requests for MCP Apps resources.
 
@@ -17,7 +17,7 @@ Permission Policy requests for MCP Apps resources.
 optional camera?: boolean;
 ```
 
-Defined in: [mcp/resource.ts:37](https://github.com/Max-Health-Inc/prefab/blob/e42e8c82c07c073f15ca30bb919aca4001f57a2f/src/mcp/resource.ts#L37)
+Defined in: [mcp/resource.ts:38](https://github.com/Max-Health-Inc/prefab/blob/c28332f5d123b3553a0d155787630df810963a02/src/mcp/resource.ts#L38)
 
 Request camera access (video capture, QR scanning).
 
@@ -29,7 +29,7 @@ Request camera access (video capture, QR scanning).
 optional microphone?: boolean;
 ```
 
-Defined in: [mcp/resource.ts:39](https://github.com/Max-Health-Inc/prefab/blob/e42e8c82c07c073f15ca30bb919aca4001f57a2f/src/mcp/resource.ts#L39)
+Defined in: [mcp/resource.ts:40](https://github.com/Max-Health-Inc/prefab/blob/c28332f5d123b3553a0d155787630df810963a02/src/mcp/resource.ts#L40)
 
 Request microphone access (audio recording, voice input).
 
@@ -41,7 +41,7 @@ Request microphone access (audio recording, voice input).
 optional geolocation?: boolean;
 ```
 
-Defined in: [mcp/resource.ts:41](https://github.com/Max-Health-Inc/prefab/blob/e42e8c82c07c073f15ca30bb919aca4001f57a2f/src/mcp/resource.ts#L41)
+Defined in: [mcp/resource.ts:42](https://github.com/Max-Health-Inc/prefab/blob/c28332f5d123b3553a0d155787630df810963a02/src/mcp/resource.ts#L42)
 
 Request geolocation access (location-aware apps, maps).
 
@@ -53,6 +53,6 @@ Request geolocation access (location-aware apps, maps).
 optional clipboardWrite?: boolean;
 ```
 
-Defined in: [mcp/resource.ts:43](https://github.com/Max-Health-Inc/prefab/blob/e42e8c82c07c073f15ca30bb919aca4001f57a2f/src/mcp/resource.ts#L43)
+Defined in: [mcp/resource.ts:44](https://github.com/Max-Health-Inc/prefab/blob/c28332f5d123b3553a0d155787630df810963a02/src/mcp/resource.ts#L44)
 
 Request clipboard write access (copy-to-clipboard).

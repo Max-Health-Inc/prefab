@@ -12,6 +12,6 @@ type McpContent =
   | McpResourceContent;
 ```
 
-Defined in: [mcp/types.ts:53](https://github.com/Max-Health-Inc/prefab/blob/e42e8c82c07c073f15ca30bb919aca4001f57a2f/src/mcp/types.ts#L53)
+Defined in: [mcp/types.ts:78](https://github.com/Max-Health-Inc/prefab/blob/c28332f5d123b3553a0d155787630df810963a02/src/mcp/types.ts#L78)
 
 Any MCP content block

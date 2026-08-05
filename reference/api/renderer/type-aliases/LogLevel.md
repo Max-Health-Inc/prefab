@@ -9,7 +9,7 @@ url: /prefab/reference/api/renderer/type-aliases/LogLevel.md
 type LogLevel = "silent" | "error" | "warn" | "info" | "debug";
 ```
 
-Defined in: [core/logger.ts:18](https://github.com/Max-Health-Inc/prefab/blob/e42e8c82c07c073f15ca30bb919aca4001f57a2f/src/core/logger.ts#L18)
+Defined in: [core/logger.ts:18](https://github.com/Max-Health-Inc/prefab/blob/c28332f5d123b3553a0d155787630df810963a02/src/core/logger.ts#L18)
 
 Centralized logger — the single sink for all prefab console output.
 

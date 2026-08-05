@@ -9,7 +9,7 @@ url: /prefab/reference/api/renderer/functions/createThemeToggle.md
 function createThemeToggle(root, options?): () => void;
 ```
 
-Defined in: [renderer/theme.ts:139](https://github.com/Max-Health-Inc/prefab/blob/e42e8c82c07c073f15ca30bb919aca4001f57a2f/src/renderer/theme.ts#L139)
+Defined in: [renderer/theme.ts:139](https://github.com/Max-Health-Inc/prefab/blob/c28332f5d123b3553a0d155787630df810963a02/src/renderer/theme.ts#L139)
 
 Create a theme toggle button inside a prefab root element.
 

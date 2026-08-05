@@ -131,7 +131,6 @@
 - [Interface: DisplayOptions](/reference/api/mcp/interfaces/DisplayOptions.md)
 - [Interface: DisplayFormOptions](/reference/api/mcp/interfaces/DisplayFormOptions.md)
 - [Interface: StateUpdate](/reference/api/mcp/interfaces/StateUpdate.md)
-- [Interface: PrefabUpdateWire](/reference/api/mcp/interfaces/PrefabUpdateWire.md)
 - [Interface: DisplayUpdateOptions](/reference/api/mcp/interfaces/DisplayUpdateOptions.md)
 - [Interface: DisplayErrorOptions](/reference/api/mcp/interfaces/DisplayErrorOptions.md)
 - [Interface: DisplaySuccessOptions](/reference/api/mcp/interfaces/DisplaySuccessOptions.md)
@@ -144,21 +143,22 @@
 - [Interface: McpServerLike](/reference/api/mcp/interfaces/McpServerLike.md)
 - [Interface: ToolResultOptions](/reference/api/mcp/interfaces/ToolResultOptions.md)
 - [Interface: VsCodeTokenSource](/reference/api/mcp/interfaces/VsCodeTokenSource.md)
-- [Interface: McpTextContent](/reference/api/mcp/interfaces/McpTextContent.md)
-- [Interface: McpImageContent](/reference/api/mcp/interfaces/McpImageContent.md)
-- [Interface: McpTextResourceContents](/reference/api/mcp/interfaces/McpTextResourceContents.md)
-- [Interface: McpBlobResourceContents](/reference/api/mcp/interfaces/McpBlobResourceContents.md)
-- [Interface: McpResourceContent](/reference/api/mcp/interfaces/McpResourceContent.md)
-- [Interface: McpToolResult\<S>](/reference/api/mcp/interfaces/McpToolResult.md)
-- [Interface: McpCacheHint](/reference/api/mcp/interfaces/McpCacheHint.md)
-- [Interface: McpResourceReadResult\<C>](/reference/api/mcp/interfaces/McpResourceReadResult.md)
 
 ##### Type Aliases
 
+- [Type Alias: PrefabUpdateWire](/reference/api/mcp/type-aliases/PrefabUpdateWire.md)
 - [Type Alias: ResourceReadHandler](/reference/api/mcp/type-aliases/ResourceReadHandler.md)
 - [Type Alias: ThemeBridge](/reference/api/mcp/type-aliases/ThemeBridge.md)
+- [Type Alias: McpTextContent](/reference/api/mcp/type-aliases/McpTextContent.md)
+- [Type Alias: McpImageContent](/reference/api/mcp/type-aliases/McpImageContent.md)
+- [Type Alias: McpTextResourceContents](/reference/api/mcp/type-aliases/McpTextResourceContents.md)
+- [Type Alias: McpBlobResourceContents](/reference/api/mcp/type-aliases/McpBlobResourceContents.md)
+- [Type Alias: McpResourceContent](/reference/api/mcp/type-aliases/McpResourceContent.md)
 - [Type Alias: McpContent](/reference/api/mcp/type-aliases/McpContent.md)
+- [Type Alias: McpToolResult\<S>](/reference/api/mcp/type-aliases/McpToolResult.md)
 - [Type Alias: McpCacheScope](/reference/api/mcp/type-aliases/McpCacheScope.md)
+- [Type Alias: McpCacheHint](/reference/api/mcp/type-aliases/McpCacheHint.md)
+- [Type Alias: McpResourceReadResult\<C>](/reference/api/mcp/type-aliases/McpResourceReadResult.md)
 
 ##### Variables
 

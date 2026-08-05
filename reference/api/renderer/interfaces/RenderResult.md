@@ -5,7 +5,7 @@ url: /prefab/reference/api/renderer/interfaces/RenderResult.md
 
 # Interface: RenderResult
 
-Defined in: [renderer/engine.ts:70](https://github.com/Max-Health-Inc/prefab/blob/e42e8c82c07c073f15ca30bb919aca4001f57a2f/src/renderer/engine.ts#L70)
+Defined in: [renderer/engine.ts:70](https://github.com/Max-Health-Inc/prefab/blob/c28332f5d123b3553a0d155787630df810963a02/src/renderer/engine.ts#L70)
 
 Result of a render function that includes a cleanup callback.
 
@@ -17,7 +17,7 @@ Result of a render function that includes a cleanup callback.
 element: HTMLElement | DocumentFragment;
 ```
 
-Defined in: [renderer/engine.ts:71](https://github.com/Max-Health-Inc/prefab/blob/e42e8c82c07c073f15ca30bb919aca4001f57a2f/src/renderer/engine.ts#L71)
+Defined in: [renderer/engine.ts:71](https://github.com/Max-Health-Inc/prefab/blob/c28332f5d123b3553a0d155787630df810963a02/src/renderer/engine.ts#L71)
 
 ***
 
@@ -27,7 +27,7 @@ Defined in: [renderer/engine.ts:71](https://github.com/Max-Health-Inc/prefab/blo
 destroy: () => void;
 ```
 
-Defined in: [renderer/engine.ts:72](https://github.com/Max-Health-Inc/prefab/blob/e42e8c82c07c073f15ca30bb919aca4001f57a2f/src/renderer/engine.ts#L72)
+Defined in: [renderer/engine.ts:72](https://github.com/Max-Health-Inc/prefab/blob/c28332f5d123b3553a0d155787630df810963a02/src/renderer/engine.ts#L72)
 
 #### Returns
 

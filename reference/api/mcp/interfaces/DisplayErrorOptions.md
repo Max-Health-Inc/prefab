@@ -5,7 +5,7 @@ url: /prefab/reference/api/mcp/interfaces/DisplayErrorOptions.md
 
 # Interface: DisplayErrorOptions
 
-Defined in: [mcp/display.ts:220](https://github.com/Max-Health-Inc/prefab/blob/e42e8c82c07c073f15ca30bb919aca4001f57a2f/src/mcp/display.ts#L220)
+Defined in: [mcp/display.ts:230](https://github.com/Max-Health-Inc/prefab/blob/c28332f5d123b3553a0d155787630df810963a02/src/mcp/display.ts#L230)
 
 ## Properties
 
@@ -15,7 +15,7 @@ Defined in: [mcp/display.ts:220](https://github.com/Max-Health-Inc/prefab/blob/e
 optional detail?: string;
 ```
 
-Defined in: [mcp/display.ts:222](https://github.com/Max-Health-Inc/prefab/blob/e42e8c82c07c073f15ca30bb919aca4001f57a2f/src/mcp/display.ts#L222)
+Defined in: [mcp/display.ts:232](https://github.com/Max-Health-Inc/prefab/blob/c28332f5d123b3553a0d155787630df810963a02/src/mcp/display.ts#L232)
 
 Error detail / stack trace to show in a code block.
 
@@ -27,7 +27,7 @@ Error detail / stack trace to show in a code block.
 optional hint?: string;
 ```
 
-Defined in: [mcp/display.ts:224](https://github.com/Max-Health-Inc/prefab/blob/e42e8c82c07c073f15ca30bb919aca4001f57a2f/src/mcp/display.ts#L224)
+Defined in: [mcp/display.ts:234](https://github.com/Max-Health-Inc/prefab/blob/c28332f5d123b3553a0d155787630df810963a02/src/mcp/display.ts#L234)
 
 Hint for the user on how to fix the issue.
 
@@ -39,6 +39,6 @@ Hint for the user on how to fix the issue.
 optional theme?: Theme;
 ```
 
-Defined in: [mcp/display.ts:226](https://github.com/Max-Health-Inc/prefab/blob/e42e8c82c07c073f15ca30bb919aca4001f57a2f/src/mcp/display.ts#L226)
+Defined in: [mcp/display.ts:236](https://github.com/Max-Health-Inc/prefab/blob/c28332f5d123b3553a0d155787630df810963a02/src/mcp/display.ts#L236)
 
 Theme overrides.

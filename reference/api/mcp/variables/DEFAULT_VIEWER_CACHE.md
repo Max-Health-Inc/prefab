@@ -9,7 +9,7 @@ url: /prefab/reference/api/mcp/variables/DEFAULT_VIEWER_CACHE.md
 const DEFAULT_VIEWER_CACHE: Required<McpCacheHint>;
 ```
 
-Defined in: [mcp/resource.ts:158](https://github.com/Max-Health-Inc/prefab/blob/e42e8c82c07c073f15ca30bb919aca4001f57a2f/src/mcp/resource.ts#L158)
+Defined in: [mcp/resource.ts:159](https://github.com/Max-Health-Inc/prefab/blob/c28332f5d123b3553a0d155787630df810963a02/src/mcp/resource.ts#L159)
 
 Default cache hint for the viewer resource.
 

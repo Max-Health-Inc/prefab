@@ -11,7 +11,7 @@ function serializeCallbacks(actions):
   | ActionJSON[];
 ```
 
-Defined in: [actions/types.ts:20](https://github.com/Max-Health-Inc/prefab/blob/e42e8c82c07c073f15ca30bb919aca4001f57a2f/src/actions/types.ts#L20)
+Defined in: [actions/types.ts:20](https://github.com/Max-Health-Inc/prefab/blob/c28332f5d123b3553a0d155787630df810963a02/src/actions/types.ts#L20)
 
 Serialize one or more actions to their JSON form.
 

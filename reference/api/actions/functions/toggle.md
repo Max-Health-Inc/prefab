@@ -9,7 +9,7 @@ url: /prefab/reference/api/actions/functions/toggle.md
 function toggle(target): ToggleState;
 ```
 
-Defined in: [actions/sugar.ts:38](https://github.com/Max-Health-Inc/prefab/blob/e42e8c82c07c073f15ca30bb919aca4001f57a2f/src/actions/sugar.ts#L38)
+Defined in: [actions/sugar.ts:38](https://github.com/Max-Health-Inc/prefab/blob/c28332f5d123b3553a0d155787630df810963a02/src/actions/sugar.ts#L38)
 
 Toggle a boolean state value. `toggle(signal)` → `new ToggleState(signal.key)`
 

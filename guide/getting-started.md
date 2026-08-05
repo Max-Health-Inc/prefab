@@ -105,20 +105,23 @@ async function userDashboard() {
   const users = await db.query('SELECT * FROM users')
 
   return display(
-    Column({ gap: 8 }, [
-      H1('User Dashboard'),
-      Text('Manage your organization members.'),
-      DataTable({
-        rows: users,
-        columns: [
-          col('name', 'Name'),
-          col('email', 'Email'),
-          col('role', 'Role'),
-          col('status', 'Status'),
-        ],
-        search: true,
-      }),
-    ]),
+    Column({
+      gap: 8,
+      children: [
+        H1('User Dashboard'),
+        Text('Manage your organization members.'),
+        DataTable({
+          rows: users,
+          columns: [
+            col('name', 'Name'),
+            col('email', 'Email'),
+            col('role', 'Role'),
+            col('status', 'Status'),
+          ],
+          search: true,
+        }),
+      ],
+    }),
     { title: 'User Dashboard' },
   )
 }
@@ -178,7 +181,7 @@ import { PrefabApp, Column, H1, Text } from '@maxhealth.tech/prefab'
 
 const app = new PrefabApp({
   title: 'My Dashboard',
-  view: Column({ gap: 4 }, [H1('Hello'), Text('World')]),
+  view: Column({ gap: 4, children: [H1('Hello'), Text('World')] }),
 })
 
 const html = app.toHTML()

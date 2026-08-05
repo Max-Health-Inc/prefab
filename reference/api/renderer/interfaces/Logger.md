@@ -5,7 +5,7 @@ url: /prefab/reference/api/renderer/interfaces/Logger.md
 
 # Interface: Logger
 
-Defined in: [core/logger.ts:36](https://github.com/Max-Health-Inc/prefab/blob/e42e8c82c07c073f15ca30bb919aca4001f57a2f/src/core/logger.ts#L36)
+Defined in: [core/logger.ts:36](https://github.com/Max-Health-Inc/prefab/blob/c28332f5d123b3553a0d155787630df810963a02/src/core/logger.ts#L36)
 
 ## Methods
 
@@ -15,7 +15,7 @@ Defined in: [core/logger.ts:36](https://github.com/Max-Health-Inc/prefab/blob/e4
 error(message, ...args): void;
 ```
 
-Defined in: [core/logger.ts:37](https://github.com/Max-Health-Inc/prefab/blob/e42e8c82c07c073f15ca30bb919aca4001f57a2f/src/core/logger.ts#L37)
+Defined in: [core/logger.ts:37](https://github.com/Max-Health-Inc/prefab/blob/c28332f5d123b3553a0d155787630df810963a02/src/core/logger.ts#L37)
 
 #### Parameters
 
@@ -36,7 +36,7 @@ Defined in: [core/logger.ts:37](https://github.com/Max-Health-Inc/prefab/blob/e4
 warn(message, ...args): void;
 ```
 
-Defined in: [core/logger.ts:38](https://github.com/Max-Health-Inc/prefab/blob/e42e8c82c07c073f15ca30bb919aca4001f57a2f/src/core/logger.ts#L38)
+Defined in: [core/logger.ts:38](https://github.com/Max-Health-Inc/prefab/blob/c28332f5d123b3553a0d155787630df810963a02/src/core/logger.ts#L38)
 
 #### Parameters
 
@@ -57,7 +57,7 @@ Defined in: [core/logger.ts:38](https://github.com/Max-Health-Inc/prefab/blob/e4
 info(message, ...args): void;
 ```
 
-Defined in: [core/logger.ts:39](https://github.com/Max-Health-Inc/prefab/blob/e42e8c82c07c073f15ca30bb919aca4001f57a2f/src/core/logger.ts#L39)
+Defined in: [core/logger.ts:39](https://github.com/Max-Health-Inc/prefab/blob/c28332f5d123b3553a0d155787630df810963a02/src/core/logger.ts#L39)
 
 #### Parameters
 
@@ -78,7 +78,7 @@ Defined in: [core/logger.ts:39](https://github.com/Max-Health-Inc/prefab/blob/e4
 debug(message, ...args): void;
 ```
 
-Defined in: [core/logger.ts:40](https://github.com/Max-Health-Inc/prefab/blob/e42e8c82c07c073f15ca30bb919aca4001f57a2f/src/core/logger.ts#L40)
+Defined in: [core/logger.ts:40](https://github.com/Max-Health-Inc/prefab/blob/c28332f5d123b3553a0d155787630df810963a02/src/core/logger.ts#L40)
 
 #### Parameters
 

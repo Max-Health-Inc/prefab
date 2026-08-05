@@ -9,7 +9,7 @@ url: /prefab/reference/api/mcp/functions/display_update.md
 function display_update(state, options?): McpToolResult<PrefabUpdateWire>;
 ```
 
-Defined in: [mcp/display.ts:197](https://github.com/Max-Health-Inc/prefab/blob/e42e8c82c07c073f15ca30bb919aca4001f57a2f/src/mcp/display.ts#L197)
+Defined in: [mcp/display.ts:207](https://github.com/Max-Health-Inc/prefab/blob/c28332f5d123b3553a0d155787630df810963a02/src/mcp/display.ts#L207)
 
 Return a partial state update for an existing prefab UI.
 
@@ -26,6 +26,6 @@ actions after the state is applied.
 
 ## Returns
 
-[`McpToolResult`](../interfaces/McpToolResult.md)<[`PrefabUpdateWire`](../interfaces/PrefabUpdateWire.md)>
+[`McpToolResult`](../type-aliases/McpToolResult.md)<[`PrefabUpdateWire`](../type-aliases/PrefabUpdateWire.md)>
 
 MCP tool result with a $prefab update payload.
