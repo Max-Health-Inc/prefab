@@ -43,7 +43,21 @@ export interface LayoutHints {
 
 // ── Wire format ──────────────────────────────────────────────────────────────
 
-export interface PrefabWireFormat {
+/**
+ * The `$prefab` wire payload, sent as `structuredContent` on an MCP tool result.
+ *
+ * DELIBERATELY A TYPE ALIAS, NOT AN INTERFACE. The MCP SDK types
+ * `CallToolResult.structuredContent` as `{ [x: string]: unknown }`, and
+ * TypeScript grants an implicit index signature to object type aliases but never
+ * to interfaces. As an interface this is not assignable to that field, so every
+ * consumer returning `display()` / `display_error()` from a tool handler is
+ * forced into a type assertion to compile. Converting this back to an interface
+ * reintroduces that, and the break surfaces in consumers rather than here.
+ *
+ * See test/wire-format-assignability.test.ts, which fails if this regresses.
+ */
+// eslint-disable-next-line @typescript-eslint/consistent-type-definitions -- must be a type alias to get an implicit index signature; see above
+export type PrefabWireFormat = {
   $prefab: { version: string }
   view: ComponentJSON
   state?: Record<string, unknown>
@@ -205,7 +219,7 @@ export class PrefabApp {
     const wire = this.toJSON()
     return {
       content: [{ type: 'text', text: JSON.stringify(wire) }],
-      structuredContent: wire as unknown as Record<string, unknown>,
+      structuredContent: wire,
     }
   }
 
