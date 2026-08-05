@@ -21,10 +21,10 @@ Most actions accept `onSuccess` and `onError` options, each taking a single acti
 
 ```ts
 Button('Save & Notify', {
-  onClick: CallTool('save_item', {
+  onClick: new CallTool('save_item', {
     arguments: { name: rx`${STATE}.name` },
-    onSuccess: [SetState('saved', true), ShowToast('Saved!', { variant: 'success' })],
-    onError: ShowToast('Save failed', { variant: 'error' }),
+    onSuccess: [new SetState('saved', true), new ShowToast('Saved!', { variant: 'success' })],
+    onError: new ShowToast('Save failed', { variant: 'error' }),
   }),
 })
 ```

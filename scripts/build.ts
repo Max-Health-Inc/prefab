@@ -73,3 +73,10 @@ console.log('✅ Base theme → dist/prefab.css')
 // keeps the skill bundle self-contained without committing duplicate JSON.
 const { genSkillAssets } = await import('./gen-skill-assets.ts')
 genSkillAssets()
+
+// Refresh the component-type list from the render registry. Unlike the skill
+// assets this output IS committed (src/core/validate.ts imports it, so a fresh
+// clone must typecheck before any generator runs), which is why
+// test/component-types.test.ts fails on a stale copy rather than trusting this.
+const { genComponentTypes } = await import('./gen-component-types.ts')
+genComponentTypes()

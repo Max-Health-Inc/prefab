@@ -118,6 +118,17 @@ export function registerComponent(type: string, fn: RenderFn): void {
   registry.set(type, fn)
 }
 
+/**
+ * Every component type the renderer can currently render.
+ *
+ * The registry is the authority on this. Anything that restates the set (the
+ * wire-format validator's strict mode, docs, tooling) can be checked against
+ * this instead of being maintained in parallel and drifting.
+ */
+export function registeredComponentTypes(): string[] {
+  return [...registry.keys()].sort()
+}
+
 /** Get a render function (or fallback) */
 export function getRenderer(type: string): RenderFn | undefined {
   return registry.get(type)

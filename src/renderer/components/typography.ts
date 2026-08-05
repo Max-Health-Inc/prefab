@@ -4,6 +4,7 @@
 
 import { registerComponent, resolveStr, el, text } from '../engine.js'
 import type { ComponentNode, RenderContext } from '../engine.js'
+import { escapeHtml } from '../../core/escape.js'
 
 export function registerTypographyComponents(): void {
   registerComponent('Heading', renderHeading)
@@ -94,15 +95,6 @@ function renderMarkdown(node: ComponentNode, ctx: RenderContext): HTMLElement {
 
 /** Blocked URL schemes that can execute code (reused from renderLink). */
 const MD_UNSAFE_SCHEMES = /^\s*(javascript|vbscript|data):/i
-
-/** Escape HTML special chars to prevent XSS from raw markdown content. */
-function escapeHtml(s: string): string {
-  return s
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-}
 
 /** Render inline markdown: bold, italic, code, links, images, strikethrough. */
 function renderInline(line: string): string {

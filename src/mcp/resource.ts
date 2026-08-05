@@ -12,6 +12,7 @@
 
 import { VERSION } from '../app.js'
 import { createLogger } from '../core/logger.js'
+import { escapeHtml } from '../core/escape.js'
 import type { McpCacheHint, McpCacheScope, McpResourceReadResult, McpTextResourceContents } from './types.js'
 import { themeBridgeCss, type ThemeBridge } from './theme-bridge.js'
 
@@ -221,10 +222,10 @@ export function rendererHtml(options?: RendererHtmlOptions): string {
     ? `  <style>\n${themeBridgeCss(options.themeBridge)}\n  </style>\n`
     : ''
   const extraStyles = (options?.stylesheets ?? [])
-    .map(url => `  <link rel="stylesheet" crossorigin href="${escapeAttr(url)}">`)
+    .map(url => `  <link rel="stylesheet" crossorigin href="${escapeHtml(url)}">`)
     .join('\n')
   const extraScripts = (options?.scripts ?? [])
-    .map(url => `  <script crossorigin src="${escapeAttr(url)}"></script>`)
+    .map(url => `  <script crossorigin src="${escapeHtml(url)}"></script>`)
     .join('\n')
 
   return `<!doctype html>
@@ -421,12 +422,3 @@ export function registerViewerResource(server: McpServerLike, options?: ViewerRe
   register(name, uri, config, handler)
 }
 
-// ── HTML escaping helpers ────────────────────────────────────────────────────
-
-function escapeHtml(s: string): string {
-  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-}
-
-function escapeAttr(s: string): string {
-  return s.replace(/&/g, '&amp;').replace(/"/g, '&quot;')
-}

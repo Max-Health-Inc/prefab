@@ -1,6 +1,19 @@
 name: Release & Publish
 
+# Merging to `main` publishes to npm.
+#
+# The release commit this workflow pushes back to `main` does NOT re-trigger it:
+# pushes made with GITHUB_TOKEN never start another workflow run. That is the same
+# property the "Trigger publish workflow" step at the bottom works around, and it is
+# what keeps this from looping.
+#
+# A merge that documents nothing under `## [Unreleased]` skips the release instead of
+# failing, so a README or CI-only merge does not redden `main`. A manual
+# workflow_dispatch with an empty changelog still fails loudly, because asking for a
+# release explicitly and having nothing to ship is an error.
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
 
 concurrency:
@@ -13,21 +26,18 @@ permissions:
   id-token: write
 
 jobs:
-  release:
-    name: Test → Build → Release → Publish
+  gate:
+    name: Decide whether to release
     runs-on: ubuntu-latest
+    outputs:
+      next: ${{ steps.version.outputs.next }}
+      should_release: ${{ steps.changelog.outputs.should_release }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
-        with:
-          fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
+        uses: actions/checkout@v7
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
-
-      - name: Install dependencies
-        run: bun install --frozen-lockfile
 
       # ── Version bump ────────────────────────────────
       - name: Determine next version
@@ -53,14 +63,51 @@ jobs:
           echo "### Version: $NPM_LATEST → $NEXT" >> "$GITHUB_STEP_SUMMARY"
 
       # ── Changelog gate ──────────────────────────────
-      # Fails the release if CHANGELOG.md has nothing documented for the version
-      # about to ship, otherwise promotes [Unreleased] to that version.
-      - name: Require & stamp changelog entry
-        run: bun scripts/changelog-release.ts "${{ steps.version.outputs.next }}"
+      # `--check` writes nothing and always exits 0; we branch on the reported status.
+      - name: Check changelog
+        id: changelog
+        run: |
+          NEXT="${{ steps.version.outputs.next }}"
+          STATUS=$(bun scripts/changelog-release.ts --check "$NEXT")
+          echo "Changelog status for $NEXT: $STATUS"
+
+          if [ "$STATUS" = "missing" ]; then
+            if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+              echo "::error::CHANGELOG.md documents nothing for $NEXT. Add entries under '## [Unreleased]' before releasing."
+              exit 1
+            fi
+            echo "should_release=false" >> "$GITHUB_OUTPUT"
+            echo "### Skipped: nothing documented under [Unreleased]" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "should_release=true" >> "$GITHUB_OUTPUT"
+          fi
+
+  release:
+    name: Test → Build → Release → Publish
+    needs: gate
+    if: needs.gate.outputs.should_release == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      # Promotes [Unreleased] to the version being shipped. The gate job already
+      # confirmed there is something to promote.
+      - name: Stamp changelog entry
+        run: bun scripts/changelog-release.ts "${{ needs.gate.outputs.next }}"
 
       - name: Update package.json version
         run: |
-          NEXT="${{ steps.version.outputs.next }}"
+          NEXT="${{ needs.gate.outputs.next }}"
           jq --arg v "$NEXT" '.version = $v' package.json > package.json.tmp
           mv package.json.tmp package.json
           # Sync VERSION constant (single source of truth) in src/core/version.ts
@@ -84,7 +131,7 @@ jobs:
       # ── Commit version bump ─────────────────────────
       - name: Commit & tag
         run: |
-          NEXT="${{ steps.version.outputs.next }}"
+          NEXT="${{ needs.gate.outputs.next }}"
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add package.json src/core/version.ts CHANGELOG.md
@@ -92,16 +139,41 @@ jobs:
           git tag "v${NEXT}"
           git push origin main --tags
 
+      # ── Keep dev in step with the promoted changelog ─
+      #
+      # The release commit promotes [Unreleased] to a version heading on main. If
+      # dev is left behind, its still-open [Unreleased] and main's new version
+      # heading differ only in where that heading sits, and git's line-based merge
+      # will happily file dev's newer entries under the older release heading —
+      # silently attributing unshipped work to a published version, and emptying
+      # [Unreleased] so the next merge skips its release. That happened between
+      # v0.3.6 and v0.3.7 and had to be fixed by hand.
+      #
+      # Best effort by design: never fail a completed release over a sync. If the
+      # merge conflicts, the summary says so and it is resolved by hand.
+      - name: Sync release commit back into dev
+        run: |
+          NEXT="${{ needs.gate.outputs.next }}"
+          git fetch origin dev || exit 0
+          if git checkout -B dev origin/dev && git merge main --no-edit; then
+            git push origin dev
+            echo "- Synced \`v${NEXT}\` release commit back into \`dev\`" >> "$GITHUB_STEP_SUMMARY"
+          else
+            git merge --abort || true
+            echo "- :warning: Could not auto-sync \`v${NEXT}\` into \`dev\` (conflict). Merge \`main\` into \`dev\` by hand before the next release, or unreleased entries will be mis-filed under \`## [${NEXT}]\`." >> "$GITHUB_STEP_SUMMARY"
+          fi
+          git checkout main
+
       # ── Package skill ─────────────────────────────
       - name: Zip prefab-ui skill
         run: cd skills && zip -r ../prefab-ui-skill.zip prefab-ui/
 
       # ── GitHub Release ──────────────────────────────
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
-          tag_name: v${{ steps.version.outputs.next }}
-          name: v${{ steps.version.outputs.next }}
+          tag_name: v${{ needs.gate.outputs.next }}
+          name: v${{ needs.gate.outputs.next }}
           generate_release_notes: true
           files: |
             dist/renderer.min.js
@@ -111,13 +183,13 @@ jobs:
 
       # Trigger publish.yml explicitly (GITHUB_TOKEN tag pushes don't trigger other workflows)
       - name: Trigger publish workflow
-        run: gh workflow run publish.yml --ref "v${{ steps.version.outputs.next }}"
+        run: gh workflow run publish.yml --ref "v${{ needs.gate.outputs.next }}"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Summary
         run: |
-          NEXT="${{ steps.version.outputs.next }}"
+          NEXT="${{ needs.gate.outputs.next }}"
           PACKAGE_NAME=$(jq -r .name package.json)
           echo "### ✅ Released ${PACKAGE_NAME}@${NEXT}" >> "$GITHUB_STEP_SUMMARY"
           echo "- Release: ${{ github.server_url }}/${{ github.repository }}/releases/tag/v${NEXT}" >> "$GITHUB_STEP_SUMMARY"

@@ -11,6 +11,7 @@ import type { Action, ActionJSON } from './actions/types.js'
 import { drainAutoState } from './rx/state-collector.js'
 import type { PipeFn } from './rx/pipes.js'
 import { compileThemeCss } from './core/theme-css.js'
+import { escapeHtml } from './core/escape.js'
 import { VERSION, PROTOCOL_VERSION } from './core/version.js'
 
 // Version constants live in ./core/version.ts (single source of truth, updated
@@ -42,7 +43,25 @@ export interface LayoutHints {
 
 // ── Wire format ──────────────────────────────────────────────────────────────
 
-export interface PrefabWireFormat {
+/**
+ * The `$prefab` wire payload, sent as `structuredContent` on an MCP tool result.
+ *
+ * DELIBERATELY A TYPE ALIAS, NOT AN INTERFACE. The MCP SDK types
+ * `CallToolResult.structuredContent` as `{ [x: string]: unknown }`, and
+ * TypeScript grants an implicit index signature to object type aliases but never
+ * to interfaces. As an interface this is not assignable to that field, so every
+ * consumer returning `display()` / `display_error()` from a tool handler is
+ * forced into a type assertion to compile. Converting this back to an interface
+ * reintroduces that, and the break surfaces in consumers rather than here.
+ *
+ * Same reasoning as the aliases in `src/mcp/types.ts`, where the lint rule is
+ * scoped to enforce it file-wide. That is not an option here: this file is mostly
+ * domain types that should stay interfaces, so the exception is per-declaration.
+ * `test/mcp-types.test.ts` guards the assignability and fails `typecheck` (not at
+ * runtime) if this regresses.
+ */
+// eslint-disable-next-line @typescript-eslint/consistent-type-definitions -- must be a type alias to get an implicit index signature; see above
+export type PrefabWireFormat = {
   $prefab: { version: string }
   view: ComponentJSON
   state?: Record<string, unknown>
@@ -204,7 +223,7 @@ export class PrefabApp {
     const wire = this.toJSON()
     return {
       content: [{ type: 'text', text: JSON.stringify(wire) }],
-      structuredContent: wire as unknown as Record<string, unknown>,
+      structuredContent: wire,
     }
   }
 
@@ -279,12 +298,3 @@ export class PrefabApp {
   }
 }
 
-// ── Helpers ──────────────────────────────────────────────────────────────────
-
-function escapeHtml(s: string): string {
-  return s
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-}
