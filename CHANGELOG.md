@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.3.8] — 2026-08-05
+
 ### Fixed
 
 - **Strict wire-format validation rejected four renderable component types.** `validateWireFormat(data, { strict: true })` checked `type` against a hand-written list in `src/core/validate.ts` that had fallen behind the renderer's registry: `Condition` (emitted by `If` / `Elif` / `Else`), `Detail`, `MasterDetail` and `PdfViewer` were all registered and renderable, but reported as `Unknown component type`. Any UI using a conditional therefore failed strict validation, as did two of the shipped examples. The list is no longer written by hand: `src/core/component-types.ts` is generated from the registry (`bun run gen:types`, also run by the build), and the validator consumes it. The generated module is import-free, so the validator still works server-side where the renderer is never loaded. Non-strict validation was unaffected, since unknown types are only an error under `strict`.
