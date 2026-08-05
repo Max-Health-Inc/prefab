@@ -11,7 +11,9 @@ All notable changes to this project will be documented in this file.
 - **`Table({ striped })`** — shades alternate body rows via a `pf-table-striped` modifier and a `:nth-child(even)` rule, rather than per-table styling.
 - **`Sparkline({ width, height })`** — the renderer hardcoded 120×32; those are now the defaults.
 
-All four were documented in `docs/reference/components.md` with props-table entries before they existed, and were found by `bun run check:docs`. `DropZone({ accept })` is documented too and is deliberately **not** implemented: that renderer is still a stub (`// File handling would go here`) with no file input for `accept` to apply to, so adding the prop would recreate the same divergence.
+- **`DropZone` actually handles files.** The renderer was a stub (`// File handling would go here`) with drag listeners and nothing behind them, so the documented `accept` applied to nothing. It now takes files by drag-and-drop or click-to-browse, is keyboard reachable (`role="button"`, Enter/Space), and accepts `label`, `accept`, `multiple`, `resultKey` and `onDrop`. Those names and the `$result` callback binding are the ones the `OpenFilePicker` action already uses, so both routes to a file list behave identically. `accept` is enforced for **dropped** files as well: the browser applies it to the file picker only, so drag-and-drop would otherwise bypass it entirely. Exported `matchesAccept()` handles the three `accept` forms (`image/*`, `.pdf`, `text/csv`); no equivalent existed to reuse, and the org's other drop zones are all React components with no overlap between them.
+
+All five were documented in `docs/reference/components.md` with props-table entries before they existed, and were found by `bun run check:docs`.
 
 ## [0.3.8] — 2026-08-05
 

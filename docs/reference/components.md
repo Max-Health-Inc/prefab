@@ -667,11 +667,26 @@ Inline SVG content.
 
 ### `DropZone(props)`
 
-File upload drop area.
+File upload drop area. Accepts files by drag-and-drop or by click-to-browse, and is keyboard reachable.
 
 ```ts
-DropZone({ accept: 'image/*', multiple: true, onDrop: new CallTool('upload_file') })
+DropZone({
+  accept: 'image/*',
+  multiple: true,
+  resultKey: 'uploads',
+  onDrop: new CallTool('upload_file'),
+})
 ```
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `label` | `RxStr` | Prompt shown inside the area. Defaults to `Drop files here` |
+| `accept` | `string` | Accepted types, as the HTML `accept` attribute (`image/*`, `.pdf`, `text/csv`). Enforced for dropped files too, which the browser does not do |
+| `multiple` | `boolean` | Allow more than one file. When false, only the first accepted file is taken |
+| `resultKey` | `string` | State key the chosen files are written to |
+| `onDrop` | `Action \| Action[]` | Fired once files are chosen, with `$result` bound to the file list |
+
+`resultKey` and `$result` match the `OpenFilePicker` action, so both paths to files behave the same.
 
 ### `Mermaid(content)`
 

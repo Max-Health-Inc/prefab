@@ -2,8 +2,10 @@
  * Media component renderers — Image, Audio, Video, Embed, Svg, DropZone, Mermaid
  */
 
-import { registerComponent, resolveStr, el } from '../engine.js'
+import { registerComponent, resolveStr, el, makeDispatchCtx } from '../engine.js'
 import type { ComponentNode, RenderContext } from '../engine.js'
+import { dispatchActions, fireAndForget } from '../actions.js'
+import type { ActionJSON } from '../actions.js'
 
 export function registerMediaComponents(): void {
   registerComponent('Image', renderImage)
@@ -107,12 +109,76 @@ function sanitizeSvgNode(node: Element): void {
   }
 }
 
+/**
+ * Does a file satisfy an HTML `accept` list (`image/*,.pdf,text/csv`)?
+ *
+ * The browser enforces `accept` for the file picker but NOT for drag-and-drop, so
+ * dropped files have to be filtered here or the prop would only half work.
+ */
+export function matchesAccept(file: File, accept?: string): boolean {
+  const patterns = (accept ?? '').split(',').map(s => s.trim().toLowerCase()).filter(Boolean)
+  if (patterns.length === 0) return true
+  const name = file.name.toLowerCase()
+  const type = file.type.toLowerCase()
+  return patterns.some(p => {
+    if (p.startsWith('.')) return name.endsWith(p)
+    if (p.endsWith('/*')) return type.startsWith(p.slice(0, -1))
+    return type === p
+  })
+}
+
 function renderDropZone(node: ComponentNode, ctx: RenderContext): HTMLElement {
   const e = el('div', 'pf-dropzone')
   e.style.padding = '32px'
   e.style.textAlign = 'center'
   e.style.cursor = 'pointer'
   e.textContent = resolveStr(node.label ?? 'Drop files here', ctx)
+
+  // Click-to-browse, so the zone is not drag-only (and is reachable by keyboard).
+  const input = document.createElement('input')
+  input.type = 'file'
+  input.style.display = 'none'
+  if (node.accept != null) input.accept = node.accept as string
+  if (node.multiple === true) input.multiple = true
+  e.appendChild(input)
+
+  e.setAttribute('role', 'button')
+  e.tabIndex = 0
+
+  function accepted(files: FileList | null): File[] {
+    const all = Array.from(files ?? []).filter(f => matchesAccept(f, node.accept as string | undefined))
+    return node.multiple === true ? all : all.slice(0, 1)
+  }
+
+  function handle(files: File[]): void {
+    if (files.length === 0) return
+    if (node.resultKey != null) {
+      ctx.store.set(node.resultKey as string, files)
+      ctx.rerender()
+    }
+    if (node.onDrop != null) {
+      fireAndForget(
+        dispatchActions(node.onDrop as ActionJSON | ActionJSON[], {
+          ...makeDispatchCtx(ctx),
+          scope: { ...ctx.scope, $result: files },
+        }),
+        'onDrop',
+      )
+    }
+  }
+
+  input.addEventListener('change', () => {
+    handle(accepted(input.files))
+    input.value = ''
+  })
+
+  e.addEventListener('click', () => input.click())
+  e.addEventListener('keydown', (ev) => {
+    if (ev.key === 'Enter' || ev.key === ' ') {
+      ev.preventDefault()
+      input.click()
+    }
+  })
 
   e.addEventListener('dragover', (ev) => {
     ev.preventDefault()
@@ -126,7 +192,7 @@ function renderDropZone(node: ComponentNode, ctx: RenderContext): HTMLElement {
   e.addEventListener('drop', (ev) => {
     ev.preventDefault()
     e.classList.remove('pf-dropzone-active')
-    // File handling would go here
+    handle(accepted(ev.dataTransfer?.files ?? null))
   })
 
   return e
