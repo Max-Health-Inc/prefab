@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.3.9] — 2026-08-07
+
 ### Added
 
 - **`label` on every stateful control.** `InputProps` declared it privately and only `renderInput` drew it, so `Select({ label })` and `DatePicker({ label })` were documented but silently dropped. `label` moves to `StatefulProps`, and the wire shape shared by all of them is now one exported `statefulProps()` helper. `Select`, `RadioGroup` and `Combobox` are containers rather than `StatefulComponent`s and were each restating that block by hand, which is exactly how `label` went missing on them; they call the helper now. On the renderer side a single `withLabel()` decorator is applied at registration to the five controls that lay out vertically (`Select`, `DatePicker`, `Combobox`, `Textarea`, `Slider`). Checkbox, Switch, Radio, RadioGroup and ChoiceCard place their own label beside the control and are deliberately not wrapped.
