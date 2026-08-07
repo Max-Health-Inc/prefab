@@ -10,8 +10,17 @@ import type { ContainerProps, ComponentProps, RxStr } from '../../core/component
 
 // ── Table ────────────────────────────────────────────────────────────────────
 
-export function Table(props?: ContainerProps): ContainerComponent {
-  return new ContainerComponent('Table', props)
+export interface TableProps extends ContainerProps {
+  /** Shade alternate body rows. */
+  striped?: boolean
+}
+
+export function Table(props?: TableProps): ContainerComponent {
+  const c = new ContainerComponent('Table', props)
+  if (props?.striped !== undefined) {
+    c.getProps = () => ({ striped: props.striped })
+  }
+  return c
 }
 
 // ── TableHead ────────────────────────────────────────────────────────────────

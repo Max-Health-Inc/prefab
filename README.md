@@ -372,7 +372,7 @@ import { rendererHtml, registerViewerResource } from '@maxhealth.tech/prefab/mcp
 const html = rendererHtml()
 
 // With extras
-const html = rendererHtml({
+const htmlWithExtras = rendererHtml({
   title: 'My App',
   stylesheets: ['https://cdn.example.com/theme.css'],
   scripts: ['https://cdn.example.com/plugin.js'],
@@ -488,6 +488,8 @@ All UIs serialize to the `$prefab` wire format (JSON):
 ```
 
 ## Subpath Exports
+
+<!-- doccheck: skip — an entry-point listing, not compilable code -->
 
 ```ts
 import { ... } from '@maxhealth.tech/prefab'           // Everything

@@ -28,6 +28,19 @@ function renderTabs(node: ComponentNode, ctx: RenderContext): HTMLElement {
   const panels: HTMLElement[] = []
   const buttons: HTMLButtonElement[] = []
 
+  // Which tab opens first. `defaultTab` accepts a Tab title or a 0-based index;
+  // anything unmatched falls back to the first tab.
+  const children = node.children ?? []
+  const active = ((): number => {
+    const want = node.defaultTab
+    if (typeof want === 'number') return want >= 0 && want < children.length ? want : 0
+    if (typeof want === 'string') {
+      const byTitle = children.findIndex(c => c.title === want)
+      return byTitle >= 0 ? byTitle : 0
+    }
+    return 0
+  })()
+
   if (node.children) {
     for (let i = 0; i < node.children.length; i++) {
       const tab = node.children[i]
@@ -39,10 +52,10 @@ function renderTabs(node: ComponentNode, ctx: RenderContext): HTMLElement {
       btn.className = 'pf-tab-trigger'
       btn.textContent = (tab.title as string | undefined) ?? `Tab ${i + 1}`
       btn.setAttribute('role', 'tab')
-      btn.setAttribute('aria-selected', i === 0 ? 'true' : 'false')
+      btn.setAttribute('aria-selected', i === active ? 'true' : 'false')
       btn.setAttribute('aria-controls', panelId)
       btn.id = tabId
-      btn.tabIndex = i === 0 ? 0 : -1
+      btn.tabIndex = i === active ? 0 : -1
       btn.style.padding = '8px 16px'
       btn.style.border = 'none'
       btn.style.background = 'none'
@@ -52,7 +65,7 @@ function renderTabs(node: ComponentNode, ctx: RenderContext): HTMLElement {
       btn.style.fontSize = '14px'
 
       const panel = el('div', 'pf-tab-panel')
-      panel.style.display = i === 0 ? 'block' : 'none'
+      panel.style.display = i === active ? 'block' : 'none'
       panel.setAttribute('role', 'tabpanel')
       panel.setAttribute('aria-labelledby', tabId)
       panel.id = panelId
@@ -63,7 +76,7 @@ function renderTabs(node: ComponentNode, ctx: RenderContext): HTMLElement {
         activateTab(i)
       })
 
-      if (i === 0) {
+      if (i === active) {
         btn.classList.add('pf-tab-active')
         btn.style.fontWeight = '600'
       }

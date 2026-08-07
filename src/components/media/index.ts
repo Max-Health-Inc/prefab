@@ -3,7 +3,8 @@
  */
 
 import { Component } from '../../core/component.js'
-import type { ComponentProps } from '../../core/component.js'
+import type { ComponentProps, RxStr } from '../../core/component.js'
+import type { Action } from '../../actions/types.js'
 
 export interface ImageProps extends ComponentProps {
   src: string
@@ -59,8 +60,38 @@ export function Svg(content: string, props?: ComponentProps): Component {
   return c
 }
 
-export function DropZone(props?: ComponentProps): Component {
-  return new Component('DropZone', props)
+/**
+ * Prop names mirror the `OpenFilePicker` action, which already defines how files
+ * reach state in prefab: chosen files land under `resultKey`, and callbacks get
+ * them as `$result`.
+ */
+export interface DropZoneProps extends ComponentProps {
+  /** Prompt shown inside the drop area. @default 'Drop files here' */
+  label?: RxStr
+  /** Accepted file types, in the same form as the HTML `accept` attribute. */
+  accept?: string
+  /** Allow more than one file. */
+  multiple?: boolean
+  /** State key the chosen files are written to. */
+  resultKey?: string
+  /** Actions fired once files are chosen, with `$result` bound to the file list. */
+  onDrop?: Action | Action[]
+}
+
+export function DropZone(props?: DropZoneProps): Component {
+  const c = new Component('DropZone', props)
+  c.getProps = () => ({
+    ...(props?.label !== undefined && { label: props.label }),
+    ...(props?.accept && { accept: props.accept }),
+    ...(props?.multiple !== undefined && { multiple: props.multiple }),
+    ...(props?.resultKey && { resultKey: props.resultKey }),
+    ...(props?.onDrop && {
+      onDrop: Array.isArray(props.onDrop)
+        ? props.onDrop.map(a => a.toJSON())
+        : props.onDrop.toJSON(),
+    }),
+  })
+  return c
 }
 
 export function Mermaid(content: string, props?: ComponentProps): Component {

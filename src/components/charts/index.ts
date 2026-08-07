@@ -219,6 +219,10 @@ export interface SparklineProps extends ComponentProps {
   fill?: boolean
   curve?: 'linear' | 'smooth' | 'step'
   mode?: 'line' | 'bar'
+  /** SVG width in px. @default 120 */
+  width?: number
+  /** SVG height in px. @default 32 */
+  height?: number
 }
 
 export function Sparkline(props: SparklineProps): Component {
@@ -229,6 +233,8 @@ export function Sparkline(props: SparklineProps): Component {
     ...(props.fill !== undefined && { fill: props.fill }),
     ...(props.curve && { curve: props.curve }),
     ...(props.mode && { mode: props.mode }),
+    ...(props.width !== undefined && { width: props.width }),
+    ...(props.height !== undefined && { height: props.height }),
   })
   return c
 }

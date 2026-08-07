@@ -4,6 +4,21 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added
+
+- **`label` on every stateful control.** `InputProps` declared it privately and only `renderInput` drew it, so `Select({ label })` and `DatePicker({ label })` were documented but silently dropped. `label` moves to `StatefulProps`, and the wire shape shared by all of them is now one exported `statefulProps()` helper. `Select`, `RadioGroup` and `Combobox` are containers rather than `StatefulComponent`s and were each restating that block by hand, which is exactly how `label` went missing on them; they call the helper now. On the renderer side a single `withLabel()` decorator is applied at registration to the five controls that lay out vertically (`Select`, `DatePicker`, `Combobox`, `Textarea`, `Slider`). Checkbox, Switch, Radio, RadioGroup and ChoiceCard place their own label beside the control and are deliberately not wrapped.
+- **`Tabs({ defaultTab })`** — a `Tab` title or a 0-based index, replacing a hardcoded `i === 0` in the renderer. An unmatched title or out-of-range index falls back to the first tab rather than leaving no tab selected.
+- **`Table({ striped })`** — shades alternate body rows via a `pf-table-striped` modifier and a `:nth-child(even)` rule, rather than per-table styling.
+- **`Sparkline({ width, height })`** — the renderer hardcoded 120×32; those are now the defaults.
+
+- **`DropZone` actually handles files.** The renderer was a stub (`// File handling would go here`) with drag listeners and nothing behind them, so the documented `accept` applied to nothing. It now takes files by drag-and-drop or click-to-browse, is keyboard reachable (`role="button"`, Enter/Space), and accepts `label`, `accept`, `multiple`, `resultKey` and `onDrop`. Those names and the `$result` callback binding are the ones the `OpenFilePicker` action already uses, so both routes to a file list behave identically. `accept` is enforced for **dropped** files as well: the browser applies it to the file picker only, so drag-and-drop would otherwise bypass it entirely. Exported `matchesAccept()` handles the three `accept` forms (`image/*`, `.pdf`, `text/csv`); no equivalent existed to reuse, and the org's other drop zones are all React components with no overlap between them.
+
+All five were documented in `docs/reference/components.md` with props-table entries before they existed, and were found by `bun run check:docs`.
+
+### Docs
+
+- **Every fenced `ts` example now typechecks, and CI enforces it.** `bun run check:docs` runs in `ci.yml` between the test and build steps. 71 blocks across 17 files, from 86 errors down to zero. The remaining fixes after the container-shape pass were all stale API forms rather than missing features: `rx` used as a tagged template (it is `rx(key)`, and interpolated text is a plain `'{{ key }}'` string, while `STATE.name` and `ITEM.dot('name')` cover the built-ins), `SelectOption`/`ComboboxOption` documented with an object when they take `(value, label)` positionally, `GridItem`'s `span` which is `colSpan`, `Button`'s `type: 'submit'` which is `submit: true`, `Metric`'s numeric `delta` where the type is `RxStr`, `Dialog`'s `trigger` documented as an element id when it takes a `Component`, `ForEach`'s `as` which does not exist (the loop variable is the exported `ITEM`), and `Slot('name')` which takes props. Four blocks carry `<!-- doccheck: skip -->` with a stated reason: two entry-point listings using `import { ... }`, a CSS side-effect import the bundler resolves rather than tsc, and companion-script code written against the renderer's browser global.
+
 ## [0.3.8] — 2026-08-05
 
 ### Fixed

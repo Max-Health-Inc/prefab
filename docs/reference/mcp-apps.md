@@ -245,6 +245,8 @@ logged — but the pipes do not run.
 To use custom pipes in such a host, pre-register them from a companion script.
 Anything already registered wins over the wire source and is never evaluated:
 
+<!-- doccheck: skip — companion-script code, running against the renderer's browser global rather than the package types -->
+
 ```ts
 // companion.js, served from an origin listed in resourceDomains
 window.prefab.registerPipe('humanName', (value) => {

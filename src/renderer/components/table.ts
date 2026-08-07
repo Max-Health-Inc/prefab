@@ -19,7 +19,7 @@ export function registerTableComponents(): void {
 
 function renderTable(node: ComponentNode, ctx: RenderContext): HTMLElement {
   const table = document.createElement('table')
-  table.className = 'pf-table'
+  table.className = node.striped === true ? 'pf-table pf-table-striped' : 'pf-table'
   table.style.width = '100%'
   table.style.borderCollapse = 'collapse'
   renderChildren(node, table, ctx)
