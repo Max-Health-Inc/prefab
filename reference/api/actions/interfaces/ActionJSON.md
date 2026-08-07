@@ -5,7 +5,7 @@ url: /prefab/reference/api/actions/interfaces/ActionJSON.md
 
 # Interface: ActionJSON
 
-Defined in: [actions/types.ts:9](https://github.com/Max-Health-Inc/prefab/blob/c28332f5d123b3553a0d155787630df810963a02/src/actions/types.ts#L9)
+Defined in: [actions/types.ts:9](https://github.com/Max-Health-Inc/prefab/blob/0dee3f097b962b3af8a18839ee1ad4ad8bc3ef8e/src/actions/types.ts#L9)
 
 Serialized action JSON
 
@@ -23,4 +23,4 @@ Serialized action JSON
 action: string;
 ```
 
-Defined in: [actions/types.ts:10](https://github.com/Max-Health-Inc/prefab/blob/c28332f5d123b3553a0d155787630df810963a02/src/actions/types.ts#L10)
+Defined in: [actions/types.ts:10](https://github.com/Max-Health-Inc/prefab/blob/0dee3f097b962b3af8a18839ee1ad4ad8bc3ef8e/src/actions/types.ts#L10)

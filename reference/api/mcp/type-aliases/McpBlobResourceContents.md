@@ -9,7 +9,7 @@ url: /prefab/reference/api/mcp/type-aliases/McpBlobResourceContents.md
 type McpBlobResourceContents = object;
 ```
 
-Defined in: [mcp/types.ts:62](https://github.com/Max-Health-Inc/prefab/blob/c28332f5d123b3553a0d155787630df810963a02/src/mcp/types.ts#L62)
+Defined in: [mcp/types.ts:62](https://github.com/Max-Health-Inc/prefab/blob/0dee3f097b962b3af8a18839ee1ad4ad8bc3ef8e/src/mcp/types.ts#L62)
 
 Blob resource contents (has `blob`, never `text`). See [McpTextResourceContents](McpTextResourceContents.md) on the alias.
 
@@ -21,7 +21,7 @@ Blob resource contents (has `blob`, never `text`). See [McpTextResourceContents]
 uri: string;
 ```
 
-Defined in: [mcp/types.ts:63](https://github.com/Max-Health-Inc/prefab/blob/c28332f5d123b3553a0d155787630df810963a02/src/mcp/types.ts#L63)
+Defined in: [mcp/types.ts:63](https://github.com/Max-Health-Inc/prefab/blob/0dee3f097b962b3af8a18839ee1ad4ad8bc3ef8e/src/mcp/types.ts#L63)
 
 ***
 
@@ -31,7 +31,7 @@ Defined in: [mcp/types.ts:63](https://github.com/Max-Health-Inc/prefab/blob/c283
 optional mimeType?: string;
 ```
 
-Defined in: [mcp/types.ts:64](https://github.com/Max-Health-Inc/prefab/blob/c28332f5d123b3553a0d155787630df810963a02/src/mcp/types.ts#L64)
+Defined in: [mcp/types.ts:64](https://github.com/Max-Health-Inc/prefab/blob/0dee3f097b962b3af8a18839ee1ad4ad8bc3ef8e/src/mcp/types.ts#L64)
 
 ***
 
@@ -41,7 +41,7 @@ Defined in: [mcp/types.ts:64](https://github.com/Max-Health-Inc/prefab/blob/c283
 blob: string;
 ```
 
-Defined in: [mcp/types.ts:65](https://github.com/Max-Health-Inc/prefab/blob/c28332f5d123b3553a0d155787630df810963a02/src/mcp/types.ts#L65)
+Defined in: [mcp/types.ts:65](https://github.com/Max-Health-Inc/prefab/blob/0dee3f097b962b3af8a18839ee1ad4ad8bc3ef8e/src/mcp/types.ts#L65)
 
 ***
 
@@ -51,4 +51,4 @@ Defined in: [mcp/types.ts:65](https://github.com/Max-Health-Inc/prefab/blob/c283
 optional _meta?: Record<string, unknown>;
 ```
 
-Defined in: [mcp/types.ts:66](https://github.com/Max-Health-Inc/prefab/blob/c28332f5d123b3553a0d155787630df810963a02/src/mcp/types.ts#L66)
+Defined in: [mcp/types.ts:66](https://github.com/Max-Health-Inc/prefab/blob/0dee3f097b962b3af8a18839ee1ad4ad8bc3ef8e/src/mcp/types.ts#L66)

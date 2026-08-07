@@ -9,7 +9,7 @@ url: /prefab/reference/api/mcp/functions/toolResult.md
 function toolResult<T>(payload, options?): McpToolResult<T>;
 ```
 
-Defined in: [mcp/result.ts:44](https://github.com/Max-Health-Inc/prefab/blob/c28332f5d123b3553a0d155787630df810963a02/src/mcp/result.ts#L44)
+Defined in: [mcp/result.ts:44](https://github.com/Max-Health-Inc/prefab/blob/0dee3f097b962b3af8a18839ee1ad4ad8bc3ef8e/src/mcp/result.ts#L44)
 
 Wrap a JSON payload as an MCP tool result.
 

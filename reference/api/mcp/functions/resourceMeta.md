@@ -9,7 +9,7 @@ url: /prefab/reference/api/mcp/functions/resourceMeta.md
 function resourceMeta(options?): object;
 ```
 
-Defined in: [mcp/resource.ts:95](https://github.com/Max-Health-Inc/prefab/blob/c28332f5d123b3553a0d155787630df810963a02/src/mcp/resource.ts#L95)
+Defined in: [mcp/resource.ts:95](https://github.com/Max-Health-Inc/prefab/blob/0dee3f097b962b3af8a18839ee1ad4ad8bc3ef8e/src/mcp/resource.ts#L95)
 
 Generate the `_meta` object for MCP Apps `ui://` resource registration.
 

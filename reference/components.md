@@ -55,8 +55,8 @@ CSS Grid container.
 
 ```ts
 Grid({ columns: 3, gap: 4, children: [
-  GridItem({ span: 2, children: [Card(...)] }),
-  GridItem({ children: [Card(...)] }),
+  GridItem({ colSpan: 2, children: [Card({ children: [Text('Wide')] })] }),
+  GridItem({ children: [Card({ children: [Text('Narrow')] })] }),
 ] })
 ```
 
@@ -71,7 +71,8 @@ Child of `Grid`.
 
 | Prop | Type | Description |
 |------|------|-------------|
-| `span` | `number` | Column span |
+| `colSpan` | `number` | Column span |
+| `rowSpan` | `number` | Row span |
 
 ### `Container(props?)`
 
@@ -156,7 +157,7 @@ H1('Dashboard')  // same as Heading('Dashboard', { level: 1 })
 
 ```ts
 Text('Hello world')
-Text(rx`Welcome, ${STATE}.userName!`)
+Text('Welcome, {{ userName }}!')
 ```
 
 ### `P(content)` / `Lead(content)` / `Large(content)` / `Small(content)` / `Muted(content)`
@@ -307,7 +308,7 @@ Badge('Active', { variant: 'success' })
 ### `Metric(props)`
 
 ```ts
-Metric({ label: 'Revenue', value: '$125K', delta: 12.5 })
+Metric({ label: 'Revenue', value: '$125K', delta: '+12.5%' })
 ```
 
 | Prop | Type | Description |
@@ -362,7 +363,7 @@ Table({ striped: true, children: [
 ```ts
 Form({ onSubmit: new CallTool('create_user'), children: [
   Input({ name: 'email', inputType: 'email', required: true }),
-  Button('Create', { type: 'submit' }),
+  Button('Create', { submit: true }),
 ] })
 ```
 
@@ -412,8 +413,8 @@ Horizontal button row.
 
 ```ts
 Select({ name: 'role', label: 'Role', children: [
-  SelectOption({ value: 'admin', label: 'Admin' }),
-  SelectOption({ value: 'user', label: 'User' }),
+  SelectOption('admin', 'Admin'),
+  SelectOption('user', 'User'),
 ] })
 ```
 
@@ -445,8 +446,8 @@ Autocomplete select with search.
 
 ```ts
 Combobox({ name: 'country', placeholder: 'Search countries...', searchable: true, children: [
-  ComboboxOption({ value: 'us', label: 'United States' }),
-  ComboboxOption({ value: 'de', label: 'Germany' }),
+  ComboboxOption('us', 'United States'),
+  ComboboxOption('de', 'Germany'),
 ] })
 ```
 
@@ -515,7 +516,7 @@ Accordion({ children: [
 Modal dialog (ARIA `role="dialog"`).
 
 ```ts
-Dialog({ title: 'Confirm', trigger: 'delete-btn', children: [
+Dialog({ title: 'Confirm', trigger: Button('Delete'), children: [
   Text('Are you sure?'),
   Button('Delete', { variant: 'destructive', onClick: new CallTool('delete_item') }),
 ] })
@@ -670,11 +671,26 @@ Inline SVG content.
 
 ### `DropZone(props)`
 
-File upload drop area.
+File upload drop area. Accepts files by drag-and-drop or by click-to-browse, and is keyboard reachable.
 
 ```ts
-DropZone({ accept: 'image/*', multiple: true, onDrop: new CallTool('upload_file') })
+DropZone({
+  accept: 'image/*',
+  multiple: true,
+  resultKey: 'uploads',
+  onDrop: new CallTool('upload_file'),
+})
 ```
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `label` | `RxStr` | Prompt shown inside the area. Defaults to `Drop files here` |
+| `accept` | `string` | Accepted types, as the HTML `accept` attribute (`image/*`, `.pdf`, `text/csv`). Enforced for dropped files too, which the browser does not do |
+| `multiple` | `boolean` | Allow more than one file. When false, only the first accepted file is taken |
+| `resultKey` | `string` | State key the chosen files are written to |
+| `onDrop` | `Action \| Action[]` | Fired once files are chosen, with `$result` bound to the file list |
+
+`resultKey` and `$result` match the `OpenFilePicker` action, so both paths to files behave the same.
 
 ### `Mermaid(content)`
 
@@ -723,8 +739,8 @@ Alert({ variant: 'success', icon: 'CheckCircle', children: [
 Iterate over a reactive array.
 
 ```ts
-ForEach({ expression: rx('state.items'), as: 'item', children: [
-  Text(rx`${ITEM}.name`),
+ForEach({ expression: rx('items'), children: [
+  Text(ITEM.dot('name')),
 ] })
 ```
 
@@ -754,8 +770,8 @@ Component templates for reuse.
 ```ts
 Define({ name: 'userCard', children: [
   Card({ children: [CardContent({ children: [
-    Text(Slot('name')),
-    Badge(Slot('role')),
+    Slot({ name: 'name' }),
+    Slot({ name: 'role' }),
   ] })] }),
 ] })
 

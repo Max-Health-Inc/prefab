@@ -12,7 +12,7 @@ function display_success(
 options?): McpToolResult<PrefabWireFormat>;
 ```
 
-Defined in: [mcp/display.ts:298](https://github.com/Max-Health-Inc/prefab/blob/c28332f5d123b3553a0d155787630df810963a02/src/mcp/display.ts#L298)
+Defined in: [mcp/display.ts:298](https://github.com/Max-Health-Inc/prefab/blob/0dee3f097b962b3af8a18839ee1ad4ad8bc3ef8e/src/mcp/display.ts#L298)
 
 Return a standardized success view as an MCP tool result.
 

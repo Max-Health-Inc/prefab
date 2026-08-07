@@ -5,7 +5,7 @@ url: /prefab/reference/api/mcp/interfaces/DisplayOptions.md
 
 # Interface: DisplayOptions
 
-Defined in: [mcp/display.ts:36](https://github.com/Max-Health-Inc/prefab/blob/c28332f5d123b3553a0d155787630df810963a02/src/mcp/display.ts#L36)
+Defined in: [mcp/display.ts:36](https://github.com/Max-Health-Inc/prefab/blob/0dee3f097b962b3af8a18839ee1ad4ad8bc3ef8e/src/mcp/display.ts#L36)
 
 ## Extended by
 
@@ -19,7 +19,7 @@ Defined in: [mcp/display.ts:36](https://github.com/Max-Health-Inc/prefab/blob/c2
 optional title?: string;
 ```
 
-Defined in: [mcp/display.ts:38](https://github.com/Max-Health-Inc/prefab/blob/c28332f5d123b3553a0d155787630df810963a02/src/mcp/display.ts#L38)
+Defined in: [mcp/display.ts:38](https://github.com/Max-Health-Inc/prefab/blob/0dee3f097b962b3af8a18839ee1ad4ad8bc3ef8e/src/mcp/display.ts#L38)
 
 Page / app title.
 
@@ -31,7 +31,7 @@ Page / app title.
 optional state?: Record<string, unknown>;
 ```
 
-Defined in: [mcp/display.ts:40](https://github.com/Max-Health-Inc/prefab/blob/c28332f5d123b3553a0d155787630df810963a02/src/mcp/display.ts#L40)
+Defined in: [mcp/display.ts:40](https://github.com/Max-Health-Inc/prefab/blob/0dee3f097b962b3af8a18839ee1ad4ad8bc3ef8e/src/mcp/display.ts#L40)
 
 Initial reactive state.
 
@@ -43,7 +43,7 @@ Initial reactive state.
 optional theme?: Theme;
 ```
 
-Defined in: [mcp/display.ts:42](https://github.com/Max-Health-Inc/prefab/blob/c28332f5d123b3553a0d155787630df810963a02/src/mcp/display.ts#L42)
+Defined in: [mcp/display.ts:42](https://github.com/Max-Health-Inc/prefab/blob/0dee3f097b962b3af8a18839ee1ad4ad8bc3ef8e/src/mcp/display.ts#L42)
 
 Light/dark theme overrides.
 
@@ -55,7 +55,7 @@ Light/dark theme overrides.
 optional defs?: Record<string, Component>;
 ```
 
-Defined in: [mcp/display.ts:44](https://github.com/Max-Health-Inc/prefab/blob/c28332f5d123b3553a0d155787630df810963a02/src/mcp/display.ts#L44)
+Defined in: [mcp/display.ts:44](https://github.com/Max-Health-Inc/prefab/blob/0dee3f097b962b3af8a18839ee1ad4ad8bc3ef8e/src/mcp/display.ts#L44)
 
 Reusable component definitions.
 
@@ -69,7 +69,7 @@ optional onMount?:
   | Action[];
 ```
 
-Defined in: [mcp/display.ts:46](https://github.com/Max-Health-Inc/prefab/blob/c28332f5d123b3553a0d155787630df810963a02/src/mcp/display.ts#L46)
+Defined in: [mcp/display.ts:46](https://github.com/Max-Health-Inc/prefab/blob/0dee3f097b962b3af8a18839ee1ad4ad8bc3ef8e/src/mcp/display.ts#L46)
 
 Action(s) to run when the UI mounts.
 
@@ -83,7 +83,7 @@ optional keyBindings?: Record<string,
 | Action[]>;
 ```
 
-Defined in: [mcp/display.ts:48](https://github.com/Max-Health-Inc/prefab/blob/c28332f5d123b3553a0d155787630df810963a02/src/mcp/display.ts#L48)
+Defined in: [mcp/display.ts:48](https://github.com/Max-Health-Inc/prefab/blob/0dee3f097b962b3af8a18839ee1ad4ad8bc3ef8e/src/mcp/display.ts#L48)
 
 Keyboard shortcuts.
 
@@ -95,7 +95,7 @@ Keyboard shortcuts.
 optional cssClass?: string;
 ```
 
-Defined in: [mcp/display.ts:50](https://github.com/Max-Health-Inc/prefab/blob/c28332f5d123b3553a0d155787630df810963a02/src/mcp/display.ts#L50)
+Defined in: [mcp/display.ts:50](https://github.com/Max-Health-Inc/prefab/blob/0dee3f097b962b3af8a18839ee1ad4ad8bc3ef8e/src/mcp/display.ts#L50)
 
 Extra CSS class on root element.
 
@@ -107,7 +107,7 @@ Extra CSS class on root element.
 optional layout?: LayoutHints;
 ```
 
-Defined in: [mcp/display.ts:52](https://github.com/Max-Health-Inc/prefab/blob/c28332f5d123b3553a0d155787630df810963a02/src/mcp/display.ts#L52)
+Defined in: [mcp/display.ts:52](https://github.com/Max-Health-Inc/prefab/blob/0dee3f097b962b3af8a18839ee1ad4ad8bc3ef8e/src/mcp/display.ts#L52)
 
 Size hints for the host container (iframe, panel, etc.).
 
@@ -119,7 +119,7 @@ Size hints for the host container (iframe, panel, etc.).
 optional css?: string[];
 ```
 
-Defined in: [mcp/display.ts:54](https://github.com/Max-Health-Inc/prefab/blob/c28332f5d123b3553a0d155787630df810963a02/src/mcp/display.ts#L54)
+Defined in: [mcp/display.ts:54](https://github.com/Max-Health-Inc/prefab/blob/0dee3f097b962b3af8a18839ee1ad4ad8bc3ef8e/src/mcp/display.ts#L54)
 
 Inline CSS blocks injected as `<style>` (merged after the compiled theme).
 
@@ -131,7 +131,7 @@ Inline CSS blocks injected as `<style>` (merged after the compiled theme).
 optional stylesheets?: string[];
 ```
 
-Defined in: [mcp/display.ts:56](https://github.com/Max-Health-Inc/prefab/blob/c28332f5d123b3553a0d155787630df810963a02/src/mcp/display.ts#L56)
+Defined in: [mcp/display.ts:56](https://github.com/Max-Health-Inc/prefab/blob/0dee3f097b962b3af8a18839ee1ad4ad8bc3ef8e/src/mcp/display.ts#L56)
 
 External CSS URLs loaded as `<link rel="stylesheet">`.
 
@@ -143,7 +143,7 @@ External CSS URLs loaded as `<link rel="stylesheet">`.
 optional mode?: ColorMode;
 ```
 
-Defined in: [mcp/display.ts:58](https://github.com/Max-Health-Inc/prefab/blob/c28332f5d123b3553a0d155787630df810963a02/src/mcp/display.ts#L58)
+Defined in: [mcp/display.ts:58](https://github.com/Max-Health-Inc/prefab/blob/0dee3f097b962b3af8a18839ee1ad4ad8bc3ef8e/src/mcp/display.ts#L58)
 
 Force a color scheme regardless of OS preference.
 
@@ -155,6 +155,6 @@ Force a color scheme regardless of OS preference.
 optional pipes?: Record<string, PipeFn>;
 ```
 
-Defined in: [mcp/display.ts:60](https://github.com/Max-Health-Inc/prefab/blob/c28332f5d123b3553a0d155787630df810963a02/src/mcp/display.ts#L60)
+Defined in: [mcp/display.ts:60](https://github.com/Max-Health-Inc/prefab/blob/0dee3f097b962b3af8a18839ee1ad4ad8bc3ef8e/src/mcp/display.ts#L60)
 
 Custom pipe functions for reactive expressions.

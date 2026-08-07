@@ -5,7 +5,7 @@ url: /prefab/reference/api/auto/interfaces/AutoTimelineEvent.md
 
 # Interface: AutoTimelineEvent
 
-Defined in: [auto/timeline.ts:26](https://github.com/Max-Health-Inc/prefab/blob/c28332f5d123b3553a0d155787630df810963a02/src/auto/timeline.ts#L26)
+Defined in: [auto/timeline.ts:26](https://github.com/Max-Health-Inc/prefab/blob/0dee3f097b962b3af8a18839ee1ad4ad8bc3ef8e/src/auto/timeline.ts#L26)
 
 ## Properties
 
@@ -15,7 +15,7 @@ Defined in: [auto/timeline.ts:26](https://github.com/Max-Health-Inc/prefab/blob/
 title: string;
 ```
 
-Defined in: [auto/timeline.ts:28](https://github.com/Max-Health-Inc/prefab/blob/c28332f5d123b3553a0d155787630df810963a02/src/auto/timeline.ts#L28)
+Defined in: [auto/timeline.ts:28](https://github.com/Max-Health-Inc/prefab/blob/0dee3f097b962b3af8a18839ee1ad4ad8bc3ef8e/src/auto/timeline.ts#L28)
 
 Event title.
 
@@ -27,7 +27,7 @@ Event title.
 timestamp: string;
 ```
 
-Defined in: [auto/timeline.ts:30](https://github.com/Max-Health-Inc/prefab/blob/c28332f5d123b3553a0d155787630df810963a02/src/auto/timeline.ts#L30)
+Defined in: [auto/timeline.ts:30](https://github.com/Max-Health-Inc/prefab/blob/0dee3f097b962b3af8a18839ee1ad4ad8bc3ef8e/src/auto/timeline.ts#L30)
 
 Timestamp string.
 
@@ -39,7 +39,7 @@ Timestamp string.
 optional description?: string;
 ```
 
-Defined in: [auto/timeline.ts:32](https://github.com/Max-Health-Inc/prefab/blob/c28332f5d123b3553a0d155787630df810963a02/src/auto/timeline.ts#L32)
+Defined in: [auto/timeline.ts:32](https://github.com/Max-Health-Inc/prefab/blob/0dee3f097b962b3af8a18839ee1ad4ad8bc3ef8e/src/auto/timeline.ts#L32)
 
 Optional description.
 
@@ -51,7 +51,7 @@ Optional description.
 optional status?: string;
 ```
 
-Defined in: [auto/timeline.ts:34](https://github.com/Max-Health-Inc/prefab/blob/c28332f5d123b3553a0d155787630df810963a02/src/auto/timeline.ts#L34)
+Defined in: [auto/timeline.ts:34](https://github.com/Max-Health-Inc/prefab/blob/0dee3f097b962b3af8a18839ee1ad4ad8bc3ef8e/src/auto/timeline.ts#L34)
 
 Status string — mapped to dot color.
 
@@ -63,7 +63,7 @@ Status string — mapped to dot color.
 optional badge?: string;
 ```
 
-Defined in: [auto/timeline.ts:36](https://github.com/Max-Health-Inc/prefab/blob/c28332f5d123b3553a0d155787630df810963a02/src/auto/timeline.ts#L36)
+Defined in: [auto/timeline.ts:36](https://github.com/Max-Health-Inc/prefab/blob/0dee3f097b962b3af8a18839ee1ad4ad8bc3ef8e/src/auto/timeline.ts#L36)
 
 Badge text.
 
@@ -75,6 +75,6 @@ Badge text.
 optional badgeVariant?: BadgeVariant;
 ```
 
-Defined in: [auto/timeline.ts:38](https://github.com/Max-Health-Inc/prefab/blob/c28332f5d123b3553a0d155787630df810963a02/src/auto/timeline.ts#L38)
+Defined in: [auto/timeline.ts:38](https://github.com/Max-Health-Inc/prefab/blob/0dee3f097b962b3af8a18839ee1ad4ad8bc3ef8e/src/auto/timeline.ts#L38)
 
 Badge variant.
