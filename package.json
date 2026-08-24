@@ -1,7 +1,7 @@
 {
   "name": "@maxhealth.tech/prefab",
   "version": "0.3.9",
-  "description": "TypeScript declarative UI component library for MCP apps. Wire-compatible with Python prefab-ui.",
+  "description": "TypeScript authoring for A2UI and MCP Apps. Build agent UIs server-side and emit either wire format.",
   "type": "module",
   "main": "dist/index.js",
   "module": "dist/index.js",
@@ -26,6 +26,10 @@
     "./mcp": {
       "import": "./dist/mcp/index.js",
       "types": "./dist/mcp/index.d.ts"
+    },
+    "./a2ui": {
+      "import": "./dist/a2ui/index.js",
+      "types": "./dist/a2ui/index.d.ts"
     },
     "./renderer": {
       "import": "./dist/renderer/index.js",
@@ -75,7 +79,12 @@
     "components",
     "model-context-protocol",
     "declarative-ui",
-    "fastmcp"
+    "fastmcp",
+    "a2ui",
+    "agent-ui",
+    "generative-ui",
+    "mcp-apps",
+    "elicitation"
   ],
   "author": "Max Health Inc",
   "license": "MIT",
@@ -91,6 +100,7 @@
     "@eslint/js": "^10.0.1",
     "@happy-dom/global-registrator": "^20.11.1",
     "@types/bun": "^1.3.14",
+    "ajv": "^8.20.0",
     "brandc": "^0.6.0",
     "eslint": "^10.8.0",
     "happy-dom": "^20.11.1",

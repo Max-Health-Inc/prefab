@@ -4,6 +4,22 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added
+
+- **A2UI is now a first-class output target: `PrefabApp.toA2UI()` emits the same component tree as [A2UI](https://a2ui.org) v1.0.** A2UI is the Google-backed declarative agent-to-UI protocol, and it overlaps prefab's category exactly: the agent sends a component tree plus a data model, and the host's own renderer draws native widgets from it. It reaches renderers prefab has none of (React, Angular, Lit, Flutter, Swift, Jetpack Compose) with no iframe involved, and its agent-side SDK is Python-only, so a TypeScript authoring layer had no equivalent. Two structural gaps had to be bridged: A2UI keeps components in a flat adjacency list rather than a nested tree, and it binds dynamic values through JSON Pointers rather than interpolating `{{ }}` templates. `src/a2ui/` handles both, allocating ids deterministically so the same tree always emits byte-identical output.
+- **`display_a2ui()` and `registerA2uiResource()` serve A2UI over MCP**, under the `application/a2ui+json` MIME type as an embedded resource in a tool result or as a standalone `a2ui://` resource, per the [A2UI over MCP](https://a2ui.org/guides/a2ui_over_mcp/) guide. They sit alongside the existing `ui://` MCP Apps helpers rather than replacing them, so one server can offer both and let the host choose. A `ui://` viewer is a pure function of the package version and stays shared-cacheable; an `a2ui://` surface is rebuilt on every read and defaults to no caching, so `resolveCache` is now exported from `resource.ts` and takes the defaults as a parameter instead of hard-coding the viewer's.
+- **Multi Round-Trip input requests (protocol revision 2026-07-28).** The revision made the protocol core stateless and removed server-initiated `elicitation/create`; a handler now returns an `input_required` result and the client retries the call with the answers. That left `display_form()` reachable only on hosts that render UI. The same `AutoFormField[]` now also derives the restricted elicitation schema, so `display_form(fields, tool, { elicit: true })` asks for exactly what the rendered form asks for. `formSchema`, `formInputRequest`, `acceptedFormInput` and `inputResponse` are exported for handlers that compose the rounds themselves. `acceptedFormInput` validates the untrusted client response against the same field list: unknown keys, wrong types, out-of-bound numbers and unoffered enum values are dropped, and a missing required field fails the answer.
+- `AutoFormField` gained `options`, `multiple`, `description`, `min`, `max` and `default`. A field with `options` renders as a `Select` instead of a bare `Input` on the UI path, and as an enum on the elicitation path.
+- `McpDisplayResult<S>` pins `structuredContent` as present. Every display helper populates it, and the optional field on `McpToolResult` was forcing callers into a null check on something that is never absent.
+
+### Changed
+
+- **README, docs landing page and package description now lead with "TypeScript authoring for A2UI and MCP Apps".** The previous framing put "a superset of PrefectHQ's Python prefab-ui" in the second line, which tied the package's story to a project moving slowly and described an implementation detail rather than what the package is for. The superset relationship is still stated, one bullet down, where it belongs.
+
+### Internal
+
+- Emitted A2UI payloads are validated in CI against the official v1.0 JSON Schemas, vendored under `test/fixtures/a2ui/v1_0/` (Apache-2.0, with a `NOTICE.md` recording the upstream commit) and refreshable with `bun scripts/sync-a2ui-schemas.ts`. They are checked in rather than fetched so the suite runs offline. The upstream YAML conformance suites were considered and rejected: they exercise SDK internals (streaming parser, catalog pruning, validator behaviour) that a producer does not implement, whereas the schemas define exactly what a producer must emit. Two structural rules the schemas cannot express — every child reference resolves, and every component is reachable from `root` — are asserted separately, taken from `conformance/core/validator.yaml`.
+
 ## [0.3.9] — 2026-08-07
 
 ### Added

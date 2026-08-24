@@ -11,7 +11,7 @@ const SITE_BASE = '/prefab/'
 export default defineConfig({
   title: '@maxhealth.tech/prefab',
   description:
-    'The TypeScript full-stack framework for MCP app UIs. Author server-side, ship JSON, render anywhere. A superset of Python prefab-ui.',
+    'TypeScript authoring for A2UI and MCP Apps. Build the agent UI once, server-side, and emit either wire format.',
 
   base: SITE_BASE,
   cleanUrls: true,
@@ -47,12 +47,12 @@ export default defineConfig({
     // Open Graph
     ['meta', { property: 'og:type', content: 'website' }],
     ['meta', { property: 'og:site_name', content: '@maxhealth.tech/prefab' }],
-    ['meta', { property: 'og:title', content: '@maxhealth.tech/prefab — Declarative UI for MCP Apps' }],
+    ['meta', { property: 'og:title', content: '@maxhealth.tech/prefab — TypeScript authoring for A2UI and MCP Apps' }],
     ['meta', { property: 'og:description', content: '115+ TypeScript components, reactive state, zero-framework renderer for MCP Apps. A superset of Python prefab-ui.' }],
     ['meta', { property: 'og:url', content: `${SITE_URL}${SITE_BASE}` }],
     // Twitter
     ['meta', { name: 'twitter:card', content: 'summary' }],
-    ['meta', { name: 'twitter:title', content: '@maxhealth.tech/prefab — Declarative UI for MCP Apps' }],
+    ['meta', { name: 'twitter:title', content: '@maxhealth.tech/prefab — TypeScript authoring for A2UI and MCP Apps' }],
     ['meta', { name: 'twitter:description', content: '115+ TypeScript components, reactive state, zero-framework renderer for MCP Apps.' }],
   ],
 
@@ -140,6 +140,8 @@ export default defineConfig({
           text: 'Integration',
           items: [
             { text: 'MCP Display Helpers', link: '/guide/mcp-display' },
+            { text: 'Asking for Input', link: '/guide/input-required' },
+            { text: 'A2UI', link: '/guide/a2ui' },
             { text: 'Browser Renderer', link: '/guide/renderer' },
             { text: 'PostMessage Bridge', link: '/guide/bridge' },
           ],

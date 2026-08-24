@@ -22,8 +22,9 @@ import { PrefabApp, PROTOCOL_VERSION } from '../app.js'
 import type { Theme, LayoutHints, ColorMode, PrefabWireFormat } from '../app.js'
 import type { Action, ActionJSON } from '../actions/types.js'
 import type { PipeFn } from '../rx/pipes.js'
-import type { McpToolResult } from './types.js'
+import type { McpDisplayResult, McpInputRequiredResult } from './types.js'
 import { toolResult } from './result.js'
+import { formInputRequest, type FormInputRequestOptions } from './input-required.js'
 
 // ── display() ────────────────────────────────────────────────────────────────
 
@@ -71,7 +72,7 @@ export interface DisplayOptions {
 export function display(
   viewOrApp: Component | PrefabApp,
   options?: DisplayOptions,
-): McpToolResult<PrefabWireFormat> {
+): McpDisplayResult<PrefabWireFormat> {
   let app: PrefabApp
 
   if (viewOrApp instanceof PrefabApp) {
@@ -130,7 +131,21 @@ export function display(
 import { autoForm } from '../auto/form.js'
 import type { AutoFormField, AutoFormOptions } from '../auto/form.js'
 
-export interface DisplayFormOptions extends AutoFormOptions, DisplayOptions {}
+export interface DisplayFormOptions extends AutoFormOptions, DisplayOptions {
+  /**
+   * Ask the client to collect the fields instead of rendering them.
+   *
+   * A prefab form only exists on a host that renders UI. Protocol revision
+   * 2026-07-28 gives every other host a native path: return an
+   * `input_required` result, the client shows its own form and retries the
+   * call. Pass `true` for the defaults, or an options object to set the
+   * response key, the prompt, or a signed `requestState`.
+   *
+   * The answer comes back through `acceptedFormInput`, which checks it against
+   * the same field list. See `./input-required.ts` for the full handler shape.
+   */
+  elicit?: boolean | FormInputRequestOptions
+}
 
 /**
  * Return a form UI as an MCP tool result.
@@ -139,13 +154,36 @@ export interface DisplayFormOptions extends AutoFormOptions, DisplayOptions {}
  * Field definitions map to Input components; the submit action
  * invokes `submitTool` with all field values.
  *
+ * With `elicit`, the same fields are returned as an `input_required` result for
+ * hosts that render no UI of their own.
+ *
  * @returns MCP tool result with form prefab UI.
  */
 export function display_form(
   fields: AutoFormField[],
   submitTool: string,
+  options?: DisplayFormOptions & { elicit?: false | undefined },
+): McpDisplayResult<PrefabWireFormat>
+export function display_form(
+  fields: AutoFormField[],
+  submitTool: string,
+  options: DisplayFormOptions & { elicit: true | FormInputRequestOptions },
+): McpInputRequiredResult
+export function display_form(
+  fields: AutoFormField[],
+  submitTool: string,
   options?: DisplayFormOptions,
-): McpToolResult<PrefabWireFormat> {
+): McpDisplayResult<PrefabWireFormat> | McpInputRequiredResult {
+  if (options?.elicit != null && options.elicit !== false) {
+    const elicit = options.elicit === true ? {} : options.elicit
+    return formInputRequest(fields, {
+      // The form's own title is the most specific prompt available, so it is
+      // preferred over the generic default when no message was given.
+      ...(options.title != null && { message: options.title }),
+      ...elicit,
+    })
+  }
+
   const view = autoForm(fields, submitTool, options)
   const app = new PrefabApp({
     title: options?.title ?? 'Form',
@@ -207,7 +245,7 @@ export interface DisplayUpdateOptions {
 export function display_update(
   state: Record<string, unknown>,
   options?: DisplayUpdateOptions,
-): McpToolResult<PrefabUpdateWire> {
+): McpDisplayResult<PrefabUpdateWire> {
   const update: StateUpdate = { state }
   if (options?.actions != null) {
     const acts = Array.isArray(options.actions) ? options.actions : [options.actions]
@@ -248,7 +286,7 @@ export function display_error(
   title: string,
   message: string,
   options?: DisplayErrorOptions,
-): McpToolResult<PrefabWireFormat> {
+): McpDisplayResult<PrefabWireFormat> {
   const alertChildren: Component[] = [
     AlertTitle(title),
     AlertDescription(message),
@@ -299,7 +337,7 @@ export function display_success(
   title: string,
   message: string,
   options?: DisplaySuccessOptions,
-): McpToolResult<PrefabWireFormat> {
+): McpDisplayResult<PrefabWireFormat> {
   const alertChildren: Component[] = [
     AlertTitle(title),
     AlertDescription(message),

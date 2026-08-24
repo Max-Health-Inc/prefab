@@ -8,11 +8,25 @@ import { type Component, type ContainerComponent } from '../core/component.js'
 import { Column } from '../components/layout/index.js'
 import { Heading, Muted } from '../components/typography/index.js'
 import { Card, CardContent } from '../components/card/index.js'
-import { Form, Input, Button } from '../components/form/index.js'
+import { Form, Input, Button, Select, SelectOption } from '../components/form/index.js'
 import { CallTool } from '../actions/mcp.js'
 import { ShowToast } from '../actions/client.js'
 import type { Action } from '../actions/types.js'
 
+/** One choice offered by a field carrying {@link AutoFormField.options}. */
+export interface AutoFormOption {
+  value: string
+  label?: string
+}
+
+/**
+ * One field in an auto-generated form.
+ *
+ * The same definition drives both delivery paths: {@link autoForm} renders it as
+ * prefab components, and `formSchema` in `src/mcp/input-required.ts` derives the
+ * restricted elicitation JSON Schema from it for hosts with no UI surface. Keep
+ * anything added here expressible in both.
+ */
 export interface AutoFormField {
   /** Field name (used as the key in submitted data). */
   name: string
@@ -24,6 +38,18 @@ export interface AutoFormField {
   placeholder?: string
   /** Whether the field is required. */
   required?: boolean
+  /** Longer help text. Becomes the schema `description` on the elicitation path. */
+  description?: string
+  /** Fixed set of choices. Renders as a Select and becomes an enum on the wire. */
+  options?: AutoFormOption[]
+  /** Allow several choices. Only meaningful alongside `options`. */
+  multiple?: boolean
+  /** Inclusive lower bound for a numeric field, or minimum length for a string. */
+  min?: number
+  /** Inclusive upper bound for a numeric field, or maximum length for a string. */
+  max?: number
+  /** Pre-filled value. */
+  default?: string | number | boolean | string[]
 }
 
 export interface AutoFormOptions {
@@ -70,13 +96,26 @@ export function autoForm(
     onError: new ShowToast(errorMsg, { variant: 'error' }),
   })
 
-  const inputComponents: Component[] = fields.map(f => Input({
-    name: f.name,
-    label: f.label ?? humanizeFieldName(f.name),
-    ...(f.type && { inputType: f.type }),
-    ...(f.placeholder && { placeholder: f.placeholder }),
-    ...(f.required && { required: true }),
-  }))
+  const inputComponents: Component[] = fields.map(f => {
+    const label = f.label ?? humanizeFieldName(f.name)
+    // A fixed choice set is a Select; anything else is a typed Input.
+    if (f.options != null && f.options.length > 0) {
+      return Select({
+        name: f.name,
+        label,
+        ...(f.default !== undefined && { value: f.default }),
+        children: f.options.map(o => SelectOption(o.value, o.label ?? o.value)),
+      })
+    }
+    return Input({
+      name: f.name,
+      label,
+      ...(f.type && { inputType: f.type }),
+      ...(f.placeholder && { placeholder: f.placeholder }),
+      ...(f.required && { required: true }),
+      ...(f.default !== undefined && { value: f.default }),
+    })
+  })
 
   const formChildren = [
     Column({ gap: 4, children: [

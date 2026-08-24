@@ -102,6 +102,19 @@ export type McpToolResult<S = unknown> = {
   [key: string]: unknown
 }
 
+/**
+ * A tool result whose `structuredContent` is guaranteed present.
+ *
+ * `McpToolResult.structuredContent` is optional because a hand-written result
+ * may legitimately omit it. Every prefab display helper populates it, and
+ * saying so in the return type spares callers a null check on a field that is
+ * never absent — reading `result.structuredContent.view` should not need one.
+ *
+ * Assignable to `McpToolResult<S>` in every position, so widening a helper's
+ * return type to this breaks nothing.
+ */
+export type McpDisplayResult<S> = McpToolResult<S> & { structuredContent: S }
+
 // ── Cacheable results (SEP-2549, protocol revision 2026-07-28) ───────────────
 
 /**
@@ -148,4 +161,125 @@ export type McpResourceReadResult<
   ttlMs: number
   /** Whether shared caches may store the result. */
   cacheScope: McpCacheScope
+}
+
+// ── Multi Round-Trip (protocol revision 2026-07-28) ──────────────────────────
+
+/**
+ * The restricted JSON Schema an elicitation may request.
+ *
+ * Protocol revision 2026-07-28 replaced server-initiated `elicitation/create`
+ * pushes with Multi Round-Trip Requests: a handler *returns* an
+ * {@link McpInputRequiredResult}, the client answers the embedded requests and
+ * retries the original call. The schema is deliberately flat — top-level
+ * primitive properties only, no nesting — because it has to render as a form in
+ * hosts that have no UI surface of their own.
+ */
+export type McpStringSchema = {
+  type: 'string'
+  title?: string
+  description?: string
+  minLength?: number
+  maxLength?: number
+  format?: 'email' | 'uri' | 'date' | 'date-time'
+  default?: string
+}
+
+export type McpNumberSchema = {
+  type: 'number' | 'integer'
+  title?: string
+  description?: string
+  minimum?: number
+  maximum?: number
+  default?: number
+}
+
+export type McpBooleanSchema = {
+  type: 'boolean'
+  title?: string
+  description?: string
+  default?: boolean
+}
+
+/** Single selection: a string constrained to a fixed set of values. */
+export type McpEnumSchema = {
+  type: 'string'
+  title?: string
+  description?: string
+  enum: string[]
+  default?: string
+}
+
+/** Multiple selection: an array of values drawn from a fixed set. */
+export type McpMultiEnumSchema = {
+  type: 'array'
+  title?: string
+  description?: string
+  minItems?: number
+  maxItems?: number
+  items: { type: 'string'; enum: string[] }
+  default?: string[]
+}
+
+export type McpPrimitiveSchema =
+  | McpStringSchema
+  | McpNumberSchema
+  | McpBooleanSchema
+  | McpEnumSchema
+  | McpMultiEnumSchema
+
+/** The flat object schema an `elicitation/create` request asks the client to fill. */
+export type McpRestrictedSchema = {
+  type: 'object'
+  properties: Record<string, McpPrimitiveSchema>
+  required?: string[]
+}
+
+/** Form-mode elicitation: the client renders the schema and returns the values. */
+export type McpElicitFormRequest = {
+  method: 'elicitation/create'
+  params: {
+    mode?: 'form'
+    message: string
+    requestedSchema: McpRestrictedSchema
+  }
+}
+
+/** URL-mode elicitation: the client sends the user out of band and reports back. */
+export type McpElicitUrlRequest = {
+  method: 'elicitation/create'
+  params: {
+    mode: 'url'
+    message: string
+    url: string
+  }
+}
+
+export type McpElicitRequest = McpElicitFormRequest | McpElicitUrlRequest
+
+/** Server-issued requests the client must fulfil before retrying the call. */
+export type McpInputRequests = Record<string, McpElicitRequest>
+
+/** What the client sends back for one request, keyed the same way. */
+export type McpElicitResult = {
+  action: 'accept' | 'decline' | 'cancel'
+  content?: Record<string, string | number | boolean | string[]>
+}
+
+export type McpInputResponses = Record<string, McpElicitResult>
+
+/**
+ * A result asking the client for input before the call can complete.
+ *
+ * At least one of `inputRequests` or `requestState` must be present, and
+ * `resultType` must be `'input_required'`: a server on this revision always
+ * stamps the discriminator, and a client that does not see it treats the result
+ * as `'complete'` and never retries.
+ */
+export type McpInputRequiredResult = {
+  resultType: 'input_required'
+  inputRequests?: McpInputRequests
+  /** Opaque state echoed back byte-for-byte on the retry. */
+  requestState?: string
+  _meta?: Record<string, unknown>
 }
