@@ -24,6 +24,7 @@ import { autoTable } from '../src/auto/index.js'
 import { CallTool, SendMessage } from '../src/actions/mcp.js'
 import { SetState, OpenLink } from '../src/actions/client.js'
 import { emitA2UI } from '../src/a2ui/emit.js'
+import { escapePointerToken, toBinding, toJsonPointer } from '../src/a2ui/expr.js'
 import { A2UI_BASIC_CATALOG, A2UI_ROOT_ID, type A2uiComponent } from '../src/a2ui/types.js'
 import { allComponents, conformanceErrors } from './helpers/a2ui-validator.js'
 import type { Component } from '../src/core/component.js'
@@ -92,6 +93,50 @@ describe('A2UI conformance', () => {
     const { messages } = app.toA2UI({ stream: true })
     expect(messages).toHaveLength(3)
     expect(conformanceErrors(messages)).toEqual([])
+  })
+})
+
+describe('expression binding', () => {
+  test('escapes JSON Pointer reference tokens', () => {
+    // RFC 6901: `~` becomes `~0` and `/` becomes `~1`, and the order matters —
+    // escaping the slash first would re-escape its `~1` into `~01`.
+    expect(escapePointerToken('a/b')).toBe('a~1b')
+    expect(escapePointerToken('a~b')).toBe('a~0b')
+    expect(escapePointerToken('a~/b')).toBe('a~0~1b')
+    expect(toJsonPointer(['x/y', 'z'])).toBe('/x~1y/z')
+  })
+
+  test('binds a state key containing pointer syntax', () => {
+    const { messages } = new PrefabApp({
+      view: Text('{{ weird }}'),
+      state: { weird: 'v' },
+    }).toA2UI()
+    const root = allComponents(messages).find(c => c.id === A2UI_ROOT_ID)
+    expect(root?.text).toEqual({ path: '/weird' })
+  })
+
+  test('treats a leading state. prefix as the data-model root', () => {
+    expect(toBinding('{{ state.count }}')).toEqual({ kind: 'binding', value: { path: '/count' } })
+  })
+
+  test('refuses to interpolate mixed literal and template text', () => {
+    // A2UI has no string interpolation, and formatString would need an argument
+    // list this conversion has no way to name.
+    expect(toBinding('Hello {{ name }}').kind).toBe('unbindable')
+  })
+
+  test('passes a plain literal through untouched', () => {
+    expect(toBinding('just text')).toEqual({ kind: 'literal', value: 'just text' })
+  })
+
+  test('rejects anything richer than a member path', () => {
+    for (const expr of ['{{ a + 1 }}', "{{ p | currency:'USD' }}", "{{ x ? 'y' : 'z' }}", '{{ f() }}']) {
+      expect(toBinding(expr).kind, expr).toBe('unbindable')
+    }
+  })
+
+  test('accepts indexed member paths', () => {
+    expect(toBinding('{{ items.0.label }}')).toEqual({ kind: 'binding', value: { path: '/items/0/label' } })
   })
 })
 

@@ -20,9 +20,10 @@ export { emitA2UI } from './emit.js'
 export type { A2uiEmitOptions, A2uiEmitResult } from './emit.js'
 
 export { mappedTypes } from './catalog.js'
+export { a2uiIconName, A2UI_ICONS } from './icons.js'
 export type { A2uiProps, EmitContext, Mapper } from './catalog.js'
 
-export { toBinding, toJsonPointer, escapePointerToken, dynamicString, hasTemplate } from './expr.js'
+export { toBinding, toJsonPointer, escapePointerToken, dynamicString } from './expr.js'
 export type { BindingResult } from './expr.js'
 
 export {

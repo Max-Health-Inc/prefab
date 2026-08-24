@@ -7,7 +7,7 @@
  */
 
 import { describe, expect, test } from 'bun:test'
-import { Column, H1 } from '../src/index.js'
+import { Column, H1, LineChart } from '../src/index.js'
 import { display_a2ui, registerA2uiResource, A2UI_RESOURCE_URI } from '../src/mcp/a2ui.js'
 import { A2UI_MIME } from '../src/a2ui/types.js'
 import type { ResourceConfig, ResourceReadHandler } from '../src/mcp/resource.js'
@@ -46,10 +46,24 @@ describe('display_a2ui', () => {
 
   test('hands diagnostics to a caller that asked for them', () => {
     let seen: string[] = []
-    display_a2ui(Column({ children: [H1('ok')] }), {
+    display_a2ui(Column({ children: [H1('ok'), LineChart({ data: [], series: [] })] }), {
       onDiagnostics: d => { seen = d.map(x => x.subject) },
     })
-    expect(seen).toEqual([])
+    expect(seen).toContain('LineChart')
+  })
+
+  test('warns about a lossy translation when nobody is listening', () => {
+    // Silently shipping a lesser UI is the failure mode worth making noisy, so
+    // the default path logs rather than swallowing.
+    const warnings: unknown[][] = []
+    const original = console.warn
+    console.warn = (...args: unknown[]) => { warnings.push(args) }
+    try {
+      display_a2ui(Column({ children: [H1('ok'), LineChart({ data: [], series: [] })] }))
+    } finally {
+      console.warn = original
+    }
+    expect(warnings.some(w => w.join(' ').includes('LineChart'))).toBe(true)
   })
 })
 

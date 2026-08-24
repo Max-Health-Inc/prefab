@@ -19,7 +19,6 @@
 import type { ComponentJSON } from '../core/component.js'
 import type { A2uiProps, EmitContext } from './catalog.js'
 import { dynamicString, toBinding } from './expr.js'
-import type { A2uiComponent } from './types.js'
 
 /** prefab table parts that only exist inside a `Table` and never map on their own. */
 export const TABLE_PART_TYPES = [
@@ -165,10 +164,4 @@ export function mapTable(node: ComponentJSON, ctx: EmitContext): A2uiProps | und
 
   ctx.note('degraded', 'Table', 'rendered as a Column of Rows; column widths do not align')
   return { component: 'Column', children: emitted }
-}
-
-/** Narrow an emitted component to the templated-children form, for tests. */
-export function isTemplatedList(component: A2uiComponent): boolean {
-  const children = component.children
-  return children != null && !Array.isArray(children) && typeof children === 'object'
 }

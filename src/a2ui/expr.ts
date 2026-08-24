@@ -93,8 +93,3 @@ export function dynamicString(value: string | undefined): A2uiDynamicString | un
   if (r.kind === 'binding') return r.value
   return undefined
 }
-
-/** True when the value contains a template prefab would interpolate. */
-export function hasTemplate(value: unknown): boolean {
-  return typeof value === 'string' && value.includes('{{')
-}

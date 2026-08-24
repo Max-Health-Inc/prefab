@@ -18,6 +18,7 @@
 import type { ComponentJSON } from '../core/component.js'
 import type { A2uiComponentProps, A2uiAction, A2uiDiagnosticKind } from './types.js'
 import { dynamicString, toBinding } from './expr.js'
+import { a2uiIconName } from './icons.js'
 import { mapTable, mapDataTable, TABLE_PART_TYPES } from './table.js'
 
 /** A2UI properties for one component, before the emitter assigns its id. */
@@ -373,7 +374,15 @@ const COMPOSITE_MAPPERS: Record<string, Mapper> = {
       ctx.note('unsupported', 'Icon', 'no icon name')
       return undefined
     }
-    return { component: 'Icon', name }
+    // A2UI's icon names are a closed enum, so an unrecognised one fails
+    // validation rather than falling back to a default glyph.
+    const resolved = a2uiIconName(name)
+    if (resolved == null) {
+      ctx.note('unsupported', 'Icon', `"${name}" has no equivalent in the A2UI icon set`)
+      return undefined
+    }
+    if (resolved !== name) ctx.note('degraded', 'Icon', `"${name}" mapped to the A2UI icon "${resolved}"`)
+    return { component: 'Icon', name: resolved }
   },
   Metric: (node, ctx) => {
     // A Column of caption + value is the closest Basic-catalog reading of a KPI tile.
