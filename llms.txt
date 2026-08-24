@@ -1,8 +1,8 @@
 # <span style="white-space:nowrap">@maxhealth.tech/prefab</span>
 
-> Declarative UI for MCP Apps
+> TypeScript authoring for A2UI and MCP Apps
 
-115+ components, reactive state, zero-framework renderer — from TypeScript or Python.
+Build the agent UI once, server-side. Emit A2UI for native rendering or $prefab for an MCP Apps iframe.
 
 ## Table of Contents
 
@@ -20,6 +20,8 @@
 ### Integration
 
 - [MCP Display Helpers](/prefab/guide/mcp-display.md): display(), displayForm(), rendererHtml(), and registerViewerResource() — server-side helpers to return prefab UIs from MCP tools.
+- [Asking for input](/prefab/guide/input-required.md): Ask the user for input under MCP 2026-07-28 — display_form with elicit, formInputRequest, and reading the answer with acceptedFormInput.
+- [A2UI](/prefab/guide/a2ui.md): Emit A2UI from a prefab component tree — toA2UI(), the a2ui:// resource helper, the Basic-catalog mapping table, and what degrades on the way across.
 - [Browser Renderer](/prefab/guide/renderer.md): Mount $prefab wire JSON into the browser with the vanilla DOM renderer. Zero dependencies, works in any iframe or web page.
 - [PostMessage Bridge](/prefab/guide/bridge.md): PostMessage bridge connecting prefab iframes to MCP Apps hosts (VS Code, Claude, ChatGPT) via prefab:* and ui/* JSON-RPC protocols.
 
@@ -128,12 +130,15 @@
 
 ##### Interfaces
 
+- [Interface: DisplayA2uiOptions](/reference/api/mcp/interfaces/DisplayA2uiOptions.md)
+- [Interface: A2uiResourceOptions](/reference/api/mcp/interfaces/A2uiResourceOptions.md)
 - [Interface: DisplayOptions](/reference/api/mcp/interfaces/DisplayOptions.md)
 - [Interface: DisplayFormOptions](/reference/api/mcp/interfaces/DisplayFormOptions.md)
 - [Interface: StateUpdate](/reference/api/mcp/interfaces/StateUpdate.md)
 - [Interface: DisplayUpdateOptions](/reference/api/mcp/interfaces/DisplayUpdateOptions.md)
 - [Interface: DisplayErrorOptions](/reference/api/mcp/interfaces/DisplayErrorOptions.md)
 - [Interface: DisplaySuccessOptions](/reference/api/mcp/interfaces/DisplaySuccessOptions.md)
+- [Interface: FormInputRequestOptions](/reference/api/mcp/interfaces/FormInputRequestOptions.md)
 - [Interface: McpAppCsp](/reference/api/mcp/interfaces/McpAppCsp.md)
 - [Interface: McpAppPermissions](/reference/api/mcp/interfaces/McpAppPermissions.md)
 - [Interface: ResourceMetaOptions](/reference/api/mcp/interfaces/ResourceMetaOptions.md)
@@ -147,6 +152,7 @@
 ##### Type Aliases
 
 - [Type Alias: PrefabUpdateWire](/reference/api/mcp/type-aliases/PrefabUpdateWire.md)
+- [Type Alias: FormValue](/reference/api/mcp/type-aliases/FormValue.md)
 - [Type Alias: ResourceReadHandler](/reference/api/mcp/type-aliases/ResourceReadHandler.md)
 - [Type Alias: ThemeBridge](/reference/api/mcp/type-aliases/ThemeBridge.md)
 - [Type Alias: McpTextContent](/reference/api/mcp/type-aliases/McpTextContent.md)
@@ -156,12 +162,29 @@
 - [Type Alias: McpResourceContent](/reference/api/mcp/type-aliases/McpResourceContent.md)
 - [Type Alias: McpContent](/reference/api/mcp/type-aliases/McpContent.md)
 - [Type Alias: McpToolResult\<S>](/reference/api/mcp/type-aliases/McpToolResult.md)
+- [Type Alias: McpDisplayResult\<S>](/reference/api/mcp/type-aliases/McpDisplayResult.md)
 - [Type Alias: McpCacheScope](/reference/api/mcp/type-aliases/McpCacheScope.md)
 - [Type Alias: McpCacheHint](/reference/api/mcp/type-aliases/McpCacheHint.md)
 - [Type Alias: McpResourceReadResult\<C>](/reference/api/mcp/type-aliases/McpResourceReadResult.md)
+- [Type Alias: McpStringSchema](/reference/api/mcp/type-aliases/McpStringSchema.md)
+- [Type Alias: McpNumberSchema](/reference/api/mcp/type-aliases/McpNumberSchema.md)
+- [Type Alias: McpBooleanSchema](/reference/api/mcp/type-aliases/McpBooleanSchema.md)
+- [Type Alias: McpEnumSchema](/reference/api/mcp/type-aliases/McpEnumSchema.md)
+- [Type Alias: McpMultiEnumSchema](/reference/api/mcp/type-aliases/McpMultiEnumSchema.md)
+- [Type Alias: McpPrimitiveSchema](/reference/api/mcp/type-aliases/McpPrimitiveSchema.md)
+- [Type Alias: McpRestrictedSchema](/reference/api/mcp/type-aliases/McpRestrictedSchema.md)
+- [Type Alias: McpElicitFormRequest](/reference/api/mcp/type-aliases/McpElicitFormRequest.md)
+- [Type Alias: McpElicitUrlRequest](/reference/api/mcp/type-aliases/McpElicitUrlRequest.md)
+- [Type Alias: McpElicitRequest](/reference/api/mcp/type-aliases/McpElicitRequest.md)
+- [Type Alias: McpInputRequests](/reference/api/mcp/type-aliases/McpInputRequests.md)
+- [Type Alias: McpElicitResult](/reference/api/mcp/type-aliases/McpElicitResult.md)
+- [Type Alias: McpInputResponses](/reference/api/mcp/type-aliases/McpInputResponses.md)
+- [Type Alias: McpInputRequiredResult](/reference/api/mcp/type-aliases/McpInputRequiredResult.md)
 
 ##### Variables
 
+- [Variable: A2UI\_RESOURCE\_URI](/reference/api/mcp/variables/A2UI_RESOURCE_URI.md)
+- [Variable: displayA2ui](/reference/api/mcp/variables/displayA2ui.md)
 - [Variable: displayForm](/reference/api/mcp/variables/displayForm.md)
 - [Variable: displayUpdate](/reference/api/mcp/variables/displayUpdate.md)
 - [Variable: displayError](/reference/api/mcp/variables/displayError.md)
@@ -175,13 +198,21 @@
 
 ##### Functions
 
+- [Function: a2uiPayload()](/reference/api/mcp/functions/a2uiPayload.md)
+- [Function: display\_a2ui()](/reference/api/mcp/functions/display_a2ui.md)
+- [Function: registerA2uiResource()](/reference/api/mcp/functions/registerA2uiResource.md)
 - [Function: display()](/reference/api/mcp/functions/display.md)
 - [Function: display\_form()](/reference/api/mcp/functions/display_form.md)
 - [Function: display\_update()](/reference/api/mcp/functions/display_update.md)
 - [Function: display\_error()](/reference/api/mcp/functions/display_error.md)
 - [Function: display\_success()](/reference/api/mcp/functions/display_success.md)
+- [Function: formSchema()](/reference/api/mcp/functions/formSchema.md)
+- [Function: formInputRequest()](/reference/api/mcp/functions/formInputRequest.md)
+- [Function: inputResponse()](/reference/api/mcp/functions/inputResponse.md)
+- [Function: acceptedFormInput()](/reference/api/mcp/functions/acceptedFormInput.md)
 - [Function: resourceMeta()](/reference/api/mcp/functions/resourceMeta.md)
 - [Function: rendererHtml()](/reference/api/mcp/functions/rendererHtml.md)
+- [Function: resolveCache()](/reference/api/mcp/functions/resolveCache.md)
 - [Function: registerViewerResource()](/reference/api/mcp/functions/registerViewerResource.md)
 - [Function: toolResult()](/reference/api/mcp/functions/toolResult.md)
 - [Function: themeBridgeCss()](/reference/api/mcp/functions/themeBridgeCss.md)

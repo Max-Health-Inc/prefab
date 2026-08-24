@@ -5,7 +5,7 @@ url: /prefab/reference/api/mcp/interfaces/VsCodeTokenSource.md
 
 # Interface: VsCodeTokenSource
 
-Defined in: [mcp/theme-bridge.ts:21](https://github.com/Max-Health-Inc/prefab/blob/0dee3f097b962b3af8a18839ee1ad4ad8bc3ef8e/src/mcp/theme-bridge.ts#L21)
+Defined in: [mcp/theme-bridge.ts:21](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/mcp/theme-bridge.ts#L21)
 
 How one prefab token is sourced from the VS Code webview.
 
@@ -17,7 +17,7 @@ How one prefab token is sourced from the VS Code webview.
 vscode: string;
 ```
 
-Defined in: [mcp/theme-bridge.ts:23](https://github.com/Max-Health-Inc/prefab/blob/0dee3f097b962b3af8a18839ee1ad4ad8bc3ef8e/src/mcp/theme-bridge.ts#L23)
+Defined in: [mcp/theme-bridge.ts:23](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/mcp/theme-bridge.ts#L23)
 
 VS Code webview variable supplying the value.
 
@@ -29,7 +29,7 @@ VS Code webview variable supplying the value.
 light: string;
 ```
 
-Defined in: [mcp/theme-bridge.ts:25](https://github.com/Max-Health-Inc/prefab/blob/0dee3f097b962b3af8a18839ee1ad4ad8bc3ef8e/src/mcp/theme-bridge.ts#L25)
+Defined in: [mcp/theme-bridge.ts:25](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/mcp/theme-bridge.ts#L25)
 
 Static fallback when VS Code does not define it (light scheme).
 
@@ -41,6 +41,6 @@ Static fallback when VS Code does not define it (light scheme).
 optional dark?: string;
 ```
 
-Defined in: [mcp/theme-bridge.ts:27](https://github.com/Max-Health-Inc/prefab/blob/0dee3f097b962b3af8a18839ee1ad4ad8bc3ef8e/src/mcp/theme-bridge.ts#L27)
+Defined in: [mcp/theme-bridge.ts:27](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/mcp/theme-bridge.ts#L27)
 
 Dark-scheme fallback. Omitted for scheme-independent tokens (fonts).

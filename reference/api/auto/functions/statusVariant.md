@@ -9,7 +9,7 @@ url: /prefab/reference/api/auto/functions/statusVariant.md
 function statusVariant(status): BadgeVariant;
 ```
 
-Defined in: [auto/index.ts:80](https://github.com/Max-Health-Inc/prefab/blob/0dee3f097b962b3af8a18839ee1ad4ad8bc3ef8e/src/auto/index.ts#L80)
+Defined in: [auto/index.ts:80](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/auto/index.ts#L80)
 
 Get a Badge variant for a status string.
 Falls back to 'outline' for unknown statuses.

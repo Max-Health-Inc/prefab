@@ -5,7 +5,7 @@ url: /prefab/reference/api/actions/classes/RequestDisplayMode.md
 
 # Class: RequestDisplayMode
 
-Defined in: [actions/mcp.ts:62](https://github.com/Max-Health-Inc/prefab/blob/0dee3f097b962b3af8a18839ee1ad4ad8bc3ef8e/src/actions/mcp.ts#L62)
+Defined in: [actions/mcp.ts:62](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/actions/mcp.ts#L62)
 
 Base interface all actions implement
 
@@ -21,7 +21,7 @@ Base interface all actions implement
 new RequestDisplayMode(mode): RequestDisplayMode;
 ```
 
-Defined in: [actions/mcp.ts:63](https://github.com/Max-Health-Inc/prefab/blob/0dee3f097b962b3af8a18839ee1ad4ad8bc3ef8e/src/actions/mcp.ts#L63)
+Defined in: [actions/mcp.ts:63](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/actions/mcp.ts#L63)
 
 #### Parameters
 
@@ -41,7 +41,7 @@ Defined in: [actions/mcp.ts:63](https://github.com/Max-Health-Inc/prefab/blob/0d
 readonly mode: DisplayMode;
 ```
 
-Defined in: [actions/mcp.ts:63](https://github.com/Max-Health-Inc/prefab/blob/0dee3f097b962b3af8a18839ee1ad4ad8bc3ef8e/src/actions/mcp.ts#L63)
+Defined in: [actions/mcp.ts:63](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/actions/mcp.ts#L63)
 
 ## Methods
 
@@ -51,7 +51,7 @@ Defined in: [actions/mcp.ts:63](https://github.com/Max-Health-Inc/prefab/blob/0d
 toJSON(): ActionJSON;
 ```
 
-Defined in: [actions/mcp.ts:65](https://github.com/Max-Health-Inc/prefab/blob/0dee3f097b962b3af8a18839ee1ad4ad8bc3ef8e/src/actions/mcp.ts#L65)
+Defined in: [actions/mcp.ts:65](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/actions/mcp.ts#L65)
 
 #### Returns
 

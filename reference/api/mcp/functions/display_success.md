@@ -9,10 +9,10 @@ url: /prefab/reference/api/mcp/functions/display_success.md
 function display_success(
    title, 
    message, 
-options?): McpToolResult<PrefabWireFormat>;
+options?): McpDisplayResult<PrefabWireFormat>;
 ```
 
-Defined in: [mcp/display.ts:298](https://github.com/Max-Health-Inc/prefab/blob/0dee3f097b962b3af8a18839ee1ad4ad8bc3ef8e/src/mcp/display.ts#L298)
+Defined in: [mcp/display.ts:336](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/mcp/display.ts#L336)
 
 Return a standardized success view as an MCP tool result.
 
@@ -28,6 +28,6 @@ Renders a success Alert with title + message, optional detail text.
 
 ## Returns
 
-[`McpToolResult`](../type-aliases/McpToolResult.md)<`PrefabWireFormat`>
+[`McpDisplayResult`](../type-aliases/McpDisplayResult.md)<`PrefabWireFormat`>
 
 MCP tool result with success UI.

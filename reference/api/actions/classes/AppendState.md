@@ -5,7 +5,7 @@ url: /prefab/reference/api/actions/classes/AppendState.md
 
 # Class: AppendState
 
-Defined in: [actions/client.ts:47](https://github.com/Max-Health-Inc/prefab/blob/0dee3f097b962b3af8a18839ee1ad4ad8bc3ef8e/src/actions/client.ts#L47)
+Defined in: [actions/client.ts:47](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/actions/client.ts#L47)
 
 Base interface all actions implement
 
@@ -24,7 +24,7 @@ new AppendState(
    index?): AppendState;
 ```
 
-Defined in: [actions/client.ts:48](https://github.com/Max-Health-Inc/prefab/blob/0dee3f097b962b3af8a18839ee1ad4ad8bc3ef8e/src/actions/client.ts#L48)
+Defined in: [actions/client.ts:48](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/actions/client.ts#L48)
 
 #### Parameters
 
@@ -46,7 +46,7 @@ Defined in: [actions/client.ts:48](https://github.com/Max-Health-Inc/prefab/blob
 readonly key: string;
 ```
 
-Defined in: [actions/client.ts:49](https://github.com/Max-Health-Inc/prefab/blob/0dee3f097b962b3af8a18839ee1ad4ad8bc3ef8e/src/actions/client.ts#L49)
+Defined in: [actions/client.ts:49](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/actions/client.ts#L49)
 
 ***
 
@@ -56,7 +56,7 @@ Defined in: [actions/client.ts:49](https://github.com/Max-Health-Inc/prefab/blob
 readonly value: unknown;
 ```
 
-Defined in: [actions/client.ts:50](https://github.com/Max-Health-Inc/prefab/blob/0dee3f097b962b3af8a18839ee1ad4ad8bc3ef8e/src/actions/client.ts#L50)
+Defined in: [actions/client.ts:50](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/actions/client.ts#L50)
 
 ***
 
@@ -66,7 +66,7 @@ Defined in: [actions/client.ts:50](https://github.com/Max-Health-Inc/prefab/blob
 readonly optional index?: number;
 ```
 
-Defined in: [actions/client.ts:51](https://github.com/Max-Health-Inc/prefab/blob/0dee3f097b962b3af8a18839ee1ad4ad8bc3ef8e/src/actions/client.ts#L51)
+Defined in: [actions/client.ts:51](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/actions/client.ts#L51)
 
 ## Methods
 
@@ -76,7 +76,7 @@ Defined in: [actions/client.ts:51](https://github.com/Max-Health-Inc/prefab/blob
 toJSON(): ActionJSON;
 ```
 
-Defined in: [actions/client.ts:54](https://github.com/Max-Health-Inc/prefab/blob/0dee3f097b962b3af8a18839ee1ad4ad8bc3ef8e/src/actions/client.ts#L54)
+Defined in: [actions/client.ts:54](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/actions/client.ts#L54)
 
 #### Returns
 

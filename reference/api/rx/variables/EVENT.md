@@ -9,6 +9,6 @@ url: /prefab/reference/api/rx/variables/EVENT.md
 const EVENT: Rx;
 ```
 
-Defined in: [rx/rx.ts:235](https://github.com/Max-Health-Inc/prefab/blob/0dee3f097b962b3af8a18839ee1ad4ad8bc3ef8e/src/rx/rx.ts#L235)
+Defined in: [rx/rx.ts:235](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/rx/rx.ts#L235)
 
 Value from an interaction event (input value, checkbox state, etc.)

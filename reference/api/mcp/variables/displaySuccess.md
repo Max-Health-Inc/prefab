@@ -6,10 +6,10 @@ url: /prefab/reference/api/mcp/variables/displaySuccess.md
 # Variable: displaySuccess
 
 ```ts
-const displaySuccess: (title, message, options?) => McpToolResult<PrefabWireFormat> = display_success;
+const displaySuccess: (title, message, options?) => McpDisplayResult<PrefabWireFormat> = display_success;
 ```
 
-Defined in: [mcp/display.ts:332](https://github.com/Max-Health-Inc/prefab/blob/0dee3f097b962b3af8a18839ee1ad4ad8bc3ef8e/src/mcp/display.ts#L332)
+Defined in: [mcp/display.ts:370](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/mcp/display.ts#L370)
 
 MCP display helpers — return prefab UIs as MCP tool results.
 
@@ -27,6 +27,6 @@ Renders a success Alert with title + message, optional detail text.
 
 ## Returns
 
-[`McpToolResult`](../type-aliases/McpToolResult.md)<`PrefabWireFormat`>
+[`McpDisplayResult`](../type-aliases/McpDisplayResult.md)<`PrefabWireFormat`>
 
 MCP tool result with success UI.

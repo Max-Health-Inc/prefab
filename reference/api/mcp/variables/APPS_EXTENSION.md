@@ -9,7 +9,7 @@ url: /prefab/reference/api/mcp/variables/APPS_EXTENSION.md
 const APPS_EXTENSION: "io.modelcontextprotocol/ui" = 'io.modelcontextprotocol/ui';
 ```
 
-Defined in: [mcp/resource.ts:149](https://github.com/Max-Health-Inc/prefab/blob/0dee3f097b962b3af8a18839ee1ad4ad8bc3ef8e/src/mcp/resource.ts#L149)
+Defined in: [mcp/resource.ts:149](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/mcp/resource.ts#L149)
 
 Capability key for the MCP Apps extension (versioned independently of core).
 

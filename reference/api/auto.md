@@ -17,7 +17,7 @@ url: /prefab/reference/api/auto.md
 | ------ | ------ |
 | [AutoChartOptions](interfaces/AutoChartOptions.md) | - |
 | [AutoComparisonOptions](interfaces/AutoComparisonOptions.md) | - |
-| [AutoFormField](interfaces/AutoFormField.md) | - |
+| [AutoFormField](interfaces/AutoFormField.md) | One field in an auto-generated form. |
 | [AutoFormOptions](interfaces/AutoFormOptions.md) | - |
 | [AutoDetailOptions](interfaces/AutoDetailOptions.md) | - |
 | [AutoTableOptions](interfaces/AutoTableOptions.md) | - |

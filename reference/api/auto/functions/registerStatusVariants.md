@@ -9,7 +9,7 @@ url: /prefab/reference/api/auto/functions/registerStatusVariants.md
 function registerStatusVariants(mappings): void;
 ```
 
-Defined in: [auto/index.ts:88](https://github.com/Max-Health-Inc/prefab/blob/0dee3f097b962b3af8a18839ee1ad4ad8bc3ef8e/src/auto/index.ts#L88)
+Defined in: [auto/index.ts:88](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/auto/index.ts#L88)
 
 Register additional status→variant mappings.
 

@@ -6,10 +6,10 @@ url: /prefab/reference/api/mcp/functions/toolResult.md
 # Function: toolResult()
 
 ```ts
-function toolResult<T>(payload, options?): McpToolResult<T>;
+function toolResult<T>(payload, options?): McpDisplayResult<T>;
 ```
 
-Defined in: [mcp/result.ts:44](https://github.com/Max-Health-Inc/prefab/blob/0dee3f097b962b3af8a18839ee1ad4ad8bc3ef8e/src/mcp/result.ts#L44)
+Defined in: [mcp/result.ts:46](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/mcp/result.ts#L46)
 
 Wrap a JSON payload as an MCP tool result.
 
@@ -32,7 +32,7 @@ which receive it via `ui/notifications/tool-result`).
 
 ## Returns
 
-[`McpToolResult`](../type-aliases/McpToolResult.md)<`T`>
+[`McpDisplayResult`](../type-aliases/McpDisplayResult.md)<`T`>
 
 ## Example
 

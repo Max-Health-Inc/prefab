@@ -5,7 +5,7 @@ url: /prefab/reference/api/mcp/interfaces/DisplayFormOptions.md
 
 # Interface: DisplayFormOptions
 
-Defined in: [mcp/display.ts:133](https://github.com/Max-Health-Inc/prefab/blob/0dee3f097b962b3af8a18839ee1ad4ad8bc3ef8e/src/mcp/display.ts#L133)
+Defined in: [mcp/display.ts:134](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/mcp/display.ts#L134)
 
 ## Extends
 
@@ -19,7 +19,7 @@ Defined in: [mcp/display.ts:133](https://github.com/Max-Health-Inc/prefab/blob/0
 optional title?: string;
 ```
 
-Defined in: [auto/form.ts:31](https://github.com/Max-Health-Inc/prefab/blob/0dee3f097b962b3af8a18839ee1ad4ad8bc3ef8e/src/auto/form.ts#L31)
+Defined in: [auto/form.ts:57](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/auto/form.ts#L57)
 
 Form heading.
 
@@ -35,7 +35,7 @@ Form heading.
 optional subtitle?: string;
 ```
 
-Defined in: [auto/form.ts:33](https://github.com/Max-Health-Inc/prefab/blob/0dee3f097b962b3af8a18839ee1ad4ad8bc3ef8e/src/auto/form.ts#L33)
+Defined in: [auto/form.ts:59](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/auto/form.ts#L59)
 
 Optional subtitle.
 
@@ -51,7 +51,7 @@ Optional subtitle.
 optional submitLabel?: string;
 ```
 
-Defined in: [auto/form.ts:35](https://github.com/Max-Health-Inc/prefab/blob/0dee3f097b962b3af8a18839ee1ad4ad8bc3ef8e/src/auto/form.ts#L35)
+Defined in: [auto/form.ts:61](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/auto/form.ts#L61)
 
 Submit button text. Default 'Submit'.
 
@@ -69,7 +69,7 @@ optional onSubmit?:
   | Action[];
 ```
 
-Defined in: [auto/form.ts:37](https://github.com/Max-Health-Inc/prefab/blob/0dee3f097b962b3af8a18839ee1ad4ad8bc3ef8e/src/auto/form.ts#L37)
+Defined in: [auto/form.ts:63](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/auto/form.ts#L63)
 
 Custom onSubmit action. Overrides submitTool.
 
@@ -85,7 +85,7 @@ Custom onSubmit action. Overrides submitTool.
 optional successMessage?: string;
 ```
 
-Defined in: [auto/form.ts:39](https://github.com/Max-Health-Inc/prefab/blob/0dee3f097b962b3af8a18839ee1ad4ad8bc3ef8e/src/auto/form.ts#L39)
+Defined in: [auto/form.ts:65](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/auto/form.ts#L65)
 
 Success toast message.
 
@@ -101,7 +101,7 @@ Success toast message.
 optional errorMessage?: string;
 ```
 
-Defined in: [auto/form.ts:41](https://github.com/Max-Health-Inc/prefab/blob/0dee3f097b962b3af8a18839ee1ad4ad8bc3ef8e/src/auto/form.ts#L41)
+Defined in: [auto/form.ts:67](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/auto/form.ts#L67)
 
 Error toast message.
 
@@ -117,7 +117,7 @@ Error toast message.
 optional state?: Record<string, unknown>;
 ```
 
-Defined in: [mcp/display.ts:40](https://github.com/Max-Health-Inc/prefab/blob/0dee3f097b962b3af8a18839ee1ad4ad8bc3ef8e/src/mcp/display.ts#L40)
+Defined in: [mcp/display.ts:41](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/mcp/display.ts#L41)
 
 Initial reactive state.
 
@@ -133,7 +133,7 @@ Initial reactive state.
 optional theme?: Theme;
 ```
 
-Defined in: [mcp/display.ts:42](https://github.com/Max-Health-Inc/prefab/blob/0dee3f097b962b3af8a18839ee1ad4ad8bc3ef8e/src/mcp/display.ts#L42)
+Defined in: [mcp/display.ts:43](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/mcp/display.ts#L43)
 
 Light/dark theme overrides.
 
@@ -149,7 +149,7 @@ Light/dark theme overrides.
 optional defs?: Record<string, Component>;
 ```
 
-Defined in: [mcp/display.ts:44](https://github.com/Max-Health-Inc/prefab/blob/0dee3f097b962b3af8a18839ee1ad4ad8bc3ef8e/src/mcp/display.ts#L44)
+Defined in: [mcp/display.ts:45](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/mcp/display.ts#L45)
 
 Reusable component definitions.
 
@@ -167,7 +167,7 @@ optional onMount?:
   | Action[];
 ```
 
-Defined in: [mcp/display.ts:46](https://github.com/Max-Health-Inc/prefab/blob/0dee3f097b962b3af8a18839ee1ad4ad8bc3ef8e/src/mcp/display.ts#L46)
+Defined in: [mcp/display.ts:47](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/mcp/display.ts#L47)
 
 Action(s) to run when the UI mounts.
 
@@ -185,7 +185,7 @@ optional keyBindings?: Record<string,
 | Action[]>;
 ```
 
-Defined in: [mcp/display.ts:48](https://github.com/Max-Health-Inc/prefab/blob/0dee3f097b962b3af8a18839ee1ad4ad8bc3ef8e/src/mcp/display.ts#L48)
+Defined in: [mcp/display.ts:49](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/mcp/display.ts#L49)
 
 Keyboard shortcuts.
 
@@ -201,7 +201,7 @@ Keyboard shortcuts.
 optional cssClass?: string;
 ```
 
-Defined in: [mcp/display.ts:50](https://github.com/Max-Health-Inc/prefab/blob/0dee3f097b962b3af8a18839ee1ad4ad8bc3ef8e/src/mcp/display.ts#L50)
+Defined in: [mcp/display.ts:51](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/mcp/display.ts#L51)
 
 Extra CSS class on root element.
 
@@ -217,7 +217,7 @@ Extra CSS class on root element.
 optional layout?: LayoutHints;
 ```
 
-Defined in: [mcp/display.ts:52](https://github.com/Max-Health-Inc/prefab/blob/0dee3f097b962b3af8a18839ee1ad4ad8bc3ef8e/src/mcp/display.ts#L52)
+Defined in: [mcp/display.ts:53](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/mcp/display.ts#L53)
 
 Size hints for the host container (iframe, panel, etc.).
 
@@ -233,7 +233,7 @@ Size hints for the host container (iframe, panel, etc.).
 optional css?: string[];
 ```
 
-Defined in: [mcp/display.ts:54](https://github.com/Max-Health-Inc/prefab/blob/0dee3f097b962b3af8a18839ee1ad4ad8bc3ef8e/src/mcp/display.ts#L54)
+Defined in: [mcp/display.ts:55](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/mcp/display.ts#L55)
 
 Inline CSS blocks injected as `<style>` (merged after the compiled theme).
 
@@ -249,7 +249,7 @@ Inline CSS blocks injected as `<style>` (merged after the compiled theme).
 optional stylesheets?: string[];
 ```
 
-Defined in: [mcp/display.ts:56](https://github.com/Max-Health-Inc/prefab/blob/0dee3f097b962b3af8a18839ee1ad4ad8bc3ef8e/src/mcp/display.ts#L56)
+Defined in: [mcp/display.ts:57](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/mcp/display.ts#L57)
 
 External CSS URLs loaded as `<link rel="stylesheet">`.
 
@@ -265,7 +265,7 @@ External CSS URLs loaded as `<link rel="stylesheet">`.
 optional mode?: ColorMode;
 ```
 
-Defined in: [mcp/display.ts:58](https://github.com/Max-Health-Inc/prefab/blob/0dee3f097b962b3af8a18839ee1ad4ad8bc3ef8e/src/mcp/display.ts#L58)
+Defined in: [mcp/display.ts:59](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/mcp/display.ts#L59)
 
 Force a color scheme regardless of OS preference.
 
@@ -281,10 +281,31 @@ Force a color scheme regardless of OS preference.
 optional pipes?: Record<string, PipeFn>;
 ```
 
-Defined in: [mcp/display.ts:60](https://github.com/Max-Health-Inc/prefab/blob/0dee3f097b962b3af8a18839ee1ad4ad8bc3ef8e/src/mcp/display.ts#L60)
+Defined in: [mcp/display.ts:61](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/mcp/display.ts#L61)
 
 Custom pipe functions for reactive expressions.
 
 #### Inherited from
 
 [`DisplayOptions`](DisplayOptions.md).[`pipes`](DisplayOptions.md#pipes)
+
+***
+
+### elicit?
+
+```ts
+optional elicit?: boolean | FormInputRequestOptions;
+```
+
+Defined in: [mcp/display.ts:147](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/mcp/display.ts#L147)
+
+Ask the client to collect the fields instead of rendering them.
+
+A prefab form only exists on a host that renders UI. Protocol revision
+2026-07-28 gives every other host a native path: return an
+`input_required` result, the client shows its own form and retries the
+call. Pass `true` for the defaults, or an options object to set the
+response key, the prompt, or a signed `requestState`.
+
+The answer comes back through `acceptedFormInput`, which checks it against
+the same field list. See `./input-required.ts` for the full handler shape.

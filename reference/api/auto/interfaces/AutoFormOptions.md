@@ -5,7 +5,7 @@ url: /prefab/reference/api/auto/interfaces/AutoFormOptions.md
 
 # Interface: AutoFormOptions
 
-Defined in: [auto/form.ts:29](https://github.com/Max-Health-Inc/prefab/blob/0dee3f097b962b3af8a18839ee1ad4ad8bc3ef8e/src/auto/form.ts#L29)
+Defined in: [auto/form.ts:55](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/auto/form.ts#L55)
 
 ## Extended by
 
@@ -19,7 +19,7 @@ Defined in: [auto/form.ts:29](https://github.com/Max-Health-Inc/prefab/blob/0dee
 optional title?: string;
 ```
 
-Defined in: [auto/form.ts:31](https://github.com/Max-Health-Inc/prefab/blob/0dee3f097b962b3af8a18839ee1ad4ad8bc3ef8e/src/auto/form.ts#L31)
+Defined in: [auto/form.ts:57](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/auto/form.ts#L57)
 
 Form heading.
 
@@ -31,7 +31,7 @@ Form heading.
 optional subtitle?: string;
 ```
 
-Defined in: [auto/form.ts:33](https://github.com/Max-Health-Inc/prefab/blob/0dee3f097b962b3af8a18839ee1ad4ad8bc3ef8e/src/auto/form.ts#L33)
+Defined in: [auto/form.ts:59](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/auto/form.ts#L59)
 
 Optional subtitle.
 
@@ -43,7 +43,7 @@ Optional subtitle.
 optional submitLabel?: string;
 ```
 
-Defined in: [auto/form.ts:35](https://github.com/Max-Health-Inc/prefab/blob/0dee3f097b962b3af8a18839ee1ad4ad8bc3ef8e/src/auto/form.ts#L35)
+Defined in: [auto/form.ts:61](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/auto/form.ts#L61)
 
 Submit button text. Default 'Submit'.
 
@@ -57,7 +57,7 @@ optional onSubmit?:
   | Action[];
 ```
 
-Defined in: [auto/form.ts:37](https://github.com/Max-Health-Inc/prefab/blob/0dee3f097b962b3af8a18839ee1ad4ad8bc3ef8e/src/auto/form.ts#L37)
+Defined in: [auto/form.ts:63](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/auto/form.ts#L63)
 
 Custom onSubmit action. Overrides submitTool.
 
@@ -69,7 +69,7 @@ Custom onSubmit action. Overrides submitTool.
 optional successMessage?: string;
 ```
 
-Defined in: [auto/form.ts:39](https://github.com/Max-Health-Inc/prefab/blob/0dee3f097b962b3af8a18839ee1ad4ad8bc3ef8e/src/auto/form.ts#L39)
+Defined in: [auto/form.ts:65](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/auto/form.ts#L65)
 
 Success toast message.
 
@@ -81,6 +81,6 @@ Success toast message.
 optional errorMessage?: string;
 ```
 
-Defined in: [auto/form.ts:41](https://github.com/Max-Health-Inc/prefab/blob/0dee3f097b962b3af8a18839ee1ad4ad8bc3ef8e/src/auto/form.ts#L41)
+Defined in: [auto/form.ts:67](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/auto/form.ts#L67)
 
 Error toast message.
