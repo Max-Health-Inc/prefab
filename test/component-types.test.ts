@@ -11,16 +11,24 @@
  * `Condition`, `Detail`, `MasterDetail` and `PdfViewer` were renderable but
  * rejected by strict validation, which broke two of the shipped examples in
  * `docs/public/examples/`.
+ *
+ * The comparison runs against `builtinComponentTypes()` rather than the whole
+ * registry. The registry is a process-wide singleton that any test file can add
+ * to, so reading all of it made this file's result depend on which test ran
+ * first: `test/renderer-destroy.test.ts` and `test/pipe-wire.test.ts` register
+ * a dozen widgets inside their test bodies, and once the runner reached them
+ * first, every one of those became a "renderable type missing from the
+ * generated list".
  */
 
 import { describe, expect, test } from 'bun:test'
 import { COMPONENT_TYPES } from '../src/core/component-types.js'
 import { validateWireFormat } from '../src/core/validate.js'
 import { registerAllComponents } from '../src/renderer/components/index.js'
-import { registeredComponentTypes } from '../src/renderer/engine.js'
+import { builtinComponentTypes, registerComponent, registeredComponentTypes } from '../src/renderer/engine.js'
 
 registerAllComponents()
-const registered = registeredComponentTypes()
+const registered = builtinComponentTypes()
 
 describe('component-types.ts is in sync with the registry', () => {
   test('the generated list is non-empty', () => {
@@ -62,5 +70,13 @@ describe('strict validation accepts every renderable type', () => {
       { strict: true },
     )
     expect(result.valid).toBe(false)
+  })
+
+  test('a caller-registered component does not count as built in', () => {
+    // The load-order bug this file used to have, pinned: registering a component
+    // the way another test file does must not change what "built in" means.
+    registerComponent('OrderDependenceGuard', () => document.createElement('div'))
+    expect(registeredComponentTypes()).toContain('OrderDependenceGuard')
+    expect(builtinComponentTypes()).not.toContain('OrderDependenceGuard')
   })
 })

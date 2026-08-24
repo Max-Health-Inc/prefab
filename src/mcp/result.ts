@@ -14,12 +14,14 @@
  * `resultType` (SEP-2322) is deliberately NOT set here. It is a wire-only
  * discriminator owned by the SDK's protocol layer: `@modelcontextprotocol/server`
  * stamps it at its 2026-era encode seam and strips it before results reach
- * consumers, which is why its public result types do not declare it. The one
- * handler-authored case is `resultType: 'input_required'` for multi-round-trip
- * results — not something a display helper produces.
+ * consumers, which is why its public result types do not declare it.
+ *
+ * The one handler-authored case is `resultType: 'input_required'`, which a
+ * completed result never carries. That case is built by `./input-required.ts`
+ * and returned instead of a tool result, so it never travels through here.
  */
 
-import type { McpToolResult } from './types.js'
+import type { McpDisplayResult } from './types.js'
 
 export interface ToolResultOptions {
   /** Flag the result as failed (hosts render it as a tool error). */
@@ -41,8 +43,8 @@ export interface ToolResultOptions {
  * return toolResult(wireJson)
  * ```
  */
-export function toolResult<T>(payload: T, options?: ToolResultOptions): McpToolResult<T> {
-  const result: McpToolResult<T> = {
+export function toolResult<T>(payload: T, options?: ToolResultOptions): McpDisplayResult<T> {
+  const result: McpDisplayResult<T> = {
     content: [{ type: 'text', text: JSON.stringify(payload) }],
     structuredContent: payload,
   }

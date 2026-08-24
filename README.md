@@ -1,30 +1,39 @@
 # prefab
 
 [![CI](https://github.com/Max-Health-Inc/prefab/actions/workflows/ci.yml/badge.svg)](https://github.com/Max-Health-Inc/prefab/actions/workflows/ci.yml)
-[![tests](https://img.shields.io/badge/tests-1077%20passing%20(100%25)-brightgreen)](https://github.com/Max-Health-Inc/prefab/actions/workflows/ci.yml)
+[![tests](https://img.shields.io/badge/tests-2009%20passing%20(100%25)-brightgreen)](https://github.com/Max-Health-Inc/prefab/actions/workflows/ci.yml)
 [![@maxhealth.tech/prefab](https://img.shields.io/npm/v/@maxhealth.tech/prefab?label=%40maxhealth.tech%2Fprefab)](https://www.npmjs.com/package/@maxhealth.tech/prefab)
 [![prefab-protocol](https://img.shields.io/badge/prefab--protocol-v0.3-brightgreen)](https://maxhealth.tech/prefab/reference/wire-format.html)
+[![A2UI](https://img.shields.io/badge/A2UI-v1.0-4285F4)](https://maxhealth.tech/prefab/guide/a2ui.html)
 [![TypeScript](https://img.shields.io/badge/TypeScript-6.0-blue?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-The TypeScript full-stack framework for MCP app UIs: author server-side, ship JSON, render anywhere.
+TypeScript authoring for **A2UI** and **MCP Apps**: build the UI server-side, emit either wire format, render anywhere.
 
-A superset of PrefectHQ's Python [prefab-ui](https://github.com/PrefectHQ/prefab), on the **`$prefab` v0.3 wire protocol** (still renders legacy `0.2` payloads).
+**[Live Demo](https://maxhealth.tech/prefab/demo/)** · **[Playground](https://maxhealth.tech/prefab/playground/)** · **[Docs](https://maxhealth.tech/prefab/)**
 
-**[Live Demo](https://maxhealth.tech/prefab/demo/)** · **[Playground](https://maxhealth.tech/prefab/playground/)**
+Agent UIs have settled on two shapes. [MCP Apps](https://modelcontextprotocol.io/seps/1865-mcp-apps-interactive-user-interfaces-for-mcp) ships HTML that the host renders in a sandboxed iframe. [A2UI](https://a2ui.org) ships a declarative component tree that the host's own renderer draws as native widgets. Writing a UI twice to reach both is the problem this package removes.
 
-Write MCP servers in **TypeScript/Bun** and generate the same wire format that Python servers produce. Render the output in **any web app** with the included vanilla DOM renderer. Full circle: server-side DSL → JSON → browser UI.
+You describe the interface once with a typed component API, and prefab emits whichever wire format the host wants:
+
+```ts
+const app = new PrefabApp({ view: Column({ children: [H1('Users'), autoTable(rows)] }) })
+
+app.toJSON()   // $prefab  — rendered by prefab's renderer, in an MCP Apps iframe or any web app
+app.toA2UI()   // A2UI v1.0 — rendered natively by React, Angular, Lit, Flutter, Swift, Compose
+```
 
 - **115+ components** — layout, form, data, charts, media, interactive, control flow
+- **Auto-renderers** — `autoTable()`, `autoChart()`, `autoForm()`, `autoMetrics()` and more
+- **Two wire formats** — `$prefab` v0.3 (superset of PrefectHQ's Python [prefab-ui](https://github.com/PrefectHQ/prefab), still renders legacy `0.2`) and [A2UI v1.0](https://a2ui.org), schema-validated against the official specification
+- **MCP-native** — `display()`, `display_a2ui()`, `ui://` and `a2ui://` resource helpers, `input_required` for the 2026-07-28 revision
 - **Reactive state** — `rx()` expressions, `SetState`/`ToggleState`/`AppendState` actions
-- **MCP-native** — `display()`, `display_form()`, `CallTool`, `SendMessage` built in
 - **Browser renderer** — zero dependencies, vanilla DOM (optional separate import)
 - **PostMessage bridge** — `app()` factory with dual-protocol handshake, host theme, lifecycle hooks
-- **Auto-renderers** — `autoTable()`, `autoChart()`, `autoForm()`, `autoMetrics()` and more
 
 ## Works Everywhere
 
-The renderer is **vanilla DOM** — no framework dependency. Drop it into any web app:
+On the `$prefab` path the renderer is **vanilla DOM** — no framework dependency. Drop it into any web app:
 
 - **React** — mount into a `ref` div
 - **Vue / Svelte / Angular** — same, it's just DOM
@@ -32,7 +41,7 @@ The renderer is **vanilla DOM** — no framework dependency. Drop it into any we
 - **Electron / Tauri** — desktop apps with web views
 - **Any iframe** — MCP Apps, embedded widgets, sandboxed UIs
 
-Any app that connects to MCP servers can render `$prefab` tool output as rich interactive UI — tables, charts, forms, badges — with zero custom code.
+On the A2UI path there is no prefab renderer at all: the host draws the components itself, so the same tree reaches the A2UI renderers for React, Angular, Lit, Flutter, Swift and Jetpack Compose. See the [A2UI guide](https://maxhealth.tech/prefab/guide/a2ui) for the mapping table and what degrades.
 
 ## Install
 
@@ -361,6 +370,62 @@ return display_error('User not found', `No user with id ${id}.`, {
 })
 ```
 
+### Asking for input (MCP 2026-07-28)
+
+The revision removed server-initiated elicitation: a handler asks for input by
+returning an `input_required` result, and the client retries the call with the
+answers. The same field list drives both paths, so a host with no UI surface
+still gets the form:
+
+```ts
+const FIELDS = [
+  { name: 'email', label: 'Email', type: 'email', required: true },
+  { name: 'plan', label: 'Plan', options: [{ value: 'pro' }, { value: 'team' }] },
+]
+
+// Rendered as prefab UI, submitting to the `signup` tool:
+display_form(FIELDS, 'signup', { title: 'Create your account' })
+
+// Or asked natively by the client, which then retries the call:
+display_form(FIELDS, 'signup', { title: 'Create your account', elicit: true })
+```
+
+Read the answer back with `acceptedFormInput`, which checks the untrusted client
+response against the same fields. Full walkthrough in
+[Asking for Input](https://maxhealth.tech/prefab/guide/input-required).
+
+## A2UI
+
+Emit the same tree as [A2UI](https://a2ui.org) and let the host render it natively:
+
+```ts
+const { messages, diagnostics } = app.toA2UI()
+```
+
+Serve it over MCP under the `application/a2ui+json` MIME type:
+
+```ts
+// Per-call, as an embedded resource in a tool result
+server.registerTool('list-users', schema, async () => display_a2ui(autoTable(await db.users())))
+
+// Or as a static a2ui:// resource the host can cache
+registerA2uiResource(server, () => Column({ children: [H1('Settings')] }))
+```
+
+Or translate a payload in the browser, from a bundle separate to the renderer:
+
+```html
+<script src="https://cdn.jsdelivr.net/npm/@maxhealth.tech/prefab/dist/a2ui.min.js"></script>
+<script>const { messages, diagnostics } = PrefabA2UI.emit(wireJson)</script>
+```
+
+prefab has 115+ components and the A2UI Basic catalog has 18, so parts of the
+tree change shape on the way across. `diagnostics` reports every one — nothing
+degrades silently. Payloads are validated against the official A2UI v1.0 JSON
+Schemas in CI. The [playground](https://maxhealth.tech/prefab/playground/) has an
+A2UI tab that shows the translation and its diagnostics live. See the
+[A2UI guide](https://maxhealth.tech/prefab/guide/a2ui).
+
 ### `rendererHtml()` — Viewer HTML Shell
 
 Generate the complete HTML page for an MCP Apps viewer resource. Loads `prefab.css` + `renderer.auto.min.js` from the CDN automatically — no manual script wiring needed:
@@ -498,6 +563,7 @@ import { ... } from '@maxhealth.tech/prefab/rx'         // Rx expressions only
 import { ... } from '@maxhealth.tech/prefab/charts'     // Chart components only
 import { ... } from '@maxhealth.tech/prefab/auto'       // Auto-renderers
 import { ... } from '@maxhealth.tech/prefab/mcp'        // MCP display helpers
+import { ... } from '@maxhealth.tech/prefab/a2ui'      // A2UI emitter
 import { ... } from '@maxhealth.tech/prefab/renderer'   // Browser renderer
 import '@maxhealth.tech/prefab/prefab.css'              // Default stylesheet
 ```
@@ -506,7 +572,7 @@ import '@maxhealth.tech/prefab/prefab.css'              // Default stylesheet
 
 ```bash
 bun install          # Install dependencies
-bun test             # Run tests (996 passing)
+bun test             # Run tests
 bun run build        # TypeScript compile + IIFE bundle
 bun run lint         # ESLint
 bun run typecheck    # Type check without emitting

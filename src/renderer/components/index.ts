@@ -14,12 +14,18 @@ import { registerMediaComponents } from './media.js'
 import { registerPdfComponents } from './pdf.js'
 import { registerChartComponents } from './charts.js'
 import { registerTableComponents } from './table.js'
+import { registeredComponentTypes, setBuiltinComponentTypes } from '../engine.js'
 
 let registered = false
 
 export function registerAllComponents(): void {
   if (registered) return
   registered = true
+
+  // The built-in set is the delta these registrars add, rather than whatever the
+  // registry holds afterwards: a caller may have registered its own components
+  // first, and those are not built-ins.
+  const before = new Set(registeredComponentTypes())
 
   registerLayoutComponents()
   registerTypographyComponents()
@@ -33,4 +39,6 @@ export function registerAllComponents(): void {
   registerPdfComponents()
   registerChartComponents()
   registerTableComponents()
+
+  setBuiltinComponentTypes(registeredComponentTypes().filter(t => !before.has(t)))
 }

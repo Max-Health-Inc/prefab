@@ -10,6 +10,8 @@
 <!-- prefab renderer + theme -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@maxhealth.tech/prefab@0.3/dist/prefab.css">
 <script src="https://cdn.jsdelivr.net/npm/@maxhealth.tech/prefab@0.3/dist/renderer.min.js"></script>
+<!-- A2UI emitter, bundled apart from the renderer so the render path stays lean -->
+<script src="https://cdn.jsdelivr.net/npm/@maxhealth.tech/prefab@0.3/dist/a2ui.min.js"></script>
 
 <!-- Monaco Editor from CDN -->
 <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.52.2/min/vs/loader.js"></script>
@@ -193,6 +195,110 @@ html, body {
 
 .pg-preview-toolbar-spacer { flex: 1; }
 
+/* Output mode tabs — the preview pane shows either the rendered UI or the
+   A2UI translation of the same payload. */
+.pg-tabs { display: flex; gap: 2px; }
+
+.pg-tab {
+  padding: 3px 10px;
+  font-size: 11px;
+  font-family: inherit;
+  color: var(--pg-muted);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.pg-tab:hover { color: var(--pg-text); }
+
+.pg-tab[aria-selected="true"] {
+  color: var(--pg-text);
+  background: var(--pg-surface);
+  border-color: var(--pg-border);
+}
+
+#a2ui-root {
+  flex: 1;
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--pg-bg);
+}
+
+#a2ui-root.is-active { display: flex; }
+
+.pg-a2ui-bar {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--pg-border);
+  font-size: 11px;
+  color: var(--pg-muted);
+}
+
+/* Pills wrap inside their own box so the controls stay on the first row
+   however many diagnostic kinds a payload produces. */
+#a2ui-summary {
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.pg-a2ui-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* One pill per diagnostic kind. Colour tracks severity: a dropped component is
+   a harder loss than a re-shaped one. */
+.pg-pill {
+  padding: 1px 7px;
+  border-radius: 999px;
+  border: 1px solid var(--pg-border);
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+.pg-pill--ok { color: var(--pg-success); border-color: var(--pg-success); }
+.pg-pill--degraded { color: #d29922; border-color: #d29922; }
+.pg-pill--unsupported { color: var(--pg-error); border-color: var(--pg-error); }
+.pg-pill--expression,
+.pg-pill--action { color: var(--pg-accent); border-color: var(--pg-accent); }
+
+#a2ui-json {
+  flex: 1;
+  overflow: auto;
+  margin: 0;
+  padding: 16px;
+  font-family: 'SF Mono', Monaco, Menlo, Consolas, monospace;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--pg-text);
+  white-space: pre;
+  tab-size: 2;
+}
+
+.pg-a2ui-notes {
+  max-height: 34%;
+  overflow: auto;
+  padding: 10px 12px;
+  border-top: 1px solid var(--pg-border);
+  background: var(--pg-surface);
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+.pg-a2ui-note { display: flex; gap: 8px; padding: 2px 0; }
+.pg-a2ui-note code { color: var(--pg-accent); font-size: 11px; }
+.pg-a2ui-note span { color: var(--pg-muted); }
+
 #preview-root {
   flex: 1;
   overflow: auto;
@@ -340,13 +446,33 @@ html, body {
   <!-- Preview -->
   <div class="pg-preview-pane">
     <div class="pg-preview-toolbar">
-      <span>Live Preview</span>
+      <div class="pg-tabs" role="tablist">
+        <button class="pg-tab" role="tab" id="tab-preview" aria-selected="true" title="Render the payload with the prefab renderer">Live Preview</button>
+        <button class="pg-tab" role="tab" id="tab-a2ui" aria-selected="false" title="Translate the same payload to A2UI v1.0">A2UI</button>
+      </div>
       <div class="pg-preview-toolbar-spacer"></div>
-      <label style="display:flex;align-items:center;gap:4px;cursor:pointer;">
+      <label id="dark-toggle-label" style="display:flex;align-items:center;gap:4px;cursor:pointer;">
         <input type="checkbox" id="dark-toggle" checked> Dark
       </label>
     </div>
     <div id="preview-root"></div>
+
+    <!-- A2UI output: the same payload translated, with everything the
+         translation cost listed underneath. -->
+    <div id="a2ui-root">
+      <div class="pg-a2ui-bar">
+        <div id="a2ui-summary">—</div>
+        <div class="pg-a2ui-controls">
+          <label style="display:flex;align-items:center;gap:4px;cursor:pointer;color:var(--pg-muted);"
+                 title="Split into createSurface + updateComponents + updateDataModel, as a streaming transport would send it">
+            <input type="checkbox" id="a2ui-stream"> Stream
+          </label>
+          <button class="pg-btn" id="btn-a2ui-copy" style="padding:3px 8px;font-size:11px;">Copy</button>
+        </div>
+      </div>
+      <pre id="a2ui-json"></pre>
+      <div class="pg-a2ui-notes" id="a2ui-notes"></div>
+    </div>
   </div>
 </div>
 
@@ -514,10 +640,15 @@ window.addEventListener('DOMContentLoaded', () => {
       suggest: { showWords: false },
     });
 
-    // Live re-render on change (debounced)
+    // Live re-render on change (debounced). Both panes stay current: the render
+    // keeps the mock-server state honest even while the A2UI tab is showing,
+    // so switching back does not surface a stale UI.
     editor.onDidChangeModelContent(() => {
       clearTimeout(renderTimer);
-      renderTimer = setTimeout(() => renderPreview(), 300);
+      renderTimer = setTimeout(() => {
+        renderPreview();
+        if (outputMode === 'a2ui') renderA2ui();
+      }, 300);
     });
 
     if (pendingJson) {
@@ -599,6 +730,12 @@ window.addEventListener('DOMContentLoaded', () => {
     if (t === 'light' || t === 'dark') darkToggle.checked = t === 'dark';
   }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
 
+  // Output mode tabs
+  document.getElementById('tab-preview').addEventListener('click', () => setOutputMode('preview'));
+  document.getElementById('tab-a2ui').addEventListener('click', () => setOutputMode('a2ui'));
+  document.getElementById('a2ui-stream').addEventListener('change', renderA2ui);
+  document.getElementById('btn-a2ui-copy').addEventListener('click', copyA2ui);
+
   // AI prompt modal
   document.getElementById('btn-ai-prompt').addEventListener('click', () => {
     document.getElementById('ai-prompt-text').textContent = AI_PROMPT;
@@ -679,6 +816,122 @@ const mockServer = {
 // ═══════════════════════════════════════════════════════════════════════════════
 // RENDER
 // ═══════════════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════════════
+// A2UI OUTPUT
+// ═══════════════════════════════════════════════════════════════════════════════
+
+// Which pane the preview side is showing: the rendered UI, or the same payload
+// translated to A2UI.
+let outputMode = 'preview';
+
+// The last successful translation, so Copy does not have to redo the work.
+let lastA2ui = null;
+
+function setOutputMode(mode) {
+  outputMode = mode;
+  const isA2ui = mode === 'a2ui';
+
+  document.getElementById('tab-preview').setAttribute('aria-selected', String(!isA2ui));
+  document.getElementById('tab-a2ui').setAttribute('aria-selected', String(isA2ui));
+  document.getElementById('preview-root').style.display = isA2ui ? 'none' : '';
+  document.getElementById('a2ui-root').classList.toggle('is-active', isA2ui);
+  // The light/dark switch themes the rendered UI and means nothing for JSON.
+  document.getElementById('dark-toggle-label').style.visibility = isA2ui ? 'hidden' : '';
+
+  if (isA2ui) renderA2ui();
+}
+
+/** Plural-aware label, so the summary does not read "1 components". */
+function count(n, one, many) {
+  return n + ' ' + (n === 1 ? one : (many || one + 's'));
+}
+
+function renderA2ui() {
+  const out = document.getElementById('a2ui-json');
+  const notes = document.getElementById('a2ui-notes');
+  const summary = document.getElementById('a2ui-summary');
+
+  const fail = (msg) => {
+    lastA2ui = null;
+    out.textContent = '';
+    notes.innerHTML = '';
+    summary.innerHTML = '<span class="pg-pill pg-pill--unsupported">' + msg + '</span>';
+  };
+
+  // The emitter ships as its own bundle. A CDN that has not caught up with a
+  // fresh release would otherwise fail with a bare "PrefabA2UI is not defined".
+  if (typeof PrefabA2UI === 'undefined') {
+    fail('A2UI emitter unavailable — the bundle did not load');
+    return;
+  }
+
+  let json;
+  try {
+    json = JSON.parse(editor.getValue());
+  } catch (e) {
+    fail('Invalid JSON');
+    return;
+  }
+
+  let result;
+  try {
+    result = PrefabA2UI.emit(json, { stream: document.getElementById('a2ui-stream').checked });
+  } catch (e) {
+    fail(String(e.message || e));
+    return;
+  }
+
+  lastA2ui = JSON.stringify(PrefabA2UI.envelope(result.messages), null, 2);
+  out.textContent = lastA2ui;
+
+  // Count the components across whichever messages carry them, so the summary
+  // reads the same in streamed and inlined mode.
+  let components = 0;
+  for (const m of result.messages) {
+    if (m.createSurface && m.createSurface.components) components += m.createSurface.components.length;
+    if (m.updateComponents) components += m.updateComponents.components.length;
+  }
+
+  const byKind = {};
+  for (const d of result.diagnostics) byKind[d.kind] = (byKind[d.kind] || 0) + 1;
+
+  const pills = [
+    '<span class="pg-pill">' + count(result.messages.length, 'message') + '</span>',
+    '<span class="pg-pill">' + count(components, 'component') + '</span>',
+  ];
+  if (result.diagnostics.length === 0) {
+    pills.push('<span class="pg-pill pg-pill--ok">clean translation</span>');
+  } else {
+    for (const kind of ['unsupported', 'degraded', 'expression', 'action']) {
+      if (byKind[kind]) {
+        pills.push('<span class="pg-pill pg-pill--' + kind + '">' + byKind[kind] + ' ' + kind + '</span>');
+      }
+    }
+  }
+  summary.innerHTML = pills.join(' ');
+
+  notes.innerHTML = result.diagnostics.length === 0
+    ? '<div class="pg-a2ui-note"><span>Everything in this payload has a direct A2UI equivalent.</span></div>'
+    : result.diagnostics.map((d) =>
+        '<div class="pg-a2ui-note"><code>' + escapeText(d.subject) + '</code>' +
+        '<span>' + escapeText(d.detail) + '</span></div>'
+      ).join('');
+}
+
+function escapeText(v) {
+  return String(v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function copyA2ui() {
+  if (!lastA2ui) {
+    showToast('Nothing to copy', 'Fix the payload first.', 'error');
+    return;
+  }
+  navigator.clipboard.writeText(lastA2ui).then(() => {
+    showToast('Copied!', 'A2UI messages are in your clipboard.', 'success');
+  });
+}
+
 function renderPreview() {
   const root = document.getElementById('preview-root');
   const statusDot = document.querySelector('.pg-status-dot');

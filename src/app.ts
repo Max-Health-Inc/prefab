@@ -13,6 +13,8 @@ import type { PipeFn } from './rx/pipes.js'
 import { compileThemeCss } from './core/theme-css.js'
 import { escapeHtml } from './core/escape.js'
 import { VERSION, PROTOCOL_VERSION } from './core/version.js'
+import { emitA2UI } from './a2ui/emit.js'
+import type { A2uiEmitOptions, A2uiEmitResult } from './a2ui/emit.js'
 
 // Version constants live in ./core/version.ts (single source of truth, updated
 // at release time). Re-exported so existing `from './app.js'` imports and the
@@ -206,6 +208,25 @@ export class PrefabApp {
     if (this.layout) wire.layout = this.layout
 
     return wire
+  }
+
+  /**
+   * Serialize to A2UI messages — the second wire format this tree can speak.
+   *
+   * `toJSON()` targets prefab's own renderer; this targets the A2UI renderers,
+   * which draw native widgets from a flat component list rather than running
+   * prefab's renderer in an iframe. The catalogs are not the same size, so the
+   * result carries `diagnostics` describing every component that had to
+   * degrade, and callers that care should read it.
+   *
+   * @example
+   * ```ts
+   * const { messages, diagnostics } = app.toA2UI()
+   * if (diagnostics.some(d => d.kind === 'unsupported')) rethinkTheView()
+   * ```
+   */
+  toA2UI(options?: A2uiEmitOptions): A2uiEmitResult {
+    return emitA2UI(this.toJSON(), options)
   }
 
   /**

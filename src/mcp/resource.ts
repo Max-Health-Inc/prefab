@@ -313,13 +313,24 @@ export interface McpServerLike {
   registerCapabilities?(capabilities: CapabilityDeclaration): void
 }
 
-/** Reject values the SDK would silently discard in favour of `ttlMs: 0`. */
-function resolveCache(hint?: McpCacheHint): Required<McpCacheHint> {
-  const ttlMs = hint?.ttlMs ?? DEFAULT_VIEWER_CACHE.ttlMs
+/**
+ * Fill in and validate the `CacheableResult` fields, rejecting values the SDK
+ * would silently discard in favour of `ttlMs: 0`.
+ *
+ * `defaults` differ per resource kind: the viewer HTML is a pure function of the
+ * package version and is safely shared-cacheable, while an `a2ui://` surface is
+ * rebuilt on every read and defaults to no caching. Exported so `./a2ui.ts`
+ * resolves its hints through the same guard rather than restating it.
+ */
+export function resolveCache(
+  hint?: McpCacheHint,
+  defaults: Required<McpCacheHint> = DEFAULT_VIEWER_CACHE,
+): Required<McpCacheHint> {
+  const ttlMs = hint?.ttlMs ?? defaults.ttlMs
   if (!Number.isSafeInteger(ttlMs) || ttlMs < 0) {
     throw new RangeError(`cache.ttlMs must be a non-negative safe integer, got ${String(hint?.ttlMs)}`)
   }
-  const cacheScope: McpCacheScope = hint?.cacheScope ?? DEFAULT_VIEWER_CACHE.cacheScope
+  const cacheScope: McpCacheScope = hint?.cacheScope ?? defaults.cacheScope
   if (!CACHE_SCOPES.includes(cacheScope)) {
     throw new RangeError(`cache.cacheScope must be 'public' or 'private', got ${String(hint?.cacheScope)}`)
   }

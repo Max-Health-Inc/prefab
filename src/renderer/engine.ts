@@ -129,6 +129,32 @@ export function registeredComponentTypes(): string[] {
   return [...registry.keys()].sort()
 }
 
+/**
+ * The types `registerAllComponents()` contributed, as opposed to everything the
+ * registry currently holds.
+ *
+ * The registry is a process-wide singleton and `registerComponent` is public, so
+ * anything running in the same process can add to it. That is fine for the
+ * renderer and wrong for the two consumers that mean "the components this
+ * package ships": the `component-types.ts` generator, and the test asserting the
+ * generated file is in sync with it. Reading the whole registry made both
+ * depend on whether some other module had registered a component first, which is
+ * load order — a test file registering `MyWidget` inside a test body made the
+ * sync check fail or pass depending on which file the runner reached first.
+ */
+const builtins = new Set<string>()
+
+/** Record the built-in set. Called once by `registerAllComponents()`. */
+export function setBuiltinComponentTypes(types: Iterable<string>): void {
+  builtins.clear()
+  for (const t of types) builtins.add(t)
+}
+
+/** Every component type this package ships a renderer for. */
+export function builtinComponentTypes(): string[] {
+  return [...builtins].sort()
+}
+
 /** Get a render function (or fallback) */
 export function getRenderer(type: string): RenderFn | undefined {
   return registry.get(type)

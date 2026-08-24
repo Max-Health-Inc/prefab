@@ -178,6 +178,7 @@ jobs:
           files: |
             dist/renderer.min.js
             dist/renderer.auto.min.js
+            dist/a2ui.min.js
             dist/prefab.css
             prefab-ui-skill.zip
 

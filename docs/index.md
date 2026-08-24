@@ -3,8 +3,8 @@ layout: home
 
 hero:
   name: '<span style="white-space:nowrap">@maxhealth.tech/prefab</span>'
-  text: Declarative UI for MCP Apps
-  tagline: 115+ components, reactive state, zero-framework renderer — from TypeScript or Python.
+  text: TypeScript authoring for A2UI and MCP Apps
+  tagline: Build the agent UI once, server-side. Emit A2UI for native rendering or $prefab for an MCP Apps iframe.
   actions:
     - theme: brand
       text: Get Started
@@ -31,14 +31,14 @@ features:
     details: 'Template expressions like <code>{{ count + 1 }}</code> with 20+ pipes. Auto-update on state changes, no framework needed.'
   - icon: 🔌
     title: MCP-Native
-    details: display() wraps your component tree as an MCP tool result. First-class CallTool, SendMessage, and UpdateContext actions.
+    details: display() and display_a2ui() wrap your tree as a tool result. ui:// and a2ui:// resource helpers, plus input_required for the 2026-07-28 revision.
   - icon: 🌐
     title: Zero-Dep Renderer
     details: Vanilla DOM renderer as a single IIFE script tag. Zero dependencies, zero build step for the browser.
   - icon: 🤖
     title: Auto-Renderers
     details: autoTable, autoChart, autoForm, autoMetrics — generate full UIs from raw data in one call.
-  - icon: 🐍
-    title: Wire-Compatible
-    details: $prefab v0.3 wire protocol, a superset of the Python prefab-ui (still renders legacy 0.2). Chart formatting extensions are TS-only.
+  - icon: 🔀
+    title: Two Wire Formats
+    details: One component tree, two outputs. A2UI v1.0 validated against the official schemas, and $prefab v0.3 — a superset of the Python prefab-ui.
 ---

@@ -16,6 +16,12 @@ export type {
 export { toolResult } from './result.js'
 export type { ToolResultOptions } from './result.js'
 
+export { formSchema, formInputRequest, acceptedFormInput, inputResponse } from './input-required.js'
+export type { FormInputRequestOptions, FormValue } from './input-required.js'
+
+export { display_a2ui, displayA2ui, registerA2uiResource, a2uiPayload, A2UI_RESOURCE_URI } from './a2ui.js'
+export type { DisplayA2uiOptions, A2uiResourceOptions } from './a2ui.js'
+
 export { themeBridgeCss, VSCODE_BRIDGE } from './theme-bridge.js'
 export type { ThemeBridge, VsCodeTokenSource } from './theme-bridge.js'
 
@@ -23,6 +29,7 @@ export {
   resourceMeta,
   registerViewerResource,
   rendererHtml,
+  resolveCache,
   PREFAB_CDN_META,
   PREFAB_RESOURCE_URI,
   MCP_APP_MIME,
@@ -40,4 +47,21 @@ export type {
   ResourceReadHandler,
 } from './resource.js'
 
-export type { McpToolResult, McpContent, McpTextContent, McpImageContent, McpResourceContent, McpTextResourceContents, McpBlobResourceContents, McpCacheScope, McpCacheHint, McpResourceReadResult } from './types.js'
+export type { McpToolResult, McpDisplayResult, McpContent, McpTextContent, McpImageContent, McpResourceContent, McpTextResourceContents, McpBlobResourceContents, McpCacheScope, McpCacheHint, McpResourceReadResult } from './types.js'
+
+export type {
+  McpStringSchema,
+  McpNumberSchema,
+  McpBooleanSchema,
+  McpEnumSchema,
+  McpMultiEnumSchema,
+  McpPrimitiveSchema,
+  McpRestrictedSchema,
+  McpElicitFormRequest,
+  McpElicitUrlRequest,
+  McpElicitRequest,
+  McpElicitResult,
+  McpInputRequests,
+  McpInputResponses,
+  McpInputRequiredResult,
+} from './types.js'
