@@ -16,6 +16,10 @@ All notable changes to this project will be documented in this file.
 
 - **README, docs landing page and package description now lead with "TypeScript authoring for A2UI and MCP Apps".** The previous framing put "a superset of PrefectHQ's Python prefab-ui" in the second line, which tied the package's story to a project moving slowly and described an implementation detail rather than what the package is for. The superset relationship is still stated, one bullet down, where it belongs.
 
+### Fixed
+
+- **`test/component-types.test.ts` depended on which test file the runner reached first.** It compared the generated `src/core/component-types.ts` against the whole renderer registry, which is a process-wide singleton any module can add to. `test/renderer-destroy.test.ts` and `test/pipe-wire.test.ts` register a dozen widgets inside their test bodies, so once the runner reached either of them first, all twelve became "renderable but absent from the generated list" and thirteen assertions failed. It passed locally and failed on CI purely on file-discovery order, and adding the A2UI test files was enough to flip it. `registerAllComponents()` now records the delta it contributes as the built-in set, and both the generator and the sync check read that instead of the full registry. The generated list is unchanged at 119 types.
+
 ### Internal
 
 - Emitted A2UI payloads are validated in CI against the official v1.0 JSON Schemas, vendored under `test/fixtures/a2ui/v1_0/` (Apache-2.0, with a `NOTICE.md` recording the upstream commit) and refreshable with `bun scripts/sync-a2ui-schemas.ts`. They are checked in rather than fetched so the suite runs offline. The upstream YAML conformance suites were considered and rejected: they exercise SDK internals (streaming parser, catalog pruning, validator behaviour) that a producer does not implement, whereas the schemas define exactly what a producer must emit. Two structural rules the schemas cannot express — every child reference resolves, and every component is reachable from `root` — are asserted separately, taken from `conformance/core/validator.yaml`.

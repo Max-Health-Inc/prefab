@@ -25,15 +25,15 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import { registerAllComponents } from '../src/renderer/components/index.js'
-import { registeredComponentTypes } from '../src/renderer/engine.js'
+import { builtinComponentTypes } from '../src/renderer/engine.js'
 
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), '..')
 const targetFile = join(repoRoot, 'src', 'core', 'component-types.ts')
 
-/** Collect the registry's types. Sorted by `registeredComponentTypes()`. */
+/** Collect the built-in types. Sorted by `builtinComponentTypes()`. */
 export function collectComponentTypes(): string[] {
   registerAllComponents()
-  return registeredComponentTypes()
+  return builtinComponentTypes()
 }
 
 function render(types: string[]): string {
