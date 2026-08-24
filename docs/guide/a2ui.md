@@ -80,6 +80,28 @@ without re-registering. Caching is off by default for that reason; pass
 Both live alongside the MCP Apps path in [MCP Apps](/reference/mcp-apps) — a
 server can offer `ui://` and `a2ui://` from the same tool and let the host pick.
 
+## In the browser
+
+The emitter also ships as a standalone IIFE bundle, apart from
+`renderer.min.js`. Almost no page that renders `$prefab` also emits A2UI, so
+folding the two together would tax every consumer for a feature they do not use:
+
+```html
+<script src="https://cdn.jsdelivr.net/npm/@maxhealth.tech/prefab/dist/a2ui.min.js"></script>
+<script>
+  const { messages, diagnostics } = PrefabA2UI.emit(wireJson)
+  const payload = PrefabA2UI.envelope(messages)   // { messages: [...] }
+</script>
+```
+
+`emit` takes parsed `$prefab` JSON rather than a component tree, so nothing in
+the bundle needs the authoring API. That is what keeps it around a sixth the
+size of the renderer.
+
+The [playground](https://maxhealth.tech/prefab/playground/) runs this bundle:
+switch the preview pane to **A2UI** to see any payload translated live, with the
+diagnostics listed underneath.
+
 ## How the tree crosses over
 
 Two structural differences drive everything:

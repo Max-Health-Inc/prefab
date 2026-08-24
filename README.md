@@ -412,10 +412,19 @@ server.registerTool('list-users', schema, async () => display_a2ui(autoTable(awa
 registerA2uiResource(server, () => Column({ children: [H1('Settings')] }))
 ```
 
+Or translate a payload in the browser, from a bundle separate to the renderer:
+
+```html
+<script src="https://cdn.jsdelivr.net/npm/@maxhealth.tech/prefab/dist/a2ui.min.js"></script>
+<script>const { messages, diagnostics } = PrefabA2UI.emit(wireJson)</script>
+```
+
 prefab has 115+ components and the A2UI Basic catalog has 18, so parts of the
 tree change shape on the way across. `diagnostics` reports every one — nothing
 degrades silently. Payloads are validated against the official A2UI v1.0 JSON
-Schemas in CI. See the [A2UI guide](https://maxhealth.tech/prefab/guide/a2ui).
+Schemas in CI. The [playground](https://maxhealth.tech/prefab/playground/) has an
+A2UI tab that shows the translation and its diagnostics live. See the
+[A2UI guide](https://maxhealth.tech/prefab/guide/a2ui).
 
 ### `rendererHtml()` — Viewer HTML Shell
 

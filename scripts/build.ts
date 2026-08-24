@@ -64,6 +64,28 @@ if (!autoResult.success) {
 
 console.log('✅ Auto-mount bundle → dist/renderer.auto.min.js')
 
+// Bundle the A2UI emitter separately from the renderer. Almost no page that
+// renders $prefab also emits A2UI, so folding it into renderer.min.js would tax
+// every consumer for a feature they do not use.
+const a2uiResult = await Bun.build({
+  entrypoints: ['src/a2ui/browser.ts'],
+  outdir: 'dist',
+  naming: 'a2ui.min.js',
+  target: 'browser',
+  format: 'iife',
+  minify: true,
+})
+
+if (!a2uiResult.success) {
+  console.error('❌ A2UI bundle failed:')
+  for (const log of a2uiResult.logs) {
+    console.error(log)
+  }
+  process.exit(1)
+}
+
+console.log('✅ A2UI bundle → dist/a2ui.min.js')
+
 // Copy CSS theme file to dist
 copyFileSync('src/prefab.css', 'dist/prefab.css')
 console.log('✅ Base theme → dist/prefab.css')
