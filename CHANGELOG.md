@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.3.10] — 2026-08-24
+
 ### Added
 
 - **A2UI is now a first-class output target: `PrefabApp.toA2UI()` emits the same component tree as [A2UI](https://a2ui.org) v1.0.** A2UI is the Google-backed declarative agent-to-UI protocol, and it overlaps prefab's category exactly: the agent sends a component tree plus a data model, and the host's own renderer draws native widgets from it. It reaches renderers prefab has none of (React, Angular, Lit, Flutter, Swift, Jetpack Compose) with no iframe involved, and its agent-side SDK is Python-only, so a TypeScript authoring layer had no equivalent. Two structural gaps had to be bridged: A2UI keeps components in a flat adjacency list rather than a nested tree, and it binds dynamic values through JSON Pointers rather than interpolating `{{ }}` templates. `src/a2ui/` handles both, allocating ids deterministically so the same tree always emits byte-identical output.
