@@ -16,7 +16,7 @@
  */
 
 import type { ComponentJSON } from '../core/component.js'
-import type { A2uiComponentProps, A2uiAction, A2uiDiagnosticKind, A2uiDynamicString } from './types.js'
+import type { A2uiComponentProps, A2uiAction, A2uiDiagnosticKind, A2uiDynamicString, A2uiFunctionCall } from './types.js'
 import type { BindingResult } from './expr.js'
 import { a2uiIconName } from './icons.js'
 import { CONTROL_MAPPERS } from './control.js'
@@ -99,6 +99,8 @@ function text(
   // Markdown decoration can only wrap a literal. A bound or interpolated value
   // is handed over undecorated rather than emitting syntax the renderer would
   // show as data.
+  if (bound.kind === 'format' && bound.note != null) ctx.note('degraded', node.type, bound.note)
+
   if (bound.kind === 'binding' || bound.kind === 'format' || bound.kind === 'index') {
     if (prefix !== '' || suffix !== '') {
       ctx.note('degraded', node.type, 'Markdown emphasis dropped: the text is a data binding')
@@ -233,6 +235,34 @@ function valueBinding(node: ComponentJSON, ctx: EmitContext): { path: string } |
   return bound.kind === 'binding' ? bound.value : undefined
 }
 
+/**
+ * Renderer-side validation for a stateful control.
+ *
+ * Every A2UI input is `Checkable` and takes a list of check rules, which is the
+ * same job prefab's `required` and `inputType` do. Dropping them made a form
+ * cross over without its validation: a required field stopped being required,
+ * which is a functional regression rather than a cosmetic one.
+ *
+ * No `message` is emitted. The rule already says which check failed, and the
+ * renderer is better placed to word and localize that than a hardcoded English
+ * string from here.
+ */
+function checksOf(node: ComponentJSON, ctx: EmitContext): { condition: A2uiFunctionCall }[] | undefined {
+  const value = valueBinding(node, ctx)
+  if (value == null) return undefined
+
+  const checks: { condition: A2uiFunctionCall }[] = []
+  if (node.required === true) checks.push({ condition: { call: 'required', args: { value } } })
+
+  // `numeric` is deliberately absent. The catalog requires it to carry a `min`
+  // or a `max` — it is a range check, not a type check — and prefab's number
+  // inputs carry no range to supply. Emitting a bare one fails validation, and
+  // `variant: 'number'` on the field already says the value is numeric.
+  if (node.inputType === 'email') checks.push({ condition: { call: 'email', args: { value } } })
+
+  return checks.length > 0 ? checks : undefined
+}
+
 function optionsOf(node: ComponentJSON, ctx: EmitContext): { label: string; value: string }[] {
   const children = Array.isArray(node.children) ? node.children : []
   const options: { label: string; value: string }[] = []
@@ -272,7 +302,15 @@ function choicePicker(variant: 'mutuallyExclusive' | 'multipleSelection'): Mappe
       return undefined
     }
     const value = valueBinding(node, ctx)
-    return { component: 'ChoicePicker', label, variant, options, ...(value != null && { value }) }
+    const checks = checksOf(node, ctx)
+    return {
+      component: 'ChoicePicker',
+      label,
+      variant,
+      options,
+      ...(value != null && { value }),
+      ...(checks != null && { checks }),
+    }
   }
 }
 
@@ -284,12 +322,14 @@ function textField(node: ComponentJSON, ctx: EmitContext, variant: string): A2ui
   }
   const value = valueBinding(node, ctx)
   const placeholder = ctx.dyn(textOf(node, 'placeholder'))
+  const checks = checksOf(node, ctx)
   return {
     component: 'TextField',
     label,
     variant,
     ...(value != null && { value }),
     ...(placeholder != null && { placeholder }),
+    ...(checks != null && { checks }),
   }
 }
 
@@ -309,8 +349,14 @@ const FORM_MAPPERS: Record<string, Mapper> = {
       ctx.note('unsupported', node.type, 'CheckBox requires a label and none could be derived')
       return undefined
     }
+    const checks = checksOf(node, ctx)
     // `value` is required by the catalog; an unbound checkbox starts unchecked.
-    return { component: 'CheckBox', label, value: valueBinding(node, ctx) ?? false }
+    return {
+      component: 'CheckBox',
+      label,
+      value: valueBinding(node, ctx) ?? false,
+      ...(checks != null && { checks }),
+    }
   },
   Slider: (node, ctx) => {
     const max = typeof node.max === 'number' ? node.max : undefined

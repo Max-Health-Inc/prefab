@@ -6,13 +6,15 @@
  * the `formatString` catalog function. Between them those cover more than a
  * plain-path conversion would suggest:
  *
- *   - `{{ user.name }}` → `{ path: '/user/name' }`
- *   - `Hi {{ name }}!`  → `{ call: 'formatString', args: { value: 'Hi ${/name}!' } }`
- *   - `{{ count + 1 }}` → nothing; A2UI has no expression language
+ *   - `{{ user.name }}`        → `{ path: '/user/name' }`
+ *   - `Hi {{ name }}!`         → `{ call: 'formatString', args: { value: 'Hi ${/name}!' } }`
+ *   - `{{ p | currency:'EUR' }}` → `{ call: 'formatCurrency', args: { … } }`
+ *   - `{{ count + 1 }}`        → nothing; A2UI has no expression language
  *
- * What does not survive is arithmetic, pipes and conditionals. Those are
- * reported as `expression` diagnostics rather than emitted as a binding that
- * would render an empty string in someone's renderer.
+ * What does not survive is arithmetic, conditionals, and the pipes that
+ * transform data rather than format it (see `./pipes.ts`). Those are reported as
+ * `expression` diagnostics rather than emitted as a binding that would render an
+ * empty string in someone's renderer.
  *
  * ## Scopes
  *
@@ -24,7 +26,8 @@
  * the root of the data model and read whatever happened to be there.
  */
 
-import type { A2uiDataBinding, A2uiDynamicString, A2uiFunctionCall } from './types.js'
+import { parsePipe, pipeCall } from './pipes.js'
+import type { A2uiDataBinding, A2uiDynamicString, A2uiDynamicValue, A2uiFunctionCall } from './types.js'
 
 /** Matches a string that is exactly one `{{ … }}` template and nothing else. */
 const SOLE_TEMPLATE = /^\s*\{\{\s*(.+?)\s*\}\}\s*$/s
@@ -112,8 +115,12 @@ export type BindingResult =
   | { kind: 'literal'; value: string }
   /** A `{{ path }}` that mapped cleanly onto a JSON Pointer. */
   | { kind: 'binding'; value: A2uiDataBinding }
-  /** Mixed literal and template text, interpolated through `formatString`. */
-  | { kind: 'format'; value: A2uiFunctionCall }
+  /**
+   * A value produced by a catalog function: interpolated text, or a pipe that
+   * maps onto one of A2UI's formatters. `note` carries anything the mapping
+   * cost, for the caller to report.
+   */
+  | { kind: 'format'; value: A2uiFunctionCall; note?: string }
   /** The loop index, which A2UI exposes as a system function. */
   | { kind: 'index'; value: A2uiFunctionCall }
   /** A template too rich for A2UI. `expression` is the source, for diagnostics. */
@@ -158,11 +165,34 @@ function toFormatString(value: string, scope: BindScope): A2uiFunctionCall | und
 }
 
 /**
+ * Resolve a piped expression to a catalog-function call.
+ *
+ * The base must itself be a plain path or a literal, since A2UI function
+ * arguments take a value rather than an expression to evaluate.
+ */
+function toPipeCall(expr: string, scope: BindScope): BindingResult | undefined {
+  const pipe = parsePipe(expr)
+  if (pipe == null) return undefined
+
+  const pointer = pathToPointer(pipe.base, scope)
+  const value: A2uiDynamicValue | undefined = pointer != null
+    ? { path: pointer }
+    : /^-?\d+(\.\d+)?$/.test(pipe.base) ? Number(pipe.base) : undefined
+  if (value === undefined) return undefined
+
+  const mapped = pipeCall(pipe, value)
+  if (mapped == null) return undefined
+
+  return { kind: 'format', value: mapped.call, ...(mapped.note != null && { note: mapped.note }) }
+}
+
+/**
  * Convert a prefab string value into an A2UI dynamic value.
  *
- * A whole-string template over a plain path becomes a binding, mixed text
- * becomes a `formatString` call, a string with no template passes through, and
- * anything else is unbindable.
+ * A whole-string template over a plain path becomes a binding, one over a
+ * formatting pipe becomes a catalog-function call, mixed text becomes a
+ * `formatString` call, a string with no template passes through, and anything
+ * else is unbindable.
  */
 export function toBinding(value: string, scope: BindScope = {}): BindingResult {
   const sole = SOLE_TEMPLATE.exec(value)
@@ -182,6 +212,12 @@ export function toBinding(value: string, scope: BindScope = {}): BindingResult {
 
     const pointer = pathToPointer(expr, scope)
     if (pointer != null) return { kind: 'binding', value: { path: pointer } }
+
+    // A pipe is not part of A2UI's expression language, but the common
+    // formatting ones exist in its catalog as functions.
+    const piped = toPipeCall(expr, scope)
+    if (piped != null) return piped
+
     return { kind: 'unbindable', expression: expr }
   }
 

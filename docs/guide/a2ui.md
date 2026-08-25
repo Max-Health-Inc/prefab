@@ -125,6 +125,55 @@ lost. What has no equivalent is arithmetic, pipes and conditionals —
 binds; one unbindable expression makes the whole string unbindable, because
 interpolating half of it would change what the text says without saying so.
 
+### Pipes
+
+A2UI has no expression language, but its catalog has the formatting functions
+that prefab's common pipes correspond to, so seven of the twenty-two map:
+
+| prefab | A2UI |
+|---|---|
+| `currency` | `formatCurrency(value, currency)` |
+| `number`, `round` | `formatNumber(value, decimals)` |
+| `date`, `time`, `datetime` | `formatDate(value, format)` |
+| `pluralize` | `pluralize(value, one, other)` |
+
+`{{ price | currency:'EUR' }}` becomes
+`{ call: 'formatCurrency', args: { value: { path: '/price' }, currency: 'EUR' } }`.
+
+The date pipes are the one inexact mapping. prefab renders through the reader's
+locale; A2UI's `formatDate` requires an explicit Unicode TR35 pattern, so one is
+chosen and a `degraded` diagnostic says which. Losing the value entirely would be
+the worse trade.
+
+The other fifteen — `truncate`, `join`, `selectattr`, `percent`, `compact` and
+friends — transform data rather than format it, and stay reported. So does a
+chained pipe: no single catalog function is two pipes, and translating half of
+one would change the value without saying so.
+
+### Validation
+
+Every A2UI input is `Checkable`, which is the same job prefab's `required` and
+`inputType` do, so a form keeps its validation on the way across:
+
+```json
+{
+  "component": "TextField",
+  "label": "Email",
+  "checks": [
+    { "condition": { "call": "required", "args": { "value": { "path": "/email" } } } },
+    { "condition": { "call": "email",    "args": { "value": { "path": "/email" } } } }
+  ]
+}
+```
+
+No `message` is emitted. The rule already says which check failed, and the
+renderer is better placed to word and localize that than prefab is.
+
+`numeric` is deliberately not emitted for a number field. The catalog requires it
+to carry a `min` or a `max` — it is a range check rather than a type check — and
+prefab's number inputs carry no range. `variant: 'number'` on the field already
+says the value is numeric.
+
 ### Control flow
 
 | prefab | A2UI |
@@ -166,7 +215,7 @@ live.
 | `Muted`, `Small`, `Label`, `Badge` | `Text` | `variant: caption` |
 | `Code`, `Kbd` | `Text` | backtick-wrapped |
 | `BlockQuote` | `Text` | `>` prefix |
-| `Input`, `Textarea` | `TextField` | `inputType` picks the variant |
+| `Input`, `Textarea` | `TextField` | `inputType` picks the variant; `required` becomes a check |
 | `Checkbox`, `Switch` | `CheckBox` | |
 | `Select`, `RadioGroup`, `Combobox` | `ChoicePicker` | options read from the children |
 | `Slider` | `Slider` | `step` converted to division count |

@@ -137,7 +137,10 @@ describe('expression binding', () => {
   })
 
   test('rejects anything richer than a member path', () => {
-    for (const expr of ['{{ a + 1 }}', "{{ p | currency:'USD' }}", "{{ x ? 'y' : 'z' }}", '{{ f() }}']) {
+    // A formatting pipe is the exception, since A2UI's catalog has the function
+    // it corresponds to; see `a2ui-pipes.test.ts`. Arithmetic, conditionals and
+    // calls have no equivalent at all.
+    for (const expr of ['{{ a + 1 }}', "{{ x ? 'y' : 'z' }}", '{{ f() }}', '{{ s | truncate:10 }}']) {
       expect(toBinding(expr).kind, expr).toBe('unbindable')
     }
   })
