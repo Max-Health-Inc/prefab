@@ -3,8 +3,10 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
-
+
 <!-- Add new entries directly below. Keep this line: it makes a release merge conflict rather than file them under a published version. -->
+
+## [0.3.11] — 2026-08-25
 
 ### Added
 
