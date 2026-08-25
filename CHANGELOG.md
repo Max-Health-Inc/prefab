@@ -3,6 +3,8 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+
+<!-- Add new entries directly below. Keep this line: it makes a release merge conflict rather than file them under a published version. -->
 
 ### Added
 
@@ -13,6 +15,7 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- **The release merge could file unreleased entries under the version that just shipped.** Promoting `[Unreleased]` on `main` and adding new entries on `dev` are insertions at the same point, so git's line-based merge orders them heading-first and attributes unshipped work to a published version. It does so without conflicting, which is why the release workflow's best-effort sync never had anything to report, and it has now happened three times. `scripts/changelog-release.ts` keeps an anchor line under `[Unreleased]` so the two insertions land at the same offset and collide, and `scripts/check-changelog.ts` verifies the outcome independently in CI: every version section must stay byte-identical to `main`'s. The anchor is a guard, the check is the guarantee.
 - **A dropped node left its already-emitted children orphaned, producing a payload the renderer rejects.** A mapper reads its children before deciding whether it can map at all: `Dialog` emits its body, then finds it cannot build a trigger, returns nothing, and the body stays in the adjacency list with no component pointing at it. `interactive-showcase.json` — one of the shipped examples — emitted an unreachable `Row` on v0.3.10 for exactly this reason. Emission is now transactional: a node that drops rolls back every component and data-model key added while mapping it. The per-type registry tests could not catch this, because each mapper is correct in isolation and the fault is in the interaction; `test/a2ui-control.test.ts` now runs every shipped example through the emitter, which does catch it.
 - **`Define` emitted its template body as visible content.** It fell to the generic fallback and was flattened to a `Column`, so a definition rendered where it was declared. The renderer draws nothing at the point of definition and now neither does the emitter.
 - **The emitter knew only one of the two spellings for a tool-call action.** The renderer accepts `toolCall` and `callTool`, and the shipped examples use the latter, so every hand-written tool call was silently downgraded to a generic agent event and had its arguments dropped for not being scalar.

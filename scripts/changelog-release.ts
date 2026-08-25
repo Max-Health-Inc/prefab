@@ -13,6 +13,22 @@
  * `--check` reports the status on stdout and always exits 0, writing nothing.
  * Note the plain invocation is NOT a dry run: it rewrites CHANGELOG.md in place.
  * Use `--check <version>` to ask whether there is anything to ship.
+ *
+ * ## The marker
+ *
+ * Promotion leaves {@link UNRELEASED_MARKER} directly under `## [Unreleased]`.
+ * It exists for git, not for readers.
+ *
+ * A release inserts the new version heading immediately below `## [Unreleased]`,
+ * and `dev` adds its next entries in exactly the same place. When `main` is
+ * merged back, git's line-based merge sees two insertions at one point and
+ * orders them heading-first, filing unreleased work under a published version
+ * with no conflict to notice. That has happened three times.
+ *
+ * A line both sides carry unchanged forces the two insertions to the same offset
+ * and makes the merge conflict rather than guess. It is a guard rather than a
+ * guarantee, which is why `scripts/check-changelog.ts` verifies the outcome
+ * independently.
  */
 
 import { readFileSync, writeFileSync } from 'node:fs'
@@ -25,6 +41,13 @@ export interface ChangelogResult {
 }
 
 const UNRELEASED = /^##\s*\[Unreleased\][^\n]*$/m
+
+/** Anchor line kept directly under `## [Unreleased]`. See the note above. */
+export const UNRELEASED_MARKER =
+  '<!-- Add new entries directly below. Keep this line: it makes a release merge conflict rather than file them under a published version. -->'
+
+/** Matches the marker wherever it currently sits, so promotion can re-place it. */
+const MARKER_LINE = /^<!-- Add new entries directly below\..*-->$/m
 
 /**
  * Validate and (if needed) promote the `[Unreleased]` section to `version`.
@@ -48,9 +71,14 @@ export function promoteChangelog(md: string, version: string, date: string): Cha
   const rest = md.slice(heading.index + heading[0].length)
   const nextHeading = rest.search(/^##\s+\[/m)
   const body = nextHeading === -1 ? rest : rest.slice(0, nextHeading)
+  const after = nextHeading === -1 ? '' : rest.slice(nextHeading)
+
+  // The marker belongs to [Unreleased], so it is lifted out before the body
+  // becomes the release's notes, then re-placed under the fresh heading.
+  const notes = body.replace(MARKER_LINE, '').trim()
 
   // A real entry is a non-blank line that is not itself a heading (### Fixed, etc.).
-  const hasEntry = body.split('\n').some(line => {
+  const hasEntry = notes.split('\n').some(line => {
     const t = line.trim()
     return t.length > 0 && !t.startsWith('#')
   })
@@ -61,7 +89,15 @@ export function promoteChangelog(md: string, version: string, date: string): Cha
     }
   }
 
-  const content = md.replace(UNRELEASED, `## [Unreleased]\n\n## [${version}] — ${date}`)
+  const content = [
+    md.slice(0, heading.index),
+    '## [Unreleased]\n\n',
+    `${UNRELEASED_MARKER}\n\n`,
+    `## [${version}] — ${date}\n\n`,
+    `${notes}\n\n`,
+    after,
+  ].join('')
+
   return { status: 'promoted', content, message: `CHANGELOG: promoted [Unreleased] to [${version}] — ${date}.` }
 }
 

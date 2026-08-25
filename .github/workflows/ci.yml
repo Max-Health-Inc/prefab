@@ -30,6 +30,13 @@ jobs:
       - name: Doc examples typecheck
         run: bun run check:docs
 
+      # A release merge can file unreleased entries under the version that just
+      # shipped, and it does so without conflicting. This is what notices.
+      - name: Changelog integrity
+        run: |
+          git fetch --depth=1 origin main
+          bun run check:changelog origin/main
+
       - name: Build
         run: bun run build
 
