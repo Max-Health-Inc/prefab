@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.3.10] — 2026-08-24
+
 ### Added
 
 - **`ForEach` maps onto A2UI's child template.** A2UI has iteration, the same construct `DataTable` already used: one template component instantiated per item, with paths inside it resolving relative to the current row. The emitter simply never wired it, so every loop was dropped. `$item` now resolves to a relative path and `$index` to the `@index` system function.
