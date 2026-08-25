@@ -20,7 +20,7 @@
 import type { ComponentJSON } from '../core/component.js'
 import type { PrefabWireFormat } from '../app.js'
 import { createLogger } from '../core/logger.js'
-import { escapePointerToken, toBinding } from './expr.js'
+import { dynamicString, escapePointerToken, toBinding, type BindScope, type BindingResult } from './expr.js'
 import { fallbackMapper, isConsumedByParent, mapperFor, type A2uiProps, type EmitContext } from './catalog.js'
 import {
   A2UI_BASIC_CATALOG,
@@ -30,6 +30,7 @@ import {
   type A2uiComponent,
   type A2uiDiagnostic,
   type A2uiDiagnosticKind,
+  type A2uiDynamicString,
   type A2uiDynamicValue,
   type A2uiMessage,
 } from './types.js'
@@ -84,15 +85,95 @@ function unwrapAppRoot(view: ComponentJSON): ComponentJSON {
   return view
 }
 
+/**
+ * Collect every `Define` in the tree.
+ *
+ * A pre-pass rather than collection during the walk, because prefab resolves a
+ * definition by name at render time and imposes no ordering: a `Use` may appear
+ * before the `Define` it refers to, and inside a different branch of the tree.
+ */
+function collectDefinitions(node: ComponentJSON, into: Map<string, ComponentJSON[]>): void {
+  if (node.type === 'Define') {
+    const name = typeof node.name === 'string' ? node.name : undefined
+    if (name != null && Array.isArray(node.children)) into.set(name, node.children)
+  }
+  if (Array.isArray(node.children)) for (const child of node.children) collectDefinitions(child, into)
+}
+
 class Emitter implements EmitContext {
   /** Insertion-ordered; `undefined` marks a reserved slot that was released. */
   private readonly components = new Map<string, A2uiComponent | undefined>()
-  private readonly dataModel: Record<string, unknown> = {}
+  // A Map rather than an object literal so a rolled-back subtree's seeded keys
+  // can be removed without a dynamic delete.
+  private readonly dataModel = new Map<string, unknown>()
   private readonly used = new Set<string>([A2UI_ROOT_ID])
   private readonly diagnostics: A2uiDiagnostic[] = []
+  private readonly definitions = new Map<string, ComponentJSON[]>()
   private counter = 0
 
+  /** Names in force for binding, extended while inlining a template or a definition. */
+  private scope: BindScope = {}
+
+  /** Slot content from the nearest enclosing `Use`. */
+  private slots: Record<string, ComponentJSON[]> = {}
+
+  /**
+   * Definitions currently being expanded, so a `Use` inside its own `Define`
+   * reports a cycle instead of recursing until the stack gives out.
+   */
+  private readonly expanding = new Set<string>()
+
   constructor(private readonly warn: boolean) {}
+
+  bind(value: string): BindingResult {
+    return toBinding(value, this.scope)
+  }
+
+  dyn(value: string | undefined): A2uiDynamicString | undefined {
+    return dynamicString(value, this.scope)
+  }
+
+  inScope<T>(names: BindScope, fn: () => T): T {
+    const previous = this.scope
+    this.scope = { ...previous, ...names }
+    try {
+      return fn()
+    } finally {
+      this.scope = previous
+    }
+  }
+
+  withSlots<T>(slots: Record<string, ComponentJSON[]>, fn: () => T): T {
+    const previous = this.slots
+    this.slots = { ...previous, ...slots }
+    try {
+      return fn()
+    } finally {
+      this.slots = previous
+    }
+  }
+
+  slotContent(name: string): ComponentJSON[] | undefined {
+    return this.slots[name]
+  }
+
+  definition(name: string): ComponentJSON[] | undefined {
+    if (this.expanding.has(name)) {
+      this.note('unsupported', 'Use', `definition "${name}" uses itself; A2UI has no recursive template`)
+      return undefined
+    }
+    return this.definitions.get(name)
+  }
+
+  /** Track expansion depth so `definition()` can detect a cycle. */
+  expand<T>(name: string, fn: () => T): T {
+    this.expanding.add(name)
+    try {
+      return fn()
+    } finally {
+      this.expanding.delete(name)
+    }
+  }
 
   note(kind: A2uiDiagnosticKind, subject: string, detail: string): void {
     this.diagnostics.push({ kind, subject, detail })
@@ -124,11 +205,11 @@ class Emitter implements EmitContext {
   bindData(key: string, value: unknown): string {
     let name = key
     let n = 0
-    while (name in this.dataModel) {
+    while (this.dataModel.has(name)) {
       n += 1
       name = `${key}${n}`
     }
-    this.dataModel[name] = value
+    this.dataModel.set(name, value)
     return `/${escapePointerToken(name)}`
   }
 
@@ -171,7 +252,11 @@ class Emitter implements EmitContext {
     if (kind == null) return undefined
 
     switch (kind) {
-      case 'toolCall': {
+      // `callTool` is the spelling the shipped examples use and the renderer
+      // accepts both, so an emitter that knew only one silently downgraded every
+      // hand-written tool call into a generic agent event.
+      case 'toolCall':
+      case 'callTool': {
         const tool = typeof json.tool === 'string' ? json.tool : undefined
         if (tool == null) return undefined
         const context = this.eventContext(json.arguments, subject)
@@ -227,6 +312,25 @@ class Emitter implements EmitContext {
     return Object.keys(context).length > 0 ? context : undefined
   }
 
+  /**
+   * Undo everything emitted since a watermark.
+   *
+   * A mapper reads its children before deciding whether it can map at all — a
+   * `Dialog` emits its body, then finds it cannot build a trigger. Without this,
+   * those children stay in the adjacency list with nothing pointing at them,
+   * which is a payload the renderer rejects for unreachability. Dropping a node
+   * has to drop its whole subtree.
+   */
+  private rollback(components: number, dataKeys: number): void {
+    const keys = [...this.components.keys()]
+    for (let i = components; i < keys.length; i++) {
+      this.components.delete(keys[i])
+      if (keys[i] !== A2UI_ROOT_ID) this.used.delete(keys[i])
+    }
+    const seeded = [...this.dataModel.keys()]
+    for (let i = dataKeys; i < seeded.length; i++) this.dataModel.delete(seeded[i])
+  }
+
   /** Emit one subtree. Returns the allocated id, or `undefined` if it was dropped. */
   emit(node: ComponentJSON, isRoot: boolean): string | undefined {
     if (typeof node.type !== 'string') return undefined
@@ -235,6 +339,9 @@ class Emitter implements EmitContext {
       this.note('unsupported', node.type, 'only meaningful inside its parent; emitted standalone it has no meaning')
       return undefined
     }
+
+    const componentMark = this.components.size
+    const dataMark = this.dataModel.size
 
     const id = isRoot ? A2UI_ROOT_ID : this.allocate(node)
     // Reserve the slot before the mapper runs, so children emitted during
@@ -245,8 +352,7 @@ class Emitter implements EmitContext {
     const props = mapper(node, this)
 
     if (props == null) {
-      this.components.delete(id)
-      if (!isRoot) this.used.delete(id)
+      this.rollback(componentMark, dataMark)
       return undefined
     }
 
@@ -256,6 +362,12 @@ class Emitter implements EmitContext {
 
   finish(wire: PrefabWireFormat, options: A2uiEmitOptions): A2uiEmitResult {
     const surfaceId = options.surfaceId ?? 'prefab'
+
+    // Envelope-level defs first, then any `Define` in the tree, which wins on a
+    // name clash for the same reason it does in the renderer: it is nearer.
+    for (const [name, body] of Object.entries(wire.defs ?? {})) this.definitions.set(name, [body])
+    collectDefinitions(wire.view, this.definitions)
+
     const rootId = this.emit(unwrapAppRoot(wire.view), true)
 
     if (rootId == null) {
@@ -268,7 +380,7 @@ class Emitter implements EmitContext {
     // prefab state and any literals seeded during mapping share one data model.
     // State wins on a collision, since seeded keys are generated and state keys
     // are author-chosen.
-    const dataModel = { ...this.dataModel, ...(wire.state ?? {}) }
+    const dataModel = { ...Object.fromEntries(this.dataModel), ...(wire.state ?? {}) }
     const hasData = Object.keys(dataModel).length > 0
 
     const messages: A2uiMessage[] = []

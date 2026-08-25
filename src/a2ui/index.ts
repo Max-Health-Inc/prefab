@@ -21,6 +21,8 @@ export type { A2uiEmitOptions, A2uiEmitResult } from './emit.js'
 
 export { mappedTypes } from './catalog.js'
 export { a2uiIconName, A2UI_ICONS } from './icons.js'
+export { mappedPipes, parsePipe } from './pipes.js'
+export type { ParsedPipe, PipeMapping } from './pipes.js'
 export type { A2uiProps, EmitContext, Mapper } from './catalog.js'
 
 export { toBinding, toJsonPointer, escapePointerToken, dynamicString } from './expr.js'

@@ -119,10 +119,17 @@ describe('expression binding', () => {
     expect(toBinding('{{ state.count }}')).toEqual({ kind: 'binding', value: { path: '/count' } })
   })
 
-  test('refuses to interpolate mixed literal and template text', () => {
-    // A2UI has no string interpolation, and formatString would need an argument
-    // list this conversion has no way to name.
-    expect(toBinding('Hello {{ name }}').kind).toBe('unbindable')
+  test('interpolates mixed literal and template text through formatString', () => {
+    expect(toBinding('Hello {{ name }}')).toEqual({
+      kind: 'format',
+      value: { call: 'formatString', args: { value: 'Hello ${/name}' } },
+    })
+  })
+
+  test('refuses the whole string when an embedded expression is too rich', () => {
+    // Interpolating the bindable half and dropping the rest would change what
+    // the text says without saying so.
+    expect(toBinding('Hello {{ a + b }}').kind).toBe('unbindable')
   })
 
   test('passes a plain literal through untouched', () => {
@@ -130,7 +137,10 @@ describe('expression binding', () => {
   })
 
   test('rejects anything richer than a member path', () => {
-    for (const expr of ['{{ a + 1 }}', "{{ p | currency:'USD' }}", "{{ x ? 'y' : 'z' }}", '{{ f() }}']) {
+    // A formatting pipe is the exception, since A2UI's catalog has the function
+    // it corresponds to; see `a2ui-pipes.test.ts`. Arithmetic, conditionals and
+    // calls have no equivalent at all.
+    for (const expr of ['{{ a + 1 }}', "{{ x ? 'y' : 'z' }}", '{{ f() }}', '{{ s | truncate:10 }}']) {
       expect(toBinding(expr).kind, expr).toBe('unbindable')
     }
   })

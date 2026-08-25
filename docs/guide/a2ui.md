@@ -114,9 +114,82 @@ yourself is honoured.
 
 **Bound, not interpolated.** A2UI reads dynamic values through JSON Pointer
 bindings. `{{ user.name }}` becomes `{ "path": "/user/name" }`, and prefab's
-`state` becomes the surface data model. Expressions with operators, pipes or
-conditionals — `{{ count + 1 }}`, `{{ price | currency:'USD' }}` — have no A2UI
-equivalent and raise an `expression` diagnostic.
+`state` becomes the surface data model.
+
+Text that mixes literals with values goes through the `formatString` catalog
+function, so `Score: {{ score }}` becomes
+`{ call: 'formatString', args: { value: 'Score: ${/score}' } }` rather than being
+lost. What has no equivalent is arithmetic, pipes and conditionals —
+`{{ count + 1 }}`, `{{ price | currency:'USD' }}` — and those raise an
+`expression` diagnostic. A string is interpolated only if *every* value in it
+binds; one unbindable expression makes the whole string unbindable, because
+interpolating half of it would change what the text says without saying so.
+
+### Pipes
+
+A2UI has no expression language, but its catalog has the formatting functions
+that prefab's common pipes correspond to, so seven of the twenty-two map:
+
+| prefab | A2UI |
+|---|---|
+| `currency` | `formatCurrency(value, currency)` |
+| `number`, `round` | `formatNumber(value, decimals)` |
+| `date`, `time`, `datetime` | `formatDate(value, format)` |
+| `pluralize` | `pluralize(value, one, other)` |
+
+`{{ price | currency:'EUR' }}` becomes
+`{ call: 'formatCurrency', args: { value: { path: '/price' }, currency: 'EUR' } }`.
+
+The date pipes are the one inexact mapping. prefab renders through the reader's
+locale; A2UI's `formatDate` requires an explicit Unicode TR35 pattern, so one is
+chosen and a `degraded` diagnostic says which. Losing the value entirely would be
+the worse trade.
+
+The other fifteen — `truncate`, `join`, `selectattr`, `percent`, `compact` and
+friends — transform data rather than format it, and stay reported. So does a
+chained pipe: no single catalog function is two pipes, and translating half of
+one would change the value without saying so.
+
+### Validation
+
+Every A2UI input is `Checkable`, which is the same job prefab's `required` and
+`inputType` do, so a form keeps its validation on the way across:
+
+```json
+{
+  "component": "TextField",
+  "label": "Email",
+  "checks": [
+    { "condition": { "call": "required", "args": { "value": { "path": "/email" } } } },
+    { "condition": { "call": "email",    "args": { "value": { "path": "/email" } } } }
+  ]
+}
+```
+
+No `message` is emitted. The rule already says which check failed, and the
+renderer is better placed to word and localize that than prefab is.
+
+`numeric` is deliberately not emitted for a number field. The catalog requires it
+to carry a `min` or a `max` — it is a range check rather than a type check — and
+prefab's number inputs carry no range. `variant: 'number'` on the field already
+says the value is numeric.
+
+### Control flow
+
+| prefab | A2UI |
+|---|---|
+| `ForEach` | the child template — one instance per item, `$item` resolving to a path relative to the current item and `$index` to the `@index` function |
+| `Define` / `Use` / `Slot` | resolved at emit time by inlining the definition; a `Use`'s `overrides` are seeded into the data model and brought into scope by name |
+| `If` / `Elif` / `Else` / `Condition` | **no equivalent** |
+
+Conditionals are the one real capability gap between the two protocols. A2UI has
+no declarative `if`: the renderer draws what the adjacency list says, and the
+agent sends a fresh `updateComponents` when the shape should change. prefab runs
+a reactive client that re-shapes itself without a round trip.
+
+A one-item list template would *look* like a conditional and behave like one only
+by accident, so the emitter reports the loss instead of faking it. A UI leaning
+on `If` does not cross over intact, and no amount of emitter work changes that.
 
 ### Tables
 
@@ -142,7 +215,7 @@ live.
 | `Muted`, `Small`, `Label`, `Badge` | `Text` | `variant: caption` |
 | `Code`, `Kbd` | `Text` | backtick-wrapped |
 | `BlockQuote` | `Text` | `>` prefix |
-| `Input`, `Textarea` | `TextField` | `inputType` picks the variant |
+| `Input`, `Textarea` | `TextField` | `inputType` picks the variant; `required` becomes a check |
 | `Checkbox`, `Switch` | `CheckBox` | |
 | `Select`, `RadioGroup`, `Combobox` | `ChoicePicker` | options read from the children |
 | `Slider` | `Slider` | `step` converted to division count |
@@ -156,6 +229,10 @@ live.
 | `Alert` | `Card` | variant styling dropped |
 | `Metric` | `Column` of `Text` | trend and delta dropped |
 | `Table`, `DataTable` | `Column` of `Row`s | see above |
+| `CardTitle`, `CardDescription`, `Tooltip` | `Text` | |
+| `ForEach` | templated `Column` | see Control flow |
+| `Define`, `Use`, `Slot` | inlined | see Control flow |
+| `If`, `Elif`, `Else`, `Condition` | — | `unsupported` |
 | charts, `Mermaid`, `Svg`, `DropZone`, `Progress` | — | `unsupported` |
 
 A component the table does not name still emits: one with children flattens to a
@@ -166,7 +243,7 @@ diagnostic. Nothing is dropped silently.
 
 | prefab action | A2UI |
 |---|---|
-| `CallTool` | `{ event: { name: tool, context: arguments } }` |
+| `CallTool` (either `toolCall` or `callTool` on the wire) | `{ event: { name: tool, context: arguments } }` |
 | `SendMessage` | `{ event: { name: 'sendMessage', context: { message } } }` |
 | `OpenLink` | `{ functionCall: { call: 'openUrl', args: { url } } }` |
 | `SetState`, `ToggleState`, everything else | an agent event named after the action |

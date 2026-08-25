@@ -16,9 +16,10 @@
  */
 
 import type { ComponentJSON } from '../core/component.js'
-import type { A2uiComponentProps, A2uiAction, A2uiDiagnosticKind } from './types.js'
-import { dynamicString, toBinding } from './expr.js'
+import type { A2uiComponentProps, A2uiAction, A2uiDiagnosticKind, A2uiDynamicString, A2uiFunctionCall } from './types.js'
+import type { BindingResult } from './expr.js'
 import { a2uiIconName } from './icons.js'
+import { CONTROL_MAPPERS } from './control.js'
 import { mapTable, mapDataTable, TABLE_PART_TYPES } from './table.js'
 
 /** A2UI properties for one component, before the emitter assigns its id. */
@@ -40,6 +41,26 @@ export interface EmitContext {
   action(value: unknown, subject: string): A2uiAction | undefined
   /** Seed a literal value into the surface data model, returning its JSON Pointer. */
   bindData(key: string, value: unknown): string
+  /**
+   * Convert a `{{ }}` value with the current scope applied.
+   *
+   * Mappers go through the context rather than calling `./expr.js` directly, so
+   * the scope in force — a list-template item, an inlined definition's
+   * overrides — is applied at one seam instead of at every call site.
+   */
+  bind(value: string): BindingResult
+  /** Resolve to a dynamic string under the current scope, or `undefined`. */
+  dyn(value: string | undefined): A2uiDynamicString | undefined
+  /** Emit `fn`'s children with `names` added to the binding scope. */
+  inScope<T>(names: Record<string, string>, fn: () => T): T
+  /** The body of a named definition, if one was declared and is not already expanding. */
+  definition(name: string): ComponentJSON[] | undefined
+  /** Run `fn` with `name` marked as expanding, so a self-reference is caught. */
+  expand<T>(name: string, fn: () => T): T
+  /** Emit `fn`'s children with slot content available to any `Slot` inside. */
+  withSlots<T>(slots: Record<string, ComponentJSON[]>, fn: () => T): T
+  /** Content for a named slot, from the nearest enclosing `Use`. */
+  slotContent(name: string): ComponentJSON[] | undefined
 }
 
 export type Mapper = (node: ComponentJSON, ctx: EmitContext) => A2uiProps | undefined
@@ -67,7 +88,7 @@ function text(
     return undefined
   }
 
-  const bound = toBinding(raw)
+  const bound = ctx.bind(raw)
   if (bound.kind === 'unbindable') {
     ctx.note('expression', node.type, `"${bound.expression}" is richer than a JSON Pointer; the text was left as written`)
   }
@@ -75,9 +96,12 @@ function text(
   const prefix = opts?.prefix ?? ''
   const suffix = opts?.suffix ?? ''
 
-  // Markdown decoration can only wrap a literal. A bound value is handed over
-  // undecorated rather than emitting syntax the renderer would show as data.
-  if (bound.kind === 'binding') {
+  // Markdown decoration can only wrap a literal. A bound or interpolated value
+  // is handed over undecorated rather than emitting syntax the renderer would
+  // show as data.
+  if (bound.kind === 'format' && bound.note != null) ctx.note('degraded', node.type, bound.note)
+
+  if (bound.kind === 'binding' || bound.kind === 'format' || bound.kind === 'index') {
     if (prefix !== '' || suffix !== '') {
       ctx.note('degraded', node.type, 'Markdown emphasis dropped: the text is a data binding')
     }
@@ -155,6 +179,12 @@ const TEXT_MAPPERS: Record<string, Mapper> = {
   Kbd: (node, ctx) => text(node, ctx, { prefix: '`', suffix: '`' }),
   Markdown: (node, ctx) => text(node, ctx),
   Badge: (node, ctx) => text(node, ctx, { keys: ['label', 'content'], variant: 'caption' }),
+  // Card slots that carry text rather than children. Without these they fall to
+  // the generic fallback, which renders the same Text but reports a degradation
+  // for what is actually an exact mapping.
+  CardTitle: (node, ctx) => text(node, ctx, { prefix: '**', suffix: '**' }),
+  CardDescription: (node, ctx) => text(node, ctx, { variant: 'caption' }),
+  Tooltip: (node, ctx) => text(node, ctx, { variant: 'caption' }),
   AlertTitle: (node, ctx) => text(node, ctx, { prefix: '**', suffix: '**' }),
   AlertDescription: (node, ctx) => text(node, ctx),
 }
@@ -167,14 +197,14 @@ for (const [type, prefix] of Object.entries(HEADING_PREFIX)) {
 
 function media(component: 'Image' | 'Video' | 'AudioPlayer'): Mapper {
   return (node, ctx) => {
-    const url = dynamicString(textOf(node, 'src', 'url'))
+    const url = ctx.dyn(textOf(node, 'src', 'url'))
     if (url == null) {
       ctx.note('unsupported', node.type, 'no resolvable source URL')
       return undefined
     }
     // Only Image and AudioPlayer take a description; Video carries a poster instead.
-    const description = component === 'Video' ? undefined : dynamicString(textOf(node, 'alt', 'description'))
-    const poster = component === 'Video' ? dynamicString(textOf(node, 'poster', 'posterUrl')) : undefined
+    const description = component === 'Video' ? undefined : ctx.dyn(textOf(node, 'alt', 'description'))
+    const poster = component === 'Video' ? ctx.dyn(textOf(node, 'poster', 'posterUrl')) : undefined
     return {
       component,
       url,
@@ -198,11 +228,39 @@ const TEXTFIELD_VARIANT: Record<string, string | undefined> = {
  * prefab addresses form state by `name`, a key at the root of the state object,
  * so the pointer is that name as a single escaped token.
  */
-function valueBinding(node: ComponentJSON): { path: string } | undefined {
+function valueBinding(node: ComponentJSON, ctx: EmitContext): { path: string } | undefined {
   const name = typeof node.name === 'string' ? node.name : undefined
   if (name == null) return undefined
-  const bound = toBinding(`{{ ${name} }}`)
+  const bound = ctx.bind(`{{ ${name} }}`)
   return bound.kind === 'binding' ? bound.value : undefined
+}
+
+/**
+ * Renderer-side validation for a stateful control.
+ *
+ * Every A2UI input is `Checkable` and takes a list of check rules, which is the
+ * same job prefab's `required` and `inputType` do. Dropping them made a form
+ * cross over without its validation: a required field stopped being required,
+ * which is a functional regression rather than a cosmetic one.
+ *
+ * No `message` is emitted. The rule already says which check failed, and the
+ * renderer is better placed to word and localize that than a hardcoded English
+ * string from here.
+ */
+function checksOf(node: ComponentJSON, ctx: EmitContext): { condition: A2uiFunctionCall }[] | undefined {
+  const value = valueBinding(node, ctx)
+  if (value == null) return undefined
+
+  const checks: { condition: A2uiFunctionCall }[] = []
+  if (node.required === true) checks.push({ condition: { call: 'required', args: { value } } })
+
+  // `numeric` is deliberately absent. The catalog requires it to carry a `min`
+  // or a `max` — it is a range check, not a type check — and prefab's number
+  // inputs carry no range to supply. Emitting a bare one fails validation, and
+  // `variant: 'number'` on the field already says the value is numeric.
+  if (node.inputType === 'email') checks.push({ condition: { call: 'email', args: { value } } })
+
+  return checks.length > 0 ? checks : undefined
 }
 
 function optionsOf(node: ComponentJSON, ctx: EmitContext): { label: string; value: string }[] {
@@ -226,14 +284,14 @@ function dateTime(node: ComponentJSON, ctx: EmitContext, flags: { enableDate?: b
   return {
     component: 'DateTimeInput',
     // The catalog asks for an empty string while the value is unset.
-    value: valueBinding(node) ?? '',
+    value: valueBinding(node, ctx) ?? '',
     ...flags,
   }
 }
 
 function choicePicker(variant: 'mutuallyExclusive' | 'multipleSelection'): Mapper {
   return (node, ctx) => {
-    const label = dynamicString(textOf(node, 'label', 'name'))
+    const label = ctx.dyn(textOf(node, 'label', 'name'))
     if (label == null) {
       ctx.note('unsupported', node.type, 'ChoicePicker requires a label and none could be derived')
       return undefined
@@ -243,25 +301,35 @@ function choicePicker(variant: 'mutuallyExclusive' | 'multipleSelection'): Mappe
       ctx.note('unsupported', node.type, 'no options to choose from')
       return undefined
     }
-    const value = valueBinding(node)
-    return { component: 'ChoicePicker', label, variant, options, ...(value != null && { value }) }
+    const value = valueBinding(node, ctx)
+    const checks = checksOf(node, ctx)
+    return {
+      component: 'ChoicePicker',
+      label,
+      variant,
+      options,
+      ...(value != null && { value }),
+      ...(checks != null && { checks }),
+    }
   }
 }
 
 function textField(node: ComponentJSON, ctx: EmitContext, variant: string): A2uiProps | undefined {
-  const label = dynamicString(textOf(node, 'label', 'name'))
+  const label = ctx.dyn(textOf(node, 'label', 'name'))
   if (label == null) {
     ctx.note('unsupported', node.type, 'TextField requires a label and none could be derived')
     return undefined
   }
-  const value = valueBinding(node)
-  const placeholder = dynamicString(textOf(node, 'placeholder'))
+  const value = valueBinding(node, ctx)
+  const placeholder = ctx.dyn(textOf(node, 'placeholder'))
+  const checks = checksOf(node, ctx)
   return {
     component: 'TextField',
     label,
     variant,
     ...(value != null && { value }),
     ...(placeholder != null && { placeholder }),
+    ...(checks != null && { checks }),
   }
 }
 
@@ -276,13 +344,19 @@ const FORM_MAPPERS: Record<string, Mapper> = {
   },
   Textarea: (node, ctx) => textField(node, ctx, 'longText'),
   Checkbox: (node, ctx) => {
-    const label = dynamicString(textOf(node, 'label', 'name'))
+    const label = ctx.dyn(textOf(node, 'label', 'name'))
     if (label == null) {
       ctx.note('unsupported', node.type, 'CheckBox requires a label and none could be derived')
       return undefined
     }
+    const checks = checksOf(node, ctx)
     // `value` is required by the catalog; an unbound checkbox starts unchecked.
-    return { component: 'CheckBox', label, value: valueBinding(node) ?? false }
+    return {
+      component: 'CheckBox',
+      label,
+      value: valueBinding(node, ctx) ?? false,
+      ...(checks != null && { checks }),
+    }
   },
   Slider: (node, ctx) => {
     const max = typeof node.max === 'number' ? node.max : undefined
@@ -290,7 +364,7 @@ const FORM_MAPPERS: Record<string, Mapper> = {
       ctx.note('unsupported', node.type, 'Slider requires a max and prefab left it open')
       return undefined
     }
-    const label = dynamicString(textOf(node, 'label', 'name'))
+    const label = ctx.dyn(textOf(node, 'label', 'name'))
     const min = typeof node.min === 'number' ? node.min : undefined
     const step = typeof node.step === 'number' ? node.step : undefined
     // A2UI counts divisions where prefab counts increment size.
@@ -298,7 +372,7 @@ const FORM_MAPPERS: Record<string, Mapper> = {
     return {
       component: 'Slider',
       max,
-      value: valueBinding(node) ?? min ?? 0,
+      value: valueBinding(node, ctx) ?? min ?? 0,
       ...(label != null && { label }),
       ...(min != null && { min }),
       ...(steps != null && { steps }),
@@ -312,7 +386,7 @@ const FORM_MAPPERS: Record<string, Mapper> = {
       ctx.note('unsupported', node.type, 'Button requires an action and none could be derived')
       return undefined
     }
-    const child = ctx.push({ component: 'Text', text: dynamicString(label) ?? label })
+    const child = ctx.push({ component: 'Text', text: ctx.dyn(label) ?? label })
     const variant = node.variant === 'link' || node.variant === 'ghost'
       ? 'borderless'
       : node.variant === 'default' ? 'primary' : 'default'
@@ -325,7 +399,7 @@ const FORM_MAPPERS: Record<string, Mapper> = {
       return undefined
     }
     const label = textOf(node, 'content', 'label') ?? href
-    const child = ctx.push({ component: 'Text', text: dynamicString(label) ?? label })
+    const child = ctx.push({ component: 'Text', text: ctx.dyn(label) ?? label })
     // A2UI Basic renders links as a borderless Button running the openUrl function.
     return {
       component: 'Button',
@@ -389,11 +463,11 @@ const COMPOSITE_MAPPERS: Record<string, Mapper> = {
     const parts: string[] = []
     const label = textOf(node, 'label', 'title')
     if (label != null) {
-      parts.push(ctx.push({ component: 'Text', text: dynamicString(label) ?? label, variant: 'caption' }))
+      parts.push(ctx.push({ component: 'Text', text: ctx.dyn(label) ?? label, variant: 'caption' }))
     }
     const value = textOf(node, 'value')
     if (value != null) {
-      parts.push(ctx.push({ component: 'Text', text: dynamicString(value) ?? value }))
+      parts.push(ctx.push({ component: 'Text', text: ctx.dyn(value) ?? value }))
     }
     if (parts.length === 0) {
       ctx.note('unsupported', 'Metric', 'neither a label nor a value to render')
@@ -422,14 +496,17 @@ const COMPOSITE_MAPPERS: Record<string, Mapper> = {
       ctx.note('unsupported', 'Dialog', 'no dialog body to render')
       return undefined
     }
+    // A2UI's Modal takes any component as its trigger, so a prefab trigger that
+    // will not map on its own does not have to cost the dialog. prefab's own
+    // trigger is usually a Button with no onClick — opening the dialog is
+    // implicit — which the Button mapper rightly refuses, so falling back to the
+    // label as Text is the difference between a working Modal and none at all.
     const triggerNode = node.trigger as ComponentJSON | undefined
-    const trigger = triggerNode != null
-      ? ctx.child(triggerNode)
-      : ctx.push({ component: 'Text', text: textOf(node, 'title') ?? 'Open' })
-    if (trigger == null) {
-      ctx.note('unsupported', 'Dialog', 'Modal requires a trigger and none could be emitted')
-      return undefined
-    }
+    const label = triggerNode != null
+      ? textOf(triggerNode, 'label', 'content') ?? textOf(node, 'title') ?? 'Open'
+      : textOf(node, 'title') ?? 'Open'
+    const trigger = (triggerNode != null ? ctx.child(triggerNode) : undefined)
+      ?? ctx.push({ component: 'Text', text: ctx.dyn(label) ?? label })
     return { component: 'Modal', trigger, content }
   },
   AccordionItem: (node, ctx) => {
@@ -454,6 +531,7 @@ const MAPPERS: Record<string, Mapper> = {
   ...TEXT_MAPPERS,
   ...FORM_MAPPERS,
   ...COMPOSITE_MAPPERS,
+  ...CONTROL_MAPPERS,
   Image: media('Image'),
   Video: media('Video'),
   Audio: media('AudioPlayer'),
