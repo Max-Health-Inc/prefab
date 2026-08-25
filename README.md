@@ -1,7 +1,7 @@
 # prefab
 
 [![CI](https://github.com/Max-Health-Inc/prefab/actions/workflows/ci.yml/badge.svg)](https://github.com/Max-Health-Inc/prefab/actions/workflows/ci.yml)
-[![tests](https://img.shields.io/badge/tests-2009%20passing%20(100%25)-brightgreen)](https://github.com/Max-Health-Inc/prefab/actions/workflows/ci.yml)
+[![tests](https://img.shields.io/badge/tests-2081%20passing%20(100%25)-brightgreen)](https://github.com/Max-Health-Inc/prefab/actions/workflows/ci.yml)
 [![@maxhealth.tech/prefab](https://img.shields.io/npm/v/@maxhealth.tech/prefab?label=%40maxhealth.tech%2Fprefab)](https://www.npmjs.com/package/@maxhealth.tech/prefab)
 [![prefab-protocol](https://img.shields.io/badge/prefab--protocol-v0.3-brightgreen)](https://maxhealth.tech/prefab/reference/wire-format.html)
 [![A2UI](https://img.shields.io/badge/A2UI-v1.0-4285F4)](https://maxhealth.tech/prefab/guide/a2ui.html)

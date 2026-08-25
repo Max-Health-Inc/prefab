@@ -57,11 +57,23 @@ const FURNISHED_OVERRIDES: Record<string, Record<string, unknown>> = {
 }
 
 /**
- * Types that need children of a particular type rather than any child, so a
- * generic `Text` child leaves them with nothing to render. Their real mappings
- * are covered by the hand-written views in `a2ui.test.ts`.
+ * Types the shared fixture cannot make emit anything, for one of three reasons.
+ * Their real mappings are covered by the hand-written views in `a2ui.test.ts`
+ * and `a2ui-control.test.ts`.
+ *
+ *   - **Specific children.** `Tabs` needs `Tab`s, `Select` needs options, and a
+ *     generic `Text` child leaves them with nothing to render.
+ *   - **Specific context.** `ForEach` needs an expression that binds to a list;
+ *     `Use` needs a definition to have been declared somewhere in the tree.
+ *   - **Nothing to render by design.** A `Define` is a template, so the renderer
+ *     draws nothing where it is declared and neither does the emitter. The
+ *     conditionals have no A2UI equivalent at all and are always diagnosed.
  */
-const NEEDS_SPECIFIC_CHILDREN = new Set(['Select', 'RadioGroup', 'Combobox', 'Table', 'Tabs'])
+const NEEDS_SPECIFIC_CHILDREN = new Set([
+  'Select', 'RadioGroup', 'Combobox', 'Table', 'Tabs',
+  'ForEach', 'Use',
+  'Define', 'If', 'Elif', 'Else', 'Condition', 'Match', 'Case',
+])
 
 const emit = (view: ComponentJSON) => emitA2UI({ $prefab: { version: '0.3' }, view })
 

@@ -114,9 +114,33 @@ yourself is honoured.
 
 **Bound, not interpolated.** A2UI reads dynamic values through JSON Pointer
 bindings. `{{ user.name }}` becomes `{ "path": "/user/name" }`, and prefab's
-`state` becomes the surface data model. Expressions with operators, pipes or
-conditionals — `{{ count + 1 }}`, `{{ price | currency:'USD' }}` — have no A2UI
-equivalent and raise an `expression` diagnostic.
+`state` becomes the surface data model.
+
+Text that mixes literals with values goes through the `formatString` catalog
+function, so `Score: {{ score }}` becomes
+`{ call: 'formatString', args: { value: 'Score: ${/score}' } }` rather than being
+lost. What has no equivalent is arithmetic, pipes and conditionals —
+`{{ count + 1 }}`, `{{ price | currency:'USD' }}` — and those raise an
+`expression` diagnostic. A string is interpolated only if *every* value in it
+binds; one unbindable expression makes the whole string unbindable, because
+interpolating half of it would change what the text says without saying so.
+
+### Control flow
+
+| prefab | A2UI |
+|---|---|
+| `ForEach` | the child template — one instance per item, `$item` resolving to a path relative to the current item and `$index` to the `@index` function |
+| `Define` / `Use` / `Slot` | resolved at emit time by inlining the definition; a `Use`'s `overrides` are seeded into the data model and brought into scope by name |
+| `If` / `Elif` / `Else` / `Condition` | **no equivalent** |
+
+Conditionals are the one real capability gap between the two protocols. A2UI has
+no declarative `if`: the renderer draws what the adjacency list says, and the
+agent sends a fresh `updateComponents` when the shape should change. prefab runs
+a reactive client that re-shapes itself without a round trip.
+
+A one-item list template would *look* like a conditional and behave like one only
+by accident, so the emitter reports the loss instead of faking it. A UI leaning
+on `If` does not cross over intact, and no amount of emitter work changes that.
 
 ### Tables
 
@@ -156,6 +180,10 @@ live.
 | `Alert` | `Card` | variant styling dropped |
 | `Metric` | `Column` of `Text` | trend and delta dropped |
 | `Table`, `DataTable` | `Column` of `Row`s | see above |
+| `CardTitle`, `CardDescription`, `Tooltip` | `Text` | |
+| `ForEach` | templated `Column` | see Control flow |
+| `Define`, `Use`, `Slot` | inlined | see Control flow |
+| `If`, `Elif`, `Else`, `Condition` | — | `unsupported` |
 | charts, `Mermaid`, `Svg`, `DropZone`, `Progress` | — | `unsupported` |
 
 A component the table does not name still emits: one with children flattens to a
@@ -166,7 +194,7 @@ diagnostic. Nothing is dropped silently.
 
 | prefab action | A2UI |
 |---|---|
-| `CallTool` | `{ event: { name: tool, context: arguments } }` |
+| `CallTool` (either `toolCall` or `callTool` on the wire) | `{ event: { name: tool, context: arguments } }` |
 | `SendMessage` | `{ event: { name: 'sendMessage', context: { message } } }` |
 | `OpenLink` | `{ functionCall: { call: 'openUrl', args: { url } } }` |
 | `SetState`, `ToggleState`, everything else | an agent event named after the action |
