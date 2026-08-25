@@ -5,7 +5,7 @@ url: /prefab/reference/api/renderer/interfaces/PrefabApp.md
 
 # Interface: PrefabApp
 
-Defined in: [renderer/app.ts:55](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/renderer/app.ts#L55)
+Defined in: [renderer/app.ts:55](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/renderer/app.ts#L55)
 
 ## Properties
 
@@ -15,7 +15,7 @@ Defined in: [renderer/app.ts:55](https://github.com/Max-Health-Inc/prefab/blob/6
 callTool: (name, args?) => Promise<unknown>;
 ```
 
-Defined in: [renderer/app.ts:57](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/renderer/app.ts#L57)
+Defined in: [renderer/app.ts:57](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/renderer/app.ts#L57)
 
 Call an MCP tool through the transport.
 
@@ -38,7 +38,7 @@ Call an MCP tool through the transport.
 sendMessage: (message) => Promise<void>;
 ```
 
-Defined in: [renderer/app.ts:59](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/renderer/app.ts#L59)
+Defined in: [renderer/app.ts:59](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/renderer/app.ts#L59)
 
 Send a message through the transport.
 
@@ -60,7 +60,7 @@ Send a message through the transport.
 onToolInput: (handler) => void;
 ```
 
-Defined in: [renderer/app.ts:61](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/renderer/app.ts#L61)
+Defined in: [renderer/app.ts:61](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/renderer/app.ts#L61)
 
 Register a handler for tool input from the host.
 
@@ -82,7 +82,7 @@ Register a handler for tool input from the host.
 onToolResult: (handler) => void;
 ```
 
-Defined in: [renderer/app.ts:63](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/renderer/app.ts#L63)
+Defined in: [renderer/app.ts:63](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/renderer/app.ts#L63)
 
 Register a handler for tool results from the host.
 
@@ -104,7 +104,7 @@ Register a handler for tool results from the host.
 onToolCancelled: (handler) => void;
 ```
 
-Defined in: [renderer/app.ts:65](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/renderer/app.ts#L65)
+Defined in: [renderer/app.ts:65](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/renderer/app.ts#L65)
 
 Register a handler for tool cancellation.
 
@@ -126,7 +126,7 @@ Register a handler for tool cancellation.
 onToolInputPartial: (handler) => void;
 ```
 
-Defined in: [renderer/app.ts:67](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/renderer/app.ts#L67)
+Defined in: [renderer/app.ts:67](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/renderer/app.ts#L67)
 
 Register a handler for partial/streaming tool input.
 
@@ -148,7 +148,7 @@ Register a handler for partial/streaming tool input.
 onHostContextChanged: (handler) => void;
 ```
 
-Defined in: [renderer/app.ts:69](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/renderer/app.ts#L69)
+Defined in: [renderer/app.ts:69](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/renderer/app.ts#L69)
 
 Register a handler for host context changes (full params from host-context-changed).
 
@@ -170,7 +170,7 @@ Register a handler for host context changes (full params from host-context-chang
 render: (target, ...components) => MountHandle;
 ```
 
-Defined in: [renderer/app.ts:71](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/renderer/app.ts#L71)
+Defined in: [renderer/app.ts:71](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/renderer/app.ts#L71)
 
 Render a component tree into a DOM element.
 
@@ -193,7 +193,7 @@ Render a component tree into a DOM element.
 mount: (target, data, opts?) => MountedApp;
 ```
 
-Defined in: [renderer/app.ts:73](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/renderer/app.ts#L73)
+Defined in: [renderer/app.ts:73](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/renderer/app.ts#L73)
 
 Mount full wire-format data (legacy API).
 
@@ -217,7 +217,7 @@ Mount full wire-format data (legacy API).
 requestMode: (mode) => void;
 ```
 
-Defined in: [renderer/app.ts:75](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/renderer/app.ts#L75)
+Defined in: [renderer/app.ts:75](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/renderer/app.ts#L75)
 
 Request a display mode change.
 
@@ -239,7 +239,7 @@ Request a display mode change.
 openLink: (url, target?) => void;
 ```
 
-Defined in: [renderer/app.ts:77](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/renderer/app.ts#L77)
+Defined in: [renderer/app.ts:77](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/renderer/app.ts#L77)
 
 Request the host to open a URL.
 
@@ -262,7 +262,7 @@ Request the host to open a URL.
 updateContext: (context) => void;
 ```
 
-Defined in: [renderer/app.ts:79](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/renderer/app.ts#L79)
+Defined in: [renderer/app.ts:79](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/renderer/app.ts#L79)
 
 Send context updates.
 
@@ -284,7 +284,7 @@ Send context updates.
 setupAutoResize: (target) => () => void;
 ```
 
-Defined in: [renderer/app.ts:85](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/renderer/app.ts#L85)
+Defined in: [renderer/app.ts:85](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/renderer/app.ts#L85)
 
 Observe an element and notify the host whenever it resizes.
 Mirrors the ext-apps SDK `autoResize: true` behaviour.
@@ -308,7 +308,7 @@ Returns a teardown function that disconnects the observer.
 notifyPreferredSize: (layout) => void;
 ```
 
-Defined in: [renderer/app.ts:90](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/renderer/app.ts#L90)
+Defined in: [renderer/app.ts:90](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/renderer/app.ts#L90)
 
 Notify the host of declarative layout/size preferences from the wire format.
 Called automatically when mounting wire data with a `layout` field.
@@ -334,7 +334,7 @@ Called automatically when mounting wire data with a `layout` field.
 host: HostContext;
 ```
 
-Defined in: [renderer/app.ts:92](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/renderer/app.ts#L92)
+Defined in: [renderer/app.ts:92](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/renderer/app.ts#L92)
 
 Host context from initialization.
 
@@ -346,7 +346,7 @@ Host context from initialization.
 capabilities: HostCapabilities;
 ```
 
-Defined in: [renderer/app.ts:94](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/renderer/app.ts#L94)
+Defined in: [renderer/app.ts:94](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/renderer/app.ts#L94)
 
 Host capabilities.
 
@@ -358,7 +358,7 @@ Host capabilities.
 theme: HostTheme | undefined;
 ```
 
-Defined in: [renderer/app.ts:96](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/renderer/app.ts#L96)
+Defined in: [renderer/app.ts:96](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/renderer/app.ts#L96)
 
 Host theme (if provided).
 
@@ -370,7 +370,7 @@ Host theme (if provided).
 transport: McpTransport;
 ```
 
-Defined in: [renderer/app.ts:98](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/renderer/app.ts#L98)
+Defined in: [renderer/app.ts:98](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/renderer/app.ts#L98)
 
 The underlying MCP transport.
 
@@ -382,7 +382,7 @@ The underlying MCP transport.
 destroy: () => void;
 ```
 
-Defined in: [renderer/app.ts:100](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/renderer/app.ts#L100)
+Defined in: [renderer/app.ts:100](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/renderer/app.ts#L100)
 
 Destroy the app and clean up.
 

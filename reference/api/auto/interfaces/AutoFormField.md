@@ -5,7 +5,7 @@ url: /prefab/reference/api/auto/interfaces/AutoFormField.md
 
 # Interface: AutoFormField
 
-Defined in: [auto/form.ts:30](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/auto/form.ts#L30)
+Defined in: [auto/form.ts:30](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/auto/form.ts#L30)
 
 One field in an auto-generated form.
 
@@ -22,7 +22,7 @@ anything added here expressible in both.
 name: string;
 ```
 
-Defined in: [auto/form.ts:32](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/auto/form.ts#L32)
+Defined in: [auto/form.ts:32](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/auto/form.ts#L32)
 
 Field name (used as the key in submitted data).
 
@@ -34,7 +34,7 @@ Field name (used as the key in submitted data).
 optional label?: string;
 ```
 
-Defined in: [auto/form.ts:34](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/auto/form.ts#L34)
+Defined in: [auto/form.ts:34](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/auto/form.ts#L34)
 
 Display label. Defaults to humanized name.
 
@@ -46,7 +46,7 @@ Display label. Defaults to humanized name.
 optional type?: string;
 ```
 
-Defined in: [auto/form.ts:36](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/auto/form.ts#L36)
+Defined in: [auto/form.ts:36](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/auto/form.ts#L36)
 
 Input type: 'text', 'email', 'number', 'password', 'url', etc.
 
@@ -58,7 +58,7 @@ Input type: 'text', 'email', 'number', 'password', 'url', etc.
 optional placeholder?: string;
 ```
 
-Defined in: [auto/form.ts:38](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/auto/form.ts#L38)
+Defined in: [auto/form.ts:38](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/auto/form.ts#L38)
 
 Placeholder text.
 
@@ -70,7 +70,7 @@ Placeholder text.
 optional required?: boolean;
 ```
 
-Defined in: [auto/form.ts:40](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/auto/form.ts#L40)
+Defined in: [auto/form.ts:40](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/auto/form.ts#L40)
 
 Whether the field is required.
 
@@ -82,7 +82,7 @@ Whether the field is required.
 optional description?: string;
 ```
 
-Defined in: [auto/form.ts:42](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/auto/form.ts#L42)
+Defined in: [auto/form.ts:42](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/auto/form.ts#L42)
 
 Longer help text. Becomes the schema `description` on the elicitation path.
 
@@ -94,7 +94,7 @@ Longer help text. Becomes the schema `description` on the elicitation path.
 optional options?: AutoFormOption[];
 ```
 
-Defined in: [auto/form.ts:44](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/auto/form.ts#L44)
+Defined in: [auto/form.ts:44](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/auto/form.ts#L44)
 
 Fixed set of choices. Renders as a Select and becomes an enum on the wire.
 
@@ -106,7 +106,7 @@ Fixed set of choices. Renders as a Select and becomes an enum on the wire.
 optional multiple?: boolean;
 ```
 
-Defined in: [auto/form.ts:46](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/auto/form.ts#L46)
+Defined in: [auto/form.ts:46](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/auto/form.ts#L46)
 
 Allow several choices. Only meaningful alongside `options`.
 
@@ -118,7 +118,7 @@ Allow several choices. Only meaningful alongside `options`.
 optional min?: number;
 ```
 
-Defined in: [auto/form.ts:48](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/auto/form.ts#L48)
+Defined in: [auto/form.ts:48](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/auto/form.ts#L48)
 
 Inclusive lower bound for a numeric field, or minimum length for a string.
 
@@ -130,7 +130,7 @@ Inclusive lower bound for a numeric field, or minimum length for a string.
 optional max?: number;
 ```
 
-Defined in: [auto/form.ts:50](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/auto/form.ts#L50)
+Defined in: [auto/form.ts:50](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/auto/form.ts#L50)
 
 Inclusive upper bound for a numeric field, or maximum length for a string.
 
@@ -142,6 +142,6 @@ Inclusive upper bound for a numeric field, or maximum length for a string.
 optional default?: string | number | boolean | string[];
 ```
 
-Defined in: [auto/form.ts:52](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/auto/form.ts#L52)
+Defined in: [auto/form.ts:52](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/auto/form.ts#L52)
 
 Pre-filled value.

@@ -5,7 +5,7 @@ url: /prefab/reference/api/mcp/interfaces/ResourceConfig.md
 
 # Interface: ResourceConfig
 
-Defined in: [mcp/resource.ts:283](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/mcp/resource.ts#L283)
+Defined in: [mcp/resource.ts:283](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/mcp/resource.ts#L283)
 
 Registration config accepted by both SDK generations.
 
@@ -17,7 +17,7 @@ Registration config accepted by both SDK generations.
 optional title?: string;
 ```
 
-Defined in: [mcp/resource.ts:284](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/mcp/resource.ts#L284)
+Defined in: [mcp/resource.ts:284](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/mcp/resource.ts#L284)
 
 ***
 
@@ -27,7 +27,7 @@ Defined in: [mcp/resource.ts:284](https://github.com/Max-Health-Inc/prefab/blob/
 mimeType: string;
 ```
 
-Defined in: [mcp/resource.ts:285](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/mcp/resource.ts#L285)
+Defined in: [mcp/resource.ts:285](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/mcp/resource.ts#L285)
 
 ***
 
@@ -37,7 +37,7 @@ Defined in: [mcp/resource.ts:285](https://github.com/Max-Health-Inc/prefab/blob/
 optional description?: string;
 ```
 
-Defined in: [mcp/resource.ts:286](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/mcp/resource.ts#L286)
+Defined in: [mcp/resource.ts:286](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/mcp/resource.ts#L286)
 
 ***
 
@@ -47,7 +47,7 @@ Defined in: [mcp/resource.ts:286](https://github.com/Max-Health-Inc/prefab/blob/
 optional _meta?: Record<string, unknown>;
 ```
 
-Defined in: [mcp/resource.ts:287](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/mcp/resource.ts#L287)
+Defined in: [mcp/resource.ts:287](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/mcp/resource.ts#L287)
 
 ***
 
@@ -57,6 +57,6 @@ Defined in: [mcp/resource.ts:287](https://github.com/Max-Health-Inc/prefab/blob/
 optional cacheHint?: McpCacheHint;
 ```
 
-Defined in: [mcp/resource.ts:289](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/mcp/resource.ts#L289)
+Defined in: [mcp/resource.ts:289](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/mcp/resource.ts#L289)
 
 Per-resource cache hint (SDK v2; ignored by servers that do not read it).

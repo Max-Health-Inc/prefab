@@ -9,6 +9,6 @@ url: /prefab/reference/api/mcp/type-aliases/McpInputRequests.md
 type McpInputRequests = Record<string, McpElicitRequest>;
 ```
 
-Defined in: [mcp/types.ts:261](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/mcp/types.ts#L261)
+Defined in: [mcp/types.ts:261](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/mcp/types.ts#L261)
 
 Server-issued requests the client must fulfil before retrying the call.

@@ -9,7 +9,7 @@ url: /prefab/reference/api/mcp/type-aliases/McpNumberSchema.md
 type McpNumberSchema = object;
 ```
 
-Defined in: [mcp/types.ts:188](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/mcp/types.ts#L188)
+Defined in: [mcp/types.ts:188](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/mcp/types.ts#L188)
 
 ## Properties
 
@@ -19,7 +19,7 @@ Defined in: [mcp/types.ts:188](https://github.com/Max-Health-Inc/prefab/blob/628
 type: "number" | "integer";
 ```
 
-Defined in: [mcp/types.ts:189](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/mcp/types.ts#L189)
+Defined in: [mcp/types.ts:189](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/mcp/types.ts#L189)
 
 ***
 
@@ -29,7 +29,7 @@ Defined in: [mcp/types.ts:189](https://github.com/Max-Health-Inc/prefab/blob/628
 optional title?: string;
 ```
 
-Defined in: [mcp/types.ts:190](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/mcp/types.ts#L190)
+Defined in: [mcp/types.ts:190](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/mcp/types.ts#L190)
 
 ***
 
@@ -39,7 +39,7 @@ Defined in: [mcp/types.ts:190](https://github.com/Max-Health-Inc/prefab/blob/628
 optional description?: string;
 ```
 
-Defined in: [mcp/types.ts:191](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/mcp/types.ts#L191)
+Defined in: [mcp/types.ts:191](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/mcp/types.ts#L191)
 
 ***
 
@@ -49,7 +49,7 @@ Defined in: [mcp/types.ts:191](https://github.com/Max-Health-Inc/prefab/blob/628
 optional minimum?: number;
 ```
 
-Defined in: [mcp/types.ts:192](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/mcp/types.ts#L192)
+Defined in: [mcp/types.ts:192](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/mcp/types.ts#L192)
 
 ***
 
@@ -59,7 +59,7 @@ Defined in: [mcp/types.ts:192](https://github.com/Max-Health-Inc/prefab/blob/628
 optional maximum?: number;
 ```
 
-Defined in: [mcp/types.ts:193](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/mcp/types.ts#L193)
+Defined in: [mcp/types.ts:193](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/mcp/types.ts#L193)
 
 ***
 
@@ -69,4 +69,4 @@ Defined in: [mcp/types.ts:193](https://github.com/Max-Health-Inc/prefab/blob/628
 optional default?: number;
 ```
 
-Defined in: [mcp/types.ts:194](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/mcp/types.ts#L194)
+Defined in: [mcp/types.ts:194](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/mcp/types.ts#L194)

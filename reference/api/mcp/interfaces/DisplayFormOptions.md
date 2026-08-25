@@ -5,7 +5,7 @@ url: /prefab/reference/api/mcp/interfaces/DisplayFormOptions.md
 
 # Interface: DisplayFormOptions
 
-Defined in: [mcp/display.ts:134](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/mcp/display.ts#L134)
+Defined in: [mcp/display.ts:134](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/mcp/display.ts#L134)
 
 ## Extends
 
@@ -19,7 +19,7 @@ Defined in: [mcp/display.ts:134](https://github.com/Max-Health-Inc/prefab/blob/6
 optional title?: string;
 ```
 
-Defined in: [auto/form.ts:57](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/auto/form.ts#L57)
+Defined in: [auto/form.ts:57](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/auto/form.ts#L57)
 
 Form heading.
 
@@ -35,7 +35,7 @@ Form heading.
 optional subtitle?: string;
 ```
 
-Defined in: [auto/form.ts:59](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/auto/form.ts#L59)
+Defined in: [auto/form.ts:59](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/auto/form.ts#L59)
 
 Optional subtitle.
 
@@ -51,7 +51,7 @@ Optional subtitle.
 optional submitLabel?: string;
 ```
 
-Defined in: [auto/form.ts:61](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/auto/form.ts#L61)
+Defined in: [auto/form.ts:61](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/auto/form.ts#L61)
 
 Submit button text. Default 'Submit'.
 
@@ -69,7 +69,7 @@ optional onSubmit?:
   | Action[];
 ```
 
-Defined in: [auto/form.ts:63](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/auto/form.ts#L63)
+Defined in: [auto/form.ts:63](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/auto/form.ts#L63)
 
 Custom onSubmit action. Overrides submitTool.
 
@@ -85,7 +85,7 @@ Custom onSubmit action. Overrides submitTool.
 optional successMessage?: string;
 ```
 
-Defined in: [auto/form.ts:65](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/auto/form.ts#L65)
+Defined in: [auto/form.ts:65](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/auto/form.ts#L65)
 
 Success toast message.
 
@@ -101,7 +101,7 @@ Success toast message.
 optional errorMessage?: string;
 ```
 
-Defined in: [auto/form.ts:67](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/auto/form.ts#L67)
+Defined in: [auto/form.ts:67](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/auto/form.ts#L67)
 
 Error toast message.
 
@@ -117,7 +117,7 @@ Error toast message.
 optional state?: Record<string, unknown>;
 ```
 
-Defined in: [mcp/display.ts:41](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/mcp/display.ts#L41)
+Defined in: [mcp/display.ts:41](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/mcp/display.ts#L41)
 
 Initial reactive state.
 
@@ -133,7 +133,7 @@ Initial reactive state.
 optional theme?: Theme;
 ```
 
-Defined in: [mcp/display.ts:43](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/mcp/display.ts#L43)
+Defined in: [mcp/display.ts:43](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/mcp/display.ts#L43)
 
 Light/dark theme overrides.
 
@@ -149,7 +149,7 @@ Light/dark theme overrides.
 optional defs?: Record<string, Component>;
 ```
 
-Defined in: [mcp/display.ts:45](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/mcp/display.ts#L45)
+Defined in: [mcp/display.ts:45](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/mcp/display.ts#L45)
 
 Reusable component definitions.
 
@@ -167,7 +167,7 @@ optional onMount?:
   | Action[];
 ```
 
-Defined in: [mcp/display.ts:47](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/mcp/display.ts#L47)
+Defined in: [mcp/display.ts:47](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/mcp/display.ts#L47)
 
 Action(s) to run when the UI mounts.
 
@@ -185,7 +185,7 @@ optional keyBindings?: Record<string,
 | Action[]>;
 ```
 
-Defined in: [mcp/display.ts:49](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/mcp/display.ts#L49)
+Defined in: [mcp/display.ts:49](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/mcp/display.ts#L49)
 
 Keyboard shortcuts.
 
@@ -201,7 +201,7 @@ Keyboard shortcuts.
 optional cssClass?: string;
 ```
 
-Defined in: [mcp/display.ts:51](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/mcp/display.ts#L51)
+Defined in: [mcp/display.ts:51](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/mcp/display.ts#L51)
 
 Extra CSS class on root element.
 
@@ -217,7 +217,7 @@ Extra CSS class on root element.
 optional layout?: LayoutHints;
 ```
 
-Defined in: [mcp/display.ts:53](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/mcp/display.ts#L53)
+Defined in: [mcp/display.ts:53](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/mcp/display.ts#L53)
 
 Size hints for the host container (iframe, panel, etc.).
 
@@ -233,7 +233,7 @@ Size hints for the host container (iframe, panel, etc.).
 optional css?: string[];
 ```
 
-Defined in: [mcp/display.ts:55](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/mcp/display.ts#L55)
+Defined in: [mcp/display.ts:55](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/mcp/display.ts#L55)
 
 Inline CSS blocks injected as `<style>` (merged after the compiled theme).
 
@@ -249,7 +249,7 @@ Inline CSS blocks injected as `<style>` (merged after the compiled theme).
 optional stylesheets?: string[];
 ```
 
-Defined in: [mcp/display.ts:57](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/mcp/display.ts#L57)
+Defined in: [mcp/display.ts:57](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/mcp/display.ts#L57)
 
 External CSS URLs loaded as `<link rel="stylesheet">`.
 
@@ -265,7 +265,7 @@ External CSS URLs loaded as `<link rel="stylesheet">`.
 optional mode?: ColorMode;
 ```
 
-Defined in: [mcp/display.ts:59](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/mcp/display.ts#L59)
+Defined in: [mcp/display.ts:59](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/mcp/display.ts#L59)
 
 Force a color scheme regardless of OS preference.
 
@@ -281,7 +281,7 @@ Force a color scheme regardless of OS preference.
 optional pipes?: Record<string, PipeFn>;
 ```
 
-Defined in: [mcp/display.ts:61](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/mcp/display.ts#L61)
+Defined in: [mcp/display.ts:61](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/mcp/display.ts#L61)
 
 Custom pipe functions for reactive expressions.
 
@@ -297,7 +297,7 @@ Custom pipe functions for reactive expressions.
 optional elicit?: boolean | FormInputRequestOptions;
 ```
 
-Defined in: [mcp/display.ts:147](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/mcp/display.ts#L147)
+Defined in: [mcp/display.ts:147](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/mcp/display.ts#L147)
 
 Ask the client to collect the fields instead of rendering them.
 

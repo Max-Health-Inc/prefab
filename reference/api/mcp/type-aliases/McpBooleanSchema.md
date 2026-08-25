@@ -9,7 +9,7 @@ url: /prefab/reference/api/mcp/type-aliases/McpBooleanSchema.md
 type McpBooleanSchema = object;
 ```
 
-Defined in: [mcp/types.ts:197](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/mcp/types.ts#L197)
+Defined in: [mcp/types.ts:197](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/mcp/types.ts#L197)
 
 ## Properties
 
@@ -19,7 +19,7 @@ Defined in: [mcp/types.ts:197](https://github.com/Max-Health-Inc/prefab/blob/628
 type: "boolean";
 ```
 
-Defined in: [mcp/types.ts:198](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/mcp/types.ts#L198)
+Defined in: [mcp/types.ts:198](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/mcp/types.ts#L198)
 
 ***
 
@@ -29,7 +29,7 @@ Defined in: [mcp/types.ts:198](https://github.com/Max-Health-Inc/prefab/blob/628
 optional title?: string;
 ```
 
-Defined in: [mcp/types.ts:199](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/mcp/types.ts#L199)
+Defined in: [mcp/types.ts:199](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/mcp/types.ts#L199)
 
 ***
 
@@ -39,7 +39,7 @@ Defined in: [mcp/types.ts:199](https://github.com/Max-Health-Inc/prefab/blob/628
 optional description?: string;
 ```
 
-Defined in: [mcp/types.ts:200](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/mcp/types.ts#L200)
+Defined in: [mcp/types.ts:200](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/mcp/types.ts#L200)
 
 ***
 
@@ -49,4 +49,4 @@ Defined in: [mcp/types.ts:200](https://github.com/Max-Health-Inc/prefab/blob/628
 optional default?: boolean;
 ```
 
-Defined in: [mcp/types.ts:201](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/mcp/types.ts#L201)
+Defined in: [mcp/types.ts:201](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/mcp/types.ts#L201)

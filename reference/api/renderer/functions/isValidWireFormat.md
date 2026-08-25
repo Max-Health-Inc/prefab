@@ -9,7 +9,7 @@ url: /prefab/reference/api/renderer/functions/isValidWireFormat.md
 function isValidWireFormat(data): data is PrefabWireFormat;
 ```
 
-Defined in: [core/validate.ts:125](https://github.com/Max-Health-Inc/prefab/blob/628b042e962441e68b03efc956b348960b1f0f49/src/core/validate.ts#L125)
+Defined in: [core/validate.ts:125](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/core/validate.ts#L125)
 
 Quick boolean check — returns true if data looks like valid $prefab wire format.
 
