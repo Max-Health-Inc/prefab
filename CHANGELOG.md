@@ -6,6 +6,16 @@ All notable changes to this project will be documented in this file.
 
 <!-- Add new entries directly below. Keep this line: it makes a release merge conflict rather than file them under a published version. -->
 
+### Added
+
+- **`required` is a property of every stateful control, not of the text input.** It lived on `InputProps`, so only an `Input` could state it. Select, RadioGroup and Combobox are containers that call `statefulProps` rather than inheriting it, which is the same seam `label` went missing through in 0.3.9 — and `autoForm` turns every field carrying `options` into a Select, so the fields with a fixed choice set were exactly the ones whose constraint was dropped. It moves to `StatefulProps`, is marked natively where the element supports it and with `aria-required` everywhere, and the A2UI emitter's `ChoicePicker` checks — added in 0.3.11 against a `node.required` no source component could carry — now actually fire.
+- **`Select({ multiple })`, so a multi-value choice field exists on the UI path too.** `AutoFormField.multiple` was honoured only when deriving the elicitation schema: the same field definition asked a schema host for an array and a rendering host for one value. A multi-select submits an array under its name even when one option is chosen, since the field asked for a list either way, and it maps onto A2UI's `multipleSelection` variant — which the emitter defined and nothing could reach.
+- **`Select({ placeholder })` reaches the wire.** The renderer has always drawn a placeholder option; `Select` serialized `statefulProps` alone, so the prop was accepted and discarded.
+
+### Internal
+
+- **Choice control renderers move to `renderer/components/choice.ts`.** `form.ts` had grown past the point where Select, Radio, Combobox and ChoiceCard could be read as a group, and the required marking above touches all four. The shared label wrapper, required marker and container helpers stay in `form.ts` and are imported.
+
 ## [0.3.11] — 2026-08-25
 
 ### Added

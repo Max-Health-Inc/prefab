@@ -98,11 +98,16 @@ export function autoForm(
 
   const inputComponents: Component[] = fields.map(f => {
     const label = f.label ?? humanizeFieldName(f.name)
-    // A fixed choice set is a Select; anything else is a typed Input.
+    // A fixed choice set is a Select; anything else is a typed Input. Both
+    // carry `required` and `multiple`, so the rendered form asks for exactly
+    // what the elicitation schema derived from the same field asks for.
     if (f.options != null && f.options.length > 0) {
       return Select({
         name: f.name,
         label,
+        ...(f.placeholder && { placeholder: f.placeholder }),
+        ...(f.required && { required: true }),
+        ...(f.multiple === true && { multiple: true }),
         ...(f.default !== undefined && { value: f.default }),
         children: f.options.map(o => SelectOption(o.value, o.label ?? o.value)),
       })

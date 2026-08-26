@@ -7,6 +7,7 @@ import { registerTypographyComponents } from './typography.js'
 import { registerCardComponents } from './card.js'
 import { registerDataComponents } from './data.js'
 import { registerFormComponents } from './form.js'
+import { registerChoiceComponents } from './choice.js'
 import { registerInteractiveComponents } from './interactive.js'
 import { registerControlComponents } from './control.js'
 import { registerAlertComponents } from './alert.js'
@@ -32,6 +33,7 @@ export function registerAllComponents(): void {
   registerCardComponents()
   registerDataComponents()
   registerFormComponents()
+  registerChoiceComponents()
   registerInteractiveComponents()
   registerControlComponents()
   registerAlertComponents()
