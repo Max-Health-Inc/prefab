@@ -9,7 +9,7 @@ url: /prefab/reference/api/mcp/type-aliases/McpInputRequiredResult.md
 type McpInputRequiredResult = object;
 ```
 
-Defined in: [mcp/types.ts:279](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/mcp/types.ts#L279)
+Defined in: [mcp/types.ts:279](https://github.com/Max-Health-Inc/prefab/blob/dc9055d700a7e96734dfd959d1cb775e88a3b293/src/mcp/types.ts#L279)
 
 A result asking the client for input before the call can complete.
 
@@ -26,7 +26,7 @@ as `'complete'` and never retries.
 resultType: "input_required";
 ```
 
-Defined in: [mcp/types.ts:280](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/mcp/types.ts#L280)
+Defined in: [mcp/types.ts:280](https://github.com/Max-Health-Inc/prefab/blob/dc9055d700a7e96734dfd959d1cb775e88a3b293/src/mcp/types.ts#L280)
 
 ***
 
@@ -36,7 +36,7 @@ Defined in: [mcp/types.ts:280](https://github.com/Max-Health-Inc/prefab/blob/d7d
 optional inputRequests?: McpInputRequests;
 ```
 
-Defined in: [mcp/types.ts:281](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/mcp/types.ts#L281)
+Defined in: [mcp/types.ts:281](https://github.com/Max-Health-Inc/prefab/blob/dc9055d700a7e96734dfd959d1cb775e88a3b293/src/mcp/types.ts#L281)
 
 ***
 
@@ -46,7 +46,7 @@ Defined in: [mcp/types.ts:281](https://github.com/Max-Health-Inc/prefab/blob/d7d
 optional requestState?: string;
 ```
 
-Defined in: [mcp/types.ts:283](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/mcp/types.ts#L283)
+Defined in: [mcp/types.ts:283](https://github.com/Max-Health-Inc/prefab/blob/dc9055d700a7e96734dfd959d1cb775e88a3b293/src/mcp/types.ts#L283)
 
 Opaque state echoed back byte-for-byte on the retry.
 
@@ -58,4 +58,4 @@ Opaque state echoed back byte-for-byte on the retry.
 optional _meta?: Record<string, unknown>;
 ```
 
-Defined in: [mcp/types.ts:284](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/mcp/types.ts#L284)
+Defined in: [mcp/types.ts:284](https://github.com/Max-Health-Inc/prefab/blob/dc9055d700a7e96734dfd959d1cb775e88a3b293/src/mcp/types.ts#L284)

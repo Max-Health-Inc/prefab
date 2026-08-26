@@ -5,7 +5,7 @@ url: /prefab/reference/api/rx/classes/Ref.md
 
 # Class: Ref\<T>
 
-Defined in: [rx/collection.ts:25](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/rx/collection.ts#L25)
+Defined in: [rx/collection.ts:25](https://github.com/Max-Health-Inc/prefab/blob/dc9055d700a7e96734dfd959d1cb775e88a3b293/src/rx/collection.ts#L25)
 
 A lazy, serializable reference to a row in a collection.
 The expression is evaluated at runtime by the renderer's pipe evaluator.
@@ -24,7 +24,7 @@ The expression is evaluated at runtime by the renderer's pipe evaluator.
 new Ref<T>(expr): Ref<T>;
 ```
 
-Defined in: [rx/collection.ts:32](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/rx/collection.ts#L32)
+Defined in: [rx/collection.ts:32](https://github.com/Max-Health-Inc/prefab/blob/dc9055d700a7e96734dfd959d1cb775e88a3b293/src/rx/collection.ts#L32)
 
 #### Parameters
 
@@ -44,7 +44,7 @@ Defined in: [rx/collection.ts:32](https://github.com/Max-Health-Inc/prefab/blob/
 readonly expr: string;
 ```
 
-Defined in: [rx/collection.ts:26](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/rx/collection.ts#L26)
+Defined in: [rx/collection.ts:26](https://github.com/Max-Health-Inc/prefab/blob/dc9055d700a7e96734dfd959d1cb775e88a3b293/src/rx/collection.ts#L26)
 
 ***
 
@@ -54,7 +54,7 @@ Defined in: [rx/collection.ts:26](https://github.com/Max-Health-Inc/prefab/blob/
 readonly type: "ref";
 ```
 
-Defined in: [rx/collection.ts:27](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/rx/collection.ts#L27)
+Defined in: [rx/collection.ts:27](https://github.com/Max-Health-Inc/prefab/blob/dc9055d700a7e96734dfd959d1cb775e88a3b293/src/rx/collection.ts#L27)
 
 ## Methods
 
@@ -64,7 +64,7 @@ Defined in: [rx/collection.ts:27](https://github.com/Max-Health-Inc/prefab/blob/
 toRx(): Rx;
 ```
 
-Defined in: [rx/collection.ts:37](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/rx/collection.ts#L37)
+Defined in: [rx/collection.ts:37](https://github.com/Max-Health-Inc/prefab/blob/dc9055d700a7e96734dfd959d1cb775e88a3b293/src/rx/collection.ts#L37)
 
 Rx expression for use in component props
 
@@ -80,7 +80,7 @@ Rx expression for use in component props
 toString(): string;
 ```
 
-Defined in: [rx/collection.ts:41](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/rx/collection.ts#L41)
+Defined in: [rx/collection.ts:41](https://github.com/Max-Health-Inc/prefab/blob/dc9055d700a7e96734dfd959d1cb775e88a3b293/src/rx/collection.ts#L41)
 
 #### Returns
 
@@ -94,7 +94,7 @@ Defined in: [rx/collection.ts:41](https://github.com/Max-Health-Inc/prefab/blob/
 toJSON(): string;
 ```
 
-Defined in: [rx/collection.ts:45](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/rx/collection.ts#L45)
+Defined in: [rx/collection.ts:45](https://github.com/Max-Health-Inc/prefab/blob/dc9055d700a7e96734dfd959d1cb775e88a3b293/src/rx/collection.ts#L45)
 
 #### Returns
 
@@ -110,7 +110,7 @@ Defined in: [rx/collection.ts:45](https://github.com/Max-Health-Inc/prefab/blob/
 dot<K>(field): Ref<T[K]>;
 ```
 
-Defined in: [rx/collection.ts:55](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/rx/collection.ts#L55)
+Defined in: [rx/collection.ts:55](https://github.com/Max-Health-Inc/prefab/blob/dc9055d700a7e96734dfd959d1cb775e88a3b293/src/rx/collection.ts#L55)
 
 Type-safe property access on the referenced row.
 Returns `Ref<T[K]>` so downstream type checking works.
@@ -139,7 +139,7 @@ Returns `Ref<T[K]>` so downstream type checking works.
 dot(field): Ref;
 ```
 
-Defined in: [rx/collection.ts:57](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/rx/collection.ts#L57)
+Defined in: [rx/collection.ts:57](https://github.com/Max-Health-Inc/prefab/blob/dc9055d700a7e96734dfd959d1cb775e88a3b293/src/rx/collection.ts#L57)
 
 Untyped escape hatch for dynamic/computed field names.
 
@@ -164,7 +164,7 @@ formatted(
    args): Rx;
 ```
 
-Defined in: [rx/collection.ts:69](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/rx/collection.ts#L69)
+Defined in: [rx/collection.ts:69](https://github.com/Max-Health-Inc/prefab/blob/dc9055d700a7e96734dfd959d1cb775e88a3b293/src/rx/collection.ts#L69)
 
 Shorthand for `.dot(field).pipe(pipeName, ...args)`.
 Compiles to `{{ expr | dot:'field' | pipeName }}`.
@@ -192,7 +192,7 @@ Use to format a nested field with any built-in or registered pipe:
 pipe(name, ...args): Rx;
 ```
 
-Defined in: [rx/collection.ts:78](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/rx/collection.ts#L78)
+Defined in: [rx/collection.ts:78](https://github.com/Max-Health-Inc/prefab/blob/dc9055d700a7e96734dfd959d1cb775e88a3b293/src/rx/collection.ts#L78)
 
 Append a pipe filter to the ref expression.
 `ref.pipe('upper')` → `{{ expr | upper }}`

@@ -9,4 +9,4 @@ url: /prefab/reference/api/auto/type-aliases/ChartType.md
 type ChartType = "bar" | "line" | "area" | "pie";
 ```
 
-Defined in: [auto/chart.ts:14](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/auto/chart.ts#L14)
+Defined in: [auto/chart.ts:14](https://github.com/Max-Health-Inc/prefab/blob/dc9055d700a7e96734dfd959d1cb775e88a3b293/src/auto/chart.ts#L14)

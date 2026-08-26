@@ -9,7 +9,7 @@ url: /prefab/reference/api/renderer/type-aliases/RenderFn.md
 type RenderFn = (node, ctx) => RenderFnReturn;
 ```
 
-Defined in: [renderer/engine.ts:77](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/renderer/engine.ts#L77)
+Defined in: [renderer/engine.ts:77](https://github.com/Max-Health-Inc/prefab/blob/dc9055d700a7e96734dfd959d1cb775e88a3b293/src/renderer/engine.ts#L77)
 
 ## Parameters
 

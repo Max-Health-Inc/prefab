@@ -12,7 +12,7 @@ function registerA2uiResource(
    options?): void;
 ```
 
-Defined in: [mcp/a2ui.ts:144](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/mcp/a2ui.ts#L144)
+Defined in: [mcp/a2ui.ts:144](https://github.com/Max-Health-Inc/prefab/blob/dc9055d700a7e96734dfd959d1cb775e88a3b293/src/mcp/a2ui.ts#L144)
 
 Register a static A2UI surface as an `a2ui://` resource.
 

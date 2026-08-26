@@ -9,7 +9,7 @@ url: /prefab/reference/api/mcp/functions/themeBridgeCss.md
 function themeBridgeCss(bridge): string;
 ```
 
-Defined in: [mcp/theme-bridge.ts:108](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/mcp/theme-bridge.ts#L108)
+Defined in: [mcp/theme-bridge.ts:108](https://github.com/Max-Health-Inc/prefab/blob/dc9055d700a7e96734dfd959d1cb775e88a3b293/src/mcp/theme-bridge.ts#L108)
 
 Generate the theme-bridge CSS (the contents of a `<style>` element).
 

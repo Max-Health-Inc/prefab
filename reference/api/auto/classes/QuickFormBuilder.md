@@ -5,7 +5,7 @@ url: /prefab/reference/api/auto/classes/QuickFormBuilder.md
 
 # Class: QuickFormBuilder
 
-Defined in: [auto/form.ts:155](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/auto/form.ts#L155)
+Defined in: [auto/form.ts:160](https://github.com/Max-Health-Inc/prefab/blob/dc9055d700a7e96734dfd959d1cb775e88a3b293/src/auto/form.ts#L160)
 
 Chainable form builder for rapid MCP tool UI generation.
 
@@ -28,7 +28,7 @@ const ui = QuickForm('create_user')
 new QuickFormBuilder(toolName): QuickFormBuilder;
 ```
 
-Defined in: [auto/form.ts:165](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/auto/form.ts#L165)
+Defined in: [auto/form.ts:170](https://github.com/Max-Health-Inc/prefab/blob/dc9055d700a7e96734dfd959d1cb775e88a3b293/src/auto/form.ts#L170)
 
 #### Parameters
 
@@ -48,7 +48,7 @@ Defined in: [auto/form.ts:165](https://github.com/Max-Health-Inc/prefab/blob/d7d
 title(t): this;
 ```
 
-Defined in: [auto/form.ts:169](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/auto/form.ts#L169)
+Defined in: [auto/form.ts:174](https://github.com/Max-Health-Inc/prefab/blob/dc9055d700a7e96734dfd959d1cb775e88a3b293/src/auto/form.ts#L174)
 
 #### Parameters
 
@@ -68,7 +68,7 @@ Defined in: [auto/form.ts:169](https://github.com/Max-Health-Inc/prefab/blob/d7d
 subtitle(s): this;
 ```
 
-Defined in: [auto/form.ts:170](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/auto/form.ts#L170)
+Defined in: [auto/form.ts:175](https://github.com/Max-Health-Inc/prefab/blob/dc9055d700a7e96734dfd959d1cb775e88a3b293/src/auto/form.ts#L175)
 
 #### Parameters
 
@@ -88,7 +88,7 @@ Defined in: [auto/form.ts:170](https://github.com/Max-Health-Inc/prefab/blob/d7d
 submit(label): this;
 ```
 
-Defined in: [auto/form.ts:171](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/auto/form.ts#L171)
+Defined in: [auto/form.ts:176](https://github.com/Max-Health-Inc/prefab/blob/dc9055d700a7e96734dfd959d1cb775e88a3b293/src/auto/form.ts#L176)
 
 #### Parameters
 
@@ -108,7 +108,7 @@ Defined in: [auto/form.ts:171](https://github.com/Max-Health-Inc/prefab/blob/d7d
 onSubmit(action): this;
 ```
 
-Defined in: [auto/form.ts:172](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/auto/form.ts#L172)
+Defined in: [auto/form.ts:177](https://github.com/Max-Health-Inc/prefab/blob/dc9055d700a7e96734dfd959d1cb775e88a3b293/src/auto/form.ts#L177)
 
 #### Parameters
 
@@ -128,7 +128,7 @@ Defined in: [auto/form.ts:172](https://github.com/Max-Health-Inc/prefab/blob/d7d
 successMessage(msg): this;
 ```
 
-Defined in: [auto/form.ts:173](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/auto/form.ts#L173)
+Defined in: [auto/form.ts:178](https://github.com/Max-Health-Inc/prefab/blob/dc9055d700a7e96734dfd959d1cb775e88a3b293/src/auto/form.ts#L178)
 
 #### Parameters
 
@@ -148,7 +148,7 @@ Defined in: [auto/form.ts:173](https://github.com/Max-Health-Inc/prefab/blob/d7d
 errorMessage(msg): this;
 ```
 
-Defined in: [auto/form.ts:174](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/auto/form.ts#L174)
+Defined in: [auto/form.ts:179](https://github.com/Max-Health-Inc/prefab/blob/dc9055d700a7e96734dfd959d1cb775e88a3b293/src/auto/form.ts#L179)
 
 #### Parameters
 
@@ -168,7 +168,7 @@ Defined in: [auto/form.ts:174](https://github.com/Max-Health-Inc/prefab/blob/d7d
 field(name, opts?): this;
 ```
 
-Defined in: [auto/form.ts:177](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/auto/form.ts#L177)
+Defined in: [auto/form.ts:182](https://github.com/Max-Health-Inc/prefab/blob/dc9055d700a7e96734dfd959d1cb775e88a3b293/src/auto/form.ts#L182)
 
 Add a field with explicit type.
 
@@ -191,7 +191,7 @@ Add a field with explicit type.
 text(name, opts?): this;
 ```
 
-Defined in: [auto/form.ts:183](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/auto/form.ts#L183)
+Defined in: [auto/form.ts:188](https://github.com/Max-Health-Inc/prefab/blob/dc9055d700a7e96734dfd959d1cb775e88a3b293/src/auto/form.ts#L188)
 
 Shorthand for type: 'text'.
 
@@ -214,7 +214,7 @@ Shorthand for type: 'text'.
 email(name, opts?): this;
 ```
 
-Defined in: [auto/form.ts:188](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/auto/form.ts#L188)
+Defined in: [auto/form.ts:193](https://github.com/Max-Health-Inc/prefab/blob/dc9055d700a7e96734dfd959d1cb775e88a3b293/src/auto/form.ts#L193)
 
 Shorthand for type: 'email'.
 
@@ -237,7 +237,7 @@ Shorthand for type: 'email'.
 number(name, opts?): this;
 ```
 
-Defined in: [auto/form.ts:193](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/auto/form.ts#L193)
+Defined in: [auto/form.ts:198](https://github.com/Max-Health-Inc/prefab/blob/dc9055d700a7e96734dfd959d1cb775e88a3b293/src/auto/form.ts#L198)
 
 Shorthand for type: 'number'.
 
@@ -260,7 +260,7 @@ Shorthand for type: 'number'.
 password(name, opts?): this;
 ```
 
-Defined in: [auto/form.ts:198](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/auto/form.ts#L198)
+Defined in: [auto/form.ts:203](https://github.com/Max-Health-Inc/prefab/blob/dc9055d700a7e96734dfd959d1cb775e88a3b293/src/auto/form.ts#L203)
 
 Shorthand for type: 'password'.
 
@@ -283,7 +283,7 @@ Shorthand for type: 'password'.
 url(name, opts?): this;
 ```
 
-Defined in: [auto/form.ts:203](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/auto/form.ts#L203)
+Defined in: [auto/form.ts:208](https://github.com/Max-Health-Inc/prefab/blob/dc9055d700a7e96734dfd959d1cb775e88a3b293/src/auto/form.ts#L208)
 
 Shorthand for type: 'url'.
 
@@ -306,7 +306,7 @@ Shorthand for type: 'url'.
 tel(name, opts?): this;
 ```
 
-Defined in: [auto/form.ts:208](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/auto/form.ts#L208)
+Defined in: [auto/form.ts:213](https://github.com/Max-Health-Inc/prefab/blob/dc9055d700a7e96734dfd959d1cb775e88a3b293/src/auto/form.ts#L213)
 
 Shorthand for type: 'tel'.
 
@@ -329,7 +329,7 @@ Shorthand for type: 'tel'.
 build(): ContainerComponent;
 ```
 
-Defined in: [auto/form.ts:213](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/auto/form.ts#L213)
+Defined in: [auto/form.ts:218](https://github.com/Max-Health-Inc/prefab/blob/dc9055d700a7e96734dfd959d1cb775e88a3b293/src/auto/form.ts#L218)
 
 Build the form component tree.
 

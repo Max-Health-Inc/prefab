@@ -5,7 +5,7 @@ url: /prefab/reference/api/mcp/interfaces/ViewerResourceOptions.md
 
 # Interface: ViewerResourceOptions
 
-Defined in: [mcp/resource.ts:248](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/mcp/resource.ts#L248)
+Defined in: [mcp/resource.ts:248](https://github.com/Max-Health-Inc/prefab/blob/dc9055d700a7e96734dfd959d1cb775e88a3b293/src/mcp/resource.ts#L248)
 
 ## Properties
 
@@ -15,7 +15,7 @@ Defined in: [mcp/resource.ts:248](https://github.com/Max-Health-Inc/prefab/blob/
 optional uri?: string;
 ```
 
-Defined in: [mcp/resource.ts:250](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/mcp/resource.ts#L250)
+Defined in: [mcp/resource.ts:250](https://github.com/Max-Health-Inc/prefab/blob/dc9055d700a7e96734dfd959d1cb775e88a3b293/src/mcp/resource.ts#L250)
 
 Resource URI.
 
@@ -33,7 +33,7 @@ PREFAB_RESOURCE_URI
 optional title?: string;
 ```
 
-Defined in: [mcp/resource.ts:252](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/mcp/resource.ts#L252)
+Defined in: [mcp/resource.ts:252](https://github.com/Max-Health-Inc/prefab/blob/dc9055d700a7e96734dfd959d1cb775e88a3b293/src/mcp/resource.ts#L252)
 
 Resource title.
 
@@ -51,7 +51,7 @@ Resource title.
 optional csp?: McpAppCsp;
 ```
 
-Defined in: [mcp/resource.ts:254](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/mcp/resource.ts#L254)
+Defined in: [mcp/resource.ts:254](https://github.com/Max-Health-Inc/prefab/blob/dc9055d700a7e96734dfd959d1cb775e88a3b293/src/mcp/resource.ts#L254)
 
 CSP configuration.
 
@@ -69,7 +69,7 @@ CSP configuration.
 optional permissions?: McpAppPermissions;
 ```
 
-Defined in: [mcp/resource.ts:256](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/mcp/resource.ts#L256)
+Defined in: [mcp/resource.ts:256](https://github.com/Max-Health-Inc/prefab/blob/dc9055d700a7e96734dfd959d1cb775e88a3b293/src/mcp/resource.ts#L256)
 
 Permission Policy requests.
 
@@ -81,7 +81,7 @@ Permission Policy requests.
 optional scripts?: string[];
 ```
 
-Defined in: [mcp/resource.ts:258](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/mcp/resource.ts#L258)
+Defined in: [mcp/resource.ts:258](https://github.com/Max-Health-Inc/prefab/blob/dc9055d700a7e96734dfd959d1cb775e88a3b293/src/mcp/resource.ts#L258)
 
 Additional `<script>` URLs to load after the renderer.
 
@@ -93,7 +93,7 @@ Additional `<script>` URLs to load after the renderer.
 optional stylesheets?: string[];
 ```
 
-Defined in: [mcp/resource.ts:260](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/mcp/resource.ts#L260)
+Defined in: [mcp/resource.ts:260](https://github.com/Max-Health-Inc/prefab/blob/dc9055d700a7e96734dfd959d1cb775e88a3b293/src/mcp/resource.ts#L260)
 
 Additional `<link rel="stylesheet">` URLs.
 
@@ -105,7 +105,7 @@ Additional `<link rel="stylesheet">` URLs.
 optional cdnBase?: string;
 ```
 
-Defined in: [mcp/resource.ts:262](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/mcp/resource.ts#L262)
+Defined in: [mcp/resource.ts:262](https://github.com/Max-Health-Inc/prefab/blob/dc9055d700a7e96734dfd959d1cb775e88a3b293/src/mcp/resource.ts#L262)
 
 Override CDN base URL (no trailing slash).
 
@@ -117,7 +117,7 @@ Override CDN base URL (no trailing slash).
 optional themeBridge?: "vscode";
 ```
 
-Defined in: [mcp/resource.ts:267](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/mcp/resource.ts#L267)
+Defined in: [mcp/resource.ts:267](https://github.com/Max-Health-Inc/prefab/blob/dc9055d700a7e96734dfd959d1cb775e88a3b293/src/mcp/resource.ts#L267)
 
 Inject a theme bridge stylesheet. `'vscode'` makes the viewer follow the
 user's editor theme. See [RendererHtmlOptions.themeBridge](RendererHtmlOptions.md#themebridge).
@@ -130,7 +130,7 @@ user's editor theme. See [RendererHtmlOptions.themeBridge](RendererHtmlOptions.m
 optional cache?: McpCacheHint;
 ```
 
-Defined in: [mcp/resource.ts:272](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/mcp/resource.ts#L272)
+Defined in: [mcp/resource.ts:272](https://github.com/Max-Health-Inc/prefab/blob/dc9055d700a7e96734dfd959d1cb775e88a3b293/src/mcp/resource.ts#L272)
 
 Cache fields for the `resources/read` result (SEP-2549).
 
@@ -148,7 +148,7 @@ Cache fields for the `resources/read` result (SEP-2549).
 optional declareCapability?: boolean;
 ```
 
-Defined in: [mcp/resource.ts:279](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/mcp/resource.ts#L279)
+Defined in: [mcp/resource.ts:279](https://github.com/Max-Health-Inc/prefab/blob/dc9055d700a7e96734dfd959d1cb775e88a3b293/src/mcp/resource.ts#L279)
 
 Declare the `io.modelcontextprotocol/ui` extension capability on the
 server (SEP-2133). Must happen before the server connects; a server that

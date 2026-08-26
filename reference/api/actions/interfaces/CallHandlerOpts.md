@@ -5,7 +5,7 @@ url: /prefab/reference/api/actions/interfaces/CallHandlerOpts.md
 
 # Interface: CallHandlerOpts
 
-Defined in: [actions/client.ts:194](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/actions/client.ts#L194)
+Defined in: [actions/client.ts:194](https://github.com/Max-Health-Inc/prefab/blob/dc9055d700a7e96734dfd959d1cb775e88a3b293/src/actions/client.ts#L194)
 
 ## Properties
 
@@ -15,7 +15,7 @@ Defined in: [actions/client.ts:194](https://github.com/Max-Health-Inc/prefab/blo
 optional arguments?: Record<string, unknown>;
 ```
 
-Defined in: [actions/client.ts:195](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/actions/client.ts#L195)
+Defined in: [actions/client.ts:195](https://github.com/Max-Health-Inc/prefab/blob/dc9055d700a7e96734dfd959d1cb775e88a3b293/src/actions/client.ts#L195)
 
 ***
 
@@ -25,7 +25,7 @@ Defined in: [actions/client.ts:195](https://github.com/Max-Health-Inc/prefab/blo
 optional resultKey?: string;
 ```
 
-Defined in: [actions/client.ts:196](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/actions/client.ts#L196)
+Defined in: [actions/client.ts:196](https://github.com/Max-Health-Inc/prefab/blob/dc9055d700a7e96734dfd959d1cb775e88a3b293/src/actions/client.ts#L196)
 
 ***
 
@@ -35,7 +35,7 @@ Defined in: [actions/client.ts:196](https://github.com/Max-Health-Inc/prefab/blo
 optional onSuccess?: Action | Action[];
 ```
 
-Defined in: [actions/client.ts:197](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/actions/client.ts#L197)
+Defined in: [actions/client.ts:197](https://github.com/Max-Health-Inc/prefab/blob/dc9055d700a7e96734dfd959d1cb775e88a3b293/src/actions/client.ts#L197)
 
 ***
 
@@ -45,4 +45,4 @@ Defined in: [actions/client.ts:197](https://github.com/Max-Health-Inc/prefab/blo
 optional onError?: Action | Action[];
 ```
 
-Defined in: [actions/client.ts:198](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/actions/client.ts#L198)
+Defined in: [actions/client.ts:198](https://github.com/Max-Health-Inc/prefab/blob/dc9055d700a7e96734dfd959d1cb775e88a3b293/src/actions/client.ts#L198)

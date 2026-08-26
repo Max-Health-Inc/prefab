@@ -16,7 +16,7 @@ function display_form(
 options?): McpDisplayResult<PrefabWireFormat>;
 ```
 
-Defined in: [mcp/display.ts:162](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/mcp/display.ts#L162)
+Defined in: [mcp/display.ts:162](https://github.com/Max-Health-Inc/prefab/blob/dc9055d700a7e96734dfd959d1cb775e88a3b293/src/mcp/display.ts#L162)
 
 Return a form UI as an MCP tool result.
 
@@ -50,7 +50,7 @@ function display_form(
    options): McpInputRequiredResult;
 ```
 
-Defined in: [mcp/display.ts:167](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/mcp/display.ts#L167)
+Defined in: [mcp/display.ts:167](https://github.com/Max-Health-Inc/prefab/blob/dc9055d700a7e96734dfd959d1cb775e88a3b293/src/mcp/display.ts#L167)
 
 Return a form UI as an MCP tool result.
 

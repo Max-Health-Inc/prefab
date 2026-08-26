@@ -5,7 +5,7 @@ url: /prefab/reference/api/renderer/interfaces/PrefabUpdateData.md
 
 # Interface: PrefabUpdateData
 
-Defined in: [renderer/index.ts:94](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/renderer/index.ts#L94)
+Defined in: [renderer/index.ts:94](https://github.com/Max-Health-Inc/prefab/blob/dc9055d700a7e96734dfd959d1cb775e88a3b293/src/renderer/index.ts#L94)
 
 ## Properties
 
@@ -15,7 +15,7 @@ Defined in: [renderer/index.ts:94](https://github.com/Max-Health-Inc/prefab/blob
 $prefab: object;
 ```
 
-Defined in: [renderer/index.ts:95](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/renderer/index.ts#L95)
+Defined in: [renderer/index.ts:95](https://github.com/Max-Health-Inc/prefab/blob/dc9055d700a7e96734dfd959d1cb775e88a3b293/src/renderer/index.ts#L95)
 
 #### version
 
@@ -31,7 +31,7 @@ version: string;
 update: object;
 ```
 
-Defined in: [renderer/index.ts:96](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/renderer/index.ts#L96)
+Defined in: [renderer/index.ts:96](https://github.com/Max-Health-Inc/prefab/blob/dc9055d700a7e96734dfd959d1cb775e88a3b293/src/renderer/index.ts#L96)
 
 #### state
 

@@ -9,7 +9,7 @@ url: /prefab/reference/api/mcp/type-aliases/McpCacheHint.md
 type McpCacheHint = object;
 ```
 
-Defined in: [mcp/types.ts:137](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/mcp/types.ts#L137)
+Defined in: [mcp/types.ts:137](https://github.com/Max-Health-Inc/prefab/blob/dc9055d700a7e96734dfd959d1cb775e88a3b293/src/mcp/types.ts#L137)
 
 Cache fields required on results from the cacheable operations
 (`tools/list`, `prompts/list`, `resources/list`, `resources/templates/list`,
@@ -27,7 +27,7 @@ conservative `{ ttlMs: 0, cacheScope: 'private' }` — i.e. no caching.
 optional ttlMs?: number;
 ```
 
-Defined in: [mcp/types.ts:139](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/mcp/types.ts#L139)
+Defined in: [mcp/types.ts:139](https://github.com/Max-Health-Inc/prefab/blob/dc9055d700a7e96734dfd959d1cb775e88a3b293/src/mcp/types.ts#L139)
 
 Cache lifetime in milliseconds. Must be a non-negative safe integer.
 
@@ -39,6 +39,6 @@ Cache lifetime in milliseconds. Must be a non-negative safe integer.
 optional cacheScope?: McpCacheScope;
 ```
 
-Defined in: [mcp/types.ts:141](https://github.com/Max-Health-Inc/prefab/blob/d7d649bdd9803c681488f2ff36bdb77dd5c1434f/src/mcp/types.ts#L141)
+Defined in: [mcp/types.ts:141](https://github.com/Max-Health-Inc/prefab/blob/dc9055d700a7e96734dfd959d1cb775e88a3b293/src/mcp/types.ts#L141)
 
 Whether shared caches may store the result.

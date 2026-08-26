@@ -412,13 +412,26 @@ Horizontal button row.
 ### `Select(props?)`
 
 ```ts
-Select({ name: 'role', label: 'Role', children: [
+Select({ name: 'role', label: 'Role', required: true, children: [
   SelectOption('admin', 'Admin'),
   SelectOption('user', 'User'),
 ] })
 ```
 
+| Prop | Type | Description |
+|------|------|-------------|
+| `name` | `string` | State key the choice is stored under |
+| `label` | `string` | Visible field label |
+| `value` | `string \| string[]` | Pre-selected choice, or choices when `multiple` |
+| `placeholder` | `string` | Shown until a choice is made |
+| `required` | `boolean` | Must be filled before submit |
+| `multiple` | `boolean` | Accept several choices; submits an array under `name` |
+| `onChange` | `Action` | Fired with the chosen value |
+
 Sub-components: `SelectOption`, `SelectGroup`, `SelectLabel`, `SelectSeparator`
+
+`required` is shared by every stateful control, so `RadioGroup`, `Combobox`,
+`Textarea`, `Calendar` and `DatePicker` take it the same way.
 
 ### `Checkbox(props)` / `Switch(props)` / `Slider(props)`
 
