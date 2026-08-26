@@ -6,6 +6,8 @@ All notable changes to this project will be documented in this file.
 
 <!-- Add new entries directly below. Keep this line: it makes a release merge conflict rather than file them under a published version. -->
 
+## [0.3.12] — 2026-08-26
+
 ### Added
 
 - **`required` is a property of every stateful control, not of the text input.** It lived on `InputProps`, so only an `Input` could state it. Select, RadioGroup and Combobox are containers that call `statefulProps` rather than inheriting it, which is the same seam `label` went missing through in 0.3.9 — and `autoForm` turns every field carrying `options` into a Select, so the fields with a fixed choice set were exactly the ones whose constraint was dropped. It moves to `StatefulProps`, is marked natively where the element supports it and with `aria-required` everywhere, and the A2UI emitter's `ChoicePicker` checks — added in 0.3.11 against a `node.required` no source component could carry — now actually fire.
