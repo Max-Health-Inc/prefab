@@ -411,7 +411,7 @@ const FORM_MAPPERS: Record<string, Mapper> = {
   DatePicker: (node, ctx) => dateTime(node, ctx, { enableDate: true }),
   TimePicker: (node, ctx) => dateTime(node, ctx, { enableTime: true }),
   DateTimePicker: (node, ctx) => dateTime(node, ctx, { enableDate: true, enableTime: true }),
-  Select: choicePicker('mutuallyExclusive'),
+  Select: (node, ctx) => choicePicker(node.multiple === true ? 'multipleSelection' : 'mutuallyExclusive')(node, ctx),
   RadioGroup: choicePicker('mutuallyExclusive'),
   Combobox: choicePicker('mutuallyExclusive'),
 }

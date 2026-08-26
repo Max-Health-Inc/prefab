@@ -27,7 +27,6 @@ export function Form(props: FormProps): ContainerComponent {
 export interface InputProps extends StatefulProps {
   placeholder?: string
   inputType?: string
-  required?: boolean
 }
 
 export function Input(props: InputProps): StatefulComponent {
@@ -59,7 +58,9 @@ export function Textarea(props: TextareaProps): StatefulComponent {
     ...(props.placeholder && { placeholder: props.placeholder }),
     ...(props.rows !== undefined && { rows: props.rows }),
     disabled: false,
-    required: false,
+    // Defaulted rather than omitted: the Python reference emits it on every
+    // Textarea, and the wire-parity goldens are compared field for field.
+    required: props.required ?? false,
   })
   return c
 }
@@ -104,9 +105,21 @@ export function ButtonGroup(props?: ContainerProps): ContainerComponent {
 
 // ── Select + SelectOption ────────────────────────────────────────────────────
 
-export function Select(props: StatefulProps & { children?: Component[] }): ContainerComponent {
+export interface SelectProps extends StatefulProps {
+  /** Shown until a choice is made. */
+  placeholder?: string
+  /** Accept several choices. Submits an array under `name`. */
+  multiple?: boolean
+  children?: Component[]
+}
+
+export function Select(props: SelectProps): ContainerComponent {
   const c = new ContainerComponent('Select', props) as ContainerComponent & StatefulComponent
-  c.getProps = () => statefulProps(props)
+  c.getProps = () => ({
+    ...statefulProps(props),
+    ...(props.placeholder != null && { placeholder: props.placeholder }),
+    ...(props.multiple === true && { multiple: true }),
+  })
   return c
 }
 

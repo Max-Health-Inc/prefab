@@ -1,8 +1,10 @@
 /**
- * Form component renderers — Form, Input, Button, Select, Checkbox, Switch, Slider.
+ * Form component renderers — Form, Input, Textarea, Button, Checkbox, Switch,
+ * Slider and the date controls. The controls that offer a fixed set of choices
+ * live in `choice.ts` and share the helpers exported from here.
  */
 
-import { registerComponent, renderChildren, renderNode, resolveStr, el, makeDispatchCtx } from '../engine.js'
+import { registerComponent, renderChildren, resolveStr, el, makeDispatchCtx } from '../engine.js'
 import type { ComponentNode, RenderContext } from '../engine.js'
 import { dispatchActions, fireAndForget } from '../actions.js'
 import type { ActionJSON } from '../actions.js'
@@ -14,21 +16,9 @@ export function registerFormComponents(): void {
   registerComponent('Textarea', withLabel(renderTextarea))
   registerComponent('Button', renderButton)
   registerComponent('ButtonGroup', renderButtonGroup)
-  registerComponent('Select', withLabel(renderSelect))
-  registerComponent('SelectOption', renderSelectOption)
-  registerComponent('SelectGroup', renderContainerDiv('pf-select-group'))
-  registerComponent('SelectLabel', renderTextSpan('pf-select-label'))
-  registerComponent('SelectSeparator', renderSeparatorHr)
   registerComponent('Checkbox', renderCheckbox)
   registerComponent('Switch', renderSwitch)
   registerComponent('Slider', withLabel(renderSlider))
-  registerComponent('Radio', renderRadio)
-  registerComponent('RadioGroup', renderRadioGroup)
-  registerComponent('Combobox', withLabel(renderCombobox))
-  registerComponent('ComboboxOption', renderComboboxOption)
-  registerComponent('ComboboxGroup', renderContainerDiv('pf-combobox-group'))
-  registerComponent('ComboboxLabel', renderTextSpan('pf-combobox-label'))
-  registerComponent('ComboboxSeparator', renderSeparatorHr)
   registerComponent('Calendar', renderCalendar)
   registerComponent('DatePicker', withLabel(renderDatePicker))
   registerComponent('Field', renderContainerDiv('pf-field'))
@@ -36,7 +26,6 @@ export function registerFormComponents(): void {
   registerComponent('FieldDescription', renderTextSpan('pf-field-description'))
   registerComponent('FieldContent', renderContainerDiv('pf-field-content'))
   registerComponent('FieldError', renderTextSpan('pf-field-error'))
-  registerComponent('ChoiceCard', renderChoiceCard)
 }
 
 function renderForm(node: ComponentNode, ctx: RenderContext): HTMLElement {
@@ -45,10 +34,17 @@ function renderForm(node: ComponentNode, ctx: RenderContext): HTMLElement {
 
   form.addEventListener('submit', (e) => {
     e.preventDefault()
-    // Collect form data into state
+    // Collect form data into state. A multi-select contributes one entry per
+    // chosen option, so it is read through getAll and stays an array even when
+    // a single option is chosen — the field asked for a list either way.
     const data = new FormData(form)
     const values: Record<string, unknown> = {}
-    data.forEach((val, key) => { values[key] = val })
+    for (const key of new Set(data.keys())) {
+      const all = data.getAll(key)
+      const field = form.elements.namedItem(key)
+      const isList = (field instanceof HTMLSelectElement && field.multiple) || all.length > 1
+      values[key] = isList ? all : all[0]
+    }
 
     // Merge form values into state before dispatching
     ctx.store.merge(values)
@@ -89,7 +85,7 @@ function prependLabel(wrapper: HTMLElement, node: ComponentNode, ctx: RenderCont
  * Radio, RadioGroup and ChoiceCard place their own label beside the control, so
  * they are deliberately not wrapped.
  */
-function withLabel(
+export function withLabel(
   fn: (node: ComponentNode, ctx: RenderContext) => HTMLElement,
 ): (node: ComponentNode, ctx: RenderContext) => HTMLElement {
   return (node, ctx) => {
@@ -100,6 +96,19 @@ function withLabel(
     prependLabel(element, node, ctx)
     return element
   }
+}
+
+/**
+ * Mark a control as required, on the element and for assistive technology.
+ *
+ * `aria-required` is set even where the native attribute already implies it,
+ * because the wrappers around these controls are what a screen reader reaches
+ * first, and it is the only marker Combobox and RadioGroup can carry at all.
+ */
+export function markRequired(element: HTMLElement, node: ComponentNode): void {
+  if (node.required !== true) return
+  if ('required' in element) (element as HTMLInputElement).required = true
+  element.setAttribute('aria-required', 'true')
 }
 
 function renderInput(node: ComponentNode, ctx: RenderContext): HTMLElement {
@@ -116,10 +125,7 @@ function renderInput(node: ComponentNode, ctx: RenderContext): HTMLElement {
   if (node.name != null) input.name = node.name as string
   if (node.name != null) input.id = `pf-input-${node.name as string}`
   if (node.placeholder != null) input.placeholder = resolveStr(node.placeholder, ctx)
-  if (node.required === true) {
-    input.required = true
-    input.setAttribute('aria-required', 'true')
-  }
+  markRequired(input, node)
   if (node.error != null) input.setAttribute('aria-invalid', 'true')
 
   // Bind to state
@@ -149,7 +155,7 @@ function renderTextarea(node: ComponentNode, ctx: RenderContext): HTMLElement {
   if (node.name != null) textarea.id = `pf-textarea-${node.name as string}`
   if (node.placeholder != null) textarea.placeholder = resolveStr(node.placeholder, ctx)
   if (node.rows != null) textarea.rows = node.rows as number
-  if (node.required === true) textarea.setAttribute('aria-required', 'true')
+  markRequired(textarea, node)
 
   const name = node.name as string | undefined
   if (name != null) {
@@ -190,71 +196,6 @@ function renderButtonGroup(node: ComponentNode, ctx: RenderContext): HTMLElement
   e.style.gap = '8px'
   renderChildren(node, e, ctx)
   return e
-}
-
-function renderSelect(node: ComponentNode, ctx: RenderContext): HTMLElement {
-  const wrapper = el('div', 'pf-select-wrapper')
-
-  const select = document.createElement('select')
-  select.className = 'pf-select'
-  if (node.name != null) select.name = node.name as string
-  applyInputStyle(select)
-
-  // Placeholder option
-  if (node.placeholder != null) {
-    const ph = document.createElement('option')
-    ph.value = ''
-    ph.textContent = resolveStr(node.placeholder, ctx)
-    ph.disabled = true
-    ph.selected = true
-    ph.hidden = true
-    select.appendChild(ph)
-  }
-
-  // Support shorthand `options` array: [{label, value}]
-  const opts = node.options as { label?: string; value?: string }[] | undefined
-  if (Array.isArray(opts)) {
-    for (const o of opts) {
-      const option = document.createElement('option')
-      option.value = o.value ?? ''
-      option.textContent = o.label ?? option.value
-      select.appendChild(option)
-    }
-  }
-
-  // Render SelectOption children
-  if (node.children) {
-    for (const child of node.children) {
-      if (child.type === 'SelectOption') {
-        const option = document.createElement('option')
-        option.value = (child.value as string | undefined) ?? ''
-        option.textContent = (child.label as string | undefined) ?? option.value
-        select.appendChild(option)
-      } else {
-        select.appendChild(renderNode(child, ctx) as HTMLElement)
-      }
-    }
-  }
-
-  const name = node.name as string | undefined
-  if (name) {
-    const stateVal = ctx.store.get(name)
-    if (stateVal != null) select.value = stringifyValue(stateVal)
-    select.addEventListener('change', () => {
-      ctx.store.set(name, select.value)
-      if (node.onChange != null) {
-        fireAndForget(dispatchActions(node.onChange as ActionJSON | ActionJSON[], { ...makeDispatchCtx(ctx), scope: { ...ctx.scope, $event: select.value } }), 'onChange')
-      }
-    })
-  }
-
-  wrapper.appendChild(select)
-  return wrapper
-}
-
-function renderSelectOption(_node: ComponentNode, _ctx: RenderContext): HTMLElement {
-  // Handled inline by renderSelect
-  return el('span')
 }
 
 function renderCheckbox(node: ComponentNode, ctx: RenderContext): HTMLElement {
@@ -356,7 +297,7 @@ function renderSlider(node: ComponentNode, ctx: RenderContext): HTMLElement {
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
-function applyInputStyle(e: HTMLElement): void {
+export function applyInputStyle(e: HTMLElement): void {
   e.style.padding = '8px 12px'
   e.style.fontSize = '14px'
   e.style.width = '100%'
@@ -381,7 +322,7 @@ function applyButtonStyle(btn: HTMLButtonElement, variant: string): void {
 
 // ── Generic helpers for simple container/text renderers ──────────────────────
 
-function renderContainerDiv(className: string): (node: ComponentNode, ctx: RenderContext) => HTMLElement {
+export function renderContainerDiv(className: string): (node: ComponentNode, ctx: RenderContext) => HTMLElement {
   return (node, ctx) => {
     const e = el('div', className)
     renderChildren(node, e, ctx)
@@ -389,7 +330,7 @@ function renderContainerDiv(className: string): (node: ComponentNode, ctx: Rende
   }
 }
 
-function renderTextSpan(className: string): (node: ComponentNode, ctx: RenderContext) => HTMLElement {
+export function renderTextSpan(className: string): (node: ComponentNode, ctx: RenderContext) => HTMLElement {
   return (node, ctx) => {
     const e = el('span', className)
     e.textContent = resolveStr(node.content, ctx)
@@ -397,153 +338,12 @@ function renderTextSpan(className: string): (node: ComponentNode, ctx: RenderCon
   }
 }
 
-function renderSeparatorHr(): HTMLElement {
+export function renderSeparatorHr(): HTMLElement {
   const hr = document.createElement('hr')
   hr.className = 'pf-separator'
   hr.style.border = 'none'
   hr.style.margin = '4px 0'
   return hr
-}
-
-// ── Radio ────────────────────────────────────────────────────────────────────
-
-function renderRadio(node: ComponentNode, ctx: RenderContext): HTMLElement {
-  const label = el('label', 'pf-radio')
-  label.style.display = 'flex'
-  label.style.alignItems = 'center'
-  label.style.gap = '8px'
-  label.style.cursor = 'pointer'
-
-  const input = document.createElement('input')
-  input.type = 'radio'
-  input.value = resolveStr(node.value, ctx)
-  label.appendChild(input)
-
-  if (node.label != null) {
-    const text = el('span', 'pf-radio-label')
-    text.textContent = resolveStr(node.label, ctx)
-    label.appendChild(text)
-  }
-
-  return label
-}
-
-// ── RadioGroup ───────────────────────────────────────────────────────────────
-
-function renderRadioGroup(node: ComponentNode, ctx: RenderContext): HTMLElement {
-  const e = el('fieldset', 'pf-radio-group')
-  e.style.border = 'none'
-  e.style.padding = '0'
-  e.style.display = 'flex'
-  e.style.flexDirection = 'column'
-  e.style.gap = '8px'
-
-  if (node.label != null) {
-    const legend = document.createElement('legend')
-    legend.textContent = resolveStr(node.label, ctx)
-    legend.style.fontWeight = '500'
-    legend.style.marginBottom = '4px'
-    e.appendChild(legend)
-  }
-
-  renderChildren(node, e, ctx)
-
-  // Wire up name attribute on child radios and pre-select from state
-  const name = resolveStr(node.name, ctx)
-  const stateVal = ctx.store.get(name)
-  for (const radio of Array.from(e.querySelectorAll('input[type="radio"]'))) {
-    ;(radio as HTMLInputElement).name = name
-    if (stateVal != null && (radio as HTMLInputElement).value === stringifyValue(stateVal)) {
-      ;(radio as HTMLInputElement).checked = true
-    }
-  }
-
-  e.addEventListener('change', (evt) => {
-    const target = evt.target as HTMLInputElement
-    if (target.type === 'radio') {
-      ctx.store.set(name, target.value)
-      if (node.onChange != null) {
-        fireAndForget(dispatchActions(node.onChange as ActionJSON | ActionJSON[], makeDispatchCtx(ctx)), 'onChange')
-      }
-    }
-  })
-
-  return e
-}
-
-// ── Combobox ─────────────────────────────────────────────────────────────────
-
-function renderCombobox(node: ComponentNode, ctx: RenderContext): HTMLElement {
-  const e = el('div', 'pf-combobox')
-  const input = document.createElement('input')
-  input.className = 'pf-combobox-input'
-  input.type = 'text'
-  input.name = resolveStr(node.name, ctx)
-  if (node.placeholder != null) input.placeholder = resolveStr(node.placeholder, ctx)
-  if (node.value !== undefined) input.value = resolveStr(node.value, ctx)
-  // Read initial value from state
-  const cbName = input.name
-  const cbStateVal = ctx.store.get(cbName)
-  if (cbStateVal != null) input.value = stringifyValue(cbStateVal)
-
-  input.style.padding = '6px 12px'
-  input.style.borderRadius = '6px'
-  input.style.width = '100%'
-  input.style.boxSizing = 'border-box'
-
-  const dropdown = el('div', 'pf-combobox-dropdown')
-  dropdown.style.display = 'none'
-  dropdown.style.position = 'absolute'
-  dropdown.style.borderRadius = '6px'
-  dropdown.style.maxHeight = '200px'
-  dropdown.style.overflowY = 'auto'
-  dropdown.style.zIndex = '50'
-  renderChildren(node, dropdown, ctx)
-
-  input.addEventListener('focus', () => { dropdown.style.display = 'block' })
-  input.addEventListener('blur', () => {
-    setTimeout(() => { dropdown.style.display = 'none' }, 150)
-  })
-  if (node.searchable !== false) {
-    input.addEventListener('input', () => {
-      const q = input.value.toLowerCase()
-      for (const opt of Array.from(dropdown.querySelectorAll('.pf-combobox-option'))) {
-        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- textContent is string | null per DOM spec
-        const text = ((opt as HTMLElement).textContent ?? '').toLowerCase()
-        ;(opt as HTMLElement).style.display = text.includes(q) ? '' : 'none'
-      }
-    })
-  }
-
-  // Listen for option selection (custom event from ComboboxOption)
-  if (node.onChange != null) {
-    e.addEventListener('pf-combobox-select', () => {
-      fireAndForget(dispatchActions(node.onChange as ActionJSON | ActionJSON[], { ...makeDispatchCtx(ctx), scope: { ...ctx.scope, $event: input.value } }), 'onChange')
-    })
-  }
-
-  e.style.position = 'relative'
-  e.appendChild(input)
-  e.appendChild(dropdown)
-  return e
-}
-
-function renderComboboxOption(node: ComponentNode, ctx: RenderContext): HTMLElement {
-  const e = el('div', 'pf-combobox-option')
-  e.style.padding = '6px 12px'
-  e.style.cursor = 'pointer'
-  e.textContent = resolveStr(node.label ?? node.value, ctx)
-  e.dataset.value = resolveStr(node.value, ctx)
-  e.addEventListener('mousedown', () => {
-    const combobox = e.closest('.pf-combobox')
-    const input = combobox?.querySelector('input') as HTMLInputElement | null
-    if (input) {
-      input.value = e.dataset.value ?? ''
-      ctx.store.set(input.name, input.value)
-      combobox?.dispatchEvent(new CustomEvent('pf-combobox-select', { bubbles: false }))
-    }
-  })
-  return e
 }
 
 // ── Calendar ─────────────────────────────────────────────────────────────────
@@ -553,6 +353,7 @@ function renderCalendar(node: ComponentNode, ctx: RenderContext): HTMLElement {
   const input = document.createElement('input')
   input.type = 'date'
   input.name = resolveStr(node.name, ctx)
+  markRequired(input, node)
   if (node.value !== undefined) input.value = resolveStr(node.value, ctx)
   // Read initial value from state
   const calName = input.name
@@ -581,6 +382,7 @@ function renderDatePicker(node: ComponentNode, ctx: RenderContext): HTMLElement 
   const input = document.createElement('input')
   input.type = 'date'
   input.name = resolveStr(node.name, ctx)
+  markRequired(input, node)
   if (node.placeholder != null) input.placeholder = resolveStr(node.placeholder, ctx)
   if (node.value !== undefined) input.value = resolveStr(node.value, ctx)
   // Read initial value from state
@@ -602,36 +404,5 @@ function renderDatePicker(node: ComponentNode, ctx: RenderContext): HTMLElement 
   })
 
   e.appendChild(input)
-  return e
-}
-
-// ── ChoiceCard ───────────────────────────────────────────────────────────────
-
-function renderChoiceCard(node: ComponentNode, ctx: RenderContext): HTMLElement {
-  const e = el('div', 'pf-choice-card')
-  e.style.padding = '16px'
-  e.style.cursor = 'pointer'
-  e.style.transition = 'border-color 0.2s'
-  e.dataset.value = resolveStr(node.value, ctx)
-
-  if (node.selected === true) {
-    e.dataset.selected = 'true'
-  }
-
-  if (node.label != null) {
-    const title = el('div', 'pf-choice-card-label')
-    title.textContent = resolveStr(node.label, ctx)
-    title.style.fontWeight = '600'
-    e.appendChild(title)
-  }
-  if (node.description != null) {
-    const desc = el('div', 'pf-choice-card-description')
-    desc.textContent = resolveStr(node.description, ctx)
-    desc.style.fontSize = '14px'
-    e.appendChild(desc)
-  }
-
-  renderChildren(node, e, ctx)
-
   return e
 }

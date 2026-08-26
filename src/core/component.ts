@@ -151,6 +151,15 @@ export interface StatefulProps extends ComponentProps {
   onChange?: Action | Action[]
   /** Visible field label. Rendered by every stateful control. */
   label?: RxStr
+  /**
+   * The field must be filled before the form is submitted.
+   *
+   * Lives here rather than on `InputProps` because it is the control's own
+   * constraint, not the text input's: a Select or a RadioGroup states it the
+   * same way, the renderer marks it the same way, and the A2UI emitter turns it
+   * into the same `required` check.
+   */
+  required?: boolean
 }
 
 /**
@@ -158,13 +167,14 @@ export interface StatefulProps extends ComponentProps {
  *
  * Select, RadioGroup and Combobox are containers rather than StatefulComponents,
  * so they cannot inherit it; they call this instead of restating it, which is how
- * `label` went missing on them.
+ * `label`, and after it `required`, went missing on them.
  */
 export function statefulProps(props: StatefulProps): Record<string, unknown> {
   return {
     name: props.name,
     ...(props.value !== undefined && { value: props.value }),
     ...(props.label !== undefined && { label: props.label }),
+    ...(props.required !== undefined && { required: props.required }),
     ...(props.onChange && {
       onChange: Array.isArray(props.onChange)
         ? props.onChange.map(a => a.toJSON())
@@ -182,6 +192,7 @@ export class StatefulComponent extends Component {
   value?: unknown
   onChange?: Action | Action[]
   label?: RxStr
+  required?: boolean
 
   constructor(type: string, props: StatefulProps) {
     super(type, props)
@@ -189,6 +200,7 @@ export class StatefulComponent extends Component {
     this.value = props.value
     this.onChange = props.onChange
     this.label = props.label
+    this.required = props.required
   }
 
   getProps(): Record<string, unknown> {
