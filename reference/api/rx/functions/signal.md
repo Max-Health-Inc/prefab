@@ -12,7 +12,7 @@ function signal<T>(
 options?): Signal<T>;
 ```
 
-Defined in: [rx/signal.ts:72](https://github.com/Max-Health-Inc/prefab/blob/dc9055d700a7e96734dfd959d1cb775e88a3b293/src/rx/signal.ts#L72)
+Defined in: [rx/signal.ts:72](https://github.com/Max-Health-Inc/prefab/blob/aa67e4221b5f555a8968efb11584ea9d113e4659/src/rx/signal.ts#L72)
 
 Create a named reactive signal.
 

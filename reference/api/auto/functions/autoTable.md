@@ -9,7 +9,7 @@ url: /prefab/reference/api/auto/functions/autoTable.md
 function autoTable(rows, options?): ContainerComponent;
 ```
 
-Defined in: [auto/index.ts:273](https://github.com/Max-Health-Inc/prefab/blob/dc9055d700a7e96734dfd959d1cb775e88a3b293/src/auto/index.ts#L273)
+Defined in: [auto/index.ts:267](https://github.com/Max-Health-Inc/prefab/blob/aa67e4221b5f555a8968efb11584ea9d113e4659/src/auto/index.ts#L267)
 
 Auto-generate a DataTable from an array of objects.
 

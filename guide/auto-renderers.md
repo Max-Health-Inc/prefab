@@ -42,6 +42,30 @@ Auto-renderers shine when the *structure* of your UI mirrors the *structure* of 
 
 They are perfect for MCP tool handlers, where you frequently turn an API response straight into something renderable with minimal ceremony.
 
+## From a Schema, Not From a Field List
+
+`autoForm` takes a list of fields, and writing that list is usually restating something the server already knows. An MCP tool declares an `inputSchema`. A REST route declares a request body. Both are JSON Schema, and `fieldsFromJsonSchema()` turns one into the field list:
+
+```ts
+const fields = fieldsFromJsonSchema({
+  type: 'object',
+  required: ['email'],
+  properties: {
+    email: { type: 'string', format: 'email', title: 'Email' },
+    plan: { type: 'string', enum: ['pro', 'team'] },
+    seats: { type: 'integer', minimum: 1, maximum: 50 },
+  },
+})
+
+return display(autoForm(fields, 'create_account', { title: 'New account' }))
+```
+
+The form now asks for exactly what the tool accepts, because it is derived from the same declaration the tool validates against. Formats become the right control — `email`, `uri`, `date-time`, `password` — an enum becomes a Select, an array of enums becomes a multi-select, and `minimum` / `maxLength` carry over as bounds.
+
+It only emits what a flat form can honestly ask for. A nested object, an array of objects, or a property marked `readOnly` is skipped rather than rendered as a control that cannot round-trip. Pass `include` to fix the order, or `exclude` to drop keys the caller already knows.
+
+This is the inverse of `formSchema()`, which derives an elicitation schema from a field list for hosts with no UI. Together they mean one declaration serves both paths: the schema draws the form, and the form's fields describe the schema.
+
 ## When to Hand-Craft Instead
 
 Reach for the underlying components directly when you need precise control — bespoke column renderers, custom interactions, conditional layouts, or a design that doesn't map cleanly onto your raw data shape. Auto-renderers are a fast on-ramp, not a ceiling: you can start with `autoTable`, then graduate to a hand-built `DataTable` the moment you need something the auto path can't express. The two styles compose freely in the same view.

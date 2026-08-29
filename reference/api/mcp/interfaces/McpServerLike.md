@@ -5,7 +5,7 @@ url: /prefab/reference/api/mcp/interfaces/McpServerLike.md
 
 # Interface: McpServerLike
 
-Defined in: [mcp/resource.ts:307](https://github.com/Max-Health-Inc/prefab/blob/dc9055d700a7e96734dfd959d1cb775e88a3b293/src/mcp/resource.ts#L307)
+Defined in: [mcp/resource.ts:307](https://github.com/Max-Health-Inc/prefab/blob/aa67e4221b5f555a8968efb11584ea9d113e4659/src/mcp/resource.ts#L307)
 
 MCP server interface expected by registerViewerResource.
 
@@ -21,7 +21,7 @@ that v2 retired and is used only as a fallback.
 optional server?: object;
 ```
 
-Defined in: [mcp/resource.ts:311](https://github.com/Max-Health-Inc/prefab/blob/dc9055d700a7e96734dfd959d1cb775e88a3b293/src/mcp/resource.ts#L311)
+Defined in: [mcp/resource.ts:311](https://github.com/Max-Health-Inc/prefab/blob/aa67e4221b5f555a8968efb11584ea9d113e4659/src/mcp/resource.ts#L311)
 
 Low-level server, where both SDK generations expose capability registration.
 
@@ -53,7 +53,7 @@ optional registerResource(
    handler): unknown;
 ```
 
-Defined in: [mcp/resource.ts:308](https://github.com/Max-Health-Inc/prefab/blob/dc9055d700a7e96734dfd959d1cb775e88a3b293/src/mcp/resource.ts#L308)
+Defined in: [mcp/resource.ts:308](https://github.com/Max-Health-Inc/prefab/blob/aa67e4221b5f555a8968efb11584ea9d113e4659/src/mcp/resource.ts#L308)
 
 #### Parameters
 
@@ -80,7 +80,7 @@ optional resource(
    handler): unknown;
 ```
 
-Defined in: [mcp/resource.ts:309](https://github.com/Max-Health-Inc/prefab/blob/dc9055d700a7e96734dfd959d1cb775e88a3b293/src/mcp/resource.ts#L309)
+Defined in: [mcp/resource.ts:309](https://github.com/Max-Health-Inc/prefab/blob/aa67e4221b5f555a8968efb11584ea9d113e4659/src/mcp/resource.ts#L309)
 
 #### Parameters
 
@@ -103,7 +103,7 @@ Defined in: [mcp/resource.ts:309](https://github.com/Max-Health-Inc/prefab/blob/
 optional registerCapabilities(capabilities): void;
 ```
 
-Defined in: [mcp/resource.ts:313](https://github.com/Max-Health-Inc/prefab/blob/dc9055d700a7e96734dfd959d1cb775e88a3b293/src/mcp/resource.ts#L313)
+Defined in: [mcp/resource.ts:313](https://github.com/Max-Health-Inc/prefab/blob/aa67e4221b5f555a8968efb11584ea9d113e4659/src/mcp/resource.ts#L313)
 
 Some wrappers expose capability registration directly.
 

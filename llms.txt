@@ -105,6 +105,8 @@ Build the agent UI once, server-side. Emit A2UI for native rendering or $prefab 
 - [Interface: AutoMetricsOptions](/reference/api/auto/interfaces/AutoMetricsOptions.md)
 - [Interface: AutoProgressStep](/reference/api/auto/interfaces/AutoProgressStep.md)
 - [Interface: AutoProgressOptions](/reference/api/auto/interfaces/AutoProgressOptions.md)
+- [Interface: JsonSchemaNode](/reference/api/auto/interfaces/JsonSchemaNode.md)
+- [Interface: FieldsFromJsonSchemaOptions](/reference/api/auto/interfaces/FieldsFromJsonSchemaOptions.md)
 - [Interface: AutoTimelineEvent](/reference/api/auto/interfaces/AutoTimelineEvent.md)
 - [Interface: AutoTimelineOptions](/reference/api/auto/interfaces/AutoTimelineOptions.md)
 
@@ -124,6 +126,7 @@ Build the agent UI once, server-side. Emit A2UI for native rendering or $prefab 
 - [Function: autoTable()](/reference/api/auto/functions/autoTable.md)
 - [Function: autoMetrics()](/reference/api/auto/functions/autoMetrics.md)
 - [Function: autoProgress()](/reference/api/auto/functions/autoProgress.md)
+- [Function: fieldsFromJsonSchema()](/reference/api/auto/functions/fieldsFromJsonSchema.md)
 - [Function: autoTimeline()](/reference/api/auto/functions/autoTimeline.md)
 
 #### mcp

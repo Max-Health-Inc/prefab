@@ -25,6 +25,8 @@ url: /prefab/reference/api/auto.md
 | [AutoMetricsOptions](interfaces/AutoMetricsOptions.md) | - |
 | [AutoProgressStep](interfaces/AutoProgressStep.md) | - |
 | [AutoProgressOptions](interfaces/AutoProgressOptions.md) | - |
+| [JsonSchemaNode](interfaces/JsonSchemaNode.md) | The JSON Schema keywords a form field can express, read structurally. |
+| [FieldsFromJsonSchemaOptions](interfaces/FieldsFromJsonSchemaOptions.md) | - |
 | [AutoTimelineEvent](interfaces/AutoTimelineEvent.md) | - |
 | [AutoTimelineOptions](interfaces/AutoTimelineOptions.md) | - |
 
@@ -48,4 +50,5 @@ url: /prefab/reference/api/auto.md
 | [autoTable](functions/autoTable.md) | Auto-generate a DataTable from an array of objects. |
 | [autoMetrics](functions/autoMetrics.md) | Auto-generate a KPI dashboard grid. |
 | [autoProgress](functions/autoProgress.md) | Auto-generate a multi-step progress tracker. |
+| [fieldsFromJsonSchema](functions/fieldsFromJsonSchema.md) | Derive `autoForm` fields from a JSON Schema object. |
 | [autoTimeline](functions/autoTimeline.md) | Auto-generate a chronological timeline. |
