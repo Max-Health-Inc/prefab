@@ -6,6 +6,8 @@ All notable changes to this project will be documented in this file.
 
 <!-- Add new entries directly below. Keep this line: it makes a release merge conflict rather than file them under a published version. -->
 
+## [0.3.13] — 2026-08-29
+
 ### Added
 
 - **`fieldsFromJsonSchema()` — a form derived from the schema that validates it.** `autoForm` took a field list, and writing that list restated something the server had already declared: an MCP tool's `inputSchema`, a REST route's request body, an OpenAPI operation. All three are JSON Schema, and this is the inverse of `formSchema()`, so one declaration now serves both delivery paths — the schema draws the prefab form, and the same fields derive the elicitation schema for a host with no UI. Formats map onto controls a browser actually has (`date-time` renders as `datetime-local`, `integer` as `number`, since neither is an input type), an enum becomes a Select and an array of enums a multi-select, and bounds carry across. It emits only what a flat form can honestly ask for: a nested object, an array of objects, or a `readOnly` property is skipped rather than rendered as a control that cannot round-trip. Unions are resolved rather than dropped, which is what makes it usable against a real server — a nullable field is one optional control, and Elysia's coercion union (`anyOf: [{ type: 'string', format: 'integer' }, { type: 'integer' }]`, so a query string can carry a number) is one number field written twice.
