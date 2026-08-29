@@ -8,6 +8,7 @@
 
 import { type Component, type ContainerComponent } from '../core/component.js'
 import { stringifyValue } from '../core/stringify.js'
+import { humanizeColumnKey } from '../core/humanize.js'
 import { Column, Row } from '../components/layout/index.js'
 import { Heading, Text, Muted } from '../components/typography/index.js'
 import { Card, CardContent } from '../components/card/index.js'
@@ -20,6 +21,8 @@ export { autoChart } from './chart.js'
 export type { AutoChartOptions, ChartType } from './chart.js'
 export { autoForm, QuickForm, QuickFormBuilder } from './form.js'
 export type { AutoFormField, AutoFormOptions } from './form.js'
+export { fieldsFromJsonSchema } from './schema.js'
+export type { FieldsFromJsonSchemaOptions, JsonSchemaNode } from './schema.js'
 export { autoComparison } from './comparison.js'
 export type { AutoComparisonOptions } from './comparison.js'
 export { autoMetrics } from './metrics.js'
@@ -105,16 +108,7 @@ function isStatusLike(key: string, value: unknown): boolean {
     || value.toLowerCase().replace(/[\s-]/g, '_') in STATUS_VARIANTS
 }
 
-function humanizeKey(key: string): string {
-  return key
-    .replace(/([A-Z])/g, ' $1')
-    .replace(/[_-]/g, ' ')
-    .replace(/\bid\b/gi, 'ID')
-    .trim()
-    .replace(/^\w/, c => c.toUpperCase())
-}
-
-// ── autoDetail ──────────────────────────────────────────────────────────────
+// ── autoDetail ───────────────────────────────────────────────────────
 
 export interface AutoDetailOptions {
   /** Title shown at the top of the card. Defaults to auto-detect from data. */
@@ -191,7 +185,7 @@ function buildDetailFields(
 
     if (shown > 0) components.push(Separator())
 
-    const label = humanizeKey(key)
+    const label = humanizeColumnKey(key)
     const valueComponent = renderFieldValue(key, value)
 
     components.push(Row({ gap: 4, align: 'center', cssClass: 'py-2', children: [
@@ -207,7 +201,7 @@ function buildDetailFields(
       if (typeof value !== 'object' || value === null || Array.isArray(value)) continue
 
       if (shown > 0) components.push(Separator())
-      const label = humanizeKey(key)
+      const label = humanizeColumnKey(key)
       const nestedFields = buildDetailFields(
         value as Record<string, unknown>, exclude, null, depth + 1, maxDepth,
       )
@@ -307,7 +301,7 @@ function inferColumns(
     // Skip nested objects and arrays — they don't render well in tables
     if (typeof value === 'object' && value !== null) continue
 
-    columns.push(col(key, humanizeKey(key), sortable ? { sortable: true } : undefined))
+    columns.push(col(key, humanizeColumnKey(key), sortable ? { sortable: true } : undefined))
   }
 
   return columns

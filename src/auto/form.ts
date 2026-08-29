@@ -5,6 +5,7 @@
  */
 
 import { type Component, type ContainerComponent } from '../core/component.js'
+import { humanizeKey } from '../core/humanize.js'
 import { Column } from '../components/layout/index.js'
 import { Heading, Muted } from '../components/typography/index.js'
 import { Card, CardContent } from '../components/card/index.js'
@@ -97,7 +98,7 @@ export function autoForm(
   })
 
   const inputComponents: Component[] = fields.map(f => {
-    const label = f.label ?? humanizeFieldName(f.name)
+    const label = f.label ?? humanizeKey(f.name)
     // A fixed choice set is a Select; anything else is a typed Input. Both
     // carry `required` and `multiple`, so the rendered form asks for exactly
     // what the elicitation schema derived from the same field asks for.
@@ -230,12 +231,4 @@ export class QuickFormBuilder {
 /** Factory function for the chainable QuickForm builder. */
 export function QuickForm(toolName: string): QuickFormBuilder {
   return new QuickFormBuilder(toolName)
-}
-
-function humanizeFieldName(name: string): string {
-  return name
-    .replace(/([A-Z])/g, ' $1')
-    .replace(/[_-]/g, ' ')
-    .trim()
-    .replace(/^\w/, c => c.toUpperCase())
 }
