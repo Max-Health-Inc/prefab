@@ -5,6 +5,7 @@
  */
 
 import { type Component, type ContainerComponent } from '../core/component.js'
+import { humanizeKey } from '../core/humanize.js'
 import { stringifyValue } from '../core/stringify.js'
 import { Column, Row, Grid } from '../components/layout/index.js'
 import { Heading, Text, Muted } from '../components/typography/index.js'
@@ -77,12 +78,4 @@ export function autoComparison(
   children.push(Grid({ columns: gridColumns, gap: 4, children: cards }))
 
   return Column({ gap: 5, cssClass: 'p-6', children })
-}
-
-function humanizeKey(key: string): string {
-  return key
-    .replace(/([A-Z])/g, ' $1')
-    .replace(/[_-]/g, ' ')
-    .trim()
-    .replace(/^\w/, c => c.toUpperCase())
 }
