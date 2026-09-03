@@ -1,7 +1,7 @@
 /**
  * autoTimeline — Chronological event feed with status dots and badges.
  *
- * Ported from mcp-generator-3.x display_tools.py → show_timeline.
+ * Ported from mcp-generator-4.x display_tools.py → show_timeline.
  */
 
 import { type Component, type ContainerComponent } from '../core/component.js'
