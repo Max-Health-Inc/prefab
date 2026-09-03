@@ -1,7 +1,7 @@
 /**
  * autoChart — Wraps chart data in a Card with title and multi-series support.
  *
- * Ported from mcp-generator-3.x display_tools.py → show_chart.
+ * Ported from mcp-generator-4.x display_tools.py → show_chart.
  */
 
 import { type Component, type ContainerComponent } from '../core/component.js'

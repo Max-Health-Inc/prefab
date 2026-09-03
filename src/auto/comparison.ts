@@ -1,7 +1,7 @@
 /**
  * autoComparison — Side-by-side comparison of items in a Grid of Cards.
  *
- * Ported from mcp-generator-3.x display_tools.py → show_comparison.
+ * Ported from mcp-generator-4.x display_tools.py → show_comparison.
  */
 
 import { type Component, type ContainerComponent } from '../core/component.js'
