@@ -1,7 +1,7 @@
 /**
  * Auto-rendering utilities — smart component generation from raw data.
  *
- * Ported from mcp-generator-3.x display_renderers.py and display_tools.py.
+ * Ported from mcp-generator-4.x display_renderers.py and display_tools.py.
  * These helpers let you render API responses as rich UIs without
  * manually building component trees.
  */

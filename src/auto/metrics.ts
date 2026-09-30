@@ -1,7 +1,7 @@
 /**
  * autoMetrics — KPI dashboard grid with Metric cards and optional Sparklines.
  *
- * Ported from mcp-generator-3.x display_tools.py → show_metrics.
+ * Ported from mcp-generator-4.x display_tools.py → show_metrics.
  */
 
 import { type Component, type ContainerComponent } from '../core/component.js'

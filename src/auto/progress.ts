@@ -1,7 +1,7 @@
 /**
  * autoProgress — Multi-step progress tracker with status indicators.
  *
- * Ported from mcp-generator-3.x display_tools.py → show_progress.
+ * Ported from mcp-generator-4.x display_tools.py → show_progress.
  */
 
 import { type Component, type ContainerComponent } from '../core/component.js'

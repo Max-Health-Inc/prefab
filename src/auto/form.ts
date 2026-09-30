@@ -1,7 +1,7 @@
 /**
  * autoForm — Generates a Form from field definitions that calls an MCP tool on submit.
  *
- * Ported from mcp-generator-3.x display_tools.py → show_form.
+ * Ported from mcp-generator-4.x display_tools.py → show_form.
  */
 
 import { type Component, type ContainerComponent } from '../core/component.js'

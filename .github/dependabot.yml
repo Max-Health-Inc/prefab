@@ -1,7 +1,15 @@
-# Dependabot configuration for automatic dependency updates.
+# Dependabot configuration — GitHub Actions ONLY.
 #
-# Adapted from the sibling config in Max-Health-Inc/mcp-http, with this repo's
-# branch names.
+# Deliberately not the npm ecosystem. DRY.codes already reports dependency drift across every
+# indexed repo at once (`list_dependency_drift`), which is the more useful view: it shows a
+# library pinned at N different versions org-wide rather than nudging one repo at a time with
+# no sight of its siblings.
+#
+# Actions are kept because nothing else watches them: pinned per workflow file, invisible to a
+# package index, and a stale action is a supply-chain question rather than a drift one.
+#
+# NOTE: Dependabot reads this file from the DEFAULT branch, so a change here takes effect once
+# `dev` is promoted to main, not on the push to dev.
 #
 # IMPORTANT — target-branch: "dev"
 # Merging to `main` publishes to npm: release.yml runs on `push: branches: [main]`,
@@ -28,34 +36,3 @@ updates:
       actions:
         patterns:
           - "*"
-
-  # npm
-  - package-ecosystem: "npm"
-    directory: "/"
-    target-branch: "dev"
-    schedule:
-      interval: "weekly"
-    commit-message:
-      prefix: "chore(deps)"
-    labels:
-      - "dependencies"
-    groups:
-      # The package ships zero runtime dependencies, so everything here is a
-      # devDependency; grouping keeps this to one PR a week.
-      dev-dependencies:
-        dependency-type: "development"
-    ignore:
-      # typescript-eslint 8.65.0 declares `peer typescript: >=4.8.4 <6.1.0`
-      # (verified against the installed tree, which is on typescript 6.0.3). A TS 7
-      # bump lands outside that range and breaks `bun run lint`, and a grouped PR
-      # would then fail every week and block the other dev-dependency updates.
-      #
-      # The cap is <6.1.0, so a *minor* bump to 6.1 is also outside the supported
-      # range and will start emitting typescript-eslint's unsupported-version
-      # warning. Only the major is ignored here, because that is the case actually
-      # verified to fail; if 6.1 turns out to break lint too, widen this to
-      # `version-update:semver-minor`.
-      #
-      # Drop this entry once typescript-eslint supports the 7.x line.
-      - dependency-name: "typescript"
-        update-types: ["version-update:semver-major"]
