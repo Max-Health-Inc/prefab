@@ -9,7 +9,7 @@ url: /prefab/reference/api/mcp/functions/rendererHtml.md
 function rendererHtml(options?): string;
 ```
 
-Defined in: [mcp/resource.ts:216](https://github.com/Max-Health-Inc/prefab/blob/aa67e4221b5f555a8968efb11584ea9d113e4659/src/mcp/resource.ts#L216)
+Defined in: [mcp/resource.ts:216](https://github.com/Max-Health-Inc/prefab/blob/605eb676dc900a2603365e87c9dd47f400d7af46/src/mcp/resource.ts#L216)
 
 Generate the HTML page for a prefab MCP Apps viewer resource.
 

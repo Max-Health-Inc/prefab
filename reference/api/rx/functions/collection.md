@@ -12,7 +12,7 @@ function collection<T>(
 options): Collection<T>;
 ```
 
-Defined in: [rx/collection.ts:151](https://github.com/Max-Health-Inc/prefab/blob/aa67e4221b5f555a8968efb11584ea9d113e4659/src/rx/collection.ts#L151)
+Defined in: [rx/collection.ts:151](https://github.com/Max-Health-Inc/prefab/blob/605eb676dc900a2603365e87c9dd47f400d7af46/src/rx/collection.ts#L151)
 
 Create a named keyed collection.
 

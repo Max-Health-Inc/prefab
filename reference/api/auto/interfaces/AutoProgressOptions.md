@@ -5,7 +5,7 @@ url: /prefab/reference/api/auto/interfaces/AutoProgressOptions.md
 
 # Interface: AutoProgressOptions
 
-Defined in: [auto/progress.ts:29](https://github.com/Max-Health-Inc/prefab/blob/aa67e4221b5f555a8968efb11584ea9d113e4659/src/auto/progress.ts#L29)
+Defined in: [auto/progress.ts:29](https://github.com/Max-Health-Inc/prefab/blob/605eb676dc900a2603365e87c9dd47f400d7af46/src/auto/progress.ts#L29)
 
 ## Properties
 
@@ -15,7 +15,7 @@ Defined in: [auto/progress.ts:29](https://github.com/Max-Health-Inc/prefab/blob/
 optional title?: string;
 ```
 
-Defined in: [auto/progress.ts:31](https://github.com/Max-Health-Inc/prefab/blob/aa67e4221b5f555a8968efb11584ea9d113e4659/src/auto/progress.ts#L31)
+Defined in: [auto/progress.ts:31](https://github.com/Max-Health-Inc/prefab/blob/605eb676dc900a2603365e87c9dd47f400d7af46/src/auto/progress.ts#L31)
 
 Progress tracker heading.
 
@@ -27,6 +27,6 @@ Progress tracker heading.
 optional subtitle?: string;
 ```
 
-Defined in: [auto/progress.ts:33](https://github.com/Max-Health-Inc/prefab/blob/aa67e4221b5f555a8968efb11584ea9d113e4659/src/auto/progress.ts#L33)
+Defined in: [auto/progress.ts:33](https://github.com/Max-Health-Inc/prefab/blob/605eb676dc900a2603365e87c9dd47f400d7af46/src/auto/progress.ts#L33)
 
 Optional subtitle.

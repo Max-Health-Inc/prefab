@@ -9,6 +9,6 @@ url: /prefab/reference/api/mcp/type-aliases/FormValue.md
 type FormValue = string | number | boolean | string[];
 ```
 
-Defined in: [mcp/input-required.ts:210](https://github.com/Max-Health-Inc/prefab/blob/aa67e4221b5f555a8968efb11584ea9d113e4659/src/mcp/input-required.ts#L210)
+Defined in: [mcp/input-required.ts:210](https://github.com/Max-Health-Inc/prefab/blob/605eb676dc900a2603365e87c9dd47f400d7af46/src/mcp/input-required.ts#L210)
 
 Values a client may return for one field.
