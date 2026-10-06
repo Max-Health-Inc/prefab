@@ -9,6 +9,6 @@ url: /prefab/reference/api/mcp/variables/A2UI_RESOURCE_URI.md
 const A2UI_RESOURCE_URI: "a2ui://prefab/surface";
 ```
 
-Defined in: [mcp/a2ui.ts:46](https://github.com/Max-Health-Inc/prefab/blob/605eb676dc900a2603365e87c9dd47f400d7af46/src/mcp/a2ui.ts#L46)
+Defined in: [mcp/a2ui.ts:46](https://github.com/Max-Health-Inc/prefab/blob/c0556f0632cf75f3e410fd7efc1a25abaf224e54/src/mcp/a2ui.ts#L46)
 
 Default URI for a server that serves a single A2UI surface.

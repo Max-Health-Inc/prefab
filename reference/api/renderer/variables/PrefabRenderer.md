@@ -9,7 +9,7 @@ url: /prefab/reference/api/renderer/variables/PrefabRenderer.md
 const PrefabRenderer: object;
 ```
 
-Defined in: [renderer/index.ts:123](https://github.com/Max-Health-Inc/prefab/blob/605eb676dc900a2603365e87c9dd47f400d7af46/src/renderer/index.ts#L123)
+Defined in: [renderer/index.ts:124](https://github.com/Max-Health-Inc/prefab/blob/c0556f0632cf75f3e410fd7efc1a25abaf224e54/src/renderer/index.ts#L124)
 
 ## Type Declaration
 

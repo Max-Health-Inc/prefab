@@ -5,7 +5,7 @@ url: /prefab/reference/api/actions/classes/Unsubscribe.md
 
 # Class: Unsubscribe
 
-Defined in: [actions/subscribe.ts:72](https://github.com/Max-Health-Inc/prefab/blob/605eb676dc900a2603365e87c9dd47f400d7af46/src/actions/subscribe.ts#L72)
+Defined in: [actions/subscribe.ts:72](https://github.com/Max-Health-Inc/prefab/blob/c0556f0632cf75f3e410fd7efc1a25abaf224e54/src/actions/subscribe.ts#L72)
 
 Unsubscribe from a previously subscribed resource URI.
 
@@ -24,7 +24,7 @@ The renderer also automatically unsubscribes on destroy.
 new Unsubscribe(uri): Unsubscribe;
 ```
 
-Defined in: [actions/subscribe.ts:73](https://github.com/Max-Health-Inc/prefab/blob/605eb676dc900a2603365e87c9dd47f400d7af46/src/actions/subscribe.ts#L73)
+Defined in: [actions/subscribe.ts:73](https://github.com/Max-Health-Inc/prefab/blob/c0556f0632cf75f3e410fd7efc1a25abaf224e54/src/actions/subscribe.ts#L73)
 
 #### Parameters
 
@@ -44,7 +44,7 @@ Defined in: [actions/subscribe.ts:73](https://github.com/Max-Health-Inc/prefab/b
 readonly uri: string;
 ```
 
-Defined in: [actions/subscribe.ts:73](https://github.com/Max-Health-Inc/prefab/blob/605eb676dc900a2603365e87c9dd47f400d7af46/src/actions/subscribe.ts#L73)
+Defined in: [actions/subscribe.ts:73](https://github.com/Max-Health-Inc/prefab/blob/c0556f0632cf75f3e410fd7efc1a25abaf224e54/src/actions/subscribe.ts#L73)
 
 ## Methods
 
@@ -54,7 +54,7 @@ Defined in: [actions/subscribe.ts:73](https://github.com/Max-Health-Inc/prefab/b
 toJSON(): ActionJSON;
 ```
 
-Defined in: [actions/subscribe.ts:75](https://github.com/Max-Health-Inc/prefab/blob/605eb676dc900a2603365e87c9dd47f400d7af46/src/actions/subscribe.ts#L75)
+Defined in: [actions/subscribe.ts:75](https://github.com/Max-Health-Inc/prefab/blob/c0556f0632cf75f3e410fd7efc1a25abaf224e54/src/actions/subscribe.ts#L75)
 
 #### Returns
 

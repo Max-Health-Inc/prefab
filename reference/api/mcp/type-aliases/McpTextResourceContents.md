@@ -9,7 +9,7 @@ url: /prefab/reference/api/mcp/type-aliases/McpTextResourceContents.md
 type McpTextResourceContents = object;
 ```
 
-Defined in: [mcp/types.ts:54](https://github.com/Max-Health-Inc/prefab/blob/605eb676dc900a2603365e87c9dd47f400d7af46/src/mcp/types.ts#L54)
+Defined in: [mcp/types.ts:54](https://github.com/Max-Health-Inc/prefab/blob/c0556f0632cf75f3e410fd7efc1a25abaf224e54/src/mcp/types.ts#L54)
 
 Text resource contents (has `text`, never `blob`).
 
@@ -29,7 +29,7 @@ missing", which a consumer can only work around by casting.
 uri: string;
 ```
 
-Defined in: [mcp/types.ts:55](https://github.com/Max-Health-Inc/prefab/blob/605eb676dc900a2603365e87c9dd47f400d7af46/src/mcp/types.ts#L55)
+Defined in: [mcp/types.ts:55](https://github.com/Max-Health-Inc/prefab/blob/c0556f0632cf75f3e410fd7efc1a25abaf224e54/src/mcp/types.ts#L55)
 
 ***
 
@@ -39,7 +39,7 @@ Defined in: [mcp/types.ts:55](https://github.com/Max-Health-Inc/prefab/blob/605e
 optional mimeType?: string;
 ```
 
-Defined in: [mcp/types.ts:56](https://github.com/Max-Health-Inc/prefab/blob/605eb676dc900a2603365e87c9dd47f400d7af46/src/mcp/types.ts#L56)
+Defined in: [mcp/types.ts:56](https://github.com/Max-Health-Inc/prefab/blob/c0556f0632cf75f3e410fd7efc1a25abaf224e54/src/mcp/types.ts#L56)
 
 ***
 
@@ -49,7 +49,7 @@ Defined in: [mcp/types.ts:56](https://github.com/Max-Health-Inc/prefab/blob/605e
 text: string;
 ```
 
-Defined in: [mcp/types.ts:57](https://github.com/Max-Health-Inc/prefab/blob/605eb676dc900a2603365e87c9dd47f400d7af46/src/mcp/types.ts#L57)
+Defined in: [mcp/types.ts:57](https://github.com/Max-Health-Inc/prefab/blob/c0556f0632cf75f3e410fd7efc1a25abaf224e54/src/mcp/types.ts#L57)
 
 ***
 
@@ -59,4 +59,4 @@ Defined in: [mcp/types.ts:57](https://github.com/Max-Health-Inc/prefab/blob/605e
 optional _meta?: Record<string, unknown>;
 ```
 
-Defined in: [mcp/types.ts:58](https://github.com/Max-Health-Inc/prefab/blob/605eb676dc900a2603365e87c9dd47f400d7af46/src/mcp/types.ts#L58)
+Defined in: [mcp/types.ts:58](https://github.com/Max-Health-Inc/prefab/blob/c0556f0632cf75f3e410fd7efc1a25abaf224e54/src/mcp/types.ts#L58)

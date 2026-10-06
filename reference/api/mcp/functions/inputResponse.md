@@ -9,7 +9,7 @@ url: /prefab/reference/api/mcp/functions/inputResponse.md
 function inputResponse(responses, key): McpElicitResult | undefined;
 ```
 
-Defined in: [mcp/input-required.ts:202](https://github.com/Max-Health-Inc/prefab/blob/605eb676dc900a2603365e87c9dd47f400d7af46/src/mcp/input-required.ts#L202)
+Defined in: [mcp/input-required.ts:202](https://github.com/Max-Health-Inc/prefab/blob/c0556f0632cf75f3e410fd7efc1a25abaf224e54/src/mcp/input-required.ts#L202)
 
 A client's answer for one key, or `undefined` when it has not arrived yet.
 

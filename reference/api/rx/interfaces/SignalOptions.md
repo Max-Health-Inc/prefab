@@ -5,7 +5,7 @@ url: /prefab/reference/api/rx/interfaces/SignalOptions.md
 
 # Interface: SignalOptions
 
-Defined in: [rx/signal.ts:22](https://github.com/Max-Health-Inc/prefab/blob/605eb676dc900a2603365e87c9dd47f400d7af46/src/rx/signal.ts#L22)
+Defined in: [rx/signal.ts:22](https://github.com/Max-Health-Inc/prefab/blob/c0556f0632cf75f3e410fd7efc1a25abaf224e54/src/rx/signal.ts#L22)
 
 ## Properties
 
@@ -15,7 +15,7 @@ Defined in: [rx/signal.ts:22](https://github.com/Max-Health-Inc/prefab/blob/605e
 optional urlSync?: string;
 ```
 
-Defined in: [rx/signal.ts:27](https://github.com/Max-Health-Inc/prefab/blob/605eb676dc900a2603365e87c9dd47f400d7af46/src/rx/signal.ts#L27)
+Defined in: [rx/signal.ts:27](https://github.com/Max-Health-Inc/prefab/blob/c0556f0632cf75f3e410fd7efc1a25abaf224e54/src/rx/signal.ts#L27)
 
 URL query parameter name. When set, the runtime syncs the signal
 value with `?param=value` in the address bar. Opt-in.

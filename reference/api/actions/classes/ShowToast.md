@@ -5,7 +5,7 @@ url: /prefab/reference/api/actions/classes/ShowToast.md
 
 # Class: ShowToast
 
-Defined in: [actions/client.ts:88](https://github.com/Max-Health-Inc/prefab/blob/605eb676dc900a2603365e87c9dd47f400d7af46/src/actions/client.ts#L88)
+Defined in: [actions/client.ts:88](https://github.com/Max-Health-Inc/prefab/blob/c0556f0632cf75f3e410fd7efc1a25abaf224e54/src/actions/client.ts#L88)
 
 Base interface all actions implement
 
@@ -21,7 +21,7 @@ Base interface all actions implement
 new ShowToast(message, opts?): ShowToast;
 ```
 
-Defined in: [actions/client.ts:89](https://github.com/Max-Health-Inc/prefab/blob/605eb676dc900a2603365e87c9dd47f400d7af46/src/actions/client.ts#L89)
+Defined in: [actions/client.ts:89](https://github.com/Max-Health-Inc/prefab/blob/c0556f0632cf75f3e410fd7efc1a25abaf224e54/src/actions/client.ts#L89)
 
 #### Parameters
 
@@ -42,7 +42,7 @@ Defined in: [actions/client.ts:89](https://github.com/Max-Health-Inc/prefab/blob
 readonly message: string;
 ```
 
-Defined in: [actions/client.ts:90](https://github.com/Max-Health-Inc/prefab/blob/605eb676dc900a2603365e87c9dd47f400d7af46/src/actions/client.ts#L90)
+Defined in: [actions/client.ts:90](https://github.com/Max-Health-Inc/prefab/blob/c0556f0632cf75f3e410fd7efc1a25abaf224e54/src/actions/client.ts#L90)
 
 ## Methods
 
@@ -52,7 +52,7 @@ Defined in: [actions/client.ts:90](https://github.com/Max-Health-Inc/prefab/blob
 toJSON(): ActionJSON;
 ```
 
-Defined in: [actions/client.ts:94](https://github.com/Max-Health-Inc/prefab/blob/605eb676dc900a2603365e87c9dd47f400d7af46/src/actions/client.ts#L94)
+Defined in: [actions/client.ts:94](https://github.com/Max-Health-Inc/prefab/blob/c0556f0632cf75f3e410fd7efc1a25abaf224e54/src/actions/client.ts#L94)
 
 #### Returns
 

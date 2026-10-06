@@ -230,6 +230,8 @@ Build the agent UI once, server-side. Emit A2UI for native rendering or $prefab 
 ##### Interfaces
 
 - [Interface: Logger](/reference/api/renderer/interfaces/Logger.md)
+- [Interface: ModelContextUpdate](/reference/api/renderer/interfaces/ModelContextUpdate.md)
+- [Interface: McpTransport](/reference/api/renderer/interfaces/McpTransport.md)
 - [Interface: AppOptions](/reference/api/renderer/interfaces/AppOptions.md)
 - [Interface: PrefabApp](/reference/api/renderer/interfaces/PrefabApp.md)
 - [Interface: MountHandle](/reference/api/renderer/interfaces/MountHandle.md)

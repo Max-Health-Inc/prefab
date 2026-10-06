@@ -12,7 +12,7 @@ function display_error(
 options?): McpDisplayResult<PrefabWireFormat>;
 ```
 
-Defined in: [mcp/display.ts:285](https://github.com/Max-Health-Inc/prefab/blob/605eb676dc900a2603365e87c9dd47f400d7af46/src/mcp/display.ts#L285)
+Defined in: [mcp/display.ts:285](https://github.com/Max-Health-Inc/prefab/blob/c0556f0632cf75f3e410fd7efc1a25abaf224e54/src/mcp/display.ts#L285)
 
 Return a standardized error view as an MCP tool result.
 

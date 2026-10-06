@@ -9,7 +9,7 @@ url: /prefab/reference/api/auto/functions/autoMetrics.md
 function autoMetrics(metrics, options?): ContainerComponent;
 ```
 
-Defined in: [auto/metrics.ts:52](https://github.com/Max-Health-Inc/prefab/blob/605eb676dc900a2603365e87c9dd47f400d7af46/src/auto/metrics.ts#L52)
+Defined in: [auto/metrics.ts:52](https://github.com/Max-Health-Inc/prefab/blob/c0556f0632cf75f3e410fd7efc1a25abaf224e54/src/auto/metrics.ts#L52)
 
 Auto-generate a KPI dashboard grid.
 

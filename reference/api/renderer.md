@@ -17,6 +17,8 @@ url: /prefab/reference/api/renderer.md
 | Interface | Description |
 | ------ | ------ |
 | [Logger](interfaces/Logger.md) | - |
+| [ModelContextUpdate](interfaces/ModelContextUpdate.md) | What the host adds to the model's context for its next turn (MCP Apps `ui/update-model-context`). |
+| [McpTransport](interfaces/McpTransport.md) | - |
 | [AppOptions](interfaces/AppOptions.md) | - |
 | [PrefabApp](interfaces/PrefabApp.md) | - |
 | [MountHandle](interfaces/MountHandle.md) | - |

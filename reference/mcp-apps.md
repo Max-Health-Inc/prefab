@@ -381,6 +381,26 @@ Methods (per the MCP Apps spec):
 > After receiving the response to `ui/initialize`, the View must send
 > `ui/notifications/initialized` to signal readiness.
 
+### Telling the model what happened in the view
+
+The model only sees the tool result. Anything the view learns afterwards, such as an image
+that failed to load or a selection the user made, stays invisible to it unless the view reports
+it with `ui/update-model-context`. The host keeps the latest update and hands it to the model
+with the next user message, without starting a turn of its own.
+
+A custom component reaches it through the transport on its render context:
+
+```js
+window.prefab.registerComponent('Preview', (node, ctx) => {
+  const report = (text) => ctx.transport?.updateModelContext?.({ content: [{ type: 'text', text }] })
+  // ...
+  report('The preview failed to load: the image server answered HTTP 404.')
+})
+```
+
+`content` is what the model reads; `structuredContent` is optional machine-readable data. Over
+the `prefab:*` protocol the same update travels as `prefab:update-context`.
+
 ## Working adapter — renderer HTML
 
 Two options for rendering `@maxhealth.tech/prefab` `$prefab` JSON

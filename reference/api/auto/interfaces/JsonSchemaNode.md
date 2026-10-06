@@ -5,7 +5,7 @@ url: /prefab/reference/api/auto/interfaces/JsonSchemaNode.md
 
 # Interface: JsonSchemaNode
 
-Defined in: [auto/schema.ts:45](https://github.com/Max-Health-Inc/prefab/blob/605eb676dc900a2603365e87c9dd47f400d7af46/src/auto/schema.ts#L45)
+Defined in: [auto/schema.ts:45](https://github.com/Max-Health-Inc/prefab/blob/c0556f0632cf75f3e410fd7efc1a25abaf224e54/src/auto/schema.ts#L45)
 
 The JSON Schema keywords a form field can express, read structurally.
 
@@ -21,7 +21,7 @@ keywords below survive the crossing into a control.
 optional type?: string | string[];
 ```
 
-Defined in: [auto/schema.ts:46](https://github.com/Max-Health-Inc/prefab/blob/605eb676dc900a2603365e87c9dd47f400d7af46/src/auto/schema.ts#L46)
+Defined in: [auto/schema.ts:46](https://github.com/Max-Health-Inc/prefab/blob/c0556f0632cf75f3e410fd7efc1a25abaf224e54/src/auto/schema.ts#L46)
 
 ***
 
@@ -31,7 +31,7 @@ Defined in: [auto/schema.ts:46](https://github.com/Max-Health-Inc/prefab/blob/60
 optional format?: string;
 ```
 
-Defined in: [auto/schema.ts:47](https://github.com/Max-Health-Inc/prefab/blob/605eb676dc900a2603365e87c9dd47f400d7af46/src/auto/schema.ts#L47)
+Defined in: [auto/schema.ts:47](https://github.com/Max-Health-Inc/prefab/blob/c0556f0632cf75f3e410fd7efc1a25abaf224e54/src/auto/schema.ts#L47)
 
 ***
 
@@ -41,7 +41,7 @@ Defined in: [auto/schema.ts:47](https://github.com/Max-Health-Inc/prefab/blob/60
 optional title?: string;
 ```
 
-Defined in: [auto/schema.ts:48](https://github.com/Max-Health-Inc/prefab/blob/605eb676dc900a2603365e87c9dd47f400d7af46/src/auto/schema.ts#L48)
+Defined in: [auto/schema.ts:48](https://github.com/Max-Health-Inc/prefab/blob/c0556f0632cf75f3e410fd7efc1a25abaf224e54/src/auto/schema.ts#L48)
 
 ***
 
@@ -51,7 +51,7 @@ Defined in: [auto/schema.ts:48](https://github.com/Max-Health-Inc/prefab/blob/60
 optional description?: string;
 ```
 
-Defined in: [auto/schema.ts:49](https://github.com/Max-Health-Inc/prefab/blob/605eb676dc900a2603365e87c9dd47f400d7af46/src/auto/schema.ts#L49)
+Defined in: [auto/schema.ts:49](https://github.com/Max-Health-Inc/prefab/blob/c0556f0632cf75f3e410fd7efc1a25abaf224e54/src/auto/schema.ts#L49)
 
 ***
 
@@ -61,7 +61,7 @@ Defined in: [auto/schema.ts:49](https://github.com/Max-Health-Inc/prefab/blob/60
 optional enum?: unknown[];
 ```
 
-Defined in: [auto/schema.ts:50](https://github.com/Max-Health-Inc/prefab/blob/605eb676dc900a2603365e87c9dd47f400d7af46/src/auto/schema.ts#L50)
+Defined in: [auto/schema.ts:50](https://github.com/Max-Health-Inc/prefab/blob/c0556f0632cf75f3e410fd7efc1a25abaf224e54/src/auto/schema.ts#L50)
 
 ***
 
@@ -71,7 +71,7 @@ Defined in: [auto/schema.ts:50](https://github.com/Max-Health-Inc/prefab/blob/60
 optional const?: unknown;
 ```
 
-Defined in: [auto/schema.ts:51](https://github.com/Max-Health-Inc/prefab/blob/605eb676dc900a2603365e87c9dd47f400d7af46/src/auto/schema.ts#L51)
+Defined in: [auto/schema.ts:51](https://github.com/Max-Health-Inc/prefab/blob/c0556f0632cf75f3e410fd7efc1a25abaf224e54/src/auto/schema.ts#L51)
 
 ***
 
@@ -81,7 +81,7 @@ Defined in: [auto/schema.ts:51](https://github.com/Max-Health-Inc/prefab/blob/60
 optional default?: unknown;
 ```
 
-Defined in: [auto/schema.ts:52](https://github.com/Max-Health-Inc/prefab/blob/605eb676dc900a2603365e87c9dd47f400d7af46/src/auto/schema.ts#L52)
+Defined in: [auto/schema.ts:52](https://github.com/Max-Health-Inc/prefab/blob/c0556f0632cf75f3e410fd7efc1a25abaf224e54/src/auto/schema.ts#L52)
 
 ***
 
@@ -91,7 +91,7 @@ Defined in: [auto/schema.ts:52](https://github.com/Max-Health-Inc/prefab/blob/60
 optional properties?: Record<string, JsonSchemaNode>;
 ```
 
-Defined in: [auto/schema.ts:53](https://github.com/Max-Health-Inc/prefab/blob/605eb676dc900a2603365e87c9dd47f400d7af46/src/auto/schema.ts#L53)
+Defined in: [auto/schema.ts:53](https://github.com/Max-Health-Inc/prefab/blob/c0556f0632cf75f3e410fd7efc1a25abaf224e54/src/auto/schema.ts#L53)
 
 ***
 
@@ -101,7 +101,7 @@ Defined in: [auto/schema.ts:53](https://github.com/Max-Health-Inc/prefab/blob/60
 optional required?: string[];
 ```
 
-Defined in: [auto/schema.ts:54](https://github.com/Max-Health-Inc/prefab/blob/605eb676dc900a2603365e87c9dd47f400d7af46/src/auto/schema.ts#L54)
+Defined in: [auto/schema.ts:54](https://github.com/Max-Health-Inc/prefab/blob/c0556f0632cf75f3e410fd7efc1a25abaf224e54/src/auto/schema.ts#L54)
 
 ***
 
@@ -111,7 +111,7 @@ Defined in: [auto/schema.ts:54](https://github.com/Max-Health-Inc/prefab/blob/60
 optional items?: JsonSchemaNode;
 ```
 
-Defined in: [auto/schema.ts:55](https://github.com/Max-Health-Inc/prefab/blob/605eb676dc900a2603365e87c9dd47f400d7af46/src/auto/schema.ts#L55)
+Defined in: [auto/schema.ts:55](https://github.com/Max-Health-Inc/prefab/blob/c0556f0632cf75f3e410fd7efc1a25abaf224e54/src/auto/schema.ts#L55)
 
 ***
 
@@ -121,7 +121,7 @@ Defined in: [auto/schema.ts:55](https://github.com/Max-Health-Inc/prefab/blob/60
 optional anyOf?: JsonSchemaNode[];
 ```
 
-Defined in: [auto/schema.ts:56](https://github.com/Max-Health-Inc/prefab/blob/605eb676dc900a2603365e87c9dd47f400d7af46/src/auto/schema.ts#L56)
+Defined in: [auto/schema.ts:56](https://github.com/Max-Health-Inc/prefab/blob/c0556f0632cf75f3e410fd7efc1a25abaf224e54/src/auto/schema.ts#L56)
 
 ***
 
@@ -131,7 +131,7 @@ Defined in: [auto/schema.ts:56](https://github.com/Max-Health-Inc/prefab/blob/60
 optional oneOf?: JsonSchemaNode[];
 ```
 
-Defined in: [auto/schema.ts:57](https://github.com/Max-Health-Inc/prefab/blob/605eb676dc900a2603365e87c9dd47f400d7af46/src/auto/schema.ts#L57)
+Defined in: [auto/schema.ts:57](https://github.com/Max-Health-Inc/prefab/blob/c0556f0632cf75f3e410fd7efc1a25abaf224e54/src/auto/schema.ts#L57)
 
 ***
 
@@ -141,7 +141,7 @@ Defined in: [auto/schema.ts:57](https://github.com/Max-Health-Inc/prefab/blob/60
 optional minimum?: number;
 ```
 
-Defined in: [auto/schema.ts:58](https://github.com/Max-Health-Inc/prefab/blob/605eb676dc900a2603365e87c9dd47f400d7af46/src/auto/schema.ts#L58)
+Defined in: [auto/schema.ts:58](https://github.com/Max-Health-Inc/prefab/blob/c0556f0632cf75f3e410fd7efc1a25abaf224e54/src/auto/schema.ts#L58)
 
 ***
 
@@ -151,7 +151,7 @@ Defined in: [auto/schema.ts:58](https://github.com/Max-Health-Inc/prefab/blob/60
 optional maximum?: number;
 ```
 
-Defined in: [auto/schema.ts:59](https://github.com/Max-Health-Inc/prefab/blob/605eb676dc900a2603365e87c9dd47f400d7af46/src/auto/schema.ts#L59)
+Defined in: [auto/schema.ts:59](https://github.com/Max-Health-Inc/prefab/blob/c0556f0632cf75f3e410fd7efc1a25abaf224e54/src/auto/schema.ts#L59)
 
 ***
 
@@ -161,7 +161,7 @@ Defined in: [auto/schema.ts:59](https://github.com/Max-Health-Inc/prefab/blob/60
 optional minLength?: number;
 ```
 
-Defined in: [auto/schema.ts:60](https://github.com/Max-Health-Inc/prefab/blob/605eb676dc900a2603365e87c9dd47f400d7af46/src/auto/schema.ts#L60)
+Defined in: [auto/schema.ts:60](https://github.com/Max-Health-Inc/prefab/blob/c0556f0632cf75f3e410fd7efc1a25abaf224e54/src/auto/schema.ts#L60)
 
 ***
 
@@ -171,7 +171,7 @@ Defined in: [auto/schema.ts:60](https://github.com/Max-Health-Inc/prefab/blob/60
 optional maxLength?: number;
 ```
 
-Defined in: [auto/schema.ts:61](https://github.com/Max-Health-Inc/prefab/blob/605eb676dc900a2603365e87c9dd47f400d7af46/src/auto/schema.ts#L61)
+Defined in: [auto/schema.ts:61](https://github.com/Max-Health-Inc/prefab/blob/c0556f0632cf75f3e410fd7efc1a25abaf224e54/src/auto/schema.ts#L61)
 
 ***
 
@@ -181,7 +181,7 @@ Defined in: [auto/schema.ts:61](https://github.com/Max-Health-Inc/prefab/blob/60
 optional minItems?: number;
 ```
 
-Defined in: [auto/schema.ts:62](https://github.com/Max-Health-Inc/prefab/blob/605eb676dc900a2603365e87c9dd47f400d7af46/src/auto/schema.ts#L62)
+Defined in: [auto/schema.ts:62](https://github.com/Max-Health-Inc/prefab/blob/c0556f0632cf75f3e410fd7efc1a25abaf224e54/src/auto/schema.ts#L62)
 
 ***
 
@@ -191,7 +191,7 @@ Defined in: [auto/schema.ts:62](https://github.com/Max-Health-Inc/prefab/blob/60
 optional maxItems?: number;
 ```
 
-Defined in: [auto/schema.ts:63](https://github.com/Max-Health-Inc/prefab/blob/605eb676dc900a2603365e87c9dd47f400d7af46/src/auto/schema.ts#L63)
+Defined in: [auto/schema.ts:63](https://github.com/Max-Health-Inc/prefab/blob/c0556f0632cf75f3e410fd7efc1a25abaf224e54/src/auto/schema.ts#L63)
 
 ***
 
@@ -201,4 +201,4 @@ Defined in: [auto/schema.ts:63](https://github.com/Max-Health-Inc/prefab/blob/60
 optional readOnly?: boolean;
 ```
 
-Defined in: [auto/schema.ts:64](https://github.com/Max-Health-Inc/prefab/blob/605eb676dc900a2603365e87c9dd47f400d7af46/src/auto/schema.ts#L64)
+Defined in: [auto/schema.ts:64](https://github.com/Max-Health-Inc/prefab/blob/c0556f0632cf75f3e410fd7efc1a25abaf224e54/src/auto/schema.ts#L64)

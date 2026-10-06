@@ -5,7 +5,7 @@ url: /prefab/reference/api/renderer/interfaces/BridgeMessage.md
 
 # Interface: BridgeMessage\<T>
 
-Defined in: [renderer/bridge.ts:32](https://github.com/Max-Health-Inc/prefab/blob/605eb676dc900a2603365e87c9dd47f400d7af46/src/renderer/bridge.ts#L32)
+Defined in: [renderer/bridge.ts:32](https://github.com/Max-Health-Inc/prefab/blob/c0556f0632cf75f3e410fd7efc1a25abaf224e54/src/renderer/bridge.ts#L32)
 
 ## Type Parameters
 
@@ -21,7 +21,7 @@ Defined in: [renderer/bridge.ts:32](https://github.com/Max-Health-Inc/prefab/blo
 type: T;
 ```
 
-Defined in: [renderer/bridge.ts:33](https://github.com/Max-Health-Inc/prefab/blob/605eb676dc900a2603365e87c9dd47f400d7af46/src/renderer/bridge.ts#L33)
+Defined in: [renderer/bridge.ts:33](https://github.com/Max-Health-Inc/prefab/blob/c0556f0632cf75f3e410fd7efc1a25abaf224e54/src/renderer/bridge.ts#L33)
 
 ***
 
@@ -31,7 +31,7 @@ Defined in: [renderer/bridge.ts:33](https://github.com/Max-Health-Inc/prefab/blo
 optional id?: string;
 ```
 
-Defined in: [renderer/bridge.ts:34](https://github.com/Max-Health-Inc/prefab/blob/605eb676dc900a2603365e87c9dd47f400d7af46/src/renderer/bridge.ts#L34)
+Defined in: [renderer/bridge.ts:34](https://github.com/Max-Health-Inc/prefab/blob/c0556f0632cf75f3e410fd7efc1a25abaf224e54/src/renderer/bridge.ts#L34)
 
 ***
 
@@ -41,4 +41,4 @@ Defined in: [renderer/bridge.ts:34](https://github.com/Max-Health-Inc/prefab/blo
 optional payload?: Record<string, unknown>;
 ```
 
-Defined in: [renderer/bridge.ts:35](https://github.com/Max-Health-Inc/prefab/blob/605eb676dc900a2603365e87c9dd47f400d7af46/src/renderer/bridge.ts#L35)
+Defined in: [renderer/bridge.ts:35](https://github.com/Max-Health-Inc/prefab/blob/c0556f0632cf75f3e410fd7efc1a25abaf224e54/src/renderer/bridge.ts#L35)
