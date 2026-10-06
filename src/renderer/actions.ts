@@ -36,9 +36,19 @@ function normalizeAction(action: ActionJSON): ActionJSON {
 }
 
 /** MCP transport interface — injected at mount time */
+/** What the host adds to the model's context for its next turn (MCP Apps `ui/update-model-context`). */
+export interface ModelContextUpdate {
+  /** Text the model reads. */
+  content?: { type: 'text'; text: string }[]
+  /** Machine-readable data for the host. */
+  structuredContent?: Record<string, unknown>
+}
+
 export interface McpTransport {
   callTool(name: string, args: Record<string, unknown>): Promise<unknown>
   sendMessage(message: string): Promise<void>
+  /** Replace what this view has told the model, without starting a turn. */
+  updateModelContext?(update: ModelContextUpdate): Promise<void>
   /** Subscribe to a resource URI for push updates. Returns an unsubscribe function. */
   subscribe?(uri: string, onData: (data: unknown) => void): () => void
   /** Transport capabilities discovered during handshake. */

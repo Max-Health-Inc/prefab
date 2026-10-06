@@ -24,7 +24,7 @@
  *                 ui/notifications/host-context-changed, ui/resource-teardown
  */
 
-import type { McpTransport } from './actions.js'
+import type { McpTransport, ModelContextUpdate } from './actions.js'
 import { VERSION } from '../core/version.js'
 
 // ── Public types ─────────────────────────────────────────────────────────────
@@ -404,6 +404,10 @@ export class Bridge {
         this.sendPrefab('prefab:send-message', { message })
         return Promise.resolve()
       },
+      updateModelContext: (update: ModelContextUpdate): Promise<void> => {
+        this.sendPrefab('prefab:update-context', { context: update.structuredContent, content: update.content })
+        return Promise.resolve()
+      },
       subscribe: (uri: string, onData: (data: unknown) => void): (() => void) => {
         return this.subscribe(uri, onData)
       },
@@ -585,11 +589,14 @@ export class Bridge {
       callTool: (name: string, args: Record<string, unknown>): Promise<unknown> => {
         return this.sendRpcRequest('tools/call', { name, arguments: args })
       },
-      sendMessage: (message: string): Promise<void> => {
-        return this.sendRpcRequest('ui/message', {
+      sendMessage: async (message: string): Promise<void> => {
+        await this.sendRpcRequest('ui/message', {
           role: 'user',
           content: { type: 'text', text: message },
-        }) as Promise<void>
+        })
+      },
+      updateModelContext: async (update: ModelContextUpdate): Promise<void> => {
+        await this.sendRpcRequest('ui/update-model-context', { ...update })
       },
       subscribe: (uri: string, onData: (data: unknown) => void): (() => void) => {
         return this.subscribe(uri, onData)

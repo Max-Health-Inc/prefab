@@ -68,6 +68,7 @@ export type {
 } from './bridge.js'
 export { createThemeToggle } from './theme.js'
 export type { ThemeToggleOptions } from './theme.js'
+export type { McpTransport, ModelContextUpdate } from './actions.js'
 
 // ── Types ────────────────────────────────────────────────────────────────────
 

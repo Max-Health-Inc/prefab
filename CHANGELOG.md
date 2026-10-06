@@ -6,6 +6,14 @@ All notable changes to this project will be documented in this file.
 
 <!-- Add new entries directly below. Keep this line: it makes a release merge conflict rather than file them under a published version. -->
 
+### Added
+
+- **A view can tell the model what happened after the tool returned.** The model only reads the tool result, so anything a view learned later, such as an image request that failed with a 404, never reached it, and it went on describing a success. `McpTransport.updateModelContext({ content, structuredContent })` sends MCP Apps `ui/update-model-context` with the `content` text the model reads, and custom components reach it as `ctx.transport.updateModelContext`. Over the `prefab:*` protocol the same update travels as `prefab:update-context`. `Bridge.updateContext` still sends only `structuredContent`, which a host keeps but the model does not read as text.
+
+### Internal
+
+- **The JSON-RPC `sendMessage` no longer casts its result.** It awaited nothing and asserted `Promise<void>` over the request's `Promise<unknown>`; it now awaits the request.
+
 ## [0.3.13] — 2026-08-29
 
 ### Added
