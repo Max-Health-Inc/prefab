@@ -1065,3 +1065,49 @@ describe('Bridge.notifyPreferredSize', () => {
     window.removeEventListener('message', capture)
   })
 })
+
+describe('Bridge model context updates', () => {
+  let bridge: Bridge
+
+  beforeEach(() => { bridge = new Bridge('*') })
+  afterEach(() => { bridge.disconnect() })
+
+  it('sends text the model reads as ui/update-model-context once the host speaks ui/*', async () => {
+    bridge.connect()
+    const sent: Record<string, unknown>[] = []
+    const host = (event: MessageEvent): void => {
+      const msg = event.data
+      if (msg?.jsonrpc !== '2.0' || msg.id == null || !msg.method) return
+      if (msg.method === 'ui/update-model-context') sent.push(msg.params)
+      window.postMessage({ jsonrpc: '2.0', id: msg.id, result: msg.method === 'ui/initialize' ? { hostInfo: { name: 'Host' } } : {} }, '*')
+    }
+    window.addEventListener('message', host)
+
+    await bridge.initialize({})
+    await bridge.createTransport().updateModelContext?.({
+      content: [{ type: 'text', text: '3D preview failed: HTTP 404' }],
+      structuredContent: { state: 'error' },
+    })
+
+    expect(sent).toEqual([{ content: [{ type: 'text', text: '3D preview failed: HTTP 404' }], structuredContent: { state: 'error' } }])
+    window.removeEventListener('message', host)
+  })
+
+  it('carries the same update over the prefab:* protocol', () => {
+    const posted: BridgeMessage[] = []
+    const capture = (event: MessageEvent): void => {
+      if (event.data?.type === 'prefab:update-context') posted.push(event.data)
+    }
+    window.addEventListener('message', capture)
+
+    void bridge.createTransport().updateModelContext?.({ content: [{ type: 'text', text: 'rendered' }] })
+
+    return new Promise<void>((resolve) => {
+      setTimeout(() => {
+        expect(posted[0]?.payload?.content).toEqual([{ type: 'text', text: 'rendered' }])
+        window.removeEventListener('message', capture)
+        resolve()
+      }, 50)
+    })
+  })
+})
