@@ -5,7 +5,6 @@
 import { registerComponent, resolveStr, el, makeDispatchCtx } from '../engine.js'
 import type { ComponentNode, RenderContext } from '../engine.js'
 import { dispatchActions, fireAndForget } from '../actions.js'
-import type { ActionJSON } from '../actions.js'
 
 export function registerMediaComponents(): void {
   registerComponent('Image', renderImage)
@@ -158,7 +157,7 @@ function renderDropZone(node: ComponentNode, ctx: RenderContext): HTMLElement {
     }
     if (node.onDrop != null) {
       fireAndForget(
-        dispatchActions(node.onDrop as ActionJSON | ActionJSON[], {
+        dispatchActions(node.onDrop, {
           ...makeDispatchCtx(ctx),
           scope: { ...ctx.scope, $result: files },
         }),

@@ -10,7 +10,6 @@
 import { registerComponent, renderChildren, renderNode, resolveStr, el, makeDispatchCtx } from '../engine.js'
 import type { ComponentNode, RenderContext } from '../engine.js'
 import { dispatchActions, fireAndForget } from '../actions.js'
-import type { ActionJSON } from '../actions.js'
 import { stringifyValue } from '../../core/stringify.js'
 import { withLabel, markRequired, applyInputStyle, renderContainerDiv, renderTextSpan, renderSeparatorHr } from './form.js'
 
@@ -84,7 +83,7 @@ function renderSelect(node: ComponentNode, ctx: RenderContext): HTMLElement {
       const current = selectValue(select)
       ctx.store.set(name, current)
       if (node.onChange != null) {
-        fireAndForget(dispatchActions(node.onChange as ActionJSON | ActionJSON[], { ...makeDispatchCtx(ctx), scope: { ...ctx.scope, $event: current } }), 'onChange')
+        fireAndForget(dispatchActions(node.onChange, { ...makeDispatchCtx(ctx), scope: { ...ctx.scope, $event: current } }), 'onChange')
       }
     })
   }
@@ -174,7 +173,7 @@ function renderRadioGroup(node: ComponentNode, ctx: RenderContext): HTMLElement 
     if (target.type === 'radio') {
       ctx.store.set(name, target.value)
       if (node.onChange != null) {
-        fireAndForget(dispatchActions(node.onChange as ActionJSON | ActionJSON[], makeDispatchCtx(ctx)), 'onChange')
+        fireAndForget(dispatchActions(node.onChange, makeDispatchCtx(ctx)), 'onChange')
       }
     }
   })
@@ -230,7 +229,7 @@ function renderCombobox(node: ComponentNode, ctx: RenderContext): HTMLElement {
   // Listen for option selection (custom event from ComboboxOption)
   if (node.onChange != null) {
     e.addEventListener('pf-combobox-select', () => {
-      fireAndForget(dispatchActions(node.onChange as ActionJSON | ActionJSON[], { ...makeDispatchCtx(ctx), scope: { ...ctx.scope, $event: input.value } }), 'onChange')
+      fireAndForget(dispatchActions(node.onChange, { ...makeDispatchCtx(ctx), scope: { ...ctx.scope, $event: input.value } }), 'onChange')
     })
   }
 

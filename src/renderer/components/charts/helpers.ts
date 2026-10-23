@@ -1,12 +1,12 @@
 /**
- * Shared chart rendering helpers — colors, axes, SVG primitives, legend,
- * value formatting. Used by the per-chart renderers in [charts.ts] and the
- * tooltip zones in [chart-tooltip.ts].
+ * Shared chart rendering helpers: colors, axes, SVG primitives, legend,
+ * value formatting.
  */
 
-import { resolveValue, el } from '../engine.js'
-import type { ComponentNode, RenderContext } from '../engine.js'
-import { stringifyValue } from '../../core/stringify.js'
+import { resolveValue, el } from '../../engine.js'
+import type { ComponentNode, RenderContext } from '../../engine.js'
+import { stringifyValue } from '../../../core/stringify.js'
+import { optionalString } from '../../../core/guards.js'
 
 export const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899']
 export const AXIS_COLOR = 'var(--muted-foreground, #6b7280)'
@@ -171,7 +171,7 @@ export function formatYValue(value: number, format?: string): string {
  * charts. `"auto"` (upstream's default) means "no explicit format".
  */
 export function resolveValueFormat(node: ComponentNode): string | undefined {
-  const fmt = (node.yAxisFormat as string | undefined) ?? (node.valueFormat as string | undefined)
+  const fmt = optionalString(node.yAxisFormat) ?? optionalString(node.valueFormat)
   return fmt && fmt !== 'auto' ? fmt : undefined
 }
 
@@ -241,8 +241,8 @@ export function arcPath(cx: number, cy: number, r: number, a1: number, a2: numbe
 
 // ── Legend ───────────────────────────────────────────────────────────────────
 
-export function addLegend(wrapper: HTMLElement, series: SeriesEntry[], show?: boolean): void {
-  if (show === false || series.length <= 1) return
+export function addLegend(wrapper: HTMLElement, series: SeriesEntry[], show: boolean): void {
+  if (!show || series.length <= 1) return
   const legend = el('div', 'pf-chart-legend')
   legend.style.display = 'flex'
   legend.style.gap = '12px'

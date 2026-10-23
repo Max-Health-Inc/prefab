@@ -207,7 +207,7 @@ export function renderNode(node: ComponentNode, ctx: RenderContext): HTMLElement
     }
     if (n.onClick != null) {
       el.addEventListener('click', () => {
-        fireAndForget(dispatchActions(n.onClick as ActionJSON | ActionJSON[], makeDispatchCtx(ctx)), 'onClick')
+        fireAndForget(dispatchActions(n.onClick, makeDispatchCtx(ctx)), 'onClick')
       })
       if (el.tagName !== 'BUTTON' && el.tagName !== 'A') {
         el.setAttribute('role', 'button')
@@ -216,7 +216,7 @@ export function renderNode(node: ComponentNode, ctx: RenderContext): HTMLElement
           const key = (e as KeyboardEvent).key
           if (key === 'Enter' || key === ' ') {
             e.preventDefault()
-            fireAndForget(dispatchActions(n.onClick as ActionJSON | ActionJSON[], makeDispatchCtx(ctx)), 'onClick')
+            fireAndForget(dispatchActions(n.onClick, makeDispatchCtx(ctx)), 'onClick')
           }
         })
       }

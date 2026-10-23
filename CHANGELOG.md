@@ -6,6 +6,17 @@ All notable changes to this project will be documented in this file.
 
 <!-- Add new entries directly below. Keep this line: it makes a release merge conflict rather than file them under a published version. -->
 
+### Fixed
+
+- **A Grid with responsive `columns` renders.** `Grid({ columns: { sm: 1, md: 2, lg: 3 } })` produced `repeat([object Object], 1fr)`, which the browser drops. A breakpoint map now renders at its widest breakpoint, since an inline style has no media query to hold the rest.
+- **`setInterval` without an `intervalMs` no longer spins.** The missing value became `NaN`, which bypassed the 100 ms floor and fired the tick as fast as the event loop allowed. It now falls back to the floor, and an interval with no `onTick` is not started.
+- **Charts survive malformed `data`.** A non-array value or a `null` row threw out of the render; non-array data now shows the empty state and non-object rows are skipped.
+- **`toolCall` / `callHandler` without a tool name runs `onError`.** It used to call the transport with `undefined` as the tool name.
+
+### Internal
+
+- **The renderer's chart, layout and action modules read wire values through guards instead of `as` casts** (154 assertions removed). `src/core/guards.ts` holds the narrowing readers and `src/renderer/node-guard.ts` the `ComponentNode` guard. `dispatchActions` takes the raw wire value and parses it, so the `as ActionJSON | ActionJSON[]` at every call site is gone too. The chart renderers moved into `src/renderer/components/charts/` (cartesian, polar, scatter, typed props), and ESLint's `consistent-type-assertions: never` now guards those files.
+
 ## [0.3.14] — 2026-10-06
 
 ### Added

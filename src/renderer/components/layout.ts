@@ -4,6 +4,8 @@
 
 import { registerComponent, renderChildren, renderNode, resolveValue, el } from '../engine.js'
 import type { ComponentNode, RenderContext } from '../engine.js'
+import { isComponentNode } from '../node-guard.js'
+import { isRecord, optionalNumber, optionalString } from '../../core/guards.js'
 
 export function registerLayoutComponents(): void {
   registerComponent('Column', renderColumn)
@@ -27,8 +29,7 @@ function renderColumn(node: ComponentNode, ctx: RenderContext): HTMLElement {
   e.style.flexDirection = 'column'
   const gap = extractGap(node)
   if (gap != null) e.style.gap = `${gap * 4}px`
-  if (node.align != null) e.style.alignItems = mapAlign(node.align as string)
-  if (node.justify != null) e.style.justifyContent = mapJustify(node.justify as string)
+  applyFlexAlignment(e, node)
   renderChildren(node, e, ctx)
   return e
 }
@@ -39,8 +40,7 @@ function renderRow(node: ComponentNode, ctx: RenderContext): HTMLElement {
   e.style.flexDirection = 'row'
   const gap = extractGap(node)
   if (gap != null) e.style.gap = `${gap * 4}px`
-  if (node.align != null) e.style.alignItems = mapAlign(node.align as string)
-  if (node.justify != null) e.style.justifyContent = mapJustify(node.justify as string)
+  applyFlexAlignment(e, node)
   if (node.wrap === true) e.style.flexWrap = 'wrap'
   renderChildren(node, e, ctx)
   return e
@@ -49,8 +49,7 @@ function renderRow(node: ComponentNode, ctx: RenderContext): HTMLElement {
 function renderGrid(node: ComponentNode, ctx: RenderContext): HTMLElement {
   const e = el('div', 'pf-grid')
   e.style.display = 'grid'
-  const cols = (node.columns as number | undefined) ?? 3
-  e.style.gridTemplateColumns = `repeat(${cols}, 1fr)`
+  e.style.gridTemplateColumns = `repeat(${gridColumns(node.columns)}, 1fr)`
   const gap = extractGap(node)
   if (gap != null) e.style.gap = `${gap * 4}px`
   renderChildren(node, e, ctx)
@@ -59,17 +58,20 @@ function renderGrid(node: ComponentNode, ctx: RenderContext): HTMLElement {
 
 function renderGridItem(node: ComponentNode, ctx: RenderContext): HTMLElement {
   const e = el('div', 'pf-grid-item')
-  if (node.colSpan != null) e.style.gridColumn = `span ${node.colSpan as number}`
-  if (node.rowSpan != null) e.style.gridRow = `span ${node.rowSpan as number}`
+  const colSpan = optionalNumber(node.colSpan)
+  const rowSpan = optionalNumber(node.rowSpan)
+  if (colSpan != null) e.style.gridColumn = `span ${colSpan}`
+  if (rowSpan != null) e.style.gridRow = `span ${rowSpan}`
   renderChildren(node, e, ctx)
   return e
 }
 
 function renderContainer(node: ComponentNode, ctx: RenderContext): HTMLElement {
   const e = el('div', 'pf-container')
-  e.style.maxWidth = (node.maxWidth as string | undefined) ?? '1200px'
+  e.style.maxWidth = optionalString(node.maxWidth) ?? '1200px'
   e.style.margin = '0 auto'
-  if (node.padding != null) e.style.padding = `${(node.padding as number) * 4}px`
+  const padding = optionalNumber(node.padding)
+  if (padding != null) e.style.padding = `${padding * 4}px`
   renderChildren(node, e, ctx)
   return e
 }
@@ -98,10 +100,8 @@ function renderDetail(node: ComponentNode, ctx: RenderContext): HTMLElement {
 
   if (resolved != null && resolved !== '' && resolved !== false && resolved !== 0) {
     renderChildren(node, e, ctx)
-  } else if (node.empty != null) {
-    // Render the empty placeholder component
-    const emptyNode = node.empty as ComponentNode
-    e.appendChild(renderNode(emptyNode, ctx))
+  } else if (isComponentNode(node.empty)) {
+    e.appendChild(renderNode(node.empty, ctx))
   }
 
   return e
@@ -114,7 +114,7 @@ function renderMasterDetail(node: ComponentNode, ctx: RenderContext): HTMLElemen
   const gap = extractGap(node)
   if (gap != null) e.style.gap = `${gap * 4}px`
 
-  const masterWidth = (node.masterWidth as string | undefined) ?? '33%'
+  const masterWidth = optionalString(node.masterWidth) ?? '33%'
   const children = node.children ?? []
 
   if (children.length > 0) {
@@ -143,12 +143,30 @@ const GAP_CLASS_RE = /\bgap-(\d+)\b/
 
 /** Extract gap value from node.gap prop or cssClass "gap-N" pattern */
 function extractGap(node: ComponentNode): number | null {
-  if (node.gap != null) return node.gap as number
+  const gap = optionalNumber(node.gap)
+  if (gap != null) return gap
   if (typeof node.cssClass === 'string') {
     const match = GAP_CLASS_RE.exec(node.cssClass)
     if (match) return Number(match[1])
   }
   return null
+}
+
+const BREAKPOINT_ORDER = ['default', 'base', 'xs', 'sm', 'md', 'lg', 'xl', '2xl']
+const DEFAULT_GRID_COLUMNS = 3
+
+function gridColumns(value: unknown): number {
+  if (typeof value === 'number') return value
+  if (!isRecord(value)) return DEFAULT_GRID_COLUMNS
+  const counts = BREAKPOINT_ORDER.map(bp => value[bp]).filter((n): n is number => typeof n === 'number')
+  return counts.length > 0 ? counts[counts.length - 1] : DEFAULT_GRID_COLUMNS
+}
+
+function applyFlexAlignment(e: HTMLElement, node: ComponentNode): void {
+  const align = optionalString(node.align)
+  const justify = optionalString(node.justify)
+  if (align != null) e.style.alignItems = mapAlign(align)
+  if (justify != null) e.style.justifyContent = mapJustify(justify)
 }
 
 function mapAlign(value: string): string {

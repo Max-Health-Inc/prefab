@@ -207,7 +207,7 @@ export const PrefabRenderer = {
       cleanupKeys = undefined
       if (newData.keyBindings) {
         cleanupKeys = applyKeyBindings(newData.keyBindings, (actions) => {
-          fireAndForget(dispatchActions(actions as ActionJSON | ActionJSON[], {
+          fireAndForget(dispatchActions(actions, {
             store, transport, scope: {}, rerender: () => render(), remount, onToast,
           }), 'keyBinding')
         })
@@ -244,7 +244,7 @@ export const PrefabRenderer = {
     let cleanupKeys: (() => void) | undefined
     if (data.keyBindings) {
       cleanupKeys = applyKeyBindings(data.keyBindings, (actions) => {
-        fireAndForget(dispatchActions(actions as ActionJSON | ActionJSON[], {
+        fireAndForget(dispatchActions(actions, {
           store,
           transport,
           scope: {},

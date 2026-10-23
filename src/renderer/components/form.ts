@@ -7,7 +7,6 @@
 import { registerComponent, renderChildren, resolveStr, el, makeDispatchCtx } from '../engine.js'
 import type { ComponentNode, RenderContext } from '../engine.js'
 import { dispatchActions, fireAndForget } from '../actions.js'
-import type { ActionJSON } from '../actions.js'
 import { stringifyValue } from '../../core/stringify.js'
 
 export function registerFormComponents(): void {
@@ -53,7 +52,7 @@ function renderForm(node: ComponentNode, ctx: RenderContext): HTMLElement {
       const dispCtx = makeDispatchCtx(ctx)
       // Resolve form field values into tool call arguments
       dispCtx.scope = { ...ctx.scope, ...values }
-      fireAndForget(dispatchActions(node.onSubmit as ActionJSON | ActionJSON[], dispCtx), 'onSubmit')
+      fireAndForget(dispatchActions(node.onSubmit, dispCtx), 'onSubmit')
     }
   })
 
@@ -136,7 +135,7 @@ function renderInput(node: ComponentNode, ctx: RenderContext): HTMLElement {
     input.addEventListener('input', () => {
       ctx.store.set(name, input.value)
       if (node.onChange != null) {
-        fireAndForget(dispatchActions(node.onChange as ActionJSON | ActionJSON[], { ...makeDispatchCtx(ctx), scope: { ...ctx.scope, $event: input.value } }), 'onChange')
+        fireAndForget(dispatchActions(node.onChange, { ...makeDispatchCtx(ctx), scope: { ...ctx.scope, $event: input.value } }), 'onChange')
       }
     })
   }
@@ -164,7 +163,7 @@ function renderTextarea(node: ComponentNode, ctx: RenderContext): HTMLElement {
     textarea.addEventListener('input', () => {
       ctx.store.set(name, textarea.value)
       if (node.onChange != null) {
-        fireAndForget(dispatchActions(node.onChange as ActionJSON | ActionJSON[], { ...makeDispatchCtx(ctx), scope: { ...ctx.scope, $event: textarea.value } }), 'onChange')
+        fireAndForget(dispatchActions(node.onChange, { ...makeDispatchCtx(ctx), scope: { ...ctx.scope, $event: textarea.value } }), 'onChange')
       }
     })
   }
@@ -218,7 +217,7 @@ function renderCheckbox(node: ComponentNode, ctx: RenderContext): HTMLElement {
     input.addEventListener('change', () => {
       ctx.store.set(name, input.checked)
       if (node.onChange != null) {
-        fireAndForget(dispatchActions(node.onChange as ActionJSON | ActionJSON[], { ...makeDispatchCtx(ctx), scope: { ...ctx.scope, $event: input.checked } }), 'onChange')
+        fireAndForget(dispatchActions(node.onChange, { ...makeDispatchCtx(ctx), scope: { ...ctx.scope, $event: input.checked } }), 'onChange')
       }
     })
   }
@@ -253,7 +252,7 @@ function renderSwitch(node: ComponentNode, ctx: RenderContext): HTMLElement {
     input.addEventListener('change', () => {
       ctx.store.set(name, input.checked)
       if (node.onChange != null) {
-        fireAndForget(dispatchActions(node.onChange as ActionJSON | ActionJSON[], { ...makeDispatchCtx(ctx), scope: { ...ctx.scope, $event: input.checked } }), 'onChange')
+        fireAndForget(dispatchActions(node.onChange, { ...makeDispatchCtx(ctx), scope: { ...ctx.scope, $event: input.checked } }), 'onChange')
       }
     })
   }
@@ -286,7 +285,7 @@ function renderSlider(node: ComponentNode, ctx: RenderContext): HTMLElement {
     input.addEventListener('input', () => {
       ctx.store.set(name, Number(input.value))
       if (node.onChange != null) {
-        fireAndForget(dispatchActions(node.onChange as ActionJSON | ActionJSON[], { ...makeDispatchCtx(ctx), scope: { ...ctx.scope, $event: Number(input.value) } }), 'onChange')
+        fireAndForget(dispatchActions(node.onChange, { ...makeDispatchCtx(ctx), scope: { ...ctx.scope, $event: Number(input.value) } }), 'onChange')
       }
     })
   }
@@ -367,7 +366,7 @@ function renderCalendar(node: ComponentNode, ctx: RenderContext): HTMLElement {
   input.addEventListener('change', () => {
     ctx.store.set(input.name, input.value)
     if (node.onChange != null) {
-      fireAndForget(dispatchActions(node.onChange as ActionJSON | ActionJSON[], makeDispatchCtx(ctx)), 'onChange')
+      fireAndForget(dispatchActions(node.onChange, makeDispatchCtx(ctx)), 'onChange')
     }
   })
 
@@ -399,7 +398,7 @@ function renderDatePicker(node: ComponentNode, ctx: RenderContext): HTMLElement 
   input.addEventListener('change', () => {
     ctx.store.set(input.name, input.value)
     if (node.onChange != null) {
-      fireAndForget(dispatchActions(node.onChange as ActionJSON | ActionJSON[], makeDispatchCtx(ctx)), 'onChange')
+      fireAndForget(dispatchActions(node.onChange, makeDispatchCtx(ctx)), 'onChange')
     }
   })
 
