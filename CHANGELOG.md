@@ -6,6 +6,10 @@ All notable changes to this project will be documented in this file.
 
 <!-- Add new entries directly below. Keep this line: it makes a release merge conflict rather than file them under a published version. -->
 
+### Added
+
+- **`escapeHtml` is exported from the package root.** The escaper the SSR renderer uses (`& < > " '`, safe in element text and in single- or double-quoted attributes) was internal, so apps that render a little HTML of their own next to prefab kept a private copy (discord-activity's client did). `import { escapeHtml } from '@maxhealth.tech/prefab'` now gives them the same one.
+
 ## [0.3.15] — 2026-10-23
 
 ### Fixed
