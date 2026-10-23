@@ -6,6 +6,8 @@ All notable changes to this project will be documented in this file.
 
 <!-- Add new entries directly below. Keep this line: it makes a release merge conflict rather than file them under a published version. -->
 
+## [0.3.15] — 2026-10-23
+
 ### Fixed
 
 - **A Grid with responsive `columns` renders.** `Grid({ columns: { sm: 1, md: 2, lg: 3 } })` produced `repeat([object Object], 1fr)`, which the browser drops. A breakpoint map now renders at its widest breakpoint, since an inline style has no media query to hold the rest.

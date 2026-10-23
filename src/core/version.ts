@@ -10,7 +10,7 @@
  * `release.yml` (see `scripts/changelog-release.ts` companion step). Identifies
  * the app to an MCP Apps host (`appInfo.version`) and pins the CDN URL.
  */
-export const VERSION = '0.3.14'
+export const VERSION = '0.3.15'
 
 /**
  * Wire protocol version emitted in `$prefab.version`.
