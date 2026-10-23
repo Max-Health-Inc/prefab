@@ -1,13 +1,10 @@
 /**
  * Chart tooltip — hit-zone overlays, crosshair, data dots, and tooltip popup.
- *
- * Extracted from charts.ts to keep each file under 700 LOC.
  */
 
-import type { ChartLayout, SeriesEntry } from './chart-helpers.js'
-import { stringifyValue } from '../../core/stringify.js'
-
-const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899']
+import { COLORS } from './helpers.js'
+import type { ChartLayout, SeriesEntry } from './helpers.js'
+import { stringifyValue } from '../../../core/stringify.js'
 
 export interface TooltipEntry {
   label: string
@@ -75,6 +72,15 @@ export function showTooltipAt(
 
 function esc(s: string): string {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+}
+
+export function bindTooltip(target: Element, ttCtx: TooltipCtx, x: number, y: number, title: string, entries: TooltipEntry[]): void {
+  const show = (): void => { showTooltipAt(ttCtx, x, y, title, entries) }
+  const hide = (): void => { ttCtx.tooltip.classList.remove('pf-visible') }
+  target.addEventListener('mouseenter', show)
+  target.addEventListener('mouseleave', hide)
+  target.addEventListener('touchstart', show, { passive: true })
+  target.addEventListener('touchend', hide, { passive: true })
 }
 
 /** Attach hover hit-zones for bar chart columns. */

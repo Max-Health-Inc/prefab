@@ -13,7 +13,7 @@ import { registerControlComponents } from './control.js'
 import { registerAlertComponents } from './alert.js'
 import { registerMediaComponents } from './media.js'
 import { registerPdfComponents } from './pdf.js'
-import { registerChartComponents } from './charts.js'
+import { registerChartComponents } from './charts/index.js'
 import { registerTableComponents } from './table.js'
 import { registeredComponentTypes, setBuiltinComponentTypes } from '../engine.js'
 

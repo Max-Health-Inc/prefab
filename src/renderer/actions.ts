@@ -11,6 +11,7 @@ import { evaluateTemplate, isRxExpression } from './rx.js'
 import { toCamelCase } from '../core/component.js'
 import { stringifyValue } from '../core/stringify.js'
 import { log } from '../core/logger.js'
+import { isRecord, optionalNumber, optionalRecord, optionalString, recordList, recordOrList, scalarStringRecord } from '../core/guards.js'
 
 /**
  * Recursively normalise action JSON keys from snake_case to camelCase.
@@ -21,13 +22,9 @@ function normalizeAction(action: ActionJSON): ActionJSON {
   for (const [k, v] of Object.entries(action)) {
     const key = k.startsWith('$') ? k : toCamelCase(k)
     if (Array.isArray(v)) {
-      result[key] = v.map((item: unknown) =>
-        item != null && typeof item === 'object' && !Array.isArray(item)
-          ? normalizeAction(item as ActionJSON)
-          : item,
-      )
-    } else if (v != null && typeof v === 'object' && !Array.isArray(v)) {
-      result[key] = normalizeAction(v as ActionJSON)
+      result[key] = v.map((item: unknown) => isRecord(item) ? normalizeAction(item) : item)
+    } else if (isRecord(v)) {
+      result[key] = normalizeAction(v)
     } else {
       result[key] = v
     }
@@ -77,14 +74,13 @@ export interface DispatchContext {
 export type ActionJSON = Record<string, unknown>
 
 /**
- * Dispatch one or more serialized actions.
+ * Dispatch one or more serialized actions from their raw wire value.
  */
 export async function dispatchActions(
-  actions: ActionJSON | ActionJSON[],
+  actions: unknown,
   ctx: DispatchContext,
 ): Promise<void> {
-  const list = Array.isArray(actions) ? actions : [actions]
-  for (const action of list) {
+  for (const action of recordOrList(actions)) {
     await dispatchOne(action, ctx)
   }
 }
@@ -119,8 +115,7 @@ async function reportActionError(
 
 async function dispatchOne(raw: ActionJSON, ctx: DispatchContext): Promise<void> {
   const action = normalizeAction(raw)
-  const type = action.action as string
-  switch (type) {
+  switch (optionalString(action.action)) {
     case 'setState':
       { handleSetState(action, ctx); return; }
     case 'toggleState':
@@ -157,14 +152,21 @@ async function dispatchOne(raw: ActionJSON, ctx: DispatchContext): Promise<void>
     case 'unsubscribe':
       { handleUnsubscribe(action); return; }
     default:
-      log.warn(`Unknown action: ${type}`)
+      log.warn(`Unknown action: ${stringifyValue(action.action)}`)
   }
 }
 
 // ── Client Actions ───────────────────────────────────────────────────────────
 
+function stateKey(action: ActionJSON, name: string): string | undefined {
+  const key = optionalString(action.key)
+  if (key === undefined) log.warn(`${name}: missing key`)
+  return key
+}
+
 function handleSetState(action: ActionJSON, ctx: DispatchContext): void {
-  const key = action.key as string
+  const key = stateKey(action, 'setState')
+  if (key === undefined) return
   let value = action.value
   if (isRxExpression(value)) {
     value = evaluateTemplate(value, ctx.store, ctx.scope)
@@ -175,21 +177,32 @@ function handleSetState(action: ActionJSON, ctx: DispatchContext): void {
 }
 
 function handleToggleState(action: ActionJSON, ctx: DispatchContext): void {
-  ctx.store.toggle(action.key as string)
+  const key = stateKey(action, 'toggleState')
+  if (key === undefined) return
+  ctx.store.toggle(key)
   ctx.rerender()
 }
 
 function handleAppendState(action: ActionJSON, ctx: DispatchContext): void {
+  const key = stateKey(action, 'appendState')
+  if (key === undefined) return
   let value = action.value ?? action.item
   if (isRxExpression(value)) {
     value = evaluateTemplate(value, ctx.store, ctx.scope)
   }
-  ctx.store.append(action.key as string, value, action.index as number | undefined)
+  ctx.store.append(key, value, optionalNumber(action.index))
   ctx.rerender()
 }
 
 function handlePopState(action: ActionJSON, ctx: DispatchContext): void {
-  ctx.store.pop(action.key as string, action.index as number | string)
+  const key = stateKey(action, 'popState')
+  if (key === undefined) return
+  const index = action.index
+  if (typeof index !== 'number' && typeof index !== 'string') {
+    log.warn('popState: missing index')
+    return
+  }
+  ctx.store.pop(key, index)
   ctx.rerender()
 }
 
@@ -197,8 +210,8 @@ function handleShowToast(action: ActionJSON, ctx: DispatchContext): void {
   ctx.onToast?.({
     message: resolveStr(action.message, ctx),
     description: action.description != null ? resolveStr(action.description, ctx) : undefined,
-    variant: action.variant as string | undefined,
-    duration: action.duration as number | undefined,
+    variant: optionalString(action.variant),
+    duration: optionalNumber(action.duration),
   })
 }
 
@@ -211,7 +224,7 @@ function handleCloseOverlay(_action: ActionJSON, _ctx: DispatchContext): void {
 
 function handleOpenLink(action: ActionJSON): void {
   if (typeof window !== 'undefined') {
-    const url = action.url as string | undefined
+    const url = optionalString(action.url)
     if (!url) {
       log.warn('openLink: missing url')
       return
@@ -220,7 +233,7 @@ function handleOpenLink(action: ActionJSON): void {
       log.warn(`Blocked unsafe URL scheme: ${url}`)
       return
     }
-    window.open(url, (action.target as string | undefined) ?? '_blank')
+    window.open(url, optionalString(action.target) ?? '_blank')
   }
 }
 
@@ -230,9 +243,13 @@ const MAX_INTERVALS = 20
 const MIN_INTERVAL_MS = 100
 
 function handleSetInterval(action: ActionJSON, ctx: DispatchContext): void {
-  const ms = Math.max(action.intervalMs as number, MIN_INTERVAL_MS)
-  const onTick = action.onTick as ActionJSON | ActionJSON[]
+  const ms = Math.max(optionalNumber(action.intervalMs) ?? MIN_INTERVAL_MS, MIN_INTERVAL_MS)
+  const onTick = recordOrList(action.onTick)
   if (typeof globalThis.setInterval !== 'function') return
+  if (onTick.length === 0) {
+    log.warn('setInterval: missing onTick')
+    return
+  }
   if (activeIntervals.size >= MAX_INTERVALS) {
     log.warn('Max intervals reached, ignoring new setInterval')
     return
@@ -249,35 +266,48 @@ export function clearAllIntervals(): void {
 
 // ── MCP Actions ──────────────────────────────────────────────────────────────
 
+async function applyCallResult(action: ActionJSON, result: unknown, ctx: DispatchContext): Promise<void> {
+  const resultKey = optionalString(action.resultKey)
+  if (resultKey !== undefined) {
+    ctx.store.set(resultKey, result)
+  }
+
+  // Server-rendered pattern: if the result contains a new prefab view, remount it
+  const wireData = extractPrefabPayload(result)
+  if (wireData && ctx.remount) {
+    ctx.remount(wireData)
+  } else {
+    // State delta pattern: if the result is a display_update(), merge state
+    applyPrefabUpdate(result, ctx)
+    ctx.rerender()
+  }
+
+  await runCallbacks(action.onSuccess, ctx, { $result: result })
+}
+
+async function callTransportTool(
+  label: string,
+  name: string | undefined,
+  action: ActionJSON,
+  ctx: DispatchContext,
+  transport: McpTransport,
+): Promise<void> {
+  const args = resolveArgs(optionalRecord(action.arguments), ctx)
+  try {
+    if (name === undefined) throw new Error(`${label}: missing tool name`)
+    const result = await transport.callTool(name, args)
+    await applyCallResult(action, result, ctx)
+  } catch (err) {
+    await reportActionError(label, err, action.onError, ctx)
+  }
+}
+
 async function handleToolCall(action: ActionJSON, ctx: DispatchContext): Promise<void> {
   if (!ctx.transport) {
     log.warn('No MCP transport configured for toolCall')
     return
   }
-
-  const tool = action.tool as string
-  const args = resolveArgs(action.arguments as Record<string, unknown> | undefined, ctx)
-
-  try {
-    const result = await ctx.transport.callTool(tool, args)
-    if (action.resultKey != null) {
-      ctx.store.set(action.resultKey as string, result)
-    }
-
-    // Server-rendered pattern: if the result contains a new prefab view, remount it
-    const wireData = extractPrefabPayload(result)
-    if (wireData && ctx.remount) {
-      ctx.remount(wireData)
-    } else {
-      // State delta pattern: if the result is a display_update(), merge state
-      applyPrefabUpdate(result, ctx)
-      ctx.rerender()
-    }
-
-    await runCallbacks(action.onSuccess, ctx, { $result: result })
-  } catch (err) {
-    await reportActionError('toolCall', err, action.onError, ctx)
-  }
+  await callTransportTool('toolCall', optionalString(action.tool), action, ctx, ctx.transport)
 }
 
 async function handleSendMessage(action: ActionJSON, ctx: DispatchContext): Promise<void> {
@@ -289,7 +319,7 @@ async function handleSendMessage(action: ActionJSON, ctx: DispatchContext): Prom
 }
 
 function handleUpdateContext(action: ActionJSON, ctx: DispatchContext): void {
-  const context = action.context as Record<string, unknown> | undefined
+  const context = optionalRecord(action.context)
   if (context != null) {
     ctx.store.merge(context)
     ctx.rerender()
@@ -303,8 +333,8 @@ async function handleFetch(action: ActionJSON, ctx: DispatchContext): Promise<vo
     return
   }
 
-  const method = (action.method as string | undefined) ?? 'GET'
-  const headers = action.headers as Record<string, string> | undefined
+  const method = optionalString(action.method) ?? 'GET'
+  const headers = scalarStringRecord(action.headers)
   const body = action.body !== undefined ? JSON.stringify(action.body) : undefined
 
   try {
@@ -314,21 +344,7 @@ async function handleFetch(action: ActionJSON, ctx: DispatchContext): Promise<vo
       ...(body && { body }),
     })
     const result: unknown = await resp.json().catch(() => resp.text())
-    if (action.resultKey != null) {
-      ctx.store.set(action.resultKey as string, result)
-    }
-
-    // Server-rendered pattern: if the response contains a new prefab view, remount it
-    const wireData = extractPrefabPayload(result)
-    if (wireData && ctx.remount) {
-      ctx.remount(wireData)
-    } else {
-      // State delta pattern: if the result is a display_update(), merge state
-      applyPrefabUpdate(result, ctx)
-      ctx.rerender()
-    }
-
-    await runCallbacks(action.onSuccess, ctx, { $result: result })
+    await applyCallResult(action, result, ctx)
   } catch (err) {
     await reportActionError('fetch', err, action.onError, ctx)
   }
@@ -339,13 +355,15 @@ function handleOpenFilePicker(action: ActionJSON, ctx: DispatchContext): void {
 
   const input = document.createElement('input')
   input.type = 'file'
-  if (action.accept != null) input.accept = action.accept as string
+  const accept = optionalString(action.accept)
+  if (accept !== undefined) input.accept = accept
   if (action.multiple === true) input.multiple = true
 
   input.addEventListener('change', () => {
     const files = Array.from(input.files ?? [])
-    if (action.resultKey != null) {
-      ctx.store.set(action.resultKey as string, files)
+    const resultKey = optionalString(action.resultKey)
+    if (resultKey !== undefined) {
+      ctx.store.set(resultKey, files)
     }
     ctx.rerender()
     void runCallbacks(action.onSuccess, ctx, { $result: files })
@@ -354,35 +372,14 @@ function handleOpenFilePicker(action: ActionJSON, ctx: DispatchContext): void {
 }
 
 async function handleCallHandler(action: ActionJSON, ctx: DispatchContext): Promise<void> {
-  const handler = action.handler as string
-  const args = resolveArgs(action.arguments as Record<string, unknown> | undefined, ctx)
+  const handler = optionalString(action.handler)
 
   // callHandler delegates to the transport like toolCall
   if (!ctx.transport) {
-    log.warn(`No transport configured for callHandler: ${handler}`)
+    log.warn(`No transport configured for callHandler: ${handler ?? ''}`)
     return
   }
-
-  try {
-    const result = await ctx.transport.callTool(handler, args)
-    if (action.resultKey != null) {
-      ctx.store.set(action.resultKey as string, result)
-    }
-
-    // Server-rendered pattern: if the result contains a new prefab view, remount it
-    const wireData = extractPrefabPayload(result)
-    if (wireData && ctx.remount) {
-      ctx.remount(wireData)
-    } else {
-      // State delta pattern: if the result is a display_update(), merge state
-      applyPrefabUpdate(result, ctx)
-      ctx.rerender()
-    }
-
-    await runCallbacks(action.onSuccess, ctx, { $result: result })
-  } catch (err) {
-    await reportActionError('callHandler', err, action.onError, ctx)
-  }
+  await callTransportTool('callHandler', handler, action, ctx, ctx.transport)
 }
 
 function handleRequestDisplayMode(action: ActionJSON, _ctx: DispatchContext): void {
@@ -401,10 +398,10 @@ const MAX_SUBSCRIPTIONS = 50
 const DEFAULT_FALLBACK_INTERVAL = 2000
 
 function handleSubscribe(action: ActionJSON, ctx: DispatchContext): void {
-  const uri = action.uri as string
-  const stateKey = action.stateKey as string
+  const uri = optionalString(action.uri)
+  const targetKey = optionalString(action.stateKey)
 
-  if (!uri || !stateKey) {
+  if (!uri || !targetKey) {
     log.warn('subscribe: missing uri or stateKey')
     return
   }
@@ -427,7 +424,7 @@ function handleSubscribe(action: ActionJSON, ctx: DispatchContext): void {
     } else {
       // State delta: $prefab + update.state — skip raw store.set when delta was merged
       const merged = applyPrefabUpdate(data, ctx)
-      if (!merged) ctx.store.set(stateKey, data)
+      if (!merged) ctx.store.set(targetKey, data)
       ctx.rerender()
     }
     void runCallbacks(action.onData, ctx, { $data: data })
@@ -441,8 +438,8 @@ function handleSubscribe(action: ActionJSON, ctx: DispatchContext): void {
   }
 
   // Fallback path: poll via SetInterval + CallTool
-  const fallbackTool = action.fallbackTool as string | undefined
-  const fallbackInterval = (action.fallbackInterval as number | undefined) ?? DEFAULT_FALLBACK_INTERVAL
+  const fallbackTool = optionalString(action.fallbackTool)
+  const fallbackInterval = optionalNumber(action.fallbackInterval) ?? DEFAULT_FALLBACK_INTERVAL
 
   if (!fallbackTool) {
     log.warn('subscribe: host lacks subscriptions and no fallbackTool specified')
@@ -454,7 +451,7 @@ function handleSubscribe(action: ActionJSON, ctx: DispatchContext): void {
     return
   }
 
-  const rawFallbackArgs = (action.fallbackArgs as Record<string, unknown> | undefined) ?? {}
+  const rawFallbackArgs = optionalRecord(action.fallbackArgs) ?? {}
   const ms = Math.max(fallbackInterval, MIN_INTERVAL_MS)
   const transport = ctx.transport
 
@@ -474,7 +471,7 @@ function handleSubscribe(action: ActionJSON, ctx: DispatchContext): void {
 }
 
 function handleUnsubscribe(action: ActionJSON): void {
-  const uri = action.uri as string
+  const uri = optionalString(action.uri)
   if (!uri) {
     log.warn('unsubscribe: missing uri')
     return
@@ -500,6 +497,48 @@ export function clearAllSubscriptions(): void {
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
+type PrefabEnvelope = Record<string, unknown> & { $prefab: unknown }
+
+interface PrefabUpdateEnvelope extends PrefabEnvelope {
+  update: Record<string, unknown> & { state: unknown }
+}
+
+function parseJsonText(text: string): unknown {
+  try {
+    const parsed: unknown = JSON.parse(text)
+    return parsed
+  } catch {
+    return undefined
+  }
+}
+
+function findPrefabEnvelope<T extends Record<string, unknown>>(
+  result: unknown,
+  match: (value: Record<string, unknown>) => value is T,
+): T | null {
+  if (!isRecord(result)) return null
+  if (match(result)) return result
+
+  const sc = result.structuredContent
+  if (isRecord(sc) && match(sc)) return sc
+
+  for (const block of recordList(result.content)) {
+    if (block.type !== 'text' || typeof block.text !== 'string') continue
+    const parsed = parseJsonText(block.text)
+    if (isRecord(parsed) && match(parsed)) return parsed
+  }
+  return null
+}
+
+function isPrefabView(value: Record<string, unknown>): value is PrefabEnvelope {
+  return '$prefab' in value && 'view' in value
+}
+
+/** Check if an object is a prefab state-update payload (`{ $prefab, update: { state } }`). */
+function isPrefabUpdate(value: Record<string, unknown>): value is PrefabUpdateEnvelope {
+  return '$prefab' in value && isRecord(value.update) && 'state' in value.update
+}
+
 /**
  * Extract a prefab wire payload from a tool call result.
  *
@@ -507,37 +546,7 @@ export function clearAllSubscriptions(): void {
  * Also inspects MCP content arrays for JSON text blocks containing `$prefab`.
  */
 export function extractPrefabPayload(result: unknown): Record<string, unknown> | null {
-  if (result == null || typeof result !== 'object') return null
-  const obj = result as Record<string, unknown>
-
-  // Direct prefab payload (e.g. HTTP transport already parsed it)
-  if ('$prefab' in obj && 'view' in obj) return obj
-
-  // structuredContent wrapper (MCP tool result envelope)
-  if ('structuredContent' in obj) {
-    const sc = obj.structuredContent
-    if (sc != null && typeof sc === 'object') {
-      const sco = sc as Record<string, unknown>
-      if ('$prefab' in sco && 'view' in sco) return sco
-    }
-  }
-
-  // MCP content array — scan text blocks for JSON with $prefab + view
-  if ('content' in obj && Array.isArray(obj.content)) {
-    for (const block of obj.content as Record<string, unknown>[]) {
-      if (block.type === 'text' && typeof block.text === 'string') {
-        try {
-          const parsed = JSON.parse(block.text) as unknown
-          if (parsed != null && typeof parsed === 'object') {
-            const po = parsed as Record<string, unknown>
-            if ('$prefab' in po && 'view' in po) return po
-          }
-        } catch { /* not JSON */ }
-      }
-    }
-  }
-
-  return null
+  return findPrefabEnvelope(result, isPrefabView)
 }
 
 /**
@@ -547,49 +556,16 @@ export function extractPrefabPayload(result: unknown): Record<string, unknown> |
  * (the shape produced by `display_update()`).
  */
 export function extractPrefabUpdate(result: unknown): Record<string, unknown> | null {
-  if (result == null || typeof result !== 'object') return null
-  const obj = result as Record<string, unknown>
-
-  if (isPrefabUpdate(obj)) return obj
-
-  // structuredContent wrapper
-  if ('structuredContent' in obj) {
-    const sc = obj.structuredContent
-    if (sc != null && typeof sc === 'object' && isPrefabUpdate(sc as Record<string, unknown>)) {
-      return sc as Record<string, unknown>
-    }
-  }
-
-  // MCP content array
-  if ('content' in obj && Array.isArray(obj.content)) {
-    for (const block of obj.content as Record<string, unknown>[]) {
-      if (block.type === 'text' && typeof block.text === 'string') {
-        try {
-          const parsed = JSON.parse(block.text) as unknown
-          if (parsed != null && typeof parsed === 'object' && isPrefabUpdate(parsed as Record<string, unknown>)) {
-            return parsed as Record<string, unknown>
-          }
-        } catch { /* not JSON */ }
-      }
-    }
-  }
-
-  return null
-}
-
-/** Check if an object is a prefab state-update payload (`{ $prefab, update: { state } }`). */
-function isPrefabUpdate(obj: Record<string, unknown>): boolean {
-  if (!('$prefab' in obj) || !('update' in obj)) return false
-  const update = obj.update
-  return update != null && typeof update === 'object' && 'state' in (update as Record<string, unknown>)
+  return findPrefabEnvelope(result, isPrefabUpdate)
 }
 
 /** If a result contains a display_update() payload, merge its state into the store and fire actions. Returns true if a state delta was applied. */
 function applyPrefabUpdate(result: unknown, ctx: DispatchContext): boolean {
-  const updateData = extractPrefabUpdate(result)
+  const updateData = findPrefabEnvelope(result, isPrefabUpdate)
   if (!updateData) return false
-  const update = (updateData as { update: { state: Record<string, unknown>; actions?: ActionJSON | ActionJSON[] } }).update
-  ctx.store.merge(update.state)
+  const { update } = updateData
+  const state = optionalRecord(update.state)
+  if (state) ctx.store.merge(state)
   if (update.actions != null) {
     fireAndForget(dispatchActions(update.actions, ctx), 'update action')
   }
@@ -632,8 +608,5 @@ async function runCallbacks(
 ): Promise<void> {
   if (callbacks == null) return
   const merged = { ...ctx.scope, ...extraScope }
-  await dispatchActions(
-    callbacks as ActionJSON | ActionJSON[],
-    { ...ctx, scope: merged },
-  )
+  await dispatchActions(callbacks, { ...ctx, scope: merged })
 }

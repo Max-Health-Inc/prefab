@@ -117,6 +117,19 @@ export default defineConfig(
       '@typescript-eslint/consistent-type-definitions': ['error', 'type'],
     },
   },
+  // ── Assertion-free modules: wire values are narrowed, never asserted ───
+  {
+    files: [
+      'src/core/guards.ts',
+      'src/renderer/node-guard.ts',
+      'src/renderer/actions.ts',
+      'src/renderer/components/layout.ts',
+      'src/renderer/components/charts/**/*.ts',
+    ],
+    rules: {
+      '@typescript-eslint/consistent-type-assertions': ['error', { assertionStyle: 'never' }],
+    },
+  },
   // ── Ignored paths ──────────────────────────────────────────────────────
   {
     ignores: ['dist/', 'node_modules/', 'scripts/', 'happydom.ts', 'docs/', 'eslint.config.ts'],
