@@ -9,7 +9,7 @@ url: /prefab/reference/api/mcp/variables/VSCODE_BRIDGE.md
 const VSCODE_BRIDGE: Readonly<Record<string, VsCodeTokenSource>>;
 ```
 
-Defined in: [mcp/theme-bridge.ts:36](https://github.com/Max-Health-Inc/prefab/blob/c0556f0632cf75f3e410fd7efc1a25abaf224e54/src/mcp/theme-bridge.ts#L36)
+Defined in: [mcp/theme-bridge.ts:36](https://github.com/Max-Health-Inc/prefab/blob/7a2e43417fa83301b42abd7447c199249e6c40f6/src/mcp/theme-bridge.ts#L36)
 
 prefab tokens that VS Code can supply, with the same variables and static
 fallbacks `prefab.css` uses. Tokens VS Code has no equivalent for (`--success`,

@@ -9,7 +9,7 @@ url: /prefab/reference/api/auto/functions/fieldsFromJsonSchema.md
 function fieldsFromJsonSchema(schema, options?): AutoFormField[];
 ```
 
-Defined in: [auto/schema.ts:265](https://github.com/Max-Health-Inc/prefab/blob/c0556f0632cf75f3e410fd7efc1a25abaf224e54/src/auto/schema.ts#L265)
+Defined in: [auto/schema.ts:265](https://github.com/Max-Health-Inc/prefab/blob/7a2e43417fa83301b42abd7447c199249e6c40f6/src/auto/schema.ts#L265)
 
 Derive `autoForm` fields from a JSON Schema object.
 

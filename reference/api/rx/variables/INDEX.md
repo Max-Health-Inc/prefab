@@ -9,6 +9,6 @@ url: /prefab/reference/api/rx/variables/INDEX.md
 const INDEX: Rx;
 ```
 
-Defined in: [rx/rx.ts:232](https://github.com/Max-Health-Inc/prefab/blob/c0556f0632cf75f3e410fd7efc1a25abaf224e54/src/rx/rx.ts#L232)
+Defined in: [rx/rx.ts:232](https://github.com/Max-Health-Inc/prefab/blob/7a2e43417fa83301b42abd7447c199249e6c40f6/src/rx/rx.ts#L232)
 
 Current index in a ForEach loop
