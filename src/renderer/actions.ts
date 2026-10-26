@@ -430,8 +430,8 @@ function handleSubscribe(action: ActionJSON, ctx: DispatchContext): void {
     void runCallbacks(action.onData, ctx, { $data: data })
   }
 
-  // Push path: transport supports native subscriptions
-  if (ctx.transport?.subscribe && ctx.transport.capabilities?.subscriptions) {
+  // Push path: transport supports native subscriptions and the action allows it
+  if (action.push !== false && ctx.transport?.subscribe && ctx.transport.capabilities?.subscriptions) {
     const unsubscribe = ctx.transport.subscribe(uri, onDataCallback)
     activeSubscriptions.set(uri, unsubscribe)
     return

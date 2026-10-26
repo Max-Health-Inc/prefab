@@ -6,6 +6,10 @@ All notable changes to this project will be documented in this file.
 
 <!-- Add new entries directly below. Keep this line: it makes a release merge conflict rather than file them under a published version. -->
 
+### Added
+
+- **`Subscribe({ push: false })` always polls.** A host that supports resource subscriptions made `Subscribe` take the push path, and a stateless MCP server (protocol 2026-07-28, or any `createMcpHandler` server) never sends the notifications that path waits for, so the view froze. `push: false` keeps the polling fallback on every host, still one poller per URI, so a server-rendered view that remounts on each poll does not stack timers the way a plain `SetInterval` would.
+
 ## [0.3.16] — 2026-10-23
 
 ### Added
