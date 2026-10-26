@@ -7,49 +7,36 @@
  */
 
 import { describe, it, expect, beforeEach } from 'bun:test'
-import { Store } from '../src/renderer/state'
-import { renderNode } from '../src/renderer/engine'
-import type { ComponentNode, RenderContext } from '../src/renderer/engine'
+import type { ComponentNode } from '../src/renderer/engine'
 import { registerAllComponents } from '../src/renderer/components/index'
-import { createNoopTransport } from '../src/renderer/transport'
+import { makeRenderCtx, renderEl, query, queryAll } from './helpers/render'
 
 beforeEach(() => { registerAllComponents() })
-
-function makeCtx(state?: Record<string, unknown>): RenderContext & { rerendered: number } {
-  const ctx = {
-    store: new Store(state),
-    scope: {},
-    transport: createNoopTransport(),
-    rerender: () => { ctx.rerendered++ },
-    rerendered: 0,
-  }
-  return ctx
-}
 
 // ── Button variants & size ───────────────────────────────────────────────────
 
 describe('Button rendering', () => {
   it('sets data-variant attribute', () => {
-    const ctx = makeCtx()
-    const btn = renderNode({ type: 'Button', label: 'Go', variant: 'destructive' } as ComponentNode, ctx) as HTMLButtonElement
+    const ctx = makeRenderCtx()
+    const btn = renderEl({ type: 'Button', label: 'Go', variant: 'destructive' }, ctx, HTMLButtonElement)
     expect(btn.getAttribute('data-variant')).toBe('destructive')
   })
 
   it('defaults variant to default', () => {
-    const ctx = makeCtx()
-    const btn = renderNode({ type: 'Button', label: 'Go' } as ComponentNode, ctx) as HTMLButtonElement
+    const ctx = makeRenderCtx()
+    const btn = renderEl({ type: 'Button', label: 'Go' }, ctx, HTMLButtonElement)
     expect(btn.getAttribute('data-variant')).toBe('default')
   })
 
   it('sets data-size attribute', () => {
-    const ctx = makeCtx()
-    const btn = renderNode({ type: 'Button', label: 'Go', size: 'lg' } as ComponentNode, ctx) as HTMLButtonElement
+    const ctx = makeRenderCtx()
+    const btn = renderEl({ type: 'Button', label: 'Go', size: 'lg' }, ctx, HTMLButtonElement)
     expect(btn.getAttribute('data-size')).toBe('lg')
   })
 
   it('outline variant has data-variant attribute for CSS styling', () => {
-    const ctx = makeCtx()
-    const btn = renderNode({ type: 'Button', label: 'Go', variant: 'outline' } as ComponentNode, ctx) as HTMLButtonElement
+    const ctx = makeRenderCtx()
+    const btn = renderEl({ type: 'Button', label: 'Go', variant: 'outline' }, ctx, HTMLButtonElement)
     expect(btn.getAttribute('data-variant')).toBe('outline')
     expect(btn.classList.contains('pf-button')).toBe(true)
   })
@@ -59,8 +46,8 @@ describe('Button rendering', () => {
 
 describe('Input rendering', () => {
   it('renders label element linked by htmlFor', () => {
-    const ctx = makeCtx()
-    const dom = renderNode({ type: 'Input', name: 'email', label: 'Email Address' } as ComponentNode, ctx) as HTMLElement
+    const ctx = makeRenderCtx()
+    const dom = renderEl({ type: 'Input', name: 'email', label: 'Email Address' }, ctx)
     const label = dom.querySelector('label')!
     expect(label).toBeTruthy()
     expect(label.textContent).toBe('Email Address')
@@ -68,37 +55,37 @@ describe('Input rendering', () => {
   })
 
   it('sets placeholder attribute', () => {
-    const ctx = makeCtx()
-    const dom = renderNode({ type: 'Input', name: 'search', placeholder: 'Search...' } as ComponentNode, ctx) as HTMLElement
+    const ctx = makeRenderCtx()
+    const dom = renderEl({ type: 'Input', name: 'search', placeholder: 'Search...' }, ctx)
     const input = dom.querySelector('input')!
     expect(input.placeholder).toBe('Search...')
   })
 
   it('sets input type from inputType prop', () => {
-    const ctx = makeCtx()
-    const dom = renderNode({ type: 'Input', name: 'pass', inputType: 'password' } as ComponentNode, ctx) as HTMLElement
+    const ctx = makeRenderCtx()
+    const dom = renderEl({ type: 'Input', name: 'pass', inputType: 'password' }, ctx)
     const input = dom.querySelector('input')!
     expect(input.type).toBe('password')
   })
 
   it('defaults input type to text', () => {
-    const ctx = makeCtx()
-    const dom = renderNode({ type: 'Input', name: 'name' } as ComponentNode, ctx) as HTMLElement
+    const ctx = makeRenderCtx()
+    const dom = renderEl({ type: 'Input', name: 'name' }, ctx)
     const input = dom.querySelector('input')!
     expect(input.type).toBe('text')
   })
 
   it('sets required and aria-required', () => {
-    const ctx = makeCtx()
-    const dom = renderNode({ type: 'Input', name: 'email', required: true } as ComponentNode, ctx) as HTMLElement
+    const ctx = makeRenderCtx()
+    const dom = renderEl({ type: 'Input', name: 'email', required: true }, ctx)
     const input = dom.querySelector('input')!
     expect(input.required).toBe(true)
     expect(input.getAttribute('aria-required')).toBe('true')
   })
 
   it('sets aria-invalid when error is present', () => {
-    const ctx = makeCtx()
-    const dom = renderNode({ type: 'Input', name: 'email', error: 'Invalid email' } as ComponentNode, ctx) as HTMLElement
+    const ctx = makeRenderCtx()
+    const dom = renderEl({ type: 'Input', name: 'email', error: 'Invalid email' }, ctx)
     const input = dom.querySelector('input')!
     expect(input.getAttribute('aria-invalid')).toBe('true')
   })
@@ -108,15 +95,15 @@ describe('Input rendering', () => {
 
 describe('Textarea rendering', () => {
   it('sets placeholder attribute', () => {
-    const ctx = makeCtx()
-    const dom = renderNode({ type: 'Textarea', name: 'bio', placeholder: 'About you' } as ComponentNode, ctx) as HTMLElement
+    const ctx = makeRenderCtx()
+    const dom = renderEl({ type: 'Textarea', name: 'bio', placeholder: 'About you' }, ctx)
     const textarea = dom.querySelector('textarea')!
     expect(textarea.placeholder).toBe('About you')
   })
 
   it('sets rows attribute', () => {
-    const ctx = makeCtx()
-    const dom = renderNode({ type: 'Textarea', name: 'bio', rows: 8 } as ComponentNode, ctx) as HTMLElement
+    const ctx = makeRenderCtx()
+    const dom = renderEl({ type: 'Textarea', name: 'bio', rows: 8 }, ctx)
     const textarea = dom.querySelector('textarea')!
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-conversion -- HappyDOM returns string
     expect(Number(textarea.rows)).toBe(8)
@@ -127,18 +114,18 @@ describe('Textarea rendering', () => {
 
 describe('Slider rendering', () => {
   it('sets min, max, step attributes', () => {
-    const ctx = makeCtx({ vol: 50 })
-    const dom = renderNode({ type: 'Slider', name: 'vol', min: 10, max: 200, step: 5 } as ComponentNode, ctx) as HTMLElement
-    const input = dom.querySelector('input[type="range"]') as HTMLInputElement
+    const ctx = makeRenderCtx({ vol: 50 })
+    const dom = renderEl({ type: 'Slider', name: 'vol', min: 10, max: 200, step: 5 }, ctx)
+    const input = query(dom, 'input[type="range"]', HTMLInputElement)
     expect(input.min).toBe('10')
     expect(input.max).toBe('200')
     expect(input.step).toBe('5')
   })
 
   it('sets name attribute', () => {
-    const ctx = makeCtx()
-    const dom = renderNode({ type: 'Slider', name: 'brightness' } as ComponentNode, ctx) as HTMLElement
-    const input = dom.querySelector('input[type="range"]') as HTMLInputElement
+    const ctx = makeRenderCtx()
+    const dom = renderEl({ type: 'Slider', name: 'brightness' }, ctx)
+    const input = query(dom, 'input[type="range"]', HTMLInputElement)
     expect(input.name).toBe('brightness')
   })
 })
@@ -147,8 +134,8 @@ describe('Slider rendering', () => {
 
 describe('Checkbox rendering', () => {
   it('renders label text next to checkbox', () => {
-    const ctx = makeCtx({ agree: false })
-    const dom = renderNode({ type: 'Checkbox', name: 'agree', label: 'I agree to terms' } as ComponentNode, ctx) as HTMLElement
+    const ctx = makeRenderCtx({ agree: false })
+    const dom = renderEl({ type: 'Checkbox', name: 'agree', label: 'I agree to terms' }, ctx)
     const span = dom.querySelector('span')!
     expect(span.textContent).toBe('I agree to terms')
   })
@@ -158,8 +145,8 @@ describe('Checkbox rendering', () => {
 
 describe('Switch rendering', () => {
   it('renders label text next to switch', () => {
-    const ctx = makeCtx({ notify: false })
-    const dom = renderNode({ type: 'Switch', name: 'notify', label: 'Enable notifications' } as ComponentNode, ctx) as HTMLElement
+    const ctx = makeRenderCtx({ notify: false })
+    const dom = renderEl({ type: 'Switch', name: 'notify', label: 'Enable notifications' }, ctx)
     const span = dom.querySelector('span')!
     expect(span.textContent).toBe('Enable notifications')
   })
@@ -180,27 +167,27 @@ describe('RadioGroup rendering', () => {
   }
 
   it('renders as fieldset with legend', () => {
-    const ctx = makeCtx({})
-    const dom = renderNode(radioGroupNode, ctx) as HTMLElement
+    const ctx = makeRenderCtx({})
+    const dom = renderEl(radioGroupNode, ctx)
     expect(dom.tagName).toBe('FIELDSET')
     const legend = dom.querySelector('legend')!
     expect(legend.textContent).toBe('Select size')
   })
 
   it('child radios share name attribute', () => {
-    const ctx = makeCtx({})
-    const dom = renderNode(radioGroupNode, ctx) as HTMLElement
-    const radios = dom.querySelectorAll('input[type="radio"]')
+    const ctx = makeRenderCtx({})
+    const dom = renderEl(radioGroupNode, ctx)
+    const radios = queryAll(dom, 'input[type="radio"]', HTMLInputElement)
     expect(radios.length).toBe(3)
-    for (const radio of Array.from(radios)) {
-      expect((radio as HTMLInputElement).name).toBe('size')
+    for (const radio of radios) {
+      expect(radio.name).toBe('size')
     }
   })
 
   it('syncs selection to store on change', () => {
-    const ctx = makeCtx({ size: '' })
-    const dom = renderNode(radioGroupNode, ctx) as HTMLElement
-    const radio = dom.querySelectorAll('input[type="radio"]')[1] as HTMLInputElement
+    const ctx = makeRenderCtx({ size: '' })
+    const dom = renderEl(radioGroupNode, ctx)
+    const radio = queryAll(dom, 'input[type="radio"]', HTMLInputElement)[1]
 
     radio.checked = true
     radio.dispatchEvent(new Event('change', { bubbles: true }))
@@ -208,13 +195,13 @@ describe('RadioGroup rendering', () => {
   })
 
   it('dispatches onChange action', () => {
-    const ctx = makeCtx({ size: '', changed: false })
+    const ctx = makeRenderCtx({ size: '', changed: false })
     const node: ComponentNode = {
       ...radioGroupNode,
       onChange: { action: 'setState', key: 'changed', value: true },
     }
-    const dom = renderNode(node, ctx) as HTMLElement
-    const radio = dom.querySelectorAll('input[type="radio"]')[0] as HTMLInputElement
+    const dom = renderEl(node, ctx)
+    const radio = queryAll(dom, 'input[type="radio"]', HTMLInputElement)[0]
 
     radio.checked = true
     radio.dispatchEvent(new Event('change', { bubbles: true }))
@@ -226,10 +213,10 @@ describe('RadioGroup rendering', () => {
 
 describe('Radio rendering', () => {
   it('renders as label with radio input and text', () => {
-    const ctx = makeCtx()
-    const dom = renderNode({ type: 'Radio', value: 'yes', label: 'Yes' } as ComponentNode, ctx) as HTMLElement
+    const ctx = makeRenderCtx()
+    const dom = renderEl({ type: 'Radio', value: 'yes', label: 'Yes' }, ctx)
     expect(dom.tagName).toBe('LABEL')
-    const input = dom.querySelector('input[type="radio"]') as HTMLInputElement
+    const input = query(dom, 'input[type="radio"]', HTMLInputElement)
     expect(input.value).toBe('yes')
     const span = dom.querySelector('span')!
     expect(span.textContent).toBe('Yes')
@@ -252,59 +239,59 @@ describe('Combobox rendering', () => {
   }
 
   it('renders input with placeholder', () => {
-    const ctx = makeCtx({})
-    const dom = renderNode(comboboxNode, ctx) as HTMLElement
+    const ctx = makeRenderCtx({})
+    const dom = renderEl(comboboxNode, ctx)
     const input = dom.querySelector('input')!
     expect(input.placeholder).toBe('Select country')
     expect(input.name).toBe('country')
   })
 
   it('dropdown is hidden by default', () => {
-    const ctx = makeCtx({})
-    const dom = renderNode(comboboxNode, ctx) as HTMLElement
-    const dropdown = dom.querySelector('.pf-combobox-dropdown') as HTMLElement
+    const ctx = makeRenderCtx({})
+    const dom = renderEl(comboboxNode, ctx)
+    const dropdown = query(dom, '.pf-combobox-dropdown')
     expect(dropdown.style.display).toBe('none')
   })
 
   it('dropdown shows on focus', () => {
-    const ctx = makeCtx({})
-    const dom = renderNode(comboboxNode, ctx) as HTMLElement
+    const ctx = makeRenderCtx({})
+    const dom = renderEl(comboboxNode, ctx)
     const input = dom.querySelector('input')!
     input.dispatchEvent(new Event('focus', { bubbles: true }))
-    const dropdown = dom.querySelector('.pf-combobox-dropdown') as HTMLElement
+    const dropdown = query(dom, '.pf-combobox-dropdown')
     expect(dropdown.style.display).toBe('block')
   })
 
   it('renders all options', () => {
-    const ctx = makeCtx({})
-    const dom = renderNode(comboboxNode, ctx) as HTMLElement
-    const options = dom.querySelectorAll('.pf-combobox-option')
+    const ctx = makeRenderCtx({})
+    const dom = renderEl(comboboxNode, ctx)
+    const options = queryAll(dom, '.pf-combobox-option')
     expect(options.length).toBe(3)
-    expect((options[0] as HTMLElement).textContent).toBe('United States')
-    expect((options[0] as HTMLElement).dataset.value).toBe('us')
+    expect(options[0].textContent).toBe('United States')
+    expect(options[0].dataset.value).toBe('us')
   })
 
   it('filters options on input when searchable', () => {
-    const ctx = makeCtx({})
-    const dom = renderNode(comboboxNode, ctx) as HTMLElement
+    const ctx = makeRenderCtx({})
+    const dom = renderEl(comboboxNode, ctx)
     const input = dom.querySelector('input')!
 
     input.value = 'ger'
     input.dispatchEvent(new Event('input', { bubbles: true }))
 
-    const options = dom.querySelectorAll('.pf-combobox-option')
-    expect((options[0] as HTMLElement).style.display).toBe('none') // United States
-    expect((options[1] as HTMLElement).style.display).toBe('')     // Germany
-    expect((options[2] as HTMLElement).style.display).toBe('none') // France
+    const options = queryAll(dom, '.pf-combobox-option')
+    expect(options[0].style.display).toBe('none') // United States
+    expect(options[1].style.display).toBe('')     // Germany
+    expect(options[2].style.display).toBe('none') // France
   })
 
   it('mousedown on option syncs to store', () => {
-    const ctx = makeCtx({})
-    const dom = renderNode(comboboxNode, ctx) as HTMLElement
+    const ctx = makeRenderCtx({})
+    const dom = renderEl(comboboxNode, ctx)
     // Append to document so .closest() works
     document.body.appendChild(dom)
 
-    const option = dom.querySelectorAll('.pf-combobox-option')[1] as HTMLElement
+    const option = queryAll(dom, '.pf-combobox-option')[1]
     option.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }))
     expect(ctx.store.get('country')).toBe('de')
 
@@ -316,20 +303,20 @@ describe('Combobox rendering', () => {
 
 describe('Calendar rendering', () => {
   it('renders date input with min/max constraints', () => {
-    const ctx = makeCtx({})
-    const dom = renderNode({
+    const ctx = makeRenderCtx({})
+    const dom = renderEl({
       type: 'Calendar', name: 'start', minDate: '2026-01-01', maxDate: '2026-12-31',
-    } as ComponentNode, ctx) as HTMLElement
-    const input = dom.querySelector('input[type="date"]') as HTMLInputElement
+    }, ctx)
+    const input = query(dom, 'input[type="date"]', HTMLInputElement)
     expect(input.name).toBe('start')
     expect(input.min).toBe('2026-01-01')
     expect(input.max).toBe('2026-12-31')
   })
 
   it('syncs date value to store on change', () => {
-    const ctx = makeCtx({ start: '' })
-    const dom = renderNode({ type: 'Calendar', name: 'start' } as ComponentNode, ctx) as HTMLElement
-    const input = dom.querySelector('input[type="date"]') as HTMLInputElement
+    const ctx = makeRenderCtx({ start: '' })
+    const dom = renderEl({ type: 'Calendar', name: 'start' }, ctx)
+    const input = query(dom, 'input[type="date"]', HTMLInputElement)
 
     input.value = '2026-06-15'
     input.dispatchEvent(new Event('change', { bubbles: true }))
@@ -337,12 +324,12 @@ describe('Calendar rendering', () => {
   })
 
   it('dispatches onChange action', () => {
-    const ctx = makeCtx({ start: '', changed: false })
-    const dom = renderNode({
+    const ctx = makeRenderCtx({ start: '', changed: false })
+    const dom = renderEl({
       type: 'Calendar', name: 'start',
       onChange: { action: 'setState', key: 'changed', value: true },
-    } as ComponentNode, ctx) as HTMLElement
-    const input = dom.querySelector('input[type="date"]') as HTMLInputElement
+    }, ctx)
+    const input = query(dom, 'input[type="date"]', HTMLInputElement)
 
     input.value = '2026-03-01'
     input.dispatchEvent(new Event('change', { bubbles: true }))
@@ -354,12 +341,12 @@ describe('Calendar rendering', () => {
 
 describe('DatePicker rendering', () => {
   it('renders date input with placeholder and constraints', () => {
-    const ctx = makeCtx({})
-    const dom = renderNode({
+    const ctx = makeRenderCtx({})
+    const dom = renderEl({
       type: 'DatePicker', name: 'dob', placeholder: 'YYYY-MM-DD',
       minDate: '1900-01-01', maxDate: '2026-12-31',
-    } as ComponentNode, ctx) as HTMLElement
-    const input = dom.querySelector('input[type="date"]') as HTMLInputElement
+    }, ctx)
+    const input = query(dom, 'input[type="date"]', HTMLInputElement)
     expect(input.name).toBe('dob')
     expect(input.placeholder).toBe('YYYY-MM-DD')
     expect(input.min).toBe('1900-01-01')
@@ -367,9 +354,9 @@ describe('DatePicker rendering', () => {
   })
 
   it('syncs value to store on change', () => {
-    const ctx = makeCtx({ dob: '' })
-    const dom = renderNode({ type: 'DatePicker', name: 'dob' } as ComponentNode, ctx) as HTMLElement
-    const input = dom.querySelector('input[type="date"]') as HTMLInputElement
+    const ctx = makeRenderCtx({ dob: '' })
+    const dom = renderEl({ type: 'DatePicker', name: 'dob' }, ctx)
+    const input = query(dom, 'input[type="date"]', HTMLInputElement)
 
     input.value = '1990-05-20'
     input.dispatchEvent(new Event('change', { bubbles: true }))
@@ -377,12 +364,12 @@ describe('DatePicker rendering', () => {
   })
 
   it('dispatches onChange action', () => {
-    const ctx = makeCtx({ dob: '', changed: false })
-    const dom = renderNode({
+    const ctx = makeRenderCtx({ dob: '', changed: false })
+    const dom = renderEl({
       type: 'DatePicker', name: 'dob',
       onChange: { action: 'setState', key: 'changed', value: true },
-    } as ComponentNode, ctx) as HTMLElement
-    const input = dom.querySelector('input[type="date"]') as HTMLInputElement
+    }, ctx)
+    const input = query(dom, 'input[type="date"]', HTMLInputElement)
 
     input.value = '2000-01-01'
     input.dispatchEvent(new Event('change', { bubbles: true }))
@@ -394,10 +381,10 @@ describe('DatePicker rendering', () => {
 
 describe('ChoiceCard rendering', () => {
   it('renders with value, label, and description', () => {
-    const ctx = makeCtx()
-    const dom = renderNode({
+    const ctx = makeRenderCtx()
+    const dom = renderEl({
       type: 'ChoiceCard', value: 'pro', label: 'Pro Plan', description: '$29/mo',
-    } as ComponentNode, ctx) as HTMLElement
+    }, ctx)
     expect(dom.className).toBe('pf-choice-card')
     expect(dom.dataset.value).toBe('pro')
     const label = dom.querySelector('.pf-choice-card-label')!
@@ -407,35 +394,35 @@ describe('ChoiceCard rendering', () => {
   })
 
   it('sets data-selected when selected', () => {
-    const ctx = makeCtx()
-    const dom = renderNode({
+    const ctx = makeRenderCtx()
+    const dom = renderEl({
       type: 'ChoiceCard', value: 'pro', label: 'Pro', selected: true,
-    } as ComponentNode, ctx) as HTMLElement
+    }, ctx)
     expect(dom.dataset.selected).toBe('true')
   })
 
   it('does not set data-selected when not selected', () => {
-    const ctx = makeCtx()
-    const dom = renderNode({
+    const ctx = makeRenderCtx()
+    const dom = renderEl({
       type: 'ChoiceCard', value: 'basic',
-    } as ComponentNode, ctx) as HTMLElement
+    }, ctx)
     expect(dom.dataset.selected).toBeUndefined()
   })
 
   it('does not apply selected styling when selected=false', () => {
-    const ctx = makeCtx()
-    const dom = renderNode({
+    const ctx = makeRenderCtx()
+    const dom = renderEl({
       type: 'ChoiceCard', value: 'basic', selected: false,
-    } as ComponentNode, ctx) as HTMLElement
+    }, ctx)
     expect(dom.dataset.selected).toBeUndefined()
   })
 
   it('dispatches onClick action', async () => {
-    const ctx = makeCtx({ plan: '' })
-    const dom = renderNode({
+    const ctx = makeRenderCtx({ plan: '' })
+    const dom = renderEl({
       type: 'ChoiceCard', value: 'pro',
       onClick: { action: 'setState', key: 'plan', value: 'pro' },
-    } as ComponentNode, ctx) as HTMLElement
+    }, ctx)
 
     dom.click()
     await new Promise(r => queueMicrotask(r))
@@ -447,8 +434,8 @@ describe('ChoiceCard rendering', () => {
 
 describe('Field compound rendering', () => {
   it('renders title, description, content, and error spans', () => {
-    const ctx = makeCtx()
-    const dom = renderNode({
+    const ctx = makeRenderCtx()
+    const dom = renderEl({
       type: 'Field',
       children: [
         { type: 'FieldTitle', content: 'Email' },
@@ -456,7 +443,7 @@ describe('Field compound rendering', () => {
         { type: 'FieldContent', children: [{ type: 'Input', name: 'email' }] },
         { type: 'FieldError', content: 'Required field' },
       ],
-    } as ComponentNode, ctx) as HTMLElement
+    }, ctx)
 
     expect(dom.className).toBe('pf-field')
     expect(dom.querySelector('.pf-field-title')!.textContent).toBe('Email')
@@ -470,14 +457,14 @@ describe('Field compound rendering', () => {
 
 describe('ButtonGroup rendering', () => {
   it('renders as flex container with child buttons', () => {
-    const ctx = makeCtx()
-    const dom = renderNode({
+    const ctx = makeRenderCtx()
+    const dom = renderEl({
       type: 'ButtonGroup',
       children: [
         { type: 'Button', label: 'Save' },
         { type: 'Button', label: 'Cancel' },
       ],
-    } as ComponentNode, ctx) as HTMLElement
+    }, ctx)
 
     expect(dom.className).toBe('pf-button-group')
     expect(dom.style.display).toBe('flex')
@@ -492,15 +479,15 @@ describe('ButtonGroup rendering', () => {
 
 describe('Select options shorthand', () => {
   it('renders options from options array', () => {
-    const ctx = makeCtx()
-    const dom = renderNode({
+    const ctx = makeRenderCtx()
+    const dom = renderEl({
       type: 'Select',
       name: 'subject',
       options: [
         { label: 'General Inquiry', value: 'general' },
         { label: 'Bug Report', value: 'bug' },
       ],
-    } as ComponentNode, ctx) as HTMLElement
+    }, ctx)
     const select = dom.querySelector('select')!
     const opts = Array.from(select.querySelectorAll('option'))
     expect(opts.length).toBe(2)
@@ -511,13 +498,13 @@ describe('Select options shorthand', () => {
   })
 
   it('renders placeholder as disabled hidden option', () => {
-    const ctx = makeCtx()
-    const dom = renderNode({
+    const ctx = makeRenderCtx()
+    const dom = renderEl({
       type: 'Select',
       name: 'topic',
       placeholder: 'Choose one',
       options: [{ label: 'A', value: 'a' }],
-    } as ComponentNode, ctx) as HTMLElement
+    }, ctx)
     const select = dom.querySelector('select')!
     const opts = Array.from(select.querySelectorAll('option'))
     expect(opts.length).toBe(2)
@@ -530,26 +517,26 @@ describe('Select options shorthand', () => {
 
 describe('Select sub-components rendering', () => {
   it('SelectLabel renders text span', () => {
-    const ctx = makeCtx()
-    const dom = renderNode({ type: 'SelectLabel', content: 'Category' } as ComponentNode, ctx) as HTMLElement
+    const ctx = makeRenderCtx()
+    const dom = renderEl({ type: 'SelectLabel', content: 'Category' }, ctx)
     expect(dom.tagName).toBe('SPAN')
     expect(dom.className).toBe('pf-select-label')
     expect(dom.textContent).toBe('Category')
   })
 
   it('SelectSeparator renders hr', () => {
-    const ctx = makeCtx()
-    const dom = renderNode({ type: 'SelectSeparator' } as ComponentNode, ctx) as HTMLElement
+    const ctx = makeRenderCtx()
+    const dom = renderEl({ type: 'SelectSeparator' }, ctx)
     expect(dom.tagName).toBe('HR')
     expect(dom.className).toBe('pf-separator')
   })
 
   it('SelectGroup renders container div', () => {
-    const ctx = makeCtx()
-    const dom = renderNode({
+    const ctx = makeRenderCtx()
+    const dom = renderEl({
       type: 'SelectGroup',
       children: [{ type: 'SelectLabel', content: 'Fruits' }],
-    } as ComponentNode, ctx) as HTMLElement
+    }, ctx)
     expect(dom.className).toBe('pf-select-group')
     expect(dom.querySelector('.pf-select-label')!.textContent).toBe('Fruits')
   })
@@ -559,26 +546,26 @@ describe('Select sub-components rendering', () => {
 
 describe('Combobox sub-components rendering', () => {
   it('ComboboxLabel renders text span', () => {
-    const ctx = makeCtx()
-    const dom = renderNode({ type: 'ComboboxLabel', content: 'Popular' } as ComponentNode, ctx) as HTMLElement
+    const ctx = makeRenderCtx()
+    const dom = renderEl({ type: 'ComboboxLabel', content: 'Popular' }, ctx)
     expect(dom.tagName).toBe('SPAN')
     expect(dom.className).toBe('pf-combobox-label')
     expect(dom.textContent).toBe('Popular')
   })
 
   it('ComboboxSeparator renders hr', () => {
-    const ctx = makeCtx()
-    const dom = renderNode({ type: 'ComboboxSeparator' } as ComponentNode, ctx) as HTMLElement
+    const ctx = makeRenderCtx()
+    const dom = renderEl({ type: 'ComboboxSeparator' }, ctx)
     expect(dom.tagName).toBe('HR')
     expect(dom.className).toBe('pf-separator')
   })
 
   it('ComboboxGroup renders container div', () => {
-    const ctx = makeCtx()
-    const dom = renderNode({
+    const ctx = makeRenderCtx()
+    const dom = renderEl({
       type: 'ComboboxGroup',
       children: [{ type: 'ComboboxLabel', content: 'Top' }],
-    } as ComponentNode, ctx) as HTMLElement
+    }, ctx)
     expect(dom.className).toBe('pf-combobox-group')
     expect(dom.querySelector('.pf-combobox-label')!.textContent).toBe('Top')
   })
@@ -588,7 +575,7 @@ describe('Combobox sub-components rendering', () => {
 
 describe('Form array onSubmit', () => {
   it('dispatches multiple actions on submit', async () => {
-    const ctx = makeCtx({ submitted: false, count: 0 })
+    const ctx = makeRenderCtx({ submitted: false, count: 0 })
     const node: ComponentNode = {
       type: 'Form',
       onSubmit: [
@@ -599,7 +586,7 @@ describe('Form array onSubmit', () => {
         { type: 'Button', label: 'Submit', submit: true },
       ],
     }
-    const form = renderNode(node, ctx) as HTMLFormElement
+    const form = renderEl(node, ctx, HTMLFormElement)
     form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }))
     await new Promise(r => queueMicrotask(r))
     expect(ctx.store.get('submitted')).toBe(true)
@@ -613,12 +600,12 @@ describe('Form array onSubmit', () => {
 
 describe('Textarea onChange action', () => {
   it('dispatches onChange action on input', () => {
-    const ctx = makeCtx({ bio: '', lastEvent: '' })
+    const ctx = makeRenderCtx({ bio: '', lastEvent: '' })
     const node: ComponentNode = {
       type: 'Textarea', name: 'bio',
       onChange: { action: 'setState', key: 'lastEvent', value: 'changed' },
     }
-    const dom = renderNode(node, ctx) as HTMLElement
+    const dom = renderEl(node, ctx)
     const textarea = dom.querySelector('textarea')!
     textarea.value = 'Hello'
     textarea.dispatchEvent(new Event('input', { bubbles: true }))
@@ -628,13 +615,13 @@ describe('Textarea onChange action', () => {
 
 describe('Checkbox onChange action', () => {
   it('dispatches onChange action on change', () => {
-    const ctx = makeCtx({ agree: false, lastEvent: '' })
+    const ctx = makeRenderCtx({ agree: false, lastEvent: '' })
     const node: ComponentNode = {
       type: 'Checkbox', name: 'agree', label: 'I agree',
       onChange: { action: 'setState', key: 'lastEvent', value: 'toggled' },
     }
-    const dom = renderNode(node, ctx) as HTMLElement
-    const input = dom.querySelector('input[type="checkbox"]') as HTMLInputElement
+    const dom = renderEl(node, ctx)
+    const input = query(dom, 'input[type="checkbox"]', HTMLInputElement)
     input.checked = true
     input.dispatchEvent(new Event('change', { bubbles: true }))
     expect(ctx.store.get('lastEvent')).toBe('toggled')
@@ -643,12 +630,12 @@ describe('Checkbox onChange action', () => {
 
 describe('Switch onChange action', () => {
   it('dispatches onChange action on change', () => {
-    const ctx = makeCtx({ darkMode: false, lastEvent: '' })
+    const ctx = makeRenderCtx({ darkMode: false, lastEvent: '' })
     const node: ComponentNode = {
       type: 'Switch', name: 'darkMode', label: 'Dark mode',
       onChange: { action: 'setState', key: 'lastEvent', value: 'switched' },
     }
-    const dom = renderNode(node, ctx) as HTMLElement
+    const dom = renderEl(node, ctx)
     const input = dom.querySelector('input')!
     input.checked = true
     input.dispatchEvent(new Event('change', { bubbles: true }))
@@ -658,13 +645,13 @@ describe('Switch onChange action', () => {
 
 describe('Slider onChange action', () => {
   it('dispatches onChange action on input', () => {
-    const ctx = makeCtx({ vol: 50, lastEvent: '' })
+    const ctx = makeRenderCtx({ vol: 50, lastEvent: '' })
     const node: ComponentNode = {
       type: 'Slider', name: 'vol', min: 0, max: 100,
       onChange: { action: 'setState', key: 'lastEvent', value: 'slid' },
     }
-    const dom = renderNode(node, ctx) as HTMLElement
-    const input = dom.querySelector('input[type="range"]') as HTMLInputElement
+    const dom = renderEl(node, ctx)
+    const input = query(dom, 'input[type="range"]', HTMLInputElement)
     input.value = '80'
     input.dispatchEvent(new Event('input', { bubbles: true }))
     expect(ctx.store.get('lastEvent')).toBe('slid')
@@ -673,7 +660,7 @@ describe('Slider onChange action', () => {
 
 describe('Combobox onChange action', () => {
   it('dispatches onChange action on option select', () => {
-    const ctx = makeCtx({ lastEvent: '' })
+    const ctx = makeRenderCtx({ lastEvent: '' })
     const node: ComponentNode = {
       type: 'Combobox', name: 'country',
       onChange: { action: 'setState', key: 'lastEvent', value: 'selected' },
@@ -681,9 +668,9 @@ describe('Combobox onChange action', () => {
         { type: 'ComboboxOption', value: 'us', label: 'United States' },
       ],
     }
-    const dom = renderNode(node, ctx) as HTMLElement
+    const dom = renderEl(node, ctx)
     document.body.appendChild(dom)
-    const option = dom.querySelector('.pf-combobox-option') as HTMLElement
+    const option = query(dom, '.pf-combobox-option')
     option.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }))
     expect(ctx.store.get('lastEvent')).toBe('selected')
     document.body.removeChild(dom)
@@ -694,7 +681,7 @@ describe('Combobox onChange action', () => {
 
 describe('RadioGroup initial state', () => {
   it('pre-selects radio matching state value', () => {
-    const ctx = makeCtx({ size: 'md' })
+    const ctx = makeRenderCtx({ size: 'md' })
     const node: ComponentNode = {
       type: 'RadioGroup', name: 'size', label: 'Size',
       children: [
@@ -703,8 +690,8 @@ describe('RadioGroup initial state', () => {
         { type: 'Radio', value: 'lg', label: 'Large' },
       ],
     }
-    const dom = renderNode(node, ctx) as HTMLElement
-    const radios = dom.querySelectorAll('input[type="radio"]') as NodeListOf<HTMLInputElement>
+    const dom = renderEl(node, ctx)
+    const radios = queryAll(dom, 'input[type="radio"]', HTMLInputElement)
     expect(radios[0].checked).toBe(false)
     expect(radios[1].checked).toBe(true)  // 'md' should be pre-selected
     expect(radios[2].checked).toBe(false)
@@ -715,18 +702,18 @@ describe('RadioGroup initial state', () => {
 
 describe('Calendar initial state', () => {
   it('reads initial value from store', () => {
-    const ctx = makeCtx({ appt: '2026-06-15' })
-    const dom = renderNode({ type: 'Calendar', name: 'appt' } as ComponentNode, ctx) as HTMLElement
-    const input = dom.querySelector('input[type="date"]') as HTMLInputElement
+    const ctx = makeRenderCtx({ appt: '2026-06-15' })
+    const dom = renderEl({ type: 'Calendar', name: 'appt' }, ctx)
+    const input = query(dom, 'input[type="date"]', HTMLInputElement)
     expect(input.value).toBe('2026-06-15')
   })
 })
 
 describe('DatePicker initial state', () => {
   it('reads initial value from store', () => {
-    const ctx = makeCtx({ dob: '1990-05-20' })
-    const dom = renderNode({ type: 'DatePicker', name: 'dob' } as ComponentNode, ctx) as HTMLElement
-    const input = dom.querySelector('input[type="date"]') as HTMLInputElement
+    const ctx = makeRenderCtx({ dob: '1990-05-20' })
+    const dom = renderEl({ type: 'DatePicker', name: 'dob' }, ctx)
+    const input = query(dom, 'input[type="date"]', HTMLInputElement)
     expect(input.value).toBe('1990-05-20')
   })
 })

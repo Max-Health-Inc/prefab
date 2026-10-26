@@ -125,6 +125,10 @@ export default defineConfig(
       'src/renderer/actions.ts',
       'src/renderer/components/layout.ts',
       'src/renderer/components/charts/**/*.ts',
+      'test/helpers/render.ts',
+      'test/renderer-edge-cases.test.ts',
+      'test/renderer-form.test.ts',
+      'test/wire-compat.test.ts',
     ],
     rules: {
       '@typescript-eslint/consistent-type-assertions': ['error', { assertionStyle: 'never' }],

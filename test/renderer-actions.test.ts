@@ -5,48 +5,17 @@
  */
 
 import { describe, it, expect, beforeEach } from 'bun:test'
-import { Store } from '../src/renderer/state'
 import { dispatchActions, clearAllIntervals } from '../src/renderer/actions'
-import type { DispatchContext, ToastEvent, McpTransport } from '../src/renderer/actions'
+import type { McpTransport } from '../src/renderer/actions'
 import { extractPrefabPayload, extractPrefabUpdate } from '../src/renderer/actions'
-import { createNoopTransport } from '../src/renderer/transport'
-
-function makeCtx(state?: Record<string, unknown>, transport?: McpTransport): DispatchContext & { rerendered: number; toasts: ToastEvent[]; remounted: Record<string, unknown>[] } {
-  const ctx = {
-    store: new Store(state),
-    transport: transport ?? createNoopTransport(),
-    rerender: () => { ctx.rerendered++ },
-    remount: (data: Record<string, unknown>) => { ctx.remounted.push(data) },
-    onToast: (t: ToastEvent) => ctx.toasts.push(t),
-    rerendered: 0,
-    toasts: [] as ToastEvent[],
-    remounted: [] as Record<string, unknown>[],
-  }
-  return ctx
-}
-
-function mockTransport(result: unknown = { ok: true }): McpTransport & { calls: { name: string; args: Record<string, unknown> }[]; messages: string[] } {
-  const t = {
-    calls: [] as { name: string; args: Record<string, unknown> }[],
-    messages: [] as string[],
-    callTool: (name: string, args: Record<string, unknown>) => {
-      t.calls.push({ name, args })
-      return Promise.resolve(result)
-    },
-    sendMessage: (msg: string) => {
-      t.messages.push(msg)
-      return Promise.resolve()
-    },
-  }
-  return t
-}
+import { makeDispatchCtx, mockTransport } from './helpers/render'
 
 // ── toolCall action ──────────────────────────────────────────────────────────
 
 describe('toolCall action', () => {
   it('calls transport.callTool with resolved args', async () => {
     const transport = mockTransport({ data: 42 })
-    const ctx = makeCtx({ username: 'Alice' }, transport)
+    const ctx = makeDispatchCtx({ username: 'Alice' }, transport)
 
     await dispatchActions({
       action: 'toolCall',
@@ -63,7 +32,7 @@ describe('toolCall action', () => {
 
   it('stores result in resultKey', async () => {
     const transport = mockTransport([1, 2, 3])
-    const ctx = makeCtx({}, transport)
+    const ctx = makeDispatchCtx({}, transport)
 
     await dispatchActions({
       action: 'toolCall',
@@ -77,7 +46,7 @@ describe('toolCall action', () => {
 
   it('triggers onSuccess callback after successful call', async () => {
     const transport = mockTransport('done')
-    const ctx = makeCtx({ status: '' }, transport)
+    const ctx = makeDispatchCtx({ status: '' }, transport)
 
     await dispatchActions({
       action: 'toolCall',
@@ -94,7 +63,7 @@ describe('toolCall action', () => {
       callTool: () => { throw new Error('Network error') },
       sendMessage: () => Promise.resolve(),
     }
-    const ctx = makeCtx({ status: '' }, transport)
+    const ctx = makeDispatchCtx({ status: '' }, transport)
 
     await dispatchActions({
       action: 'toolCall',
@@ -107,7 +76,7 @@ describe('toolCall action', () => {
   })
 
   it('warns when no transport is configured', async () => {
-    const ctx = makeCtx({})
+    const ctx = makeDispatchCtx({})
     ctx.transport = undefined
 
     // Should not throw
@@ -120,7 +89,7 @@ describe('toolCall action', () => {
 
   it('triggers rerender after tool call', async () => {
     const transport = mockTransport('ok')
-    const ctx = makeCtx({}, transport)
+    const ctx = makeDispatchCtx({}, transport)
 
     await dispatchActions({
       action: 'toolCall',
@@ -138,7 +107,7 @@ describe('toolCall action', () => {
 describe('sendMessage action', () => {
   it('sends message via transport', async () => {
     const transport = mockTransport()
-    const ctx = makeCtx({}, transport)
+    const ctx = makeDispatchCtx({}, transport)
 
     await dispatchActions({
       action: 'sendMessage',
@@ -150,7 +119,7 @@ describe('sendMessage action', () => {
 
   it('resolves Rx expressions in message', async () => {
     const transport = mockTransport()
-    const ctx = makeCtx({ user: 'Bob' }, transport)
+    const ctx = makeDispatchCtx({ user: 'Bob' }, transport)
 
     await dispatchActions({
       action: 'sendMessage',
@@ -166,7 +135,7 @@ describe('sendMessage action', () => {
 describe('callHandler action', () => {
   it('delegates to transport.callTool', async () => {
     const transport = mockTransport({ status: 'ok' })
-    const ctx = makeCtx({}, transport)
+    const ctx = makeDispatchCtx({}, transport)
 
     await dispatchActions({
       action: 'callHandler',
@@ -186,7 +155,7 @@ describe('callHandler action', () => {
       callTool: () => { throw new Error('fail') },
       sendMessage: () => Promise.resolve(),
     }
-    const ctx = makeCtx({ err: '' }, transport)
+    const ctx = makeDispatchCtx({ err: '' }, transport)
 
     await dispatchActions({
       action: 'callHandler',
@@ -203,7 +172,7 @@ describe('callHandler action', () => {
 
 describe('updateContext action', () => {
   it('merges context into state', async () => {
-    const ctx = makeCtx({ existing: 'keep' })
+    const ctx = makeDispatchCtx({ existing: 'keep' })
 
     await dispatchActions({
       action: 'updateContext',
@@ -216,7 +185,7 @@ describe('updateContext action', () => {
   })
 
   it('triggers rerender', async () => {
-    const ctx = makeCtx({})
+    const ctx = makeDispatchCtx({})
 
     await dispatchActions({
       action: 'updateContext',
@@ -233,7 +202,7 @@ describe('setInterval action', () => {
   beforeEach(() => { clearAllIntervals() })
 
   it('dispatches onTick action periodically', async () => {
-    const ctx = makeCtx({ tick: 0 })
+    const ctx = makeDispatchCtx({ tick: 0 })
 
     await dispatchActions({
       action: 'setInterval',
@@ -249,7 +218,7 @@ describe('setInterval action', () => {
   })
 
   it('enforces minimum interval of 100ms', async () => {
-    const ctx = makeCtx({ count: 0 })
+    const ctx = makeDispatchCtx({ count: 0 })
 
     // Request 10ms, should be clamped to 100ms
     await dispatchActions({
@@ -266,7 +235,7 @@ describe('setInterval action', () => {
   })
 
   it('clearAllIntervals stops all intervals', async () => {
-    const ctx = makeCtx({ x: 0 })
+    const ctx = makeDispatchCtx({ x: 0 })
 
     await dispatchActions({
       action: 'setInterval',
@@ -284,7 +253,7 @@ describe('setInterval action', () => {
 
 describe('showToast action', () => {
   it('emits toast with all fields', async () => {
-    const ctx = makeCtx({})
+    const ctx = makeDispatchCtx({})
 
     await dispatchActions({
       action: 'showToast',
@@ -304,7 +273,7 @@ describe('showToast action', () => {
   })
 
   it('resolves Rx in toast message', async () => {
-    const ctx = makeCtx({ name: 'Doc' })
+    const ctx = makeDispatchCtx({ name: 'Doc' })
 
     await dispatchActions({
       action: 'showToast',
@@ -319,7 +288,7 @@ describe('showToast action', () => {
 
 describe('Unknown action', () => {
   it('does not throw on unknown action type', async () => {
-    const ctx = makeCtx({})
+    const ctx = makeDispatchCtx({})
     await dispatchActions({ action: 'nonExistentAction' }, ctx)
     // No throw = pass
   })
@@ -330,7 +299,7 @@ describe('Unknown action', () => {
 describe('callTool alias (Prefect compat)', () => {
   it('callTool dispatches same as toolCall', async () => {
     const transport = mockTransport({ value: 99 })
-    const ctx = makeCtx({}, transport)
+    const ctx = makeDispatchCtx({}, transport)
 
     await dispatchActions({
       action: 'callTool',
@@ -453,7 +422,7 @@ describe('toolCall remount', () => {
   it('calls remount when tool returns a prefab wire payload', async () => {
     const newView = { $prefab: { version: '0.2' }, view: { type: 'Text', text: 'new' } }
     const transport = mockTransport(newView)
-    const ctx = makeCtx({}, transport)
+    const ctx = makeDispatchCtx({}, transport)
 
     await dispatchActions({
       action: 'toolCall',
@@ -469,7 +438,7 @@ describe('toolCall remount', () => {
   it('calls remount when tool returns structuredContent with $prefab', async () => {
     const inner = { $prefab: { version: '0.2' }, view: { type: 'Text', text: 'updated' } }
     const transport = mockTransport({ content: [], structuredContent: inner })
-    const ctx = makeCtx({}, transport)
+    const ctx = makeDispatchCtx({}, transport)
 
     await dispatchActions({
       action: 'toolCall',
@@ -484,7 +453,7 @@ describe('toolCall remount', () => {
 
   it('falls back to rerender when tool returns non-prefab result', async () => {
     const transport = mockTransport({ data: 42 })
-    const ctx = makeCtx({}, transport)
+    const ctx = makeDispatchCtx({}, transport)
 
     await dispatchActions({
       action: 'toolCall',
@@ -499,7 +468,7 @@ describe('toolCall remount', () => {
   it('still stores result in resultKey when remounting', async () => {
     const newView = { $prefab: { version: '0.2' }, view: { type: 'Text', text: 'new' } }
     const transport = mockTransport(newView)
-    const ctx = makeCtx({}, transport)
+    const ctx = makeDispatchCtx({}, transport)
 
     await dispatchActions({
       action: 'toolCall',
@@ -515,7 +484,7 @@ describe('toolCall remount', () => {
   it('fires onSuccess after remount', async () => {
     const newView = { $prefab: { version: '0.2' }, view: { type: 'Text', text: 'x' } }
     const transport = mockTransport(newView)
-    const ctx = makeCtx({ done: false }, transport)
+    const ctx = makeDispatchCtx({ done: false }, transport)
 
     await dispatchActions({
       action: 'toolCall',

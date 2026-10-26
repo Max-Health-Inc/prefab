@@ -5,28 +5,18 @@
  */
 
 import { describe, it, expect, beforeEach } from 'bun:test'
-import { Store } from '../src/renderer/state'
 import { renderNode } from '../src/renderer/engine'
-import type { ComponentNode, RenderContext } from '../src/renderer/engine'
+import type { ComponentNode } from '../src/renderer/engine'
 import { registerAllComponents } from '../src/renderer/components/index'
-import { createNoopTransport } from '../src/renderer/transport'
+import { makeRenderCtx } from './helpers/render'
 
 beforeEach(() => { registerAllComponents() })
-
-function makeCtx(state?: Record<string, unknown>): RenderContext {
-  return {
-    store: new Store(state),
-    scope: {},
-    transport: createNoopTransport(),
-    rerender: () => {},
-  }
-}
 
 // ── Charts ───────────────────────────────────────────────────────────────────
 
 describe('BarChart', () => {
   it('renders SVG with bars', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'BarChart',
       data: [
@@ -47,7 +37,7 @@ describe('BarChart', () => {
   })
 
   it('shows "No chart data" when empty', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'BarChart',
       data: [],
@@ -58,7 +48,7 @@ describe('BarChart', () => {
   })
 
   it('resolves data from state via Rx', () => {
-    const ctx = makeCtx({
+    const ctx = makeRenderCtx({
       chartData: [{ x: 10 }, { x: 20 }],
     })
     const node: ComponentNode = {
@@ -78,7 +68,7 @@ describe('BarChart', () => {
 
 describe('LineChart', () => {
   it('renders SVG with path elements', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'LineChart',
       data: [
@@ -96,7 +86,7 @@ describe('LineChart', () => {
   })
 
   it('renders X-axis labels when xAxis is set', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'LineChart',
       data: [
@@ -115,7 +105,7 @@ describe('LineChart', () => {
   })
 
   it('renders Y-axis labels by default', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'LineChart',
       data: [{ v: 50 }, { v: 100 }],
@@ -131,7 +121,7 @@ describe('LineChart', () => {
   })
 
   it('draws baseline', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'LineChart',
       data: [{ v: 10 }, { v: 20 }],
@@ -144,7 +134,7 @@ describe('LineChart', () => {
   })
 
   it('draws grid lines when showGrid is true', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'LineChart',
       data: [{ v: 50 }, { v: 100 }],
@@ -169,7 +159,7 @@ describe('LineChart dual Y-axis', () => {
   ]
 
   it('renders right Y-axis labels when showYAxisRight + right series', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'LineChart',
       data: dualData,
@@ -194,7 +184,7 @@ describe('LineChart dual Y-axis', () => {
   })
 
   it('uses dashed stroke for right-axis series', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'LineChart',
       data: dualData,
@@ -212,7 +202,7 @@ describe('LineChart dual Y-axis', () => {
   })
 
   it('scales right-axis series independently from left', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'LineChart',
       data: [
@@ -237,7 +227,7 @@ describe('LineChart dual Y-axis', () => {
   })
 
   it('does not render right Y-axis when showYAxisRight is false', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'LineChart',
       data: dualData,
@@ -258,7 +248,7 @@ describe('LineChart dual Y-axis', () => {
 
 describe('BarChart axes', () => {
   it('renders Y-axis labels by default', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'BarChart',
       data: [{ m: 'Jan', v: 100 }, { m: 'Feb', v: 200 }],
@@ -274,7 +264,7 @@ describe('BarChart axes', () => {
   })
 
   it('draws baseline', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'BarChart',
       data: [{ v: 10 }],
@@ -289,7 +279,7 @@ describe('BarChart axes', () => {
 
 describe('PieChart', () => {
   it('renders SVG with pie slices (path elements)', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'PieChart',
       data: [
@@ -309,7 +299,7 @@ describe('PieChart', () => {
 
 describe('Histogram', () => {
   it('renders SVG with bars', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'Histogram',
       data: [
@@ -335,7 +325,7 @@ describe('Chart tooltips', () => {
   ]
 
   it('BarChart creates tooltip div when showTooltip is true (default)', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'BarChart',
       data: chartData,
@@ -348,7 +338,7 @@ describe('Chart tooltips', () => {
   })
 
   it('BarChart omits tooltip div when showTooltip is false', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'BarChart',
       data: chartData,
@@ -362,7 +352,7 @@ describe('Chart tooltips', () => {
   })
 
   it('BarChart adds transparent hit-zone rects for each data point', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'BarChart',
       data: chartData,
@@ -378,7 +368,7 @@ describe('Chart tooltips', () => {
   })
 
   it('LineChart creates tooltip div when showTooltip is true (default)', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'LineChart',
       data: chartData,
@@ -391,7 +381,7 @@ describe('Chart tooltips', () => {
   })
 
   it('LineChart omits tooltip when showTooltip is false', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'LineChart',
       data: chartData,
@@ -403,7 +393,7 @@ describe('Chart tooltips', () => {
   })
 
   it('LineChart adds transparent hit-zone rects for each data point', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'LineChart',
       data: chartData,
@@ -419,7 +409,7 @@ describe('Chart tooltips', () => {
   })
 
   it('PieChart creates tooltip div and each slice has cursor style', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'PieChart',
       data: [
@@ -438,7 +428,7 @@ describe('Chart tooltips', () => {
   })
 
   it('AreaChart inherits tooltip from LineChart renderer', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'AreaChart',
       data: chartData,
@@ -450,7 +440,7 @@ describe('Chart tooltips', () => {
   })
 
   it('tooltip div starts hidden (no pf-visible class)', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'BarChart',
       data: chartData,
@@ -462,7 +452,7 @@ describe('Chart tooltips', () => {
   })
 
   it('mouseenter on hit-zone shows tooltip with pf-visible class', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'BarChart',
       data: chartData,
@@ -483,7 +473,7 @@ describe('Chart tooltips', () => {
   })
 
   it('mouseleave on hit-zone hides tooltip', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'BarChart',
       data: chartData,
@@ -502,7 +492,7 @@ describe('Chart tooltips', () => {
   })
 
   it('tooltip content escapes HTML to prevent XSS', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'BarChart',
       data: [{ name: '<script>alert("xss")</script>', val: 42 }],
@@ -521,7 +511,7 @@ describe('Chart tooltips', () => {
   })
 
   it('BarChart tooltipXKey shows different label than x-axis', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const data = [
       { date: 'Jan 15', datetime: '2024-01-15 14:30', sales: 100 },
       { date: 'Jan 16', datetime: '2024-01-16 09:15', sales: 200 },
@@ -553,7 +543,7 @@ describe('Chart tooltips', () => {
   })
 
   it('LineChart tooltipXKey shows different label than x-axis', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const data = [
       { date: 'Mon', datetime: 'Monday, Jan 15 2024', value: 10 },
       { date: 'Tue', datetime: 'Tuesday, Jan 16 2024', value: 20 },
@@ -579,7 +569,7 @@ describe('Chart tooltips', () => {
   })
 
   it('PieChart tooltipXKey uses alternate label on slice hover', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const data = [
       { abbr: 'US', country: 'United States', value: 60 },
       { abbr: 'UK', country: 'United Kingdom', value: 40 },
@@ -600,7 +590,7 @@ describe('Chart tooltips', () => {
   })
 
   it('tooltipXKey falls back to xAxisKey when not set', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'BarChart',
       data: [
@@ -623,7 +613,7 @@ describe('Chart tooltips', () => {
   // ── Format pipe integration ──────────────────────────────────────────────
 
   it('xAxisFormat applies pipe to axis labels (upper)', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'BarChart',
       data: [{ name: 'alpha', v: 10 }, { name: 'beta', v: 20 }],
@@ -640,7 +630,7 @@ describe('Chart tooltips', () => {
   })
 
   it('tooltipXFormat applies pipe to tooltip label (upper)', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'BarChart',
       data: [{ name: 'alpha', v: 10 }],
@@ -663,7 +653,7 @@ describe('Chart tooltips', () => {
   })
 
   it('xAxisFormat + tooltipXFormat: axis and tooltip formatted differently', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'LineChart',
       data: [
@@ -690,7 +680,7 @@ describe('Chart tooltips', () => {
   })
 
   it('per-series tooltipFormat overrides yAxisFormat in tooltip', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'BarChart',
       data: [{ x: 'A', revenue: 1234.5, count: 42 }],
@@ -715,7 +705,7 @@ describe('Chart tooltips', () => {
   })
 
   it('PieChart tooltipXFormat applies pipe to slice labels', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'PieChart',
       data: [
@@ -737,7 +727,7 @@ describe('Chart tooltips', () => {
 
 describe('RadarChart (fallback)', () => {
   it('renders placeholder for unsupported chart', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'RadarChart',
       data: [{ x: 1 }],
@@ -752,7 +742,7 @@ describe('RadarChart (fallback)', () => {
 
 describe('Table components', () => {
   it('renders full table structure', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'Table',
       children: [
@@ -798,7 +788,7 @@ describe('Table components', () => {
   })
 
   it('renders TableCaption', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'Table',
       children: [
@@ -813,7 +803,7 @@ describe('Table components', () => {
   })
 
   it('renders TableCell with colSpan', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'TableCell',
       colSpan: 3,
@@ -825,7 +815,7 @@ describe('Table components', () => {
   })
 
   it('renders TableFooter', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'Table',
       children: [
@@ -842,7 +832,7 @@ describe('Table components', () => {
 
 describe('Media components', () => {
   it('renders Audio element with controls', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Audio', src: '/audio.mp3' }
     const dom = renderNode(node, ctx) as HTMLAudioElement
     expect(dom.tagName).toBe('AUDIO')
@@ -851,7 +841,7 @@ describe('Media components', () => {
   })
 
   it('renders Video element with controls', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Video', src: '/video.mp4', width: 640, height: 480 }
     const dom = renderNode(node, ctx) as HTMLVideoElement
     expect(dom.tagName).toBe('VIDEO')
@@ -862,7 +852,7 @@ describe('Media components', () => {
   })
 
   it('renders Embed as sandboxed iframe', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Embed', src: 'https://example.com/widget', height: 500 }
     const dom = renderNode(node, ctx) as HTMLElement
     const iframe = dom.querySelector('iframe')!
@@ -872,7 +862,7 @@ describe('Media components', () => {
   })
 
   it('renders Mermaid as data-mermaid container', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Mermaid', content: 'graph TD; A-->B;' }
     const dom = renderNode(node, ctx) as HTMLElement
     expect(dom.getAttribute('data-mermaid')).toBe('true')
@@ -880,7 +870,7 @@ describe('Media components', () => {
   })
 
   it('renders DropZone with label', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'DropZone', label: 'Upload here' }
     const dom = renderNode(node, ctx) as HTMLElement
     expect(dom.className).toContain('pf-dropzone')
@@ -892,7 +882,7 @@ describe('Media components', () => {
 
 describe('Metric component', () => {
   it('renders label and value', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Metric', label: 'Users', value: '1,234' }
     const dom = renderNode(node, ctx) as HTMLElement
     expect(dom.textContent).toContain('Users')
@@ -900,7 +890,7 @@ describe('Metric component', () => {
   })
 
   it('renders delta with trend', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'Metric',
       label: 'Revenue',
@@ -915,7 +905,7 @@ describe('Metric component', () => {
   })
 
   it('resolves value from state', () => {
-    const ctx = makeCtx({ userCount: 42 })
+    const ctx = makeRenderCtx({ userCount: 42 })
     const node: ComponentNode = { type: 'Metric', label: 'Users', value: '{{ userCount }}' }
     const dom = renderNode(node, ctx) as HTMLElement
     expect(dom.textContent).toContain('42')
@@ -924,7 +914,7 @@ describe('Metric component', () => {
 
 describe('Dot component', () => {
   it('renders colored dot', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Dot', color: 'green' }
     const dom = renderNode(node, ctx) as HTMLElement
     expect(dom.style.backgroundColor).toBe('green')
@@ -934,7 +924,7 @@ describe('Dot component', () => {
 
 describe('Loader component', () => {
   it('renders loader element', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Loader' }
     const dom = renderNode(node, ctx) as HTMLElement
     expect(dom.className).toContain('pf-loader')
@@ -943,7 +933,7 @@ describe('Loader component', () => {
 
 describe('Icon component', () => {
   it('renders icon with name', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Icon', name: 'check' }
     const dom = renderNode(node, ctx) as HTMLElement
     expect(dom).toBeTruthy()
@@ -952,7 +942,7 @@ describe('Icon component', () => {
 
 describe('DataTable with search', () => {
   it('renders search input when search=true', () => {
-    const ctx = makeCtx({
+    const ctx = makeRenderCtx({
       rows: [{ name: 'Alice' }, { name: 'Bob' }],
     })
     const node: ComponentNode = {
@@ -968,7 +958,7 @@ describe('DataTable with search', () => {
   })
 
   it('search filters rows', () => {
-    const ctx = makeCtx({
+    const ctx = makeRenderCtx({
       rows: [{ name: 'Alice' }, { name: 'Bob' }, { name: 'Charlie' }],
     })
     const node: ComponentNode = {
@@ -995,7 +985,7 @@ describe('DataTable with search', () => {
 
 describe('Markdown component', () => {
   it('renders headings', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Markdown', content: '# Hello\n## World' }
     const dom = renderNode(node, ctx) as HTMLElement
     expect(dom.querySelector('h1')?.textContent).toBe('Hello')
@@ -1003,7 +993,7 @@ describe('Markdown component', () => {
   })
 
   it('renders paragraphs', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Markdown', content: 'First paragraph\n\nSecond paragraph' }
     const dom = renderNode(node, ctx) as HTMLElement
     const ps = dom.querySelectorAll('p')
@@ -1013,7 +1003,7 @@ describe('Markdown component', () => {
   })
 
   it('renders bold and italic inline', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Markdown', content: '**bold** and *italic*' }
     const dom = renderNode(node, ctx) as HTMLElement
     expect(dom.querySelector('strong')?.textContent).toBe('bold')
@@ -1021,14 +1011,14 @@ describe('Markdown component', () => {
   })
 
   it('renders inline code', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Markdown', content: 'Use `npm install` to install' }
     const dom = renderNode(node, ctx) as HTMLElement
     expect(dom.querySelector('code')?.textContent).toBe('npm install')
   })
 
   it('renders fenced code blocks', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Markdown', content: '```ts\nconst x = 1\n```' }
     const dom = renderNode(node, ctx) as HTMLElement
     const code = dom.querySelector('code')!
@@ -1037,7 +1027,7 @@ describe('Markdown component', () => {
   })
 
   it('renders links', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Markdown', content: '[Click here](https://example.com)' }
     const dom = renderNode(node, ctx) as HTMLElement
     const a = dom.querySelector('a')!
@@ -1046,7 +1036,7 @@ describe('Markdown component', () => {
   })
 
   it('sanitizes javascript: links', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Markdown', content: '[xss](javascript:alert(1))' }
     const dom = renderNode(node, ctx) as HTMLElement
     const a = dom.querySelector('a')
@@ -1054,7 +1044,7 @@ describe('Markdown component', () => {
   })
 
   it('renders unordered lists', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Markdown', content: '- Item 1\n- Item 2\n- Item 3' }
     const dom = renderNode(node, ctx) as HTMLElement
     const items = dom.querySelectorAll('li')
@@ -1063,7 +1053,7 @@ describe('Markdown component', () => {
   })
 
   it('renders ordered lists', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Markdown', content: '1. First\n2. Second' }
     const dom = renderNode(node, ctx) as HTMLElement
     expect(dom.querySelector('ol')).toBeTruthy()
@@ -1071,7 +1061,7 @@ describe('Markdown component', () => {
   })
 
   it('renders blockquotes', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Markdown', content: '> Quote text' }
     const dom = renderNode(node, ctx) as HTMLElement
     expect(dom.querySelector('blockquote')).toBeTruthy()
@@ -1079,21 +1069,21 @@ describe('Markdown component', () => {
   })
 
   it('renders horizontal rules', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Markdown', content: 'Above\n\n---\n\nBelow' }
     const dom = renderNode(node, ctx) as HTMLElement
     expect(dom.querySelector('hr')).toBeTruthy()
   })
 
   it('renders strikethrough', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Markdown', content: '~~deleted~~' }
     const dom = renderNode(node, ctx) as HTMLElement
     expect(dom.querySelector('del')?.textContent).toBe('deleted')
   })
 
   it('renders images', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Markdown', content: '![alt text](https://example.com/img.png)' }
     const dom = renderNode(node, ctx) as HTMLElement
     const img = dom.querySelector('img')!
@@ -1102,7 +1092,7 @@ describe('Markdown component', () => {
   })
 
   it('escapes HTML to prevent XSS', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Markdown', content: '<script>alert("xss")</script>' }
     const dom = renderNode(node, ctx) as HTMLElement
     expect(dom.querySelector('script')).toBeNull()
@@ -1110,7 +1100,7 @@ describe('Markdown component', () => {
   })
 
   it('renders complex mixed content', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const md = `# Title
 
 A **bold** paragraph with [a link](https://example.com).
@@ -1138,7 +1128,7 @@ console.log('hello')
 
 describe('Layout components', () => {
   it('Row renders horizontal flex container', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'Row',
       children: [
@@ -1152,7 +1142,7 @@ describe('Layout components', () => {
   })
 
   it('Grid renders CSS grid', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'Grid',
       columns: 3,
@@ -1167,7 +1157,7 @@ describe('Layout components', () => {
   })
 
   it('Container renders max-width wrapper', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'Container',
       children: [{ type: 'Text', content: 'Content' }],
@@ -1181,7 +1171,7 @@ describe('Layout components', () => {
 
 describe('Typography components', () => {
   it('H1 renders as h1 tag', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'H1', content: 'Title' }
     const dom = renderNode(node, ctx) as HTMLElement
     expect(dom.tagName).toBe('H1')
@@ -1189,14 +1179,14 @@ describe('Typography components', () => {
   })
 
   it('Code renders as code element', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Code', content: 'const x = 1' }
     const dom = renderNode(node, ctx) as HTMLElement
     expect(dom.tagName === 'CODE' || dom.querySelector('code') !== null).toBe(true)
   })
 
   it('Link renders as anchor with target', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Link', content: 'Click me', href: 'https://example.com', target: '_blank' }
     const dom = renderNode(node, ctx) as HTMLAnchorElement
     expect(dom.tagName).toBe('A')
@@ -1204,7 +1194,7 @@ describe('Typography components', () => {
   })
 
   it('BlockQuote renders as blockquote', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'BlockQuote', content: 'A wise quote' }
     const dom = renderNode(node, ctx) as HTMLElement
     expect(dom.tagName).toBe('BLOCKQUOTE')

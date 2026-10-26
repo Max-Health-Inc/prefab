@@ -264,7 +264,6 @@ export class PrefabApp {
     // from the embedded wire data to avoid the renderer injecting them twice.
     const wire = this.toJSON()
     const { css: cssBlocks, stylesheets, mode, ...embedded } = wire
-    void cssBlocks; void stylesheets; void mode
     const jsonStr = opts?.pretty
       ? JSON.stringify(embedded, null, 2)
       : JSON.stringify(embedded)
@@ -277,12 +276,12 @@ export class PrefabApp {
       : ''
 
     // Inline CSS blocks (compiled theme + user css) as <style> tags.
-    const cssTags = (wire.css ?? [])
+    const cssTags = (cssBlocks ?? [])
       .map(c => `<style>${c.replace(/<\/(style)/gi, '<\\/$1')}</style>`)
       .join('\n    ')
 
     // External stylesheet URLs as <link> tags.
-    const stylesheetTags = (this.stylesheets ?? [])
+    const stylesheetTags = (stylesheets ?? [])
       .map(s => s.startsWith('<') ? s : `<link rel="stylesheet" href="${escapeHtml(s)}">`)
       .join('\n    ')
 
@@ -291,7 +290,7 @@ export class PrefabApp {
       .join('\n    ')
 
     // Force the color scheme on the document root using both conventions.
-    const modeAttr = this.mode ? ` data-theme="${this.mode}" class="${this.mode}"` : ''
+    const modeAttr = mode ? ` data-theme="${mode}" class="${mode}"` : ''
 
     const headExtras = [baseStyleTag, cssTags && `\n    ${cssTags}`, stylesheetTags && `\n    ${stylesheetTags}`]
       .filter(Boolean)

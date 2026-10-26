@@ -9,42 +9,31 @@
 import { describe, it, expect, beforeEach } from 'bun:test'
 import { Store } from '../src/renderer/state'
 import { renderNode } from '../src/renderer/engine'
-import type { ComponentNode, RenderContext } from '../src/renderer/engine'
+import type { ComponentNode } from '../src/renderer/engine'
 import { registerAllComponents } from '../src/renderer/components/index'
-import { createNoopTransport } from '../src/renderer/transport'
+import { makeRenderCtx, renderEl, query, queryAll } from './helpers/render'
 
 beforeEach(() => { registerAllComponents() })
-
-function makeCtx(state?: Record<string, unknown>): RenderContext & { rerendered: number } {
-  const ctx = {
-    store: new Store(state),
-    scope: {},
-    transport: createNoopTransport(),
-    rerender: () => { ctx.rerendered++ },
-    rerendered: 0,
-  }
-  return ctx
-}
 
 // ── Bug: Row wrap=false still enables flex-wrap ──────────────────────────────
 // Row checks `if (node.wrap != null)` — true for both true and false values
 
 describe('Row wrap prop', () => {
   it('enables flex-wrap when wrap is true', () => {
-    const ctx = makeCtx()
-    const dom = renderNode({ type: 'Row', wrap: true } as ComponentNode, ctx) as HTMLElement
+    const ctx = makeRenderCtx()
+    const dom = renderEl({ type: 'Row', wrap: true }, ctx)
     expect(dom.style.flexWrap).toBe('wrap')
   })
 
   it('does NOT enable flex-wrap when wrap is false', () => {
-    const ctx = makeCtx()
-    const dom = renderNode({ type: 'Row', wrap: false } as ComponentNode, ctx) as HTMLElement
+    const ctx = makeRenderCtx()
+    const dom = renderEl({ type: 'Row', wrap: false }, ctx)
     expect(dom.style.flexWrap).not.toBe('wrap')
   })
 
   it('does NOT enable flex-wrap when wrap is omitted', () => {
-    const ctx = makeCtx()
-    const dom = renderNode({ type: 'Row' } as ComponentNode, ctx) as HTMLElement
+    const ctx = makeRenderCtx()
+    const dom = renderEl({ type: 'Row' }, ctx)
     expect(dom.style.flexWrap).not.toBe('wrap')
   })
 })
@@ -53,32 +42,32 @@ describe('Row wrap prop', () => {
 
 describe('Progress edge cases', () => {
   it('clamps negative value to 0%', () => {
-    const ctx = makeCtx()
-    const dom = renderNode({ type: 'Progress', value: -20, max: 100 } as ComponentNode, ctx) as HTMLElement
-    const fill = dom.querySelector('.pf-progress-fill') as HTMLElement
+    const ctx = makeRenderCtx()
+    const dom = renderEl({ type: 'Progress', value: -20, max: 100 }, ctx)
+    const fill = query(dom, '.pf-progress-fill')
     const width = parseFloat(fill.style.width)
     expect(width).toBeGreaterThanOrEqual(0)
   })
 
   it('caps at 100% for value exceeding max', () => {
-    const ctx = makeCtx()
-    const dom = renderNode({ type: 'Progress', value: 150, max: 100 } as ComponentNode, ctx) as HTMLElement
-    const fill = dom.querySelector('.pf-progress-fill') as HTMLElement
+    const ctx = makeRenderCtx()
+    const dom = renderEl({ type: 'Progress', value: 150, max: 100 }, ctx)
+    const fill = query(dom, '.pf-progress-fill')
     expect(fill.style.width).toBe('100%')
   })
 
   it('handles zero max without division by zero', () => {
-    const ctx = makeCtx()
-    const dom = renderNode({ type: 'Progress', value: 50, max: 0 } as ComponentNode, ctx) as HTMLElement
-    const fill = dom.querySelector('.pf-progress-fill') as HTMLElement
+    const ctx = makeRenderCtx()
+    const dom = renderEl({ type: 'Progress', value: 50, max: 0 }, ctx)
+    const fill = query(dom, '.pf-progress-fill')
     const width = parseFloat(fill.style.width)
     // Should not be NaN or Infinity
     expect(Number.isFinite(width)).toBe(true)
   })
 
   it('sets correct aria-valuenow and aria-valuemax', () => {
-    const ctx = makeCtx()
-    const dom = renderNode({ type: 'Progress', value: 60, max: 200 } as ComponentNode, ctx) as HTMLElement
+    const ctx = makeRenderCtx()
+    const dom = renderEl({ type: 'Progress', value: 60, max: 200 }, ctx)
     expect(dom.getAttribute('aria-valuenow')).toBe('60')
     expect(dom.getAttribute('aria-valuemax')).toBe('200')
   })
@@ -88,23 +77,23 @@ describe('Progress edge cases', () => {
 
 describe('Accordion', () => {
   it('starts collapsed (aria-expanded=false)', () => {
-    const ctx = makeCtx()
-    const dom = renderNode({
+    const ctx = makeRenderCtx()
+    const dom = renderEl({
       type: 'Accordion',
       children: [{ type: 'AccordionItem', title: 'Section 1', children: [{ type: 'Text', content: 'Body' }] }],
-    } as ComponentNode, ctx) as HTMLElement
-    const trigger = dom.querySelector('.pf-accordion-trigger') as HTMLButtonElement
+    }, ctx)
+    const trigger = query(dom, '.pf-accordion-trigger', HTMLButtonElement)
     expect(trigger.getAttribute('aria-expanded')).toBe('false')
   })
 
   it('toggles aria-expanded on click', () => {
-    const ctx = makeCtx()
-    const dom = renderNode({
+    const ctx = makeRenderCtx()
+    const dom = renderEl({
       type: 'Accordion',
       children: [{ type: 'AccordionItem', title: 'Section 1', children: [{ type: 'Text', content: 'Body' }] }],
-    } as ComponentNode, ctx) as HTMLElement
-    const trigger = dom.querySelector('.pf-accordion-trigger') as HTMLButtonElement
-    const content = dom.querySelector('.pf-accordion-content') as HTMLElement
+    }, ctx)
+    const trigger = query(dom, '.pf-accordion-trigger', HTMLButtonElement)
+    const content = query(dom, '.pf-accordion-content')
 
     trigger.click()
     expect(trigger.getAttribute('aria-expanded')).toBe('true')
@@ -193,15 +182,15 @@ describe('Store.pop edge cases', () => {
 
 describe('cssClass rendering', () => {
   it('appends cssClass to existing component class', () => {
-    const ctx = makeCtx()
-    const dom = renderNode({ type: 'Button', label: 'Go', cssClass: 'my-btn' } as ComponentNode, ctx) as HTMLElement
+    const ctx = makeRenderCtx()
+    const dom = renderEl({ type: 'Button', label: 'Go', cssClass: 'my-btn' }, ctx)
     expect(dom.className).toContain('pf-button')
     expect(dom.className).toContain('my-btn')
   })
 
   it('resolves Rx expression in cssClass', () => {
-    const ctx = makeCtx({ theme: 'dark' })
-    const dom = renderNode({ type: 'Button', label: 'Go', cssClass: '{{ theme }}-mode' } as ComponentNode, ctx) as HTMLElement
+    const ctx = makeRenderCtx({ theme: 'dark' })
+    const dom = renderEl({ type: 'Button', label: 'Go', cssClass: '{{ theme }}-mode' }, ctx)
     expect(dom.className).toContain('dark-mode')
   })
 })
@@ -210,14 +199,14 @@ describe('cssClass rendering', () => {
 
 describe('Heading edge cases', () => {
   it('clamps level 0 to h1', () => {
-    const ctx = makeCtx()
-    const dom = renderNode({ type: 'Heading', content: 'Title', level: 0 } as ComponentNode, ctx) as HTMLElement
+    const ctx = makeRenderCtx()
+    const dom = renderEl({ type: 'Heading', content: 'Title', level: 0 }, ctx)
     expect(dom.tagName).toBe('H1')
   })
 
   it('clamps level 7 to h6', () => {
-    const ctx = makeCtx()
-    const dom = renderNode({ type: 'Heading', content: 'Title', level: 7 } as ComponentNode, ctx) as HTMLElement
+    const ctx = makeRenderCtx()
+    const dom = renderEl({ type: 'Heading', content: 'Title', level: 7 }, ctx)
     expect(dom.tagName).toBe('H6')
   })
 })
@@ -226,20 +215,20 @@ describe('Heading edge cases', () => {
 
 describe('Grid rendering', () => {
   it('defaults to 3 columns', () => {
-    const ctx = makeCtx()
-    const dom = renderNode({ type: 'Grid' } as ComponentNode, ctx) as HTMLElement
+    const ctx = makeRenderCtx()
+    const dom = renderEl({ type: 'Grid' }, ctx)
     expect(dom.style.gridTemplateColumns).toBe('repeat(3, 1fr)')
   })
 
   it('respects custom column count', () => {
-    const ctx = makeCtx()
-    const dom = renderNode({ type: 'Grid', columns: 4 } as ComponentNode, ctx) as HTMLElement
+    const ctx = makeRenderCtx()
+    const dom = renderEl({ type: 'Grid', columns: 4 }, ctx)
     expect(dom.style.gridTemplateColumns).toBe('repeat(4, 1fr)')
   })
 
   it('applies gap from gap prop', () => {
-    const ctx = makeCtx()
-    const dom = renderNode({ type: 'Grid', gap: 4 } as ComponentNode, ctx) as HTMLElement
+    const ctx = makeRenderCtx()
+    const dom = renderEl({ type: 'Grid', gap: 4 }, ctx)
     // gap is multiplied by 4px
     expect(dom.style.gap).toBe('16px')
   })
@@ -249,21 +238,21 @@ describe('Grid rendering', () => {
 
 describe('Badge rendering', () => {
   it('renders label text', () => {
-    const ctx = makeCtx()
-    const dom = renderNode({ type: 'Badge', label: 'New' } as ComponentNode, ctx) as HTMLElement
+    const ctx = makeRenderCtx()
+    const dom = renderEl({ type: 'Badge', label: 'New' }, ctx)
     expect(dom.textContent).toBe('New')
     expect(dom.getAttribute('data-variant')).toBe('default')
   })
 
   it('falls back to content when label is missing', () => {
-    const ctx = makeCtx()
-    const dom = renderNode({ type: 'Badge', content: 'Beta' } as ComponentNode, ctx) as HTMLElement
+    const ctx = makeRenderCtx()
+    const dom = renderEl({ type: 'Badge', content: 'Beta' }, ctx)
     expect(dom.textContent).toBe('Beta')
   })
 
   it('renders empty when both label and content are missing', () => {
-    const ctx = makeCtx()
-    const dom = renderNode({ type: 'Badge' } as ComponentNode, ctx) as HTMLElement
+    const ctx = makeRenderCtx()
+    const dom = renderEl({ type: 'Badge' }, ctx)
     expect(dom.textContent).toBe('')
   })
 })
@@ -281,36 +270,36 @@ describe('DataTable search', () => {
         { name: 'Bob' },
         { name: 'Charlie' },
       ],
-    } as ComponentNode
+    }
   }
 
   it('renders search input when search=true', () => {
-    const ctx = makeCtx()
-    const dom = renderNode(makeTable(), ctx) as HTMLElement
+    const ctx = makeRenderCtx()
+    const dom = renderEl(makeTable(), ctx)
     expect(dom.querySelector('.pf-datatable-search')).toBeTruthy()
   })
 
   it('does not render search input when search is omitted', () => {
-    const ctx = makeCtx()
-    const dom = renderNode({
+    const ctx = makeRenderCtx()
+    const dom = renderEl({
       type: 'DataTable',
       columns: [{ key: 'name' }],
       rows: [{ name: 'Alice' }],
-    } as ComponentNode, ctx) as HTMLElement
+    }, ctx)
     expect(dom.querySelector('.pf-datatable-search')).toBeNull()
   })
 
   it('filters rows based on search input', () => {
-    const ctx = makeCtx()
-    const dom = renderNode(makeTable(), ctx) as HTMLElement
-    const searchInput = dom.querySelector('.pf-datatable-search') as HTMLInputElement
+    const ctx = makeRenderCtx()
+    const dom = renderEl(makeTable(), ctx)
+    const searchInput = query(dom, '.pf-datatable-search', HTMLInputElement)
     const tbody = dom.querySelector('tbody')!
 
     searchInput.value = 'bob'
     searchInput.dispatchEvent(new Event('input', { bubbles: true }))
 
-    const rows = Array.from(tbody.querySelectorAll('tr'))
-    const visible = rows.filter(r => (r as HTMLElement).style.display !== 'none')
+    const rows = queryAll(tbody, 'tr')
+    const visible = rows.filter(r => r.style.display !== 'none')
     expect(visible.length).toBe(1)
     expect(visible[0].textContent).toContain('Bob')
   })
@@ -320,20 +309,20 @@ describe('DataTable search', () => {
 
 describe('Link security', () => {
   it('blocks javascript: URLs', () => {
-    const ctx = makeCtx()
-    const dom = renderNode({ type: 'Link', content: 'Click', href: 'javascript:alert(1)' } as ComponentNode, ctx) as HTMLAnchorElement
+    const ctx = makeRenderCtx()
+    const dom = renderEl({ type: 'Link', content: 'Click', href: 'javascript:alert(1)' }, ctx, HTMLAnchorElement)
     expect(dom.href).toBe('')
   })
 
   it('allows https: URLs', () => {
-    const ctx = makeCtx()
-    const dom = renderNode({ type: 'Link', content: 'Click', href: 'https://example.com' } as ComponentNode, ctx) as HTMLAnchorElement
+    const ctx = makeRenderCtx()
+    const dom = renderEl({ type: 'Link', content: 'Click', href: 'https://example.com' }, ctx, HTMLAnchorElement)
     expect(dom.href).toContain('https://example.com')
   })
 
   it('blocks data: URLs', () => {
-    const ctx = makeCtx()
-    const dom = renderNode({ type: 'Link', content: 'Click', href: 'data:text/html,<script>alert(1)</script>' } as ComponentNode, ctx) as HTMLAnchorElement
+    const ctx = makeRenderCtx()
+    const dom = renderEl({ type: 'Link', content: 'Click', href: 'data:text/html,<script>alert(1)</script>' }, ctx, HTMLAnchorElement)
     expect(dom.href).toBe('')
   })
 })
@@ -344,13 +333,13 @@ describe('Store security', () => {
   it('blocks __proto__ path traversal', () => {
     const store = new Store({})
     store.set('__proto__.polluted', 'yes')
-    expect(({} as Record<string, unknown>).polluted).toBeUndefined()
+    expect(Reflect.get({}, 'polluted')).toBeUndefined()
   })
 
   it('blocks constructor.prototype path', () => {
     const store = new Store({})
     store.set('constructor.prototype.polluted', 'yes')
-    expect(({} as Record<string, unknown>).polluted).toBeUndefined()
+    expect(Reflect.get({}, 'polluted')).toBeUndefined()
   })
 })
 
@@ -358,11 +347,11 @@ describe('Store security', () => {
 
 describe('onMount action', () => {
   it('fires setState action on mount via microtask', async () => {
-    const ctx = makeCtx({ loaded: false })
+    const ctx = makeRenderCtx({ loaded: false })
     renderNode({
       type: 'Text', content: 'Hello',
       onMount: { action: 'setState', key: 'loaded', value: true },
-    } as ComponentNode, ctx)
+    }, ctx)
     // onMount uses queueMicrotask — await it
     await new Promise(r => queueMicrotask(r))
     expect(ctx.store.get('loaded')).toBe(true)
@@ -373,18 +362,18 @@ describe('onMount action', () => {
 
 describe('Unknown component fallback', () => {
   it('renders generic div with data-prefab-type', () => {
-    const ctx = makeCtx()
-    const dom = renderNode({ type: 'SuperCustomWidget', id: 'w1' } as ComponentNode, ctx) as HTMLElement
+    const ctx = makeRenderCtx()
+    const dom = renderEl({ type: 'SuperCustomWidget', id: 'w1' }, ctx)
     expect(dom.tagName).toBe('DIV')
     expect(dom.getAttribute('data-prefab-type')).toBe('SuperCustomWidget')
   })
 
   it('renders children of unknown component', () => {
-    const ctx = makeCtx()
-    const dom = renderNode({
+    const ctx = makeRenderCtx()
+    const dom = renderEl({
       type: 'CustomContainer',
       children: [{ type: 'Text', content: 'Inside' }],
-    } as ComponentNode, ctx) as HTMLElement
+    }, ctx)
     expect(dom.textContent).toContain('Inside')
   })
 })
@@ -393,20 +382,20 @@ describe('Unknown component fallback', () => {
 
 describe('Container rendering', () => {
   it('defaults maxWidth to 1200px', () => {
-    const ctx = makeCtx()
-    const dom = renderNode({ type: 'Container' } as ComponentNode, ctx) as HTMLElement
+    const ctx = makeRenderCtx()
+    const dom = renderEl({ type: 'Container' }, ctx)
     expect(dom.style.maxWidth).toBe('1200px')
   })
 
   it('applies custom maxWidth', () => {
-    const ctx = makeCtx()
-    const dom = renderNode({ type: 'Container', maxWidth: '800px' } as ComponentNode, ctx) as HTMLElement
+    const ctx = makeRenderCtx()
+    const dom = renderEl({ type: 'Container', maxWidth: '800px' }, ctx)
     expect(dom.style.maxWidth).toBe('800px')
   })
 
   it('applies padding multiplied by 4', () => {
-    const ctx = makeCtx()
-    const dom = renderNode({ type: 'Container', padding: 6 } as ComponentNode, ctx) as HTMLElement
+    const ctx = makeRenderCtx()
+    const dom = renderEl({ type: 'Container', padding: 6 }, ctx)
     expect(dom.style.padding).toBe('24px')
   })
 })
@@ -415,14 +404,14 @@ describe('Container rendering', () => {
 
 describe('GridItem rendering', () => {
   it('applies colSpan as grid-column span', () => {
-    const ctx = makeCtx()
-    const dom = renderNode({ type: 'GridItem', colSpan: 2 } as ComponentNode, ctx) as HTMLElement
+    const ctx = makeRenderCtx()
+    const dom = renderEl({ type: 'GridItem', colSpan: 2 }, ctx)
     expect(dom.style.gridColumn).toBe('span 2')
   })
 
   it('applies rowSpan as grid-row span', () => {
-    const ctx = makeCtx()
-    const dom = renderNode({ type: 'GridItem', rowSpan: 3 } as ComponentNode, ctx) as HTMLElement
+    const ctx = makeRenderCtx()
+    const dom = renderEl({ type: 'GridItem', rowSpan: 3 }, ctx)
     expect(dom.style.gridRow).toBe('span 3')
   })
 })

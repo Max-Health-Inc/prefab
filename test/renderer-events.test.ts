@@ -6,30 +6,18 @@
  */
 
 import { describe, it, expect, beforeEach } from 'bun:test'
-import { Store } from '../src/renderer/state'
 import { renderNode } from '../src/renderer/engine'
-import type { ComponentNode, RenderContext } from '../src/renderer/engine'
+import type { ComponentNode } from '../src/renderer/engine'
 import { registerAllComponents } from '../src/renderer/components/index'
-import { createNoopTransport } from '../src/renderer/transport'
+import { makeRenderCtx } from './helpers/render'
 
 beforeEach(() => { registerAllComponents() })
-
-function makeCtx(state?: Record<string, unknown>): RenderContext & { rerendered: number } {
-  const ctx = {
-    store: new Store(state),
-    scope: {},
-    transport: createNoopTransport(),
-    rerender: () => { ctx.rerendered++ },
-    rerendered: 0,
-  }
-  return ctx
-}
 
 // ── Button onClick ───────────────────────────────────────────────────────────
 
 describe('Button onClick', () => {
   it('dispatches setState on click', async () => {
-    const ctx = makeCtx({ count: 0 })
+    const ctx = makeRenderCtx({ count: 0 })
     const node: ComponentNode = {
       type: 'Button',
       label: 'Increment',
@@ -42,7 +30,7 @@ describe('Button onClick', () => {
   })
 
   it('dispatches array of actions on click', async () => {
-    const ctx = makeCtx({ count: 0, clicked: false })
+    const ctx = makeRenderCtx({ count: 0, clicked: false })
     const node: ComponentNode = {
       type: 'Button',
       label: 'Multi',
@@ -60,7 +48,7 @@ describe('Button onClick', () => {
   })
 
   it('disabled button does not dispatch', () => {
-    const ctx = makeCtx({ count: 0 })
+    const ctx = makeRenderCtx({ count: 0 })
     const node: ComponentNode = {
       type: 'Button',
       label: 'No-op',
@@ -77,7 +65,7 @@ describe('Button onClick', () => {
 
 describe('Form onSubmit', () => {
   it('collects form values and merges into state', () => {
-    const ctx = makeCtx({})
+    const ctx = makeRenderCtx({})
     const node: ComponentNode = {
       type: 'Form',
       onSubmit: { action: 'setState', key: 'submitted', value: true },
@@ -101,7 +89,7 @@ describe('Form onSubmit', () => {
   })
 
   it('submit button has type=submit', () => {
-    const ctx = makeCtx({})
+    const ctx = makeRenderCtx({})
     const node: ComponentNode = {
       type: 'Button',
       label: 'Go',
@@ -112,7 +100,7 @@ describe('Form onSubmit', () => {
   })
 
   it('non-submit button has type=button', () => {
-    const ctx = makeCtx({})
+    const ctx = makeRenderCtx({})
     const node: ComponentNode = {
       type: 'Button',
       label: 'Cancel',
@@ -126,7 +114,7 @@ describe('Form onSubmit', () => {
 
 describe('Input state binding', () => {
   it('syncs input value to store on input event', () => {
-    const ctx = makeCtx({ email: '' })
+    const ctx = makeRenderCtx({ email: '' })
     const node: ComponentNode = { type: 'Input', name: 'email' }
     const dom = renderNode(node, ctx) as HTMLElement
     const input = dom.querySelector('input')!
@@ -137,7 +125,7 @@ describe('Input state binding', () => {
   })
 
   it('reads initial value from state', () => {
-    const ctx = makeCtx({ name: 'PreFilled' })
+    const ctx = makeRenderCtx({ name: 'PreFilled' })
     const node: ComponentNode = { type: 'Input', name: 'name' }
     const dom = renderNode(node, ctx) as HTMLElement
     const input = dom.querySelector('input')!
@@ -145,7 +133,7 @@ describe('Input state binding', () => {
   })
 
   it('dispatches onChange action', () => {
-    const ctx = makeCtx({ search: '', lastEvent: '' })
+    const ctx = makeRenderCtx({ search: '', lastEvent: '' })
     const node: ComponentNode = {
       type: 'Input',
       name: 'search',
@@ -164,7 +152,7 @@ describe('Input state binding', () => {
 
 describe('Textarea state binding', () => {
   it('syncs textarea value to store', () => {
-    const ctx = makeCtx({ bio: '' })
+    const ctx = makeRenderCtx({ bio: '' })
     const node: ComponentNode = { type: 'Textarea', name: 'bio', rows: 5 }
     const dom = renderNode(node, ctx) as HTMLElement
     const textarea = dom.querySelector('textarea')!
@@ -175,7 +163,7 @@ describe('Textarea state binding', () => {
   })
 
   it('reads initial value from state', () => {
-    const ctx = makeCtx({ desc: 'Initial text' })
+    const ctx = makeRenderCtx({ desc: 'Initial text' })
     const node: ComponentNode = { type: 'Textarea', name: 'desc' }
     const dom = renderNode(node, ctx) as HTMLElement
     const textarea = dom.querySelector('textarea')!
@@ -187,7 +175,7 @@ describe('Textarea state binding', () => {
 
 describe('Checkbox state binding', () => {
   it('reads initial boolean from state', () => {
-    const ctx = makeCtx({ agree: true })
+    const ctx = makeRenderCtx({ agree: true })
     const node: ComponentNode = { type: 'Checkbox', name: 'agree', label: 'I agree' }
     const dom = renderNode(node, ctx) as HTMLElement
     const input = dom.querySelector('input[type="checkbox"]') as HTMLInputElement
@@ -195,7 +183,7 @@ describe('Checkbox state binding', () => {
   })
 
   it('syncs checked state on change', () => {
-    const ctx = makeCtx({ agree: false })
+    const ctx = makeRenderCtx({ agree: false })
     const node: ComponentNode = { type: 'Checkbox', name: 'agree', label: 'I agree' }
     const dom = renderNode(node, ctx) as HTMLElement
     const input = dom.querySelector('input[type="checkbox"]') as HTMLInputElement
@@ -210,7 +198,7 @@ describe('Checkbox state binding', () => {
 
 describe('Switch state binding', () => {
   it('renders with role=switch', () => {
-    const ctx = makeCtx({ darkMode: false })
+    const ctx = makeRenderCtx({ darkMode: false })
     const node: ComponentNode = { type: 'Switch', name: 'darkMode', label: 'Dark mode' }
     const dom = renderNode(node, ctx) as HTMLElement
     const input = dom.querySelector('[role="switch"]')!
@@ -218,7 +206,7 @@ describe('Switch state binding', () => {
   })
 
   it('syncs boolean state on change', () => {
-    const ctx = makeCtx({ darkMode: false })
+    const ctx = makeRenderCtx({ darkMode: false })
     const node: ComponentNode = { type: 'Switch', name: 'darkMode', label: 'Dark mode' }
     const dom = renderNode(node, ctx) as HTMLElement
     const input = dom.querySelector('input')!
@@ -233,7 +221,7 @@ describe('Switch state binding', () => {
 
 describe('Slider state binding', () => {
   it('reads initial value from state', () => {
-    const ctx = makeCtx({ volume: 75 })
+    const ctx = makeRenderCtx({ volume: 75 })
     const node: ComponentNode = { type: 'Slider', name: 'volume', min: 0, max: 100 }
     const dom = renderNode(node, ctx) as HTMLElement
     const input = dom.querySelector('input[type="range"]') as HTMLInputElement
@@ -241,7 +229,7 @@ describe('Slider state binding', () => {
   })
 
   it('syncs numeric state on input', () => {
-    const ctx = makeCtx({ volume: 50 })
+    const ctx = makeRenderCtx({ volume: 50 })
     const node: ComponentNode = { type: 'Slider', name: 'volume', min: 0, max: 100 }
     const dom = renderNode(node, ctx) as HTMLElement
     const input = dom.querySelector('input[type="range"]') as HTMLInputElement
@@ -256,7 +244,7 @@ describe('Slider state binding', () => {
 
 describe('Select state binding', () => {
   it('reads initial value from state', () => {
-    const ctx = makeCtx({ color: 'blue' })
+    const ctx = makeRenderCtx({ color: 'blue' })
     const node: ComponentNode = {
       type: 'Select',
       name: 'color',
@@ -272,7 +260,7 @@ describe('Select state binding', () => {
   })
 
   it('syncs state on change', () => {
-    const ctx = makeCtx({ color: 'red' })
+    const ctx = makeRenderCtx({ color: 'red' })
     const node: ComponentNode = {
       type: 'Select',
       name: 'color',
@@ -290,7 +278,7 @@ describe('Select state binding', () => {
   })
 
   it('dispatches onChange action', () => {
-    const ctx = makeCtx({ color: 'red', changed: false })
+    const ctx = makeRenderCtx({ color: 'red', changed: false })
     const node: ComponentNode = {
       type: 'Select',
       name: 'color',

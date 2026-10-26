@@ -10,24 +10,19 @@
 
 import { describe, it, expect, beforeEach } from 'bun:test'
 import { BarChart } from '../src/components/charts'
-import { Store } from '../src/renderer/state'
 import { renderNode } from '../src/renderer/engine'
-import type { ComponentNode, RenderContext } from '../src/renderer/engine'
+import type { ComponentNode } from '../src/renderer/engine'
 import { registerAllComponents } from '../src/renderer/components/index'
-import { createNoopTransport } from '../src/renderer/transport'
+import { makeRenderCtx } from './helpers/render'
 
 beforeEach(() => { registerAllComponents() })
-
-function makeCtx(): RenderContext {
-  return { store: new Store({}), scope: {}, transport: createNoopTransport(), rerender: () => {} }
-}
 
 const DATA = [{ m: 'Jan', v: 1000 }, { m: 'Feb', v: 2000 }, { m: 'Mar', v: 3000 }]
 const SERIES = [{ dataKey: 'v', label: 'Value' }]
 
 /** All <text> contents inside the chart SVG (y-axis ticks + x-axis labels). */
 function svgText(node: ComponentNode): string {
-  const dom = renderNode(node, makeCtx())
+  const dom = renderNode(node, makeRenderCtx())
   return Array.from(dom.querySelectorAll('svg text')).map(t => t.textContent ?? '').join(' ')
 }
 

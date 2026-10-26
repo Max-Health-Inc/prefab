@@ -16,22 +16,12 @@
  */
 
 import { describe, it, expect, beforeEach } from 'bun:test'
-import { Store } from '../src/renderer/state'
 import { renderNode } from '../src/renderer/engine'
-import type { ComponentNode, RenderContext } from '../src/renderer/engine'
+import type { ComponentNode } from '../src/renderer/engine'
 import { registerAllComponents } from '../src/renderer/components/index'
-import { createNoopTransport } from '../src/renderer/transport'
+import { makeRenderCtx } from './helpers/render'
 
 beforeEach(() => { registerAllComponents() })
-
-function makeCtx(state?: Record<string, unknown>): RenderContext {
-  return {
-    store: new Store(state),
-    scope: {},
-    transport: createNoopTransport(),
-    rerender: () => {},
-  }
-}
 
 /** Helper: fire mouseenter on the Nth transparent hit-zone rect. */
 function hoverZone(dom: HTMLElement, index: number): Element {
@@ -60,7 +50,7 @@ describe('Crosshair line on hover (line/area)', () => {
   ]
 
   it('LineChart has a hidden crosshair line element in SVG', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'LineChart',
       data,
@@ -75,7 +65,7 @@ describe('Crosshair line on hover (line/area)', () => {
   })
 
   it('crosshair becomes visible on hover', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'LineChart',
       data,
@@ -89,7 +79,7 @@ describe('Crosshair line on hover (line/area)', () => {
   })
 
   it('crosshair hides on mouseleave', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'LineChart',
       data,
@@ -105,7 +95,7 @@ describe('Crosshair line on hover (line/area)', () => {
   })
 
   it('crosshair x position matches the hovered data point', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'LineChart',
       data,
@@ -125,7 +115,7 @@ describe('Crosshair line on hover (line/area)', () => {
   })
 
   it('AreaChart also has crosshair (shares LineChart renderer)', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'AreaChart',
       data,
@@ -137,7 +127,7 @@ describe('Crosshair line on hover (line/area)', () => {
   })
 
   it('BarChart does NOT have crosshair (bars are self-evident)', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'BarChart',
       data,
@@ -161,7 +151,7 @@ describe('Data-point dots on hover (line/area)', () => {
   ]
 
   it('hover reveals dot indicators for each series at that data point', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'LineChart',
       data,
@@ -178,7 +168,7 @@ describe('Data-point dots on hover (line/area)', () => {
   })
 
   it('dots are hidden when not hovering', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'LineChart',
       data,
@@ -191,7 +181,7 @@ describe('Data-point dots on hover (line/area)', () => {
   })
 
   it('dots disappear on mouseleave', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'LineChart',
       data,
@@ -206,7 +196,7 @@ describe('Data-point dots on hover (line/area)', () => {
   })
 
   it('dot color matches its series color', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'LineChart',
       data,
@@ -230,7 +220,7 @@ describe('Data-point dots on hover (line/area)', () => {
 
 describe('Tooltip formats per axis', () => {
   it('left-axis series uses yAxisFormat, right-axis uses yAxisRightFormat', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'LineChart',
       data: [
@@ -257,7 +247,7 @@ describe('Tooltip formats per axis', () => {
   })
 
   it('BarChart also respects per-axis format in tooltip', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'BarChart',
       data: [
@@ -286,7 +276,7 @@ describe('Tooltip formats per axis', () => {
 
 describe('Null/missing data handling', () => {
   it('LineChart treats null values as gaps (no line through null)', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'LineChart',
       data: [
@@ -310,7 +300,7 @@ describe('Null/missing data handling', () => {
   })
 
   it('BarChart skips null values (no bar drawn)', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'BarChart',
       data: [
@@ -333,7 +323,7 @@ describe('Null/missing data handling', () => {
   })
 
   it('tooltip shows "—" for null values instead of "0"', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'BarChart',
       data: [
@@ -350,7 +340,7 @@ describe('Null/missing data handling', () => {
   })
 
   it('undefined series key treated same as null', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'LineChart',
       data: [
@@ -376,7 +366,7 @@ describe('Null/missing data handling', () => {
 
 describe('Chart SVG accessibility', () => {
   it('BarChart SVG has role="img"', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'BarChart',
       data: [{ x: 1 }],
@@ -388,7 +378,7 @@ describe('Chart SVG accessibility', () => {
   })
 
   it('LineChart SVG has role="img"', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'LineChart',
       data: [{ x: 1 }],
@@ -399,7 +389,7 @@ describe('Chart SVG accessibility', () => {
   })
 
   it('PieChart SVG has role="img"', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'PieChart',
       data: [{ v: 10 }, { v: 20 }],
@@ -410,7 +400,7 @@ describe('Chart SVG accessibility', () => {
   })
 
   it('SVG has aria-label derived from chart type', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'BarChart',
       data: [{ x: 1 }],
@@ -423,7 +413,7 @@ describe('Chart SVG accessibility', () => {
   })
 
   it('Histogram SVG also has role="img"', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'Histogram',
       data: [1, 2, 3, 4, 5],
@@ -439,7 +429,7 @@ describe('Chart SVG accessibility', () => {
 
 describe('Touch support for chart tooltips', () => {
   it('touchstart on hit-zone shows tooltip', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'BarChart',
       data: [{ x: 'A', y: 10 }, { x: 'B', y: 20 }],
@@ -457,7 +447,7 @@ describe('Touch support for chart tooltips', () => {
   })
 
   it('touchend hides tooltip', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'BarChart',
       data: [{ x: 'A', y: 10 }],
@@ -477,7 +467,7 @@ describe('Touch support for chart tooltips', () => {
   })
 
   it('LineChart touch support on hit-zones', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'LineChart',
       data: [{ x: 'A', y: 10 }, { x: 'B', y: 20 }],
@@ -494,7 +484,7 @@ describe('Touch support for chart tooltips', () => {
   })
 
   it('PieChart touch on slice shows tooltip', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'PieChart',
       data: [{ name: 'A', v: 60 }, { name: 'B', v: 40 }],

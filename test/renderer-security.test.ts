@@ -9,30 +9,12 @@
 import { describe, it, expect, beforeEach } from 'bun:test'
 import { Store } from '../src/renderer/state'
 import { renderNode } from '../src/renderer/engine'
-import type { ComponentNode, RenderContext } from '../src/renderer/engine'
+import type { ComponentNode } from '../src/renderer/engine'
 import { registerAllComponents } from '../src/renderer/components/index'
 import { dispatchActions } from '../src/renderer/actions'
-import type { DispatchContext } from '../src/renderer/actions'
-import { createNoopTransport } from '../src/renderer/transport'
+import { makeRenderCtx, makeDispatchCtx } from './helpers/render'
 
 beforeEach(() => { registerAllComponents() })
-
-function makeCtx(state?: Record<string, unknown>): RenderContext {
-  return {
-    store: new Store(state),
-    scope: {},
-    transport: createNoopTransport(),
-    rerender: () => {},
-  }
-}
-
-function makeDispatchCtx(state?: Record<string, unknown>): DispatchContext {
-  return {
-    store: new Store(state),
-    transport: createNoopTransport(),
-    rerender: () => {},
-  }
-}
 
 // ── URL Scheme Blocking ──────────────────────────────────────────────────────
 
@@ -117,7 +99,7 @@ describe('Fetch URL validation', () => {
 
 describe('SVG sanitization', () => {
   it('strips onclick attributes from SVG elements', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'Svg',
       content: '<svg><rect width="100" height="100" onclick="alert(1)"/></svg>',
@@ -129,7 +111,7 @@ describe('SVG sanitization', () => {
   })
 
   it('strips onload attributes from SVG elements', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'Svg',
       content: '<svg onload="alert(1)"><circle cx="50" cy="50" r="40"/></svg>',
@@ -142,7 +124,7 @@ describe('SVG sanitization', () => {
   })
 
   it('removes script elements from SVG', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'Svg',
       content: '<svg><script>alert("xss")</script><rect width="50" height="50"/></svg>',
@@ -153,7 +135,7 @@ describe('SVG sanitization', () => {
   })
 
   it('removes foreignObject elements from SVG', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'Svg',
       content: '<svg><foreignObject><body><script>alert(1)</script></body></foreignObject><rect width="50" height="50"/></svg>',
@@ -164,7 +146,7 @@ describe('SVG sanitization', () => {
   })
 
   it('allows safe SVG elements (rect, circle, path, text)', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'Svg',
       content: '<svg><rect width="100" height="100"/><circle cx="50" cy="50" r="30"/><path d="M0 0 L10 10"/><text x="10" y="20">Hello</text></svg>',
@@ -177,7 +159,7 @@ describe('SVG sanitization', () => {
   })
 
   it('strips javascript: href from SVG use element', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'Svg',
       content: '<svg><use href="javascript:alert(1)"/></svg>',
@@ -193,7 +175,7 @@ describe('SVG sanitization', () => {
 
 describe('Embed sandboxing', () => {
   it('applies sandbox attribute to iframe', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'Embed',
       src: 'https://example.com/widget',
@@ -205,7 +187,7 @@ describe('Embed sandboxing', () => {
   })
 
   it('does not allow same-origin by default', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'Embed',
       src: 'https://evil.com',
@@ -244,7 +226,7 @@ describe('Store prototype pollution protection', () => {
 
 describe('Link component href safety', () => {
   it('renders safe https link', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'Link',
       content: 'Safe Link',
@@ -256,7 +238,7 @@ describe('Link component href safety', () => {
   })
 
   it('renders relative link', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'Link',
       content: 'Relative',

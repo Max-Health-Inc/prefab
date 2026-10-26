@@ -8,17 +8,13 @@
 
 import { describe, it, expect, beforeEach } from 'bun:test'
 import { PieChart, RadialChart, ScatterChart, RadarChart } from '../src/components/charts'
-import { Store } from '../src/renderer/state'
 import { renderNode } from '../src/renderer/engine'
-import type { ComponentNode, RenderContext } from '../src/renderer/engine'
+import type { ComponentNode } from '../src/renderer/engine'
 import { registerAllComponents } from '../src/renderer/components/index'
-import { createNoopTransport } from '../src/renderer/transport'
+import { makeRenderCtx } from './helpers/render'
 
 beforeEach(() => { registerAllComponents() })
 
-function makeCtx(): RenderContext {
-  return { store: new Store({}), scope: {}, transport: createNoopTransport(), rerender: () => {} }
-}
 function asNode(json: unknown): ComponentNode {
   return json as ComponentNode
 }
@@ -79,7 +75,7 @@ describe('builder: Scatter xAxis/yAxis/zAxis', () => {
 
 describe('renderer: Pie renders both shapes', () => {
   function sliceCount(node: ComponentNode): number {
-    return renderNode(node, makeCtx()).querySelectorAll('svg path').length
+    return renderNode(node, makeRenderCtx()).querySelectorAll('svg path').length
   }
 
   it('renders the upstream dataKey/nameKey shape (one slice per row)', () => {
@@ -98,7 +94,7 @@ describe('renderer: Pie renders both shapes', () => {
 describe('renderer: Radial draws arcs natively', () => {
   it('renders a track + value arc per row, not the fallback placeholder', () => {
     const node = asNode(RadialChart({ data: PIE_DATA, dataKey: 'visitors', nameKey: 'browser' }).toJSON())
-    const dom = renderNode(node, makeCtx())
+    const dom = renderNode(node, makeRenderCtx())
     expect(dom.textContent).not.toContain('not yet supported')
     // Two arcs (muted track + coloured value) per data row.
     expect(dom.querySelectorAll('svg path').length).toBe(PIE_DATA.length * 2)
@@ -116,7 +112,7 @@ describe('renderer: Scatter draws points natively', () => {
     const node = asNode(ScatterChart({
       data: SCATTER, series: [{ dataKey: 'g', label: 'People' }], xAxis: 'h', yAxis: 'w',
     }).toJSON())
-    const dom = renderNode(node, makeCtx())
+    const dom = renderNode(node, makeRenderCtx())
     expect(dom.textContent).not.toContain('not yet supported')
     expect(dom.querySelectorAll('svg circle').length).toBe(SCATTER.length)
   })
@@ -125,7 +121,7 @@ describe('renderer: Scatter draws points natively', () => {
     const node = asNode(ScatterChart({
       data: SCATTER, series: [{ dataKey: 'g' }], xAxis: 'h', yAxis: 'w', zAxis: 'age',
     }).toJSON())
-    const dom = renderNode(node, makeCtx())
+    const dom = renderNode(node, makeRenderCtx())
     const radii = Array.from(dom.querySelectorAll('svg circle')).map(c => Number(c.getAttribute('r')))
     expect(new Set(radii).size).toBeGreaterThan(1)
   })
@@ -158,7 +154,7 @@ describe('builder + renderer: Radar', () => {
     const node = asNode(RadarChart({
       data: RADAR, series: [{ dataKey: 'alice' }, { dataKey: 'bob' }], axisKey: 'subject',
     }).toJSON())
-    const dom = renderNode(node, makeCtx())
+    const dom = renderNode(node, makeRenderCtx())
     expect(dom.textContent).not.toContain('not yet supported')
     // Grid rings + 2 series polygons.
     expect(dom.querySelectorAll('svg polygon').length).toBeGreaterThanOrEqual(2)
