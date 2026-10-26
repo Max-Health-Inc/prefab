@@ -5,22 +5,12 @@
  */
 
 import { describe, it, expect, beforeEach } from 'bun:test'
-import { Store } from '../src/renderer/state'
 import { renderNode } from '../src/renderer/engine'
-import type { ComponentNode, RenderContext } from '../src/renderer/engine'
+import type { ComponentNode } from '../src/renderer/engine'
 import { registerAllComponents } from '../src/renderer/components/index'
-import { createNoopTransport } from '../src/renderer/transport'
+import { makeRenderCtx } from './helpers/render'
 
 beforeEach(() => { registerAllComponents() })
-
-function makeCtx(state?: Record<string, unknown>): RenderContext {
-  return {
-    store: new Store(state),
-    scope: {},
-    transport: createNoopTransport(),
-    rerender: () => {},
-  }
-}
 
 // ── Tabs ─────────────────────────────────────────────────────────────────────
 
@@ -37,26 +27,26 @@ describe('Tabs', () => {
   }
 
   it('renders tab bar with role=tablist', () => {
-    const dom = renderNode(makeTabs(), makeCtx()) as HTMLElement
+    const dom = renderNode(makeTabs(), makeRenderCtx()) as HTMLElement
     const tablist = dom.querySelector('[role="tablist"]')
     expect(tablist).toBeTruthy()
   })
 
   it('renders tab buttons with role=tab', () => {
-    const dom = renderNode(makeTabs(), makeCtx()) as HTMLElement
+    const dom = renderNode(makeTabs(), makeRenderCtx()) as HTMLElement
     const tabs = dom.querySelectorAll('[role="tab"]')
     expect(tabs.length).toBe(3)
   })
 
   it('first tab is selected by default', () => {
-    const dom = renderNode(makeTabs(), makeCtx()) as HTMLElement
+    const dom = renderNode(makeTabs(), makeRenderCtx()) as HTMLElement
     const tabs = dom.querySelectorAll('[role="tab"]')
     expect(tabs[0].getAttribute('aria-selected')).toBe('true')
     expect(tabs[1].getAttribute('aria-selected')).toBe('false')
   })
 
   it('first panel is visible, others hidden', () => {
-    const dom = renderNode(makeTabs(), makeCtx()) as HTMLElement
+    const dom = renderNode(makeTabs(), makeRenderCtx()) as HTMLElement
     const panels = dom.querySelectorAll('[role="tabpanel"]')
     expect((panels[0] as HTMLElement).style.display).toBe('block')
     expect((panels[1] as HTMLElement).style.display).toBe('none')
@@ -64,7 +54,7 @@ describe('Tabs', () => {
   })
 
   it('clicking second tab activates it', () => {
-    const dom = renderNode(makeTabs(), makeCtx()) as HTMLElement
+    const dom = renderNode(makeTabs(), makeRenderCtx()) as HTMLElement
     const tabs = dom.querySelectorAll('[role="tab"]')
     const panels = dom.querySelectorAll('[role="tabpanel"]')
 
@@ -77,7 +67,7 @@ describe('Tabs', () => {
   })
 
   it('ArrowRight moves to next tab', () => {
-    const dom = renderNode(makeTabs(), makeCtx()) as HTMLElement
+    const dom = renderNode(makeTabs(), makeRenderCtx()) as HTMLElement
     const tablist = dom.querySelector('[role="tablist"]')!
     const tabs = dom.querySelectorAll('[role="tab"]')
 
@@ -95,7 +85,7 @@ describe('Tabs', () => {
   })
 
   it('ArrowLeft wraps to last tab', () => {
-    const dom = renderNode(makeTabs(), makeCtx()) as HTMLElement
+    const dom = renderNode(makeTabs(), makeRenderCtx()) as HTMLElement
     const tablist = dom.querySelector('[role="tablist"]')!
     const tabs = dom.querySelectorAll('[role="tab"]')
 
@@ -107,7 +97,7 @@ describe('Tabs', () => {
   })
 
   it('Home key activates first tab', () => {
-    const dom = renderNode(makeTabs(), makeCtx()) as HTMLElement
+    const dom = renderNode(makeTabs(), makeRenderCtx()) as HTMLElement
     const tablist = dom.querySelector('[role="tablist"]')!
     const tabs = dom.querySelectorAll('[role="tab"]')
 
@@ -124,7 +114,7 @@ describe('Tabs', () => {
   })
 
   it('End key activates last tab', () => {
-    const dom = renderNode(makeTabs(), makeCtx()) as HTMLElement
+    const dom = renderNode(makeTabs(), makeRenderCtx()) as HTMLElement
     const tablist = dom.querySelector('[role="tablist"]')!
     const tabs = dom.querySelectorAll('[role="tab"]')
 
@@ -136,7 +126,7 @@ describe('Tabs', () => {
   })
 
   it('panels have aria-labelledby pointing to tab button', () => {
-    const dom = renderNode(makeTabs(), makeCtx()) as HTMLElement
+    const dom = renderNode(makeTabs(), makeRenderCtx()) as HTMLElement
     const tabs = dom.querySelectorAll('[role="tab"]')
     const panels = dom.querySelectorAll('[role="tabpanel"]')
 
@@ -145,7 +135,7 @@ describe('Tabs', () => {
   })
 
   it('tab buttons have aria-controls pointing to panel', () => {
-    const dom = renderNode(makeTabs(), makeCtx()) as HTMLElement
+    const dom = renderNode(makeTabs(), makeRenderCtx()) as HTMLElement
     const tabs = dom.querySelectorAll('[role="tab"]')
     const panels = dom.querySelectorAll('[role="tabpanel"]')
 
@@ -168,7 +158,7 @@ describe('Accordion', () => {
   }
 
   it('renders accordion items collapsed by default', () => {
-    const dom = renderNode(makeAccordion(), makeCtx()) as HTMLElement
+    const dom = renderNode(makeAccordion(), makeRenderCtx()) as HTMLElement
     const contents = dom.querySelectorAll('.pf-accordion-content')
     for (const content of Array.from(contents)) {
       expect((content as HTMLElement).style.display).toBe('none')
@@ -176,7 +166,7 @@ describe('Accordion', () => {
   })
 
   it('trigger buttons have aria-expanded=false', () => {
-    const dom = renderNode(makeAccordion(), makeCtx()) as HTMLElement
+    const dom = renderNode(makeAccordion(), makeRenderCtx()) as HTMLElement
     const triggers = dom.querySelectorAll('.pf-accordion-trigger')
     for (const trigger of Array.from(triggers)) {
       expect(trigger.getAttribute('aria-expanded')).toBe('false')
@@ -184,7 +174,7 @@ describe('Accordion', () => {
   })
 
   it('clicking trigger expands content', () => {
-    const dom = renderNode(makeAccordion(), makeCtx()) as HTMLElement
+    const dom = renderNode(makeAccordion(), makeRenderCtx()) as HTMLElement
     const triggers = dom.querySelectorAll('.pf-accordion-trigger')
     const contents = dom.querySelectorAll('.pf-accordion-content')
 
@@ -197,7 +187,7 @@ describe('Accordion', () => {
   })
 
   it('clicking again collapses content', () => {
-    const dom = renderNode(makeAccordion(), makeCtx()) as HTMLElement
+    const dom = renderNode(makeAccordion(), makeRenderCtx()) as HTMLElement
     const triggers = dom.querySelectorAll('.pf-accordion-trigger')
     const contents = dom.querySelectorAll('.pf-accordion-content')
 
@@ -209,7 +199,7 @@ describe('Accordion', () => {
   })
 
   it('trigger has aria-controls pointing to content', () => {
-    const dom = renderNode(makeAccordion(), makeCtx()) as HTMLElement
+    const dom = renderNode(makeAccordion(), makeRenderCtx()) as HTMLElement
     const triggers = dom.querySelectorAll('.pf-accordion-trigger')
     const contents = dom.querySelectorAll('.pf-accordion-content')
 
@@ -223,7 +213,7 @@ describe('Accordion', () => {
 
 describe('Dialog', () => {
   it('renders dialog element with aria-modal', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'Dialog',
       title: 'Confirm',
@@ -236,7 +226,7 @@ describe('Dialog', () => {
   })
 
   it('has aria-labelledby pointing to title', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'Dialog',
       title: 'My Dialog',
@@ -252,7 +242,7 @@ describe('Dialog', () => {
   })
 
   it('renders trigger button that opens dialog', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'Dialog',
       title: 'Test',
@@ -270,7 +260,7 @@ describe('Dialog', () => {
 
 describe('Tooltip', () => {
   it('renders trigger and hidden content', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'Tooltip',
       content: 'Tooltip text',
@@ -285,7 +275,7 @@ describe('Tooltip', () => {
 
 describe('Carousel', () => {
   it('renders carousel with navigation buttons', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'Carousel',
       children: [
@@ -306,7 +296,7 @@ describe('Carousel', () => {
 
 describe('ExpandableRow', () => {
   it('renders collapsed by default', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'ExpandableRow',
       summary: [{ type: 'Text', content: 'Row title' }],
@@ -318,7 +308,7 @@ describe('ExpandableRow', () => {
   })
 
   it('clicking summary expands detail', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'ExpandableRow',
       summary: [{ type: 'Text', content: 'Row title' }],
@@ -333,7 +323,7 @@ describe('ExpandableRow', () => {
   })
 
   it('clicking again collapses detail', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'ExpandableRow',
       summary: [{ type: 'Text', content: 'Row title' }],

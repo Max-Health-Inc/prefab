@@ -25,8 +25,9 @@ import { renderNode } from '../src/renderer/engine'
 import type { ComponentNode, RenderContext } from '../src/renderer/engine'
 import { Store } from '../src/renderer/state'
 import { dispatchActions, clearAllIntervals, clearAllSubscriptions } from '../src/renderer/actions'
-import type { DispatchContext, ToastEvent, McpTransport } from '../src/renderer/actions'
+import type { McpTransport } from '../src/renderer/actions'
 import { createNoopTransport } from '../src/renderer/transport'
+import { makeDispatchCtx } from './helpers/render'
 
 beforeAll(() => registerAllComponents())
 
@@ -37,21 +38,6 @@ function renderCtx(state?: Record<string, unknown>): RenderContext {
     transport: createNoopTransport(),
     rerender: () => { /* noop */ },
   }
-}
-
-function makeCtx(
-  state?: Record<string, unknown>,
-  transport?: McpTransport,
-): DispatchContext & { rerendered: number; toasts: ToastEvent[] } {
-  const ctx = {
-    store: new Store(state),
-    transport: transport ?? createNoopTransport(),
-    rerender: () => { ctx.rerendered++ },
-    onToast: (t: ToastEvent) => ctx.toasts.push(t),
-    rerendered: 0,
-    toasts: [] as ToastEvent[],
-  }
-  return ctx
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -245,7 +231,7 @@ describe('Renderer accepts snake_case component input', () => {
   })
 
   it('runs on_mount actions', async () => {
-    const ctx = makeCtx()
+    const ctx = makeDispatchCtx()
     await dispatchActions({
       action: 'setState',
       key: 'x',
@@ -293,7 +279,7 @@ describe('Renderer accepts snake_case component input', () => {
 describe('Action dispatcher accepts snake_case action fields', () => {
 
   it('handles interval_ms and on_tick (snake_case)', async () => {
-    const ctx = makeCtx({ tick: 0 })
+    const ctx = makeDispatchCtx({ tick: 0 })
 
     await dispatchActions({
       action: 'setInterval',
@@ -311,7 +297,7 @@ describe('Action dispatcher accepts snake_case action fields', () => {
       callTool: () => Promise.resolve({ data: 42 }),
       sendMessage: () => Promise.resolve(),
     }
-    const ctx = makeCtx({}, transport)
+    const ctx = makeDispatchCtx({}, transport)
 
     await dispatchActions({
       action: 'toolCall',
@@ -329,7 +315,7 @@ describe('Action dispatcher accepts snake_case action fields', () => {
       callTool: () => Promise.resolve({ fen: 'new' }),
       sendMessage: () => Promise.resolve(),
     }
-    const ctx = makeCtx({}, transport)
+    const ctx = makeDispatchCtx({}, transport)
 
     await dispatchActions({
       action: 'subscribe',

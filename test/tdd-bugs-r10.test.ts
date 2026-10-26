@@ -10,17 +10,12 @@
  */
 
 import { describe, it, expect, beforeEach } from 'bun:test'
-import { Store } from '../src/renderer/state'
 import { renderNode } from '../src/renderer/engine'
-import type { ComponentNode, RenderContext } from '../src/renderer/engine'
+import type { ComponentNode } from '../src/renderer/engine'
 import { registerAllComponents } from '../src/renderer/components/index'
-import { createNoopTransport } from '../src/renderer/transport'
+import { makeRenderCtx } from './helpers/render'
 
 beforeEach(() => { registerAllComponents() })
-
-function makeCtx(): RenderContext {
-  return { store: new Store({}), scope: {}, transport: createNoopTransport(), rerender: () => {} } as RenderContext
-}
 
 const SVG_NS = 'http://www.w3.org/2000/svg'
 
@@ -30,7 +25,7 @@ describe('inline Svg', () => {
       type: 'Svg',
       content: "<svg viewBox='0 0 100 100' width='96' height='96'><circle cx='50' cy='50' r='44' fill='#6366f1'/></svg>",
     }
-    const dom = renderNode(node, makeCtx()) as HTMLElement
+    const dom = renderNode(node, makeRenderCtx()) as HTMLElement
     const svg = dom.querySelector('svg')
     expect(svg).not.toBeNull()
     expect(svg!.namespaceURI).toBe(SVG_NS)
@@ -44,7 +39,7 @@ describe('inline Svg', () => {
       type: 'Svg',
       content: `<svg xmlns='${SVG_NS}' width='40' height='40'><rect width='40' height='40'/></svg>`,
     }
-    const dom = renderNode(node, makeCtx()) as HTMLElement
+    const dom = renderNode(node, makeRenderCtx()) as HTMLElement
     const svg = dom.querySelector('svg')
     expect(svg!.namespaceURI).toBe(SVG_NS)
     expect(dom.querySelector('rect')).not.toBeNull()

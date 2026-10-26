@@ -7,26 +7,16 @@
  */
 
 import { describe, it, expect, beforeEach } from 'bun:test'
-import { Store } from '../src/renderer/state'
 import { renderNode } from '../src/renderer/engine'
-import type { ComponentNode, RenderContext } from '../src/renderer/engine'
+import type { ComponentNode } from '../src/renderer/engine'
 import { registerAllComponents } from '../src/renderer/components/index'
-import { createNoopTransport } from '../src/renderer/transport'
+import { makeRenderCtx } from './helpers/render'
 
 beforeEach(() => { registerAllComponents() })
 
-function makeCtx(state?: Record<string, unknown>): RenderContext {
-  return {
-    store: new Store(state),
-    scope: {},
-    transport: createNoopTransport(),
-    rerender: () => {},
-  }
-}
-
 function md(content: string): HTMLElement {
   const node: ComponentNode = { type: 'Markdown', content }
-  return renderNode(node, makeCtx()) as HTMLElement
+  return renderNode(node, makeRenderCtx()) as HTMLElement
 }
 
 // ── Empty / whitespace input ─────────────────────────────────────────────────

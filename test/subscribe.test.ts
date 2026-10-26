@@ -6,72 +6,12 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach } from 'bun:test'
-import { Store } from '../src/renderer/state'
 import { dispatchActions, clearAllIntervals, clearAllSubscriptions } from '../src/renderer/actions'
-import type { DispatchContext, ToastEvent, McpTransport } from '../src/renderer/actions'
+import type { DispatchContext } from '../src/renderer/actions'
 import { Subscribe, Unsubscribe } from '../src/actions/subscribe'
+import { makeDispatchCtx, mockTransport, mockSubscriptionTransport } from './helpers/render'
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
-
-function makeCtx(
-  state?: Record<string, unknown>,
-  transport?: McpTransport,
-): DispatchContext & { rerendered: number; toasts: ToastEvent[] } {
-  const ctx = {
-    store: new Store(state),
-    transport,
-    rerender: () => { ctx.rerendered++ },
-    onToast: (t: ToastEvent) => ctx.toasts.push(t),
-    rerendered: 0,
-    toasts: [] as ToastEvent[],
-  }
-  return ctx
-}
-
-function mockTransport(result: unknown = { ok: true }): McpTransport & {
-  calls: { name: string; args: Record<string, unknown> }[]
-  messages: string[]
-} {
-  const t = {
-    calls: [] as { name: string; args: Record<string, unknown> }[],
-    messages: [] as string[],
-    callTool: (name: string, args: Record<string, unknown>) => {
-      t.calls.push({ name, args })
-      return Promise.resolve(result)
-    },
-    sendMessage: (msg: string) => {
-      t.messages.push(msg)
-      return Promise.resolve()
-    },
-  }
-  return t
-}
-
-function mockSubscriptionTransport(): McpTransport & {
-  calls: { name: string; args: Record<string, unknown> }[]
-  subscriptions: Map<string, (data: unknown) => void>
-  unsubscribedUris: string[]
-} {
-  const t = {
-    calls: [] as { name: string; args: Record<string, unknown> }[],
-    subscriptions: new Map<string, (data: unknown) => void>(),
-    unsubscribedUris: [] as string[],
-    callTool: (name: string, args: Record<string, unknown>) => {
-      t.calls.push({ name, args })
-      return Promise.resolve({ ok: true })
-    },
-    sendMessage: () => Promise.resolve(),
-    subscribe: (uri: string, onData: (data: unknown) => void): (() => void) => {
-      t.subscriptions.set(uri, onData)
-      return () => {
-        t.subscriptions.delete(uri)
-        t.unsubscribedUris.push(uri)
-      }
-    },
-    capabilities: { subscriptions: true },
-  }
-  return t
-}
 
 // ── Subscribe action class ───────────────────────────────────────────────────
 
@@ -142,7 +82,7 @@ describe('subscribe action dispatch — push path', () => {
 
   it('uses transport.subscribe when host supports subscriptions', async () => {
     const transport = mockSubscriptionTransport()
-    const ctx = makeCtx({}, transport)
+    const ctx = makeDispatchCtx({}, transport)
 
     await dispatchActions({
       action: 'subscribe',
@@ -155,7 +95,7 @@ describe('subscribe action dispatch — push path', () => {
 
   it('stores push data in the state store and re-renders', async () => {
     const transport = mockSubscriptionTransport()
-    const ctx = makeCtx({}, transport)
+    const ctx = makeDispatchCtx({}, transport)
 
     await dispatchActions({
       action: 'subscribe',
@@ -176,7 +116,7 @@ describe('subscribe action dispatch — push path', () => {
 
   it('runs onData callbacks on push', async () => {
     const transport = mockSubscriptionTransport()
-    const ctx = makeCtx({}, transport)
+    const ctx = makeDispatchCtx({}, transport)
 
     await dispatchActions({
       action: 'subscribe',
@@ -196,7 +136,7 @@ describe('subscribe action dispatch — push path', () => {
 
   it('prevents duplicate subscriptions to the same URI', async () => {
     const transport = mockSubscriptionTransport()
-    const ctx = makeCtx({}, transport)
+    const ctx = makeDispatchCtx({}, transport)
 
     await dispatchActions({
       action: 'subscribe',
@@ -216,7 +156,7 @@ describe('subscribe action dispatch — push path', () => {
 
   it('allows different URIs', async () => {
     const transport = mockSubscriptionTransport()
-    const ctx = makeCtx({}, transport)
+    const ctx = makeDispatchCtx({}, transport)
 
     await dispatchActions({
       action: 'subscribe',
@@ -235,7 +175,7 @@ describe('subscribe action dispatch — push path', () => {
 
   it('does not clobber merged state on push when stateKey collides with delta key (Issue #10)', async () => {
     const transport = mockSubscriptionTransport()
-    const ctx = makeCtx({ view: 'init' }, transport)
+    const ctx = makeDispatchCtx({ view: 'init' }, transport)
     ;(ctx as DispatchContext).remount = () => {}
 
     await dispatchActions({
@@ -265,7 +205,7 @@ describe('subscribe action dispatch — polling fallback', () => {
 
   it('falls back to polling when transport lacks subscription support', async () => {
     const transport = mockTransport({ fen: 'new-position', turn: 'black' })
-    const ctx = makeCtx({}, transport)
+    const ctx = makeDispatchCtx({}, transport)
 
     await dispatchActions({
       action: 'subscribe',
@@ -289,7 +229,7 @@ describe('subscribe action dispatch — polling fallback', () => {
 
   it('enforces minimum interval of 100ms for fallback polling', async () => {
     const transport = mockTransport({ ok: true })
-    const ctx = makeCtx({}, transport)
+    const ctx = makeDispatchCtx({}, transport)
 
     await dispatchActions({
       action: 'subscribe',
@@ -308,7 +248,7 @@ describe('subscribe action dispatch — polling fallback', () => {
 
   it('defaults fallback interval to 2000ms', async () => {
     const transport = mockTransport({ ok: true })
-    const ctx = makeCtx({}, transport)
+    const ctx = makeDispatchCtx({}, transport)
 
     await dispatchActions({
       action: 'subscribe',
@@ -325,7 +265,7 @@ describe('subscribe action dispatch — polling fallback', () => {
 
   it('warns when no fallbackTool and host lacks subscriptions', async () => {
     const transport = mockTransport()
-    const ctx = makeCtx({}, transport)
+    const ctx = makeDispatchCtx({}, transport)
     const warns: string[] = []
     const origWarn = console.warn
     console.warn = (msg: string) => warns.push(msg)
@@ -341,7 +281,7 @@ describe('subscribe action dispatch — polling fallback', () => {
   })
 
   it('warns when no transport available', async () => {
-    const ctx = makeCtx({})
+    const ctx = makeDispatchCtx({})
     const warns: string[] = []
     const origWarn = console.warn
     console.warn = (msg: string) => warns.push(msg)
@@ -362,7 +302,7 @@ describe('subscribe action dispatch — polling fallback', () => {
       ...mockTransport(),
       callTool: () => Promise.reject(new Error('Network error')),
     }
-    const ctx = makeCtx({}, transport)
+    const ctx = makeDispatchCtx({}, transport)
 
     await dispatchActions({
       action: 'subscribe',
@@ -387,7 +327,7 @@ describe('subscribe action dispatch — polling fallback', () => {
     }
     const transport = mockTransport(prefabResponse)
     const remounted: Record<string, unknown>[] = []
-    const ctx = makeCtx({}, transport)
+    const ctx = makeDispatchCtx({}, transport)
     ;(ctx as DispatchContext).remount = (data) => remounted.push(data)
 
     await dispatchActions({
@@ -415,7 +355,7 @@ describe('subscribe action dispatch — polling fallback', () => {
       update: { state: { score: 42 } },
     }
     const transport = mockTransport(updateResponse)
-    const ctx = makeCtx({ score: 0, other: 'keep' }, transport)
+    const ctx = makeDispatchCtx({ score: 0, other: 'keep' }, transport)
     ;(ctx as DispatchContext).remount = () => {}
 
     await dispatchActions({
@@ -444,7 +384,7 @@ describe('subscribe action dispatch — polling fallback', () => {
       update: { state: { view: 'lobby', 'lobby.players': ['alice', 'bob'] } },
     }
     const transport = mockTransport(updateResponse)
-    const ctx = makeCtx({ view: 'connecting' }, transport)
+    const ctx = makeDispatchCtx({ view: 'connecting' }, transport)
     ;(ctx as DispatchContext).remount = () => {}
 
     await dispatchActions({
@@ -468,7 +408,7 @@ describe('subscribe action dispatch — polling fallback', () => {
     const plainData = { fen: 'rnbq...', turn: 'white' }
     const transport = mockTransport(plainData)
     const remounted: unknown[] = []
-    const ctx = makeCtx({}, transport)
+    const ctx = makeDispatchCtx({}, transport)
     ;(ctx as DispatchContext).remount = (data) => remounted.push(data)
 
     await dispatchActions({
@@ -496,7 +436,7 @@ describe('unsubscribe action dispatch', () => {
 
   it('cleans up push subscription', async () => {
     const transport = mockSubscriptionTransport()
-    const ctx = makeCtx({}, transport)
+    const ctx = makeDispatchCtx({}, transport)
 
     await dispatchActions({
       action: 'subscribe',
@@ -516,7 +456,7 @@ describe('unsubscribe action dispatch', () => {
 
   it('cleans up polling fallback', async () => {
     const transport = mockTransport({ ok: true })
-    const ctx = makeCtx({}, transport)
+    const ctx = makeDispatchCtx({}, transport)
 
     await dispatchActions({
       action: 'subscribe',
@@ -541,7 +481,7 @@ describe('unsubscribe action dispatch', () => {
   })
 
   it('is idempotent for unknown URI', async () => {
-    const ctx = makeCtx({})
+    const ctx = makeDispatchCtx({})
     // Should not throw
     await dispatchActions({
       action: 'unsubscribe',
@@ -558,7 +498,7 @@ describe('clearAllSubscriptions', () => {
 
   it('cleans up all active subscriptions', async () => {
     const transport = mockSubscriptionTransport()
-    const ctx = makeCtx({}, transport)
+    const ctx = makeDispatchCtx({}, transport)
 
     await dispatchActions({
       action: 'subscribe',
@@ -582,7 +522,7 @@ describe('clearAllSubscriptions', () => {
     const pushTransport = mockSubscriptionTransport()
     const pollTransport = mockTransport()
 
-    const pushCtx = makeCtx({}, pushTransport)
+    const pushCtx = makeDispatchCtx({}, pushTransport)
     await dispatchActions({
       action: 'subscribe',
       uri: 'push://resource',
@@ -592,7 +532,7 @@ describe('clearAllSubscriptions', () => {
     // Clear the push subscription, then set up a polling one
     clearAllSubscriptions()
 
-    const pollCtx = makeCtx({}, pollTransport)
+    const pollCtx = makeDispatchCtx({}, pollTransport)
     await dispatchActions({
       action: 'subscribe',
       uri: 'poll://resource',
@@ -619,7 +559,7 @@ describe('subscribe validation', () => {
   afterEach(() => { clearAllSubscriptions() })
 
   it('warns and skips when uri is missing', async () => {
-    const ctx = makeCtx({})
+    const ctx = makeDispatchCtx({})
     const warns: string[] = []
     const origWarn = console.warn
     console.warn = (msg: string) => warns.push(msg)
@@ -634,7 +574,7 @@ describe('subscribe validation', () => {
   })
 
   it('warns and skips when stateKey is missing', async () => {
-    const ctx = makeCtx({})
+    const ctx = makeDispatchCtx({})
     const warns: string[] = []
     const origWarn = console.warn
     console.warn = (msg: string) => warns.push(msg)
@@ -649,7 +589,7 @@ describe('subscribe validation', () => {
   })
 
   it('warns when unsubscribe uri is missing', async () => {
-    const ctx = makeCtx({})
+    const ctx = makeDispatchCtx({})
     const warns: string[] = []
     const origWarn = console.warn
     console.warn = (msg: string) => warns.push(msg)
@@ -673,21 +613,8 @@ describe('Subscribe with push: false', () => {
   })
 
   it('polls even when the host supports subscriptions', async () => {
-    const subscribed: string[] = []
-    const calls: { name: string; args: Record<string, unknown> }[] = []
-    const transport: McpTransport = {
-      callTool: (name, args) => {
-        calls.push({ name, args })
-        return Promise.resolve({ ok: true })
-      },
-      sendMessage: () => Promise.resolve(),
-      subscribe: (uri) => {
-        subscribed.push(uri)
-        return () => {}
-      },
-      capabilities: { subscriptions: true },
-    }
-    const ctx: DispatchContext = { store: new Store({ id: 'g1' }), transport, rerender: () => {}, onToast: () => {} }
+    const transport = mockSubscriptionTransport()
+    const ctx = makeDispatchCtx({ id: 'g1' }, transport)
 
     await dispatchActions({
       action: 'subscribe',
@@ -702,7 +629,7 @@ describe('Subscribe with push: false', () => {
     await new Promise(r => setTimeout(r, 150))
     clearAllSubscriptions()
 
-    expect(subscribed).toEqual([])
-    expect(calls[0]).toEqual({ name: '_action', args: { action: 'refresh', gameId: 'g1' } })
+    expect([...transport.subscriptions.keys(), ...transport.unsubscribedUris]).toEqual([])
+    expect(transport.calls[0]).toEqual({ name: '_action', args: { action: 'refresh', gameId: 'g1' } })
   })
 })

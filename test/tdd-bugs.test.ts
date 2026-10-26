@@ -5,17 +5,16 @@
  */
 
 import { describe, test, expect, beforeEach, afterEach } from 'bun:test'
-import { Store } from '../src/renderer/state'
 import { renderNode } from '../src/renderer/engine'
-import type { ComponentNode, RenderContext } from '../src/renderer/engine'
+import type { ComponentNode } from '../src/renderer/engine'
 import { registerAllComponents } from '../src/renderer/components/index'
-import { createNoopTransport } from '../src/renderer/transport'
 import { registerPipe, unregisterPipe, listPipes } from '../src/rx/pipes'
 import { signal } from '../src/rx/signal'
 import { collection } from '../src/rx/collection'
 import { resetAutoState, drainAutoState } from '../src/rx/state-collector'
 import { PrefabApp } from '../src/app'
 import { Heading } from '../src/components/typography/index'
+import { makeRenderCtx } from './helpers/render'
 
 beforeEach(() => { registerAllComponents() })
 
@@ -23,15 +22,6 @@ afterEach(() => {
   for (const name of listPipes()) unregisterPipe(name)
   resetAutoState()
 })
-
-function makeCtx(state?: Record<string, unknown>): RenderContext {
-  return {
-    store: new Store(state),
-    scope: {},
-    transport: createNoopTransport(),
-    rerender: () => {},
-  }
-}
 
 // ═════════════════════════════════════════════════════════════════════════════
 // BUG 1: col({ format: 'currency' }) — built-in pipe silently ignored
@@ -42,7 +32,7 @@ function makeCtx(state?: Record<string, unknown>): RenderContext {
 // ═════════════════════════════════════════════════════════════════════════════
 describe('BUG: col format with built-in pipe', () => {
   test('format:"currency" applies built-in currency pipe to cell value', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'DataTable',
       rows: [{ name: 'Widget', price: 1234.56 }],
@@ -62,7 +52,7 @@ describe('BUG: col format with built-in pipe', () => {
   })
 
   test('format:"upper" applies built-in upper pipe to cell value', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'DataTable',
       rows: [{ label: 'hello' }],
@@ -79,7 +69,7 @@ describe('BUG: col format with built-in pipe', () => {
 
   test('format with custom pipe still works', () => {
     registerPipe('exclaim', (v) => `${String(v)}!`)
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'DataTable',
       rows: [{ msg: 'hi' }],
@@ -104,7 +94,7 @@ describe('BUG: col format with built-in pipe', () => {
 describe('BUG: accessor + format double application', () => {
   test('accessor with pipe should skip format (no double-apply)', () => {
     registerPipe('exclaim', (v) => `${String(v)}!`)
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'DataTable',
       rows: [{ msg: 'hi' }],

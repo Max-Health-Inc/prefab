@@ -25,24 +25,13 @@ import { autoForm } from '../src/auto/form'
 import { emitA2UI } from '../src/a2ui/emit'
 import { allComponents } from './helpers/a2ui-validator'
 import type { A2uiComponent } from '../src/a2ui/types'
-import { Store } from '../src/renderer/state'
 import { renderNode } from '../src/renderer/engine'
-import type { ComponentNode, RenderContext } from '../src/renderer/engine'
+import type { ComponentNode } from '../src/renderer/engine'
 import { registerAllComponents } from '../src/renderer/components/index'
-import { createNoopTransport } from '../src/renderer/transport'
 import type { ComponentJSON } from '../src/core/component'
+import { makeRenderCtx } from './helpers/render'
 
 beforeEach(() => { registerAllComponents() })
-
-function makeCtx(state?: Record<string, unknown>): RenderContext {
-  const ctx = {
-    store: new Store(state),
-    scope: {},
-    transport: createNoopTransport(),
-    rerender: () => {},
-  }
-  return ctx
-}
 
 const options = [{ value: 'a', label: 'Apple' }, { value: 'b', label: 'Banana' }]
 
@@ -79,7 +68,7 @@ describe('required on the wire', () => {
 
 describe('required in the DOM', () => {
   const selectOf = (node: Partial<ComponentNode>): HTMLSelectElement => {
-    const dom = renderNode({ type: 'Select', name: 'fruit', options, ...node } as ComponentNode, makeCtx()) as HTMLElement
+    const dom = renderNode({ type: 'Select', name: 'fruit', options, ...node } as ComponentNode, makeRenderCtx()) as HTMLElement
     return dom.querySelector('select')!
   }
 
@@ -96,7 +85,7 @@ describe('required in the DOM', () => {
   it('marks a required RadioGroup, which has no native attribute to set', () => {
     const dom = renderNode(
       { type: 'RadioGroup', name: 'fruit', required: true, children: [{ type: 'Radio', value: 'a' }] } as ComponentNode,
-      makeCtx(),
+      makeRenderCtx(),
     ) as HTMLElement
     expect(dom.getAttribute('aria-required')).toBe('true')
   })
@@ -104,7 +93,7 @@ describe('required in the DOM', () => {
 
 describe('multiple choice', () => {
   const render = (node: Partial<ComponentNode>, state?: Record<string, unknown>): HTMLSelectElement => {
-    const ctx = makeCtx(state)
+    const ctx = makeRenderCtx(state)
     const dom = renderNode({ type: 'Select', name: 'fruit', options, multiple: true, ...node } as ComponentNode, ctx) as HTMLElement
     return dom.querySelector('select')!
   }
@@ -119,7 +108,7 @@ describe('multiple choice', () => {
   })
 
   it('stores the chosen values as an array', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const dom = renderNode({ type: 'Select', name: 'fruit', options, multiple: true } as ComponentNode, ctx) as HTMLElement
     const select = dom.querySelector('select')!
     select.options[1]!.selected = true
@@ -128,7 +117,7 @@ describe('multiple choice', () => {
   })
 
   it('submits one choice as a one-element array, not a bare string', async () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const form = renderNode({
       type: 'Form',
       onSubmit: { action: 'setState', key: 'done', value: true },
@@ -144,7 +133,7 @@ describe('multiple choice', () => {
   })
 
   it('leaves a single-choice Select submitting a bare value', async () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const form = renderNode({
       type: 'Form',
       onSubmit: { action: 'setState', key: 'done', value: true },

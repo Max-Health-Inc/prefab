@@ -9,16 +9,13 @@ import { describe, it, expect, beforeEach } from 'bun:test'
 import { evaluateTemplate } from '../src/renderer/rx'
 import { Store } from '../src/renderer/state'
 import { renderNode } from '../src/renderer/engine'
-import type { ComponentNode, RenderContext } from '../src/renderer/engine'
+import type { ComponentNode } from '../src/renderer/engine'
 import { registerAllComponents } from '../src/renderer/components/index'
-import { createNoopTransport } from '../src/renderer/transport'
 import { dispatchActions } from '../src/renderer/actions'
+import { makeRenderCtx } from './helpers/render'
 
 beforeEach(() => { registerAllComponents() })
 
-function makeCtx(state?: Record<string, unknown>): RenderContext {
-  return { store: new Store(state), scope: {}, transport: createNoopTransport(), rerender: () => {} } as RenderContext
-}
 const ev = (tmpl: string, state: Record<string, unknown> = {}) =>
   evaluateTemplate(tmpl, new Store(state), {})
 
@@ -29,12 +26,12 @@ describe('DataTable interactions', () => {
       columns: [{ key: 'name', header: 'Name', accessor: 'user.name' }],
       rows: [{ user: { name: 'Ada' } }],
     }
-    const dom = renderNode(node, makeCtx()) as HTMLElement
+    const dom = renderNode(node, makeRenderCtx()) as HTMLElement
     expect(dom.textContent).toContain('Ada')
   })
 
   it('onRowClick dispatches with $item in scope', async () => {
-    const ctx = makeCtx({})
+    const ctx = makeRenderCtx({})
     const node: ComponentNode = {
       type: 'DataTable',
       rowKey: 'id',
@@ -56,7 +53,7 @@ describe('DataTable interactions', () => {
       columns: [{ key: 'name' }],
       rows: [{ name: 'Ada' }, { name: 'Alan' }, { name: 'Grace' }],
     }
-    const dom = renderNode(node, makeCtx()) as HTMLElement
+    const dom = renderNode(node, makeRenderCtx()) as HTMLElement
     const input = dom.querySelector('.pf-datatable-search') as HTMLInputElement
     input.value = 'grace'
     input.dispatchEvent(new Event('input', { bubbles: true }))
@@ -69,12 +66,12 @@ describe('DataTable interactions', () => {
 describe('chart edge cases (must not crash)', () => {
   it('BarChart with empty data shows a graceful empty state (no crash)', () => {
     const node: ComponentNode = { type: 'BarChart', data: [], series: [{ dataKey: 'v', label: 'V' }], xAxis: 'k', height: 120 }
-    const dom = renderNode(node, makeCtx()) as HTMLElement
+    const dom = renderNode(node, makeRenderCtx()) as HTMLElement
     expect(dom.textContent).toContain('No chart data')
   })
   it('LineChart with a single point does not produce NaN coordinates', () => {
     const node: ComponentNode = { type: 'LineChart', data: [{ k: 'A', v: 5 }], series: [{ dataKey: 'v', label: 'V' }], xAxis: 'k', height: 120 }
-    const dom = renderNode(node, makeCtx()) as HTMLElement
+    const dom = renderNode(node, makeRenderCtx()) as HTMLElement
     expect(dom.innerHTML).not.toContain('NaN')
   })
 })
@@ -92,7 +89,7 @@ describe('expression / pipe corners', () => {
     expect(out.toLowerCase()).not.toContain('invalid')
   })
   it('toggleState on an undefined key becomes true', async () => {
-    const ctx = makeCtx({})
+    const ctx = makeRenderCtx({})
     await dispatchActions({ action: 'toggleState', key: 'flag' }, ctx)
     expect(ctx.store.get('flag')).toBe(true)
   })

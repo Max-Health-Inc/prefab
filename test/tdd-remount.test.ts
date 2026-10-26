@@ -11,21 +11,15 @@ import { describe, it, expect, beforeEach, afterEach } from 'bun:test'
 import { PrefabRenderer } from '../src/renderer/index'
 import type { PrefabWireData, MountedApp } from '../src/renderer/index'
 import { dispatchActions } from '../src/renderer/actions'
-import type { McpTransport, DispatchContext } from '../src/renderer/actions'
+import type { DispatchContext } from '../src/renderer/actions'
 import { Store } from '../src/renderer/state'
 import { listPipes, unregisterPipe } from '../src/rx/pipes'
+import { mockTransport } from './helpers/render'
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
 function makeWire(view: Record<string, unknown>, extras?: Partial<PrefabWireData>): PrefabWireData {
   return { $prefab: { version: '0.2' }, view: view as PrefabWireData['view'], ...extras }
-}
-
-function mockTransport(result: unknown): McpTransport {
-  return {
-    callTool: () => Promise.resolve(result),
-    sendMessage: () => Promise.resolve(),
-  }
 }
 
 // ── Bug #1: Pipes not hydrated on remount ────────────────────────────────────

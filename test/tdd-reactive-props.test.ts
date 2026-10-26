@@ -15,24 +15,12 @@ import { Component } from '../src/core/component'
 import { rx } from '../src/rx/rx'
 import { Column, Row, Div, Span, Grid, Container } from '../src/components/layout/index'
 import { SetState, ToggleState, ShowToast } from '../src/actions/client'
-import { Store } from '../src/renderer/state'
 import { renderNode } from '../src/renderer/engine'
-import type { ComponentNode, RenderContext } from '../src/renderer/engine'
+import type { ComponentNode } from '../src/renderer/engine'
 import { registerAllComponents } from '../src/renderer/components/index'
-import { createNoopTransport } from '../src/renderer/transport'
+import { makeRenderCtx } from './helpers/render'
 
 beforeEach(() => { registerAllComponents() })
-
-function makeCtx(state?: Record<string, unknown>): RenderContext & { rerendered: number } {
-  const ctx = {
-    store: new Store(state),
-    scope: {},
-    transport: createNoopTransport(),
-    rerender: () => { ctx.rerendered++ },
-    rerendered: 0,
-  }
-  return ctx
-}
 
 // ── DSL: cssClass accepts RxStr ──────────────────────────────────────────────
 
@@ -118,7 +106,7 @@ describe('onClick on container components (DSL)', () => {
 
 describe('Renderer: reactive cssClass evaluation', () => {
   it('evaluates reactive expression in cssClass', () => {
-    const ctx = makeCtx({ theme: 'dark' })
+    const ctx = makeRenderCtx({ theme: 'dark' })
     const node: ComponentNode = {
       type: 'Div',
       cssClass: '{{ theme }}',
@@ -128,7 +116,7 @@ describe('Renderer: reactive cssClass evaluation', () => {
   })
 
   it('evaluates ternary in cssClass', () => {
-    const ctx = makeCtx({ active: true })
+    const ctx = makeRenderCtx({ active: true })
     const node: ComponentNode = {
       type: 'Div',
       cssClass: '{{ active ? "bg-green" : "bg-red" }}',
@@ -138,7 +126,7 @@ describe('Renderer: reactive cssClass evaluation', () => {
   })
 
   it('evaluates ternary as false in cssClass', () => {
-    const ctx = makeCtx({ active: false })
+    const ctx = makeRenderCtx({ active: false })
     const node: ComponentNode = {
       type: 'Div',
       cssClass: '{{ active ? "bg-green" : "bg-red" }}',
@@ -148,7 +136,7 @@ describe('Renderer: reactive cssClass evaluation', () => {
   })
 
   it('preserves base class + reactive class', () => {
-    const ctx = makeCtx({ highlight: 'yellow' })
+    const ctx = makeRenderCtx({ highlight: 'yellow' })
     const node: ComponentNode = {
       type: 'Column',
       cssClass: '{{ highlight }}',
@@ -164,7 +152,7 @@ describe('Renderer: reactive cssClass evaluation', () => {
 
 describe('Renderer: onClick on container elements', () => {
   it('Div dispatches setState on click', async () => {
-    const ctx = makeCtx({ selected: '' })
+    const ctx = makeRenderCtx({ selected: '' })
     const node: ComponentNode = {
       type: 'Div',
       onClick: { action: 'setState', key: 'selected', value: 'e4' },
@@ -176,7 +164,7 @@ describe('Renderer: onClick on container elements', () => {
   })
 
   it('Column dispatches action on click', async () => {
-    const ctx = makeCtx({ clicked: false })
+    const ctx = makeRenderCtx({ clicked: false })
     const node: ComponentNode = {
       type: 'Column',
       onClick: { action: 'toggleState', key: 'clicked' },
@@ -188,7 +176,7 @@ describe('Renderer: onClick on container elements', () => {
   })
 
   it('Span dispatches action on click', async () => {
-    const ctx = makeCtx({ count: 0 })
+    const ctx = makeRenderCtx({ count: 0 })
     const node: ComponentNode = {
       type: 'Span',
       onClick: { action: 'setState', key: 'count', value: 42 },
@@ -200,7 +188,7 @@ describe('Renderer: onClick on container elements', () => {
   })
 
   it('Row dispatches action array on click', async () => {
-    const ctx = makeCtx({ a: 0, b: false })
+    const ctx = makeRenderCtx({ a: 0, b: false })
     const node: ComponentNode = {
       type: 'Row',
       onClick: [
@@ -216,7 +204,7 @@ describe('Renderer: onClick on container elements', () => {
   })
 
   it('Button still dispatches onClick (no regression)', async () => {
-    const ctx = makeCtx({ count: 0 })
+    const ctx = makeRenderCtx({ count: 0 })
     const node: ComponentNode = {
       type: 'Button',
       label: 'Click',
@@ -233,7 +221,7 @@ describe('Renderer: onClick on container elements', () => {
 
 describe('Accessibility for clickable containers', () => {
   it('adds role="button" to clickable Div', () => {
-    const ctx = makeCtx({})
+    const ctx = makeRenderCtx({})
     const node: ComponentNode = {
       type: 'Div',
       onClick: { action: 'setState', key: 'x', value: 1 },
@@ -244,7 +232,7 @@ describe('Accessibility for clickable containers', () => {
   })
 
   it('does NOT add role="button" to Button', () => {
-    const ctx = makeCtx({})
+    const ctx = makeRenderCtx({})
     const node: ComponentNode = {
       type: 'Button',
       label: 'Click',
@@ -256,7 +244,7 @@ describe('Accessibility for clickable containers', () => {
   })
 
   it('dispatches action on Enter key', async () => {
-    const ctx = makeCtx({ pressed: false })
+    const ctx = makeRenderCtx({ pressed: false })
     const node: ComponentNode = {
       type: 'Div',
       onClick: { action: 'toggleState', key: 'pressed' },
@@ -269,7 +257,7 @@ describe('Accessibility for clickable containers', () => {
   })
 
   it('dispatches action on Space key', async () => {
-    const ctx = makeCtx({ pressed: false })
+    const ctx = makeRenderCtx({ pressed: false })
     const node: ComponentNode = {
       type: 'Span',
       onClick: { action: 'toggleState', key: 'pressed' },
@@ -282,7 +270,7 @@ describe('Accessibility for clickable containers', () => {
   })
 
   it('does NOT add role/tabindex when no onClick', () => {
-    const ctx = makeCtx({})
+    const ctx = makeRenderCtx({})
     const node: ComponentNode = { type: 'Div' }
     const dom = renderNode(node, ctx) as HTMLElement
     expect(dom.getAttribute('role')).toBeNull()

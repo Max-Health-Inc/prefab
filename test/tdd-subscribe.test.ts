@@ -7,61 +7,11 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach } from 'bun:test'
-import { Store } from '../src/renderer/state'
 import { dispatchActions, clearAllSubscriptions } from '../src/renderer/actions'
-import type { DispatchContext, ToastEvent, McpTransport } from '../src/renderer/actions'
+import type { McpTransport } from '../src/renderer/actions'
+import { makeDispatchCtx, mockTransport, mockSubscriptionTransport } from './helpers/render'
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
-
-function makeCtx(
-  state?: Record<string, unknown>,
-  transport?: McpTransport,
-): DispatchContext & { rerendered: number; toasts: ToastEvent[] } {
-  const ctx = {
-    store: new Store(state),
-    transport,
-    rerender: () => { ctx.rerendered++ },
-    onToast: (t: ToastEvent) => ctx.toasts.push(t),
-    rerendered: 0,
-    toasts: [] as ToastEvent[],
-  }
-  return ctx
-}
-
-function mockTransport(result: unknown = { ok: true }): McpTransport & {
-  calls: { name: string; args: Record<string, unknown> }[]
-} {
-  const t = {
-    calls: [] as { name: string; args: Record<string, unknown> }[],
-    callTool: (name: string, args: Record<string, unknown>) => {
-      t.calls.push({ name, args })
-      return Promise.resolve(result)
-    },
-    sendMessage: () => Promise.resolve(),
-  }
-  return t
-}
-
-function mockSubscriptionTransport(): McpTransport & {
-  subscriptions: Map<string, (data: unknown) => void>
-  unsubscribedUris: string[]
-} {
-  const t = {
-    subscriptions: new Map<string, (data: unknown) => void>(),
-    unsubscribedUris: [] as string[],
-    callTool: () => Promise.resolve(null),
-    sendMessage: () => Promise.resolve(),
-    subscribe: (uri: string, onData: (data: unknown) => void): (() => void) => {
-      t.subscriptions.set(uri, onData)
-      return () => {
-        t.subscriptions.delete(uri)
-        t.unsubscribedUris.push(uri)
-      }
-    },
-    capabilities: { subscriptions: true },
-  }
-  return t
-}
 
 // ═════════════════════════════════════════════════════════════════════════════
 // BUG 1: fallbackArgs with reactive expressions are never resolved
@@ -78,7 +28,7 @@ describe('BUG: fallbackArgs reactive expressions must be resolved on each poll t
 
   it('resolves {{ }} expressions in fallbackArgs at poll time', async () => {
     const transport = mockTransport({ data: 'refreshed' })
-    const ctx = makeCtx({ page: 3 }, transport)
+    const ctx = makeDispatchCtx({ page: 3 }, transport)
 
     await dispatchActions({
       action: 'subscribe',
@@ -99,7 +49,7 @@ describe('BUG: fallbackArgs reactive expressions must be resolved on each poll t
 
   it('picks up state changes on subsequent ticks', async () => {
     const transport = mockTransport({ ok: true })
-    const ctx = makeCtx({ cursor: 'abc' }, transport)
+    const ctx = makeDispatchCtx({ cursor: 'abc' }, transport)
 
     await dispatchActions({
       action: 'subscribe',
@@ -153,7 +103,7 @@ describe('BUG: clearAllSubscriptions must be resilient to cleanup errors', () =>
       capabilities: { subscriptions: true },
     }
 
-    const ctx = makeCtx({}, transport)
+    const ctx = makeDispatchCtx({}, transport)
 
     // Subscribe to two URIs — first one's cleanup will throw
     await dispatchActions({
@@ -187,8 +137,8 @@ describe('BUG: resubscribe after unsubscribe must create new subscription', () =
   afterEach(() => clearAllSubscriptions())
 
   it('push: allows re-subscribing after unsubscribe', async () => {
-    const transport = mockSubscriptionTransport()
-    const ctx = makeCtx({}, transport)
+    const transport = mockSubscriptionTransport(null)
+    const ctx = makeDispatchCtx({}, transport)
 
     // Subscribe
     await dispatchActions({
@@ -216,7 +166,7 @@ describe('BUG: resubscribe after unsubscribe must create new subscription', () =
 
   it('poll: allows re-subscribing after unsubscribe', async () => {
     const transport = mockTransport({ fen: 'pos1' })
-    const ctx = makeCtx({}, transport)
+    const ctx = makeDispatchCtx({}, transport)
 
     // Subscribe (polling)
     await dispatchActions({
@@ -279,7 +229,7 @@ describe('BUG: edge-case transport capability mismatches', () => {
       subscribe: () => () => { /* no-op */ },
       capabilities: { subscriptions: false },
     }
-    const ctx = makeCtx({}, transport)
+    const ctx = makeDispatchCtx({}, transport)
 
     await dispatchActions({
       action: 'subscribe',
@@ -308,7 +258,7 @@ describe('BUG: edge-case transport capability mismatches', () => {
       capabilities: { subscriptions: true },
       // NOTE: no subscribe method
     }
-    const ctx = makeCtx({}, transport)
+    const ctx = makeDispatchCtx({}, transport)
 
     await dispatchActions({
       action: 'subscribe',
@@ -339,8 +289,8 @@ describe('BUG: push path handles null/undefined data gracefully', () => {
   afterEach(() => clearAllSubscriptions())
 
   it('stores null data without crashing', async () => {
-    const transport = mockSubscriptionTransport()
-    const ctx = makeCtx({ $game: { fen: 'initial' } }, transport)
+    const transport = mockSubscriptionTransport(null)
+    const ctx = makeDispatchCtx({ $game: { fen: 'initial' } }, transport)
 
     await dispatchActions({
       action: 'subscribe',
@@ -356,8 +306,8 @@ describe('BUG: push path handles null/undefined data gracefully', () => {
   })
 
   it('stores undefined data without crashing', async () => {
-    const transport = mockSubscriptionTransport()
-    const ctx = makeCtx({ $game: { fen: 'initial' } }, transport)
+    const transport = mockSubscriptionTransport(null)
+    const ctx = makeDispatchCtx({ $game: { fen: 'initial' } }, transport)
 
     await dispatchActions({
       action: 'subscribe',
@@ -385,8 +335,8 @@ describe('BUG: max subscriptions cap and recovery', () => {
   afterEach(() => clearAllSubscriptions())
 
   it('allows new subscriptions after clearAll when cap was reached', async () => {
-    const transport = mockSubscriptionTransport()
-    const ctx = makeCtx({}, transport)
+    const transport = mockSubscriptionTransport(null)
+    const ctx = makeDispatchCtx({}, transport)
 
     // Fill to cap (50)
     for (let i = 0; i < 50; i++) {
@@ -439,7 +389,7 @@ describe('BUG: polling onData callbacks receive $data scope', () => {
 
   it('runs onData with poll result in scope', async () => {
     const transport = mockTransport({ count: 42 })
-    const ctx = makeCtx({}, transport)
+    const ctx = makeDispatchCtx({}, transport)
 
     await dispatchActions({
       action: 'subscribe',

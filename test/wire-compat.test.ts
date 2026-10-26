@@ -18,8 +18,6 @@ import { join } from 'path'
 
 // ── Builder imports ──────────────────────────────────────────────────────────
 import { PrefabApp } from '../src/app'
-import type { PrefabWireFormat } from '../src/app'
-import type { ComponentJSON } from '../src/core/component'
 import {
   Column, Row, Div, Card, CardHeader, CardTitle, CardDescription,
   CardContent, CardFooter,
@@ -34,20 +32,17 @@ import { SetState, ToggleState, CallHandler } from '../src/actions/index'
 import { rx } from '../src/rx/index'
 
 // ── Renderer imports ─────────────────────────────────────────────────────────
-import type { PrefabWireData } from '../src/renderer/index'
 import { registerAllComponents } from '../src/renderer/components/index'
 import { renderNode } from '../src/renderer/engine'
-import type { ComponentNode, RenderContext } from '../src/renderer/engine'
-import { Store } from '../src/renderer/state'
-import { createNoopTransport } from '../src/renderer/transport'
+import { optionalRecord, recordList } from '../src/core/guards'
+import { makeRenderCtx, expectRecord, expectArray, expectNode, nodeDefs, childNodes, childAt, fieldRecord } from './helpers/render'
 
 // ── Test helpers ─────────────────────────────────────────────────────────────
 
 const GOLDEN_DIR = join(import.meta.dir, 'fixtures', 'golden')
 
-function loadFixture(name: string): PrefabWireFormat & Record<string, unknown> {
-  const raw = readFileSync(join(GOLDEN_DIR, name), 'utf-8')
-  return JSON.parse(raw) as PrefabWireFormat & Record<string, unknown>
+function loadFixture(name: string): Record<string, unknown> {
+  return expectRecord(JSON.parse(readFileSync(join(GOLDEN_DIR, name), 'utf-8')))
 }
 
 function loadAllFixtures(): { name: string; data: Record<string, unknown> }[] {
@@ -60,11 +55,9 @@ function loadAllFixtures(): { name: string; data: Record<string, unknown> }[] {
 /** Recursively collect all component types from a node tree */
 function collectTypes(node: Record<string, unknown>): string[] {
   const types: string[] = []
-  if (node.type) types.push(node.type as string)
-  if (Array.isArray(node.children)) {
-    for (const child of node.children as Record<string, unknown>[]) {
-      types.push(...collectTypes(child))
-    }
+  if (typeof node.type === 'string') types.push(node.type)
+  for (const child of childNodes(node)) {
+    types.push(...collectTypes(child))
   }
   return types
 }
@@ -72,29 +65,17 @@ function collectTypes(node: Record<string, unknown>): string[] {
 /** Recursively count nodes in a component tree */
 function countNodes(node: Record<string, unknown>): number {
   let count = 1
-  if (Array.isArray(node.children)) {
-    for (const child of node.children as Record<string, unknown>[]) {
-      count += countNodes(child)
-    }
+  for (const child of childNodes(node)) {
+    count += countNodes(child)
   }
   return count
 }
 
-/** Create a minimal render context for engine tests */
-function makeRenderCtx(state?: Record<string, unknown>): RenderContext {
-  return {
-    store: new Store(state ?? {}),
-    scope: {},
-    transport: createNoopTransport(),
-    rerender: () => {},
-  }
-}
-
 /** Extract the inner view (first child of Div root) from a wire payload */
-function innerView(wire: Record<string, unknown>): Record<string, unknown> {
-  const view = wire.view as Record<string, unknown>
+function innerView(wire: unknown): Record<string, unknown> {
+  const view = fieldRecord(wire, 'view')
   if (view.type === 'Div' && Array.isArray(view.children)) {
-    return (view.children as Record<string, unknown>[])[0]
+    return childAt(view, 0)
   }
   return view
 }
@@ -123,19 +104,19 @@ describe('Wire compat: Golden fixture parsing', () => {
       })
 
       it('has a view with type and children', () => {
-        const view = data.view as Record<string, unknown>
+        const view = fieldRecord(data, 'view')
         expect(view).toBeDefined()
         expect(view.type).toBe('Div')
         expect(Array.isArray(view.children)).toBe(true)
       })
 
       it('root view has pf-app-root cssClass', () => {
-        const view = data.view as Record<string, unknown>
+        const view = fieldRecord(data, 'view')
         expect(view.cssClass).toContain('pf-app-root')
       })
 
       it('all nodes have a type field', () => {
-        const types = collectTypes(data.view as Record<string, unknown>)
+        const types = collectTypes(fieldRecord(data, 'view'))
         expect(types.length).toBeGreaterThan(0)
         for (const t of types) {
           expect(typeof t).toBe('string')
@@ -156,13 +137,11 @@ describe('Wire compat: Renderer mounts golden fixtures', () => {
   for (const { name, data } of fixtures) {
     it(`renders ${name} without throwing`, () => {
       const root = document.createElement('div')
-      const wireData = data as unknown as PrefabWireData
-      const state = (wireData.state ?? {}) as Record<string, unknown>
-      const ctx = makeRenderCtx(state)
-      if (wireData.defs) ctx.defs = wireData.defs as Record<string, ComponentNode>
+      const ctx = makeRenderCtx(optionalRecord(data.state) ?? {})
+      ctx.defs = nodeDefs(data.defs)
 
       expect(() => {
-        const el = renderNode(wireData.view as ComponentNode, ctx)
+        const el = renderNode(expectNode(data.view), ctx)
         root.appendChild(el)
       }).not.toThrow()
 
@@ -172,12 +151,10 @@ describe('Wire compat: Renderer mounts golden fixtures', () => {
 
     it(`renders ${name} — DOM has expected component types`, () => {
       const root = document.createElement('div')
-      const wireData = data as unknown as PrefabWireData
-      const state = (wireData.state ?? {}) as Record<string, unknown>
-      const ctx = makeRenderCtx(state)
-      if (wireData.defs) ctx.defs = wireData.defs as Record<string, ComponentNode>
+      const ctx = makeRenderCtx(optionalRecord(data.state) ?? {})
+      ctx.defs = nodeDefs(data.defs)
 
-      const el = renderNode(wireData.view as ComponentNode, ctx)
+      const el = renderNode(expectNode(data.view), ctx)
       root.appendChild(el)
 
       // Should have rendered child elements (not just empty)
@@ -203,13 +180,13 @@ describe('Wire compat: TS builder structural equivalence', () => {
       Badge('Active', { variant: 'success' }),
     ]})
     const tsApp = new PrefabApp({ view: tsView })
-    const tsWire = tsApp.toJSON()
-    const tsInner = innerView(tsWire as unknown as Record<string, unknown>)
+    const tsWire: Record<string, unknown> = tsApp.toJSON()
+    const tsInner = innerView(tsWire)
 
     it('envelope matches', () => {
       expect(tsWire.$prefab).toEqual({ version: '0.3' })
-      expect((tsWire.view as ComponentJSON).type).toBe('Div')
-      expect((tsWire.view as ComponentJSON).cssClass).toContain('pf-app-root')
+      expect(fieldRecord(tsWire, 'view').type).toBe('Div')
+      expect(fieldRecord(tsWire, 'view').cssClass).toContain('pf-app-root')
     })
 
     it('root component type matches', () => {
@@ -217,8 +194,8 @@ describe('Wire compat: TS builder structural equivalence', () => {
     })
 
     it('has same number of children', () => {
-      const goldenChildren = goldenInner.children as unknown[]
-      const tsChildren = tsInner.children as unknown[]
+      const goldenChildren = expectArray(goldenInner.children)
+      const tsChildren = expectArray(tsInner.children)
       expect(tsChildren.length).toBe(goldenChildren.length)
     })
 
@@ -229,14 +206,14 @@ describe('Wire compat: TS builder structural equivalence', () => {
     })
 
     it('Heading content matches', () => {
-      const goldenHeading = (goldenInner.children as Record<string, unknown>[])[0]
-      const tsHeading = (tsInner.children as Record<string, unknown>[])[0]
+      const goldenHeading = childAt(goldenInner, 0)
+      const tsHeading = childAt(tsInner, 0)
       expect(tsHeading.content).toBe(goldenHeading.content)
     })
 
     it('Badge content matches', () => {
-      const goldenBadge = (goldenInner.children as Record<string, unknown>[])[1]
-      const tsBadge = (tsInner.children as Record<string, unknown>[])[1]
+      const goldenBadge = childAt(goldenInner, 1)
+      const tsBadge = childAt(tsInner, 1)
       expect(tsBadge.label).toBe(goldenBadge.label)
       expect(tsBadge.variant).toBe(goldenBadge.variant)
     })
@@ -264,32 +241,32 @@ describe('Wire compat: TS builder structural equivalence', () => {
         ],
       }),
     ]})
-    const tsWire = new PrefabApp({ view: tsView }).toJSON()
-    const tsInner = innerView(tsWire as unknown as Record<string, unknown>)
+    const tsWire: Record<string, unknown> = new PrefabApp({ view: tsView }).toJSON()
+    const tsInner = innerView(tsWire)
 
     it('component types match', () => {
       expect(collectTypes(tsInner)).toEqual(collectTypes(goldenInner))
     })
 
     it('DataTable has same row data', () => {
-      const goldenDT = (goldenInner.children as Record<string, unknown>[])[1]
-      const tsDT = (tsInner.children as Record<string, unknown>[])[1]
+      const goldenDT = childAt(goldenInner, 1)
+      const tsDT = childAt(tsInner, 1)
       expect(tsDT.rows).toEqual(goldenDT.rows)
     })
 
     it('DataTable has same column keys', () => {
-      const goldenDT = (goldenInner.children as Record<string, unknown>[])[1]
-      const tsDT = (tsInner.children as Record<string, unknown>[])[1]
-      const goldenKeys = (goldenDT.columns as { key: string }[]).map(c => c.key)
-      const tsKeys = (tsDT.columns as { key: string }[]).map(c => c.key)
+      const goldenDT = childAt(goldenInner, 1)
+      const tsDT = childAt(tsInner, 1)
+      const goldenKeys = recordList(goldenDT.columns).map(c => c.key)
+      const tsKeys = recordList(tsDT.columns).map(c => c.key)
       expect(tsKeys).toEqual(goldenKeys)
     })
 
     it('DataTable column headers match', () => {
-      const goldenDT = (goldenInner.children as Record<string, unknown>[])[1]
-      const tsDT = (tsInner.children as Record<string, unknown>[])[1]
-      const goldenHeaders = (goldenDT.columns as { header: string }[]).map(c => c.header)
-      const tsHeaders = (tsDT.columns as { header: string }[]).map(c => c.header)
+      const goldenDT = childAt(goldenInner, 1)
+      const tsDT = childAt(tsInner, 1)
+      const goldenHeaders = recordList(goldenDT.columns).map(c => c.header)
+      const tsHeaders = recordList(tsDT.columns).map(c => c.header)
       expect(tsHeaders).toEqual(goldenHeaders)
     })
   })
@@ -306,23 +283,23 @@ describe('Wire compat: TS builder structural equivalence', () => {
       Textarea({ name: 'message', placeholder: 'Your message...' }),
       Button('Submit', { onClick: new CallHandler('submit_form') }),
     ]})
-    const tsWire = new PrefabApp({
+    const tsWire: Record<string, unknown> = new PrefabApp({
       view: tsView,
       state: { email: '', message: '' },
     }).toJSON()
-    const tsInner = innerView(tsWire as unknown as Record<string, unknown>)
+    const tsInner = innerView(tsWire)
 
     it('component types match', () => {
       expect(collectTypes(tsInner)).toEqual(collectTypes(goldenInner))
     })
 
     it('action format matches', () => {
-      const goldenBtn = (goldenInner.children as Record<string, unknown>[])[3]
-      const tsBtn = (tsInner.children as Record<string, unknown>[])[3]
-      expect((tsBtn.onClick as Record<string, unknown>).action)
-        .toBe((goldenBtn.onClick as Record<string, unknown>).action)
-      expect((tsBtn.onClick as Record<string, unknown>).handler)
-        .toBe((goldenBtn.onClick as Record<string, unknown>).handler)
+      const goldenBtn = childAt(goldenInner, 3)
+      const tsBtn = childAt(tsInner, 3)
+      expect(fieldRecord(tsBtn, 'onClick').action)
+        .toBe(fieldRecord(goldenBtn, 'onClick').action)
+      expect(fieldRecord(tsBtn, 'onClick').handler)
+        .toBe(fieldRecord(goldenBtn, 'onClick').handler)
     })
 
     it('state matches', () => {
@@ -330,8 +307,8 @@ describe('Wire compat: TS builder structural equivalence', () => {
     })
 
     it('Input has correct name', () => {
-      const goldenInput = (goldenInner.children as Record<string, unknown>[])[1]
-      const tsInput = (tsInner.children as Record<string, unknown>[])[1]
+      const goldenInput = childAt(goldenInner, 1)
+      const tsInput = childAt(tsInner, 1)
       expect(tsInput.name).toBe(goldenInput.name)
     })
   })
@@ -362,8 +339,8 @@ describe('Wire compat: TS builder structural equivalence', () => {
         Badge('Stable', { variant: 'success' }),
       ]}),
     ]})
-    const tsWire = new PrefabApp({ view: tsView }).toJSON()
-    const tsInner = innerView(tsWire as unknown as Record<string, unknown>)
+    const tsWire: Record<string, unknown> = new PrefabApp({ view: tsView }).toJSON()
+    const tsInner = innerView(tsWire)
 
     it('tree structure matches', () => {
       expect(collectTypes(tsInner)).toEqual(collectTypes(goldenInner))
@@ -371,16 +348,16 @@ describe('Wire compat: TS builder structural equivalence', () => {
 
     it('Metric props match', () => {
       // Navigate: Card > CardContent > Column > Row > Metric[0]
-      const tCard = tsInner.children as Record<string, unknown>[]
-      const tsContent = (tCard[1] as Record<string, unknown>).children as Record<string, unknown>[]
-      const tsCol = (tsContent[0] as Record<string, unknown>).children as Record<string, unknown>[]
-      const tsRow = (tsCol[0] as Record<string, unknown>).children as Record<string, unknown>[]
+      const tCard = childNodes(tsInner)
+      const tsContent = childNodes(tCard[1])
+      const tsCol = childNodes(tsContent[0])
+      const tsRow = childNodes(tsCol[0])
       const tsMetric = tsRow[0]
 
-      const gCard = goldenInner.children as Record<string, unknown>[]
-      const gContent = (gCard[1] as Record<string, unknown>).children as Record<string, unknown>[]
-      const gCol = (gContent[0] as Record<string, unknown>).children as Record<string, unknown>[]
-      const gRow = (gCol[0] as Record<string, unknown>).children as Record<string, unknown>[]
+      const gCard = childNodes(goldenInner)
+      const gContent = childNodes(gCard[1])
+      const gCol = childNodes(gContent[0])
+      const gRow = childNodes(gCol[0])
       const gMetric = gRow[0]
 
       expect(tsMetric.label).toBe(gMetric.label)
@@ -416,28 +393,28 @@ describe('Wire compat: TS builder structural equivalence', () => {
         height: 300,
       }),
     ]})
-    const tsWire = new PrefabApp({ view: tsView }).toJSON()
-    const tsInner = innerView(tsWire as unknown as Record<string, unknown>)
+    const tsWire: Record<string, unknown> = new PrefabApp({ view: tsView }).toJSON()
+    const tsInner = innerView(tsWire)
 
     it('component types match', () => {
       expect(collectTypes(tsInner)).toEqual(collectTypes(goldenInner))
     })
 
     it('chart data matches', () => {
-      const goldenChart = (goldenInner.children as Record<string, unknown>[])[1]
-      const tsChart = (tsInner.children as Record<string, unknown>[])[1]
+      const goldenChart = childAt(goldenInner, 1)
+      const tsChart = childAt(tsInner, 1)
       expect(tsChart.data).toEqual(goldenChart.data)
     })
 
     it('chart series match', () => {
-      const goldenChart = (goldenInner.children as Record<string, unknown>[])[1]
-      const tsChart = (tsInner.children as Record<string, unknown>[])[1]
+      const goldenChart = childAt(goldenInner, 1)
+      const tsChart = childAt(tsInner, 1)
       expect(tsChart.series).toEqual(goldenChart.series)
     })
 
     it('chart xAxis matches', () => {
-      const goldenChart = (goldenInner.children as Record<string, unknown>[])[1]
-      const tsChart = (tsInner.children as Record<string, unknown>[])[1]
+      const goldenChart = childAt(goldenInner, 1)
+      const tsChart = childAt(tsInner, 1)
       expect(tsChart.xAxis).toBe(goldenChart.xAxis)
     })
   })
@@ -458,37 +435,37 @@ describe('Wire compat: TS builder structural equivalence', () => {
         Button('Reset', { onClick: new SetState('count', 0) }),
       ]}),
     ]})
-    const tsWire = new PrefabApp({ view: tsView, state: { count: 0 } }).toJSON()
-    const tsInner = innerView(tsWire as unknown as Record<string, unknown>)
+    const tsWire: Record<string, unknown> = new PrefabApp({ view: tsView, state: { count: 0 } }).toJSON()
+    const tsInner = innerView(tsWire)
 
     it('component types match', () => {
       expect(collectTypes(tsInner)).toEqual(collectTypes(goldenInner))
     })
 
     it('Rx text content uses template syntax', () => {
-      const tsText = (tsInner.children as Record<string, unknown>[])[1]
-      const goldenText = (goldenInner.children as Record<string, unknown>[])[1]
+      const tsText = childAt(tsInner, 1)
+      const goldenText = childAt(goldenInner, 1)
       // Both should contain {{ count }}
       expect(String(tsText.content)).toContain('{{ count }}')
       expect(String(goldenText.content)).toContain('{{ count }}')
     })
 
     it('setState actions use Rx expressions', () => {
-      const tsRow = (tsInner.children as Record<string, unknown>[])[2]
-      const tsButtons = tsRow.children as Record<string, unknown>[]
-      const goldenRow = (goldenInner.children as Record<string, unknown>[])[2]
-      const goldenButtons = goldenRow.children as Record<string, unknown>[]
+      const tsRow = childAt(tsInner, 2)
+      const tsButtons = childNodes(tsRow)
+      const goldenRow = childAt(goldenInner, 2)
+      const goldenButtons = childNodes(goldenRow)
 
       // +1 button
-      const tsAction = tsButtons[0].onClick as Record<string, unknown>
-      const _goldenAction = goldenButtons[0].onClick as Record<string, unknown>
+      const tsAction = fieldRecord(tsButtons[0], 'onClick')
+      const _goldenAction = fieldRecord(goldenButtons[0], 'onClick')
       expect(tsAction.action).toBe('setState')
       expect(tsAction.key).toBe('count')
       expect(String(tsAction.value)).toContain('count')
 
       // Reset button — value should be 0
-      const tsReset = tsButtons[2].onClick as Record<string, unknown>
-      const goldenReset = goldenButtons[2].onClick as Record<string, unknown>
+      const tsReset = fieldRecord(tsButtons[2], 'onClick')
+      const goldenReset = fieldRecord(goldenButtons[2], 'onClick')
       expect(tsReset.value).toBe(goldenReset.value) // 0
     })
 
@@ -519,8 +496,8 @@ describe('Wire compat: TS builder structural equivalence', () => {
         ]}),
       ]}),
     ]})
-    const tsWire = new PrefabApp({ view: tsView }).toJSON()
-    const tsInner = innerView(tsWire as unknown as Record<string, unknown>)
+    const tsWire: Record<string, unknown> = new PrefabApp({ view: tsView }).toJSON()
+    const tsInner = innerView(tsWire)
 
     it('tree structure matches', () => {
       expect(collectTypes(tsInner)).toEqual(collectTypes(goldenInner))
@@ -547,25 +524,25 @@ describe('Wire compat: TS builder structural equivalence', () => {
         AlertDescription('Something went wrong.'),
       ]}),
     ]})
-    const tsWire = new PrefabApp({ view: tsView }).toJSON()
-    const tsInner = innerView(tsWire as unknown as Record<string, unknown>)
+    const tsWire: Record<string, unknown> = new PrefabApp({ view: tsView }).toJSON()
+    const tsInner = innerView(tsWire)
 
     it('component types match', () => {
       expect(collectTypes(tsInner)).toEqual(collectTypes(goldenInner))
     })
 
     it('Alert variants match', () => {
-      const goldenAlerts = goldenInner.children as Record<string, unknown>[]
-      const tsAlerts = tsInner.children as Record<string, unknown>[]
+      const goldenAlerts = childNodes(goldenInner)
+      const tsAlerts = childNodes(tsInner)
       expect(tsAlerts[0].variant).toBe(goldenAlerts[0].variant)
       expect(tsAlerts[1].variant).toBe(goldenAlerts[1].variant)
     })
 
     it('AlertTitle content matches', () => {
-      const goldenAlerts = goldenInner.children as Record<string, unknown>[]
-      const tsAlerts = tsInner.children as Record<string, unknown>[]
-      const gTitle = (goldenAlerts[0].children as Record<string, unknown>[])[0]
-      const tTitle = (tsAlerts[0].children as Record<string, unknown>[])[0]
+      const goldenAlerts = childNodes(goldenInner)
+      const tsAlerts = childNodes(tsInner)
+      const gTitle = (childNodes(goldenAlerts[0]))[0]
+      const tTitle = (childNodes(tsAlerts[0]))[0]
       expect(tTitle.content).toBe(gTitle.content)
     })
   })
@@ -584,18 +561,18 @@ describe('Wire compat: TS builder structural equivalence', () => {
         Tab({ title: 'Notifications', children: [Text('Notification preferences go here.')] }),
       ]}),
     ]})
-    const tsWire = new PrefabApp({ view: tsView }).toJSON()
-    const tsInner = innerView(tsWire as unknown as Record<string, unknown>)
+    const tsWire: Record<string, unknown> = new PrefabApp({ view: tsView }).toJSON()
+    const tsInner = innerView(tsWire)
 
     it('component types match', () => {
       expect(collectTypes(tsInner)).toEqual(collectTypes(goldenInner))
     })
 
     it('Tab titles match', () => {
-      const goldenTabs = (goldenInner.children as Record<string, unknown>[])[1]
-      const tsTabs = (tsInner.children as Record<string, unknown>[])[1]
-      const goldenTabChildren = goldenTabs.children as Record<string, unknown>[]
-      const tsTabChildren = tsTabs.children as Record<string, unknown>[]
+      const goldenTabs = childAt(goldenInner, 1)
+      const tsTabs = childAt(tsInner, 1)
+      const goldenTabChildren = childNodes(goldenTabs)
+      const tsTabChildren = childNodes(tsTabs)
 
       expect(tsTabChildren.length).toBe(goldenTabChildren.length)
       for (let i = 0; i < tsTabChildren.length; i++) {
@@ -623,7 +600,7 @@ describe('Wire compat: TS builder structural equivalence', () => {
       Muted('You have new notifications.'),
     ]})
 
-    const tsWire = new PrefabApp({
+    const tsWire: Record<string, unknown> = new PrefabApp({
       view: tsView,
       state: { darkMode: false, user: { name: 'Alice' } },
       defs: { greeting: greetingDef },
@@ -635,19 +612,19 @@ describe('Wire compat: TS builder structural equivalence', () => {
 
     it('defs are present', () => {
       expect(tsWire.defs).toBeDefined()
-      expect(tsWire.defs!.greeting).toBeDefined()
-      expect(tsWire.defs!.greeting.type).toBe('Column')
+      expect(fieldRecord(tsWire, 'defs').greeting).toBeDefined()
+      expect(fieldRecord(fieldRecord(tsWire, 'defs'), 'greeting').type).toBe('Column')
     })
 
     it('toggleState action matches', () => {
-      const tsInner = innerView(tsWire as unknown as Record<string, unknown>)
+      const tsInner = innerView(tsWire)
       const goldenInner = innerView(golden)
-      const tsBtn = (tsInner.children as Record<string, unknown>[])[1]
-      const goldenBtn = (goldenInner.children as Record<string, unknown>[])[1]
-      expect((tsBtn.onClick as Record<string, unknown>).action)
-        .toBe((goldenBtn.onClick as Record<string, unknown>).action)
-      expect((tsBtn.onClick as Record<string, unknown>).key)
-        .toBe((goldenBtn.onClick as Record<string, unknown>).key)
+      const tsBtn = childAt(tsInner, 1)
+      const goldenBtn = childAt(goldenInner, 1)
+      expect(fieldRecord(tsBtn, 'onClick').action)
+        .toBe(fieldRecord(goldenBtn, 'onClick').action)
+      expect(fieldRecord(tsBtn, 'onClick').key)
+        .toBe(fieldRecord(goldenBtn, 'onClick').key)
     })
   })
 })
@@ -666,7 +643,7 @@ describe('Wire compat: Round-trip TS→JSON→DOM', () => {
     const wire = new PrefabApp({ view }).toJSON()
     const root = document.createElement('div')
     const ctx = makeRenderCtx()
-    const el = renderNode(wire.view as unknown as ComponentNode, ctx)
+    const el = renderNode(expectNode(wire.view), ctx)
     root.appendChild(el)
     expect(root.innerHTML).toContain('Hello World')
   })
@@ -679,7 +656,7 @@ describe('Wire compat: Round-trip TS→JSON→DOM', () => {
     const wire = new PrefabApp({ view, state: { email: '' } }).toJSON()
     const root = document.createElement('div')
     const ctx = makeRenderCtx(wire.state)
-    const el = renderNode(wire.view as unknown as ComponentNode, ctx)
+    const el = renderNode(expectNode(wire.view), ctx)
     root.appendChild(el)
     expect(root.querySelector('input')).not.toBeNull()
     expect(root.querySelector('button')).not.toBeNull()
@@ -696,7 +673,7 @@ describe('Wire compat: Round-trip TS→JSON→DOM', () => {
     const wire = new PrefabApp({ view }).toJSON()
     const root = document.createElement('div')
     const ctx = makeRenderCtx()
-    const el = renderNode(wire.view as unknown as ComponentNode, ctx)
+    const el = renderNode(expectNode(wire.view), ctx)
     root.appendChild(el)
     // Chart should be rendered (even if as a placeholder in DOM-only env)
     expect(root.children.length).toBeGreaterThan(0)
@@ -710,7 +687,7 @@ describe('Wire compat: Round-trip TS→JSON→DOM', () => {
     const wire = new PrefabApp({ view, state: { count: 0 } }).toJSON()
     const root = document.createElement('div')
     const ctx = makeRenderCtx(wire.state)
-    const el = renderNode(wire.view as unknown as ComponentNode, ctx)
+    const el = renderNode(expectNode(wire.view), ctx)
     root.appendChild(el)
     // The text should contain "0" (evaluated from state)
     expect(root.textContent).toContain('0')
@@ -724,7 +701,7 @@ describe('Wire compat: Round-trip TS→JSON→DOM', () => {
     const wire = new PrefabApp({ view }).toJSON()
     const root = document.createElement('div')
     const ctx = makeRenderCtx()
-    const el = renderNode(wire.view as unknown as ComponentNode, ctx)
+    const el = renderNode(expectNode(wire.view), ctx)
     root.appendChild(el)
     expect(root.textContent).toContain('One')
   })
@@ -757,7 +734,7 @@ describe('Wire compat: Full JSON parity', () => {
       Heading('Hello World'),
       Badge('Active', { variant: 'success' }),
     ]})
-    const tsWire = new PrefabApp({ view: tsView }).toJSON()
+    const tsWire: Record<string, unknown> = new PrefabApp({ view: tsView }).toJSON()
     expect(tsWire).toEqual(golden)
   })
 
@@ -774,7 +751,7 @@ describe('Wire compat: Full JSON parity', () => {
         columns: [col('name', 'Name'), col('role', 'Role'), col('status', 'Status')],
       }),
     ]})
-    const tsWire = new PrefabApp({ view: tsView }).toJSON()
+    const tsWire: Record<string, unknown> = new PrefabApp({ view: tsView }).toJSON()
     expect(tsWire).toEqual(golden)
   })
 
@@ -786,7 +763,7 @@ describe('Wire compat: Full JSON parity', () => {
       Textarea({ name: 'message', placeholder: 'Your message...' }),
       Button('Submit', { onClick: new CallHandler('submit_form') }),
     ]})
-    const tsWire = new PrefabApp({
+    const tsWire: Record<string, unknown> = new PrefabApp({
       view: tsView,
       state: { email: '', message: '' },
     }).toJSON()

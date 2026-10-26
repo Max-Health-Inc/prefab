@@ -12,24 +12,12 @@ import { Component } from '../src/core/component'
 import { rx } from '../src/rx/rx'
 import { Column, Row, Div } from '../src/components/layout/index'
 import { SetState, ToggleState } from '../src/actions/client'
-import { Store } from '../src/renderer/state'
 import { renderNode } from '../src/renderer/engine'
-import type { ComponentNode, RenderContext } from '../src/renderer/engine'
+import type { ComponentNode } from '../src/renderer/engine'
 import { registerAllComponents } from '../src/renderer/components/index'
-import { createNoopTransport } from '../src/renderer/transport'
+import { makeRenderCtx } from './helpers/render'
 
 beforeEach(() => { registerAllComponents() })
-
-function makeCtx(state?: Record<string, unknown>): RenderContext & { rerendered: number } {
-  const ctx = {
-    store: new Store(state),
-    scope: {},
-    transport: createNoopTransport(),
-    rerender: () => { ctx.rerendered++ },
-    rerendered: 0,
-  }
-  return ctx
-}
 
 // ── Edge case: Column cssClass + gap merge with Rx ──────────────────────────
 
@@ -44,7 +32,7 @@ describe('Column cssClass + gap merge with Rx', () => {
   })
 
   it('renderer evaluates merged reactive+gap cssClass', () => {
-    const ctx = makeCtx({ theme: true })
+    const ctx = makeRenderCtx({ theme: true })
     const node: ComponentNode = {
       type: 'Column',
       cssClass: "{{ theme ? 'dark' : 'light' }} gap-4",
@@ -77,7 +65,7 @@ describe('cssClass edge cases', () => {
   })
 
   it('renderer handles cssClass resolving to empty string', () => {
-    const ctx = makeCtx({ cls: '' })
+    const ctx = makeRenderCtx({ cls: '' })
     const node: ComponentNode = {
       type: 'Div',
       cssClass: '{{ cls }}',
@@ -88,7 +76,7 @@ describe('cssClass edge cases', () => {
   })
 
   it('renderer handles cssClass with only whitespace expression', () => {
-    const ctx = makeCtx({ active: false })
+    const ctx = makeRenderCtx({ active: false })
     const node: ComponentNode = {
       type: 'Span',
       cssClass: "{{ active ? 'highlight' : '' }}",
@@ -103,7 +91,7 @@ describe('cssClass edge cases', () => {
 
 describe('Button onClick regression', () => {
   it('Button onClick fires correctly (not doubled)', async () => {
-    const ctx = makeCtx({ count: 0 })
+    const ctx = makeRenderCtx({ count: 0 })
     const node: ComponentNode = {
       type: 'Button',
       label: 'Click',
@@ -117,7 +105,7 @@ describe('Button onClick regression', () => {
   })
 
   it('Button does not get role="button" (already is a button)', () => {
-    const ctx = makeCtx({})
+    const ctx = makeRenderCtx({})
     const node: ComponentNode = {
       type: 'Button',
       label: 'Test',
@@ -129,7 +117,7 @@ describe('Button onClick regression', () => {
   })
 
   it('disabled Button has no onClick handler issue', () => {
-    const ctx = makeCtx({ count: 0 })
+    const ctx = makeRenderCtx({ count: 0 })
     const node: ComponentNode = {
       type: 'Button',
       label: 'Disabled',
@@ -142,7 +130,7 @@ describe('Button onClick regression', () => {
   })
 
   it('submit Button works within Form', () => {
-    const ctx = makeCtx({ submitted: false })
+    const ctx = makeRenderCtx({ submitted: false })
     const node: ComponentNode = {
       type: 'Form',
       onSubmit: { action: 'toggleState', key: 'submitted' },
@@ -165,7 +153,7 @@ describe('Button onClick regression', () => {
 
 describe('ChoiceCard onClick regression', () => {
   it('ChoiceCard dispatches onClick via common handler', async () => {
-    const ctx = makeCtx({ choice: '' })
+    const ctx = makeRenderCtx({ choice: '' })
     const node: ComponentNode = {
       type: 'ChoiceCard',
       label: 'Option A',
@@ -178,7 +166,7 @@ describe('ChoiceCard onClick regression', () => {
   })
 
   it('ChoiceCard gets role="button" and tabindex', () => {
-    const ctx = makeCtx({})
+    const ctx = makeRenderCtx({})
     const node: ComponentNode = {
       type: 'ChoiceCard',
       label: 'Option B',
@@ -194,7 +182,7 @@ describe('ChoiceCard onClick regression', () => {
 
 describe('onClick + onMount coexistence', () => {
   it('element with both onClick and onMount wires both correctly', async () => {
-    const ctx = makeCtx({ clicked: false, mounted: false })
+    const ctx = makeRenderCtx({ clicked: false, mounted: false })
     const node: ComponentNode = {
       type: 'Div',
       onClick: { action: 'toggleState', key: 'clicked' },
@@ -217,7 +205,7 @@ describe('onClick + onMount coexistence', () => {
 
 describe('onClick + reactive cssClass combined', () => {
   it('clickable Div with reactive cssClass works', async () => {
-    const ctx = makeCtx({ selected: false })
+    const ctx = makeRenderCtx({ selected: false })
     const node: ComponentNode = {
       type: 'Div',
       cssClass: "{{ selected ? 'sq-selected' : 'sq-normal' }}",

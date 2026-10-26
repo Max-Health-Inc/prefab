@@ -8,23 +8,14 @@
 import { describe, it, expect, beforeEach } from 'bun:test'
 import { Store } from '../src/renderer/state'
 import { renderNode } from '../src/renderer/engine'
-import type { ComponentNode, RenderContext } from '../src/renderer/engine'
+import type { ComponentNode } from '../src/renderer/engine'
 import { registerAllComponents } from '../src/renderer/components/index'
-import { createNoopTransport } from '../src/renderer/transport'
+import { makeRenderCtx } from './helpers/render'
 import { evaluateTemplate } from '../src/renderer/rx'
 import { validateWireFormat } from '../src/core/validate'
 import { applyTheme } from '../src/renderer/theme'
 
 beforeEach(() => { registerAllComponents() })
-
-function makeCtx(state?: Record<string, unknown>): RenderContext {
-  return {
-    store: new Store(state),
-    scope: {},
-    transport: createNoopTransport(),
-    rerender: () => {},
-  }
-}
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // Rx EXPRESSION EVALUATOR
@@ -180,7 +171,7 @@ describe('Rx mixed template interpolation', () => {
 
 describe('LineChart edge cases', () => {
   it('renders with single data point without NaN', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const dom = renderNode({
       type: 'LineChart',
       data: [{ month: 'Jan', sales: 100 }],
@@ -193,7 +184,7 @@ describe('LineChart edge cases', () => {
   })
 
   it('renders empty state when no data', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const dom = renderNode({
       type: 'LineChart',
       data: [],
@@ -207,7 +198,7 @@ describe('LineChart edge cases', () => {
 
 describe('PieChart edge cases', () => {
   it('renders with all-zero values gracefully', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const dom = renderNode({
       type: 'PieChart',
       data: [{ cat: 'A', val: 0 }, { cat: 'B', val: 0 }],
@@ -218,7 +209,7 @@ describe('PieChart edge cases', () => {
   })
 
   it('renders with missing series dataKey gracefully', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const dom = renderNode({
       type: 'PieChart',
       data: [{ a: 10 }, { a: 20 }],
@@ -233,7 +224,7 @@ describe('PieChart edge cases', () => {
 
 describe('BarChart edge cases', () => {
   it('handles negative values without rendering outside SVG', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const dom = renderNode({
       type: 'BarChart',
       data: [{ x: 'A', y: -10 }, { x: 'B', y: 20 }],
@@ -385,14 +376,14 @@ describe('Store dot-path operations', () => {
 
 describe('Embed iframe sandboxing', () => {
   it('sets sandbox attribute', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const dom = renderNode({ type: 'Embed', src: 'https://example.com' } as ComponentNode, ctx) as HTMLElement
     const iframe = dom.querySelector('iframe')!
     expect(iframe.getAttribute('sandbox')).toBe('allow-scripts')
   })
 
   it('does not allow same-origin by default', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const dom = renderNode({ type: 'Embed', src: 'https://example.com' } as ComponentNode, ctx) as HTMLElement
     const iframe = dom.querySelector('iframe')!
     expect(iframe.getAttribute('sandbox')).not.toContain('allow-same-origin')
@@ -405,21 +396,21 @@ describe('Embed iframe sandboxing', () => {
 
 describe('Image rendering', () => {
   it('sets src and alt attributes', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const dom = renderNode({ type: 'Image', src: '/photo.jpg', alt: 'A photo' } as ComponentNode, ctx) as HTMLImageElement
     expect(dom.src).toContain('/photo.jpg')
     expect(dom.alt).toBe('A photo')
   })
 
   it('sets width and height when provided', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const dom = renderNode({ type: 'Image', src: '/photo.jpg', width: 200, height: 150 } as ComponentNode, ctx) as HTMLImageElement
     expect(dom.width).toBe(200)
     expect(dom.height).toBe(150)
   })
 
   it('renders without alt (still produces img tag)', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const dom = renderNode({ type: 'Image', src: '/photo.jpg' } as ComponentNode, ctx) as HTMLImageElement
     expect(dom.tagName).toBe('IMG')
   })
@@ -556,7 +547,7 @@ describe('Rx filters', () => {
 
 describe('Sparkline rendering', () => {
   it('renders SVG polyline from data', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const dom = renderNode({
       type: 'Sparkline', data: [10, 20, 15, 30, 25],
     } as ComponentNode, ctx) as HTMLElement
@@ -564,7 +555,7 @@ describe('Sparkline rendering', () => {
   })
 
   it('handles empty data', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const dom = renderNode({
       type: 'Sparkline', data: [],
     } as ComponentNode, ctx) as HTMLElement
@@ -572,7 +563,7 @@ describe('Sparkline rendering', () => {
   })
 
   it('handles single data point', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const dom = renderNode({
       type: 'Sparkline', data: [42],
     } as ComponentNode, ctx) as HTMLElement

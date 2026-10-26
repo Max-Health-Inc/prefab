@@ -10,22 +10,12 @@
  */
 
 import { describe, it, expect, beforeEach } from 'bun:test'
-import { Store } from '../src/renderer/state'
 import { renderNode } from '../src/renderer/engine'
-import type { ComponentNode, RenderContext } from '../src/renderer/engine'
+import type { ComponentNode } from '../src/renderer/engine'
 import { registerAllComponents } from '../src/renderer/components/index'
-import { createNoopTransport } from '../src/renderer/transport'
+import { makeRenderCtx } from './helpers/render'
 
 beforeEach(() => { registerAllComponents() })
-
-function makeCtx(state?: Record<string, unknown>): RenderContext {
-  return {
-    store: new Store(state),
-    scope: {},
-    transport: createNoopTransport(),
-    rerender: () => {},
-  }
-}
 
 /**
  * Theme-sensitive CSS properties that should NOT appear in inline styles
@@ -110,7 +100,7 @@ function collectViolations(dom: HTMLElement): string[] {
 
 describe('Theme: Card', () => {
   it('should not inline background-color with var(--card)', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'Card',
       children: [{ type: 'CardContent', children: [{ type: 'Text', content: 'Hello' }] }],
@@ -120,21 +110,21 @@ describe('Theme: Card', () => {
   })
 
   it('should not inline border with var(--border)', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Card', children: [] }
     const dom = renderNode(node, ctx) as HTMLElement
     expect(dom.style.border).toBe('')
   })
 
   it('should not inline border-radius with var(--radius)', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Card', children: [] }
     const dom = renderNode(node, ctx) as HTMLElement
     expect(dom.style.borderRadius).toBe('')
   })
 
   it('should have the pf-card class', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Card', children: [] }
     const dom = renderNode(node, ctx) as HTMLElement
     expect(dom.classList.contains('pf-card')).toBe(true)
@@ -145,7 +135,7 @@ describe('Theme: Card', () => {
 
 describe('Theme: Alert', () => {
   it('should not inline theme-variable styles on default alert', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'Alert',
       variant: 'default',
@@ -156,7 +146,7 @@ describe('Theme: Alert', () => {
   })
 
   it('should not inline border/color on destructive alert', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'Alert',
       variant: 'destructive',
@@ -167,7 +157,7 @@ describe('Theme: Alert', () => {
   })
 
   it('should set data-variant for styling via CSS', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Alert', variant: 'destructive', children: [] }
     const dom = renderNode(node, ctx) as HTMLElement
     expect(dom.getAttribute('data-variant')).toBe('destructive')
@@ -178,7 +168,7 @@ describe('Theme: Alert', () => {
 
 describe('Theme: DataTable', () => {
   it('should not inline border styles with var(--border) on cells', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'DataTable',
       columns: [{ key: 'name', header: 'Name' }],
@@ -189,7 +179,7 @@ describe('Theme: DataTable', () => {
   })
 
   it('should not inline background on selected rows', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'DataTable',
       columns: [{ key: 'name', header: 'Name' }],
@@ -205,35 +195,35 @@ describe('Theme: DataTable', () => {
 
 describe('Theme: Badge', () => {
   it('should not inline background/color with theme variables on default badge', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Badge', label: 'Test', variant: 'default' }
     const dom = renderNode(node, ctx) as HTMLElement
     expect(collectViolations(dom)).toEqual([])
   })
 
   it('should not inline on secondary badge', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Badge', label: 'Sec', variant: 'secondary' }
     const dom = renderNode(node, ctx) as HTMLElement
     expect(collectViolations(dom)).toEqual([])
   })
 
   it('should not inline on destructive badge', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Badge', label: 'Err', variant: 'destructive' }
     const dom = renderNode(node, ctx) as HTMLElement
     expect(collectViolations(dom)).toEqual([])
   })
 
   it('should not inline outline badge border with var(--border)', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Badge', label: 'Outline', variant: 'outline' }
     const dom = renderNode(node, ctx) as HTMLElement
     expect(collectViolations(dom)).toEqual([])
   })
 
   it('should set data-variant for CSS styling', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Badge', label: 'X', variant: 'secondary' }
     const dom = renderNode(node, ctx) as HTMLElement
     expect(dom.getAttribute('data-variant')).toBe('secondary')
@@ -244,7 +234,7 @@ describe('Theme: Badge', () => {
 
 describe('Theme: Separator', () => {
   it('should not inline border with var(--border)', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Separator' }
     const dom = renderNode(node, ctx) as HTMLElement
     expect(collectViolations(dom)).toEqual([])
@@ -255,42 +245,42 @@ describe('Theme: Separator', () => {
 
 describe('Theme: Button', () => {
   it('should not inline background/color with theme variables on default button', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Button', label: 'Click', variant: 'default' }
     const dom = renderNode(node, ctx) as HTMLElement
     expect(collectViolations(dom)).toEqual([])
   })
 
   it('should not inline on secondary button', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Button', label: 'Sec', variant: 'secondary' }
     const dom = renderNode(node, ctx) as HTMLElement
     expect(collectViolations(dom)).toEqual([])
   })
 
   it('should not inline on destructive button', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Button', label: 'Del', variant: 'destructive' }
     const dom = renderNode(node, ctx) as HTMLElement
     expect(collectViolations(dom)).toEqual([])
   })
 
   it('should not inline border on outline button', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Button', label: 'Click', variant: 'outline' }
     const dom = renderNode(node, ctx) as HTMLElement
     expect(collectViolations(dom)).toEqual([])
   })
 
   it('should not inline color on link button', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Button', label: 'Link', variant: 'link' }
     const dom = renderNode(node, ctx) as HTMLElement
     expect(collectViolations(dom)).toEqual([])
   })
 
   it('should set data-variant for CSS styling', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Button', label: 'X', variant: 'outline' }
     const dom = renderNode(node, ctx) as HTMLElement
     expect(dom.getAttribute('data-variant')).toBe('outline')
@@ -301,14 +291,14 @@ describe('Theme: Button', () => {
 
 describe('Theme: Metric', () => {
   it('should not inline color with var(--muted-foreground) on label', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Metric', label: 'Users', value: '100' }
     const dom = renderNode(node, ctx) as HTMLElement
     expect(collectViolations(dom)).toEqual([])
   })
 
   it('should not inline on metric with description', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Metric', label: 'Rev', value: '$1M', description: 'YTD' }
     const dom = renderNode(node, ctx) as HTMLElement
     expect(collectViolations(dom)).toEqual([])
@@ -319,7 +309,7 @@ describe('Theme: Metric', () => {
 
 describe('Theme: Tabs', () => {
   it('should not inline border on tab bar with var(--border)', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'Tabs',
       name: 'tabs',
@@ -333,7 +323,7 @@ describe('Theme: Tabs', () => {
   })
 
   it('should not inline active tab indicator with var(--primary)', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'Tabs',
       name: 'tabs2',
@@ -354,7 +344,7 @@ describe('Theme: Tabs', () => {
 
 describe('Theme: Progress', () => {
   it('should not inline background with var(--muted) or var(--primary)', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Progress', value: 50 }
     const dom = renderNode(node, ctx) as HTMLElement
     expect(collectViolations(dom)).toEqual([])
@@ -365,7 +355,7 @@ describe('Theme: Progress', () => {
 
 describe('Theme: Table', () => {
   it('should not inline border on TableHeader cells', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'Table',
       children: [
@@ -386,7 +376,7 @@ describe('Theme: Table', () => {
   })
 
   it('should not inline color on TableCaption', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'Table',
       children: [
@@ -403,14 +393,14 @@ describe('Theme: Table', () => {
 
 describe('Theme: Form inputs', () => {
   it('should not inline border on TextInput', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'TextInput', name: 'email', label: 'Email' }
     const dom = renderNode(node, ctx) as HTMLElement
     expect(collectViolations(dom)).toEqual([])
   })
 
   it('should not inline border on Select', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'Select',
       name: 'fruit',
@@ -422,7 +412,7 @@ describe('Theme: Form inputs', () => {
   })
 
   it('should not inline border on Textarea', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Textarea', name: 'bio', label: 'Bio' }
     const dom = renderNode(node, ctx) as HTMLElement
     expect(collectViolations(dom)).toEqual([])
@@ -433,7 +423,7 @@ describe('Theme: Form inputs', () => {
 
 describe('Theme: Dialog', () => {
   it('should not inline border/radius/color on dialog', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'Dialog',
       title: 'Confirm',
@@ -448,7 +438,7 @@ describe('Theme: Dialog', () => {
 
 describe('Theme: Popover', () => {
   it('should not inline border/bg with theme vars on popover content', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'Popover',
       children: [{ type: 'Text', content: 'Popover content' }],
@@ -462,7 +452,7 @@ describe('Theme: Popover', () => {
 
 describe('Theme: HoverCard', () => {
   it('should not inline border/bg/radius on hover card content', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'HoverCard',
       children: [{ type: 'Text', content: 'Hover content' }],
@@ -476,7 +466,7 @@ describe('Theme: HoverCard', () => {
 
 describe('Theme: Accordion', () => {
   it('should not inline border on accordion items', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'Accordion',
       children: [
@@ -492,7 +482,7 @@ describe('Theme: Accordion', () => {
 
 describe('Theme: Tooltip', () => {
   it('should not inline bg with var(--popover) on tooltip', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'Tooltip',
       content: 'Hint text',
@@ -510,7 +500,7 @@ describe('Theme: Tooltip', () => {
 
 describe('Theme: Ring', () => {
   it('should use theme vars in SVG stroke for theme awareness', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Ring', value: 75 }
     const dom = renderNode(node, ctx) as HTMLElement
     const circles = dom.querySelectorAll('circle')
@@ -525,7 +515,7 @@ describe('Theme: Ring', () => {
 
 describe('Theme: Sparkline', () => {
   it('should use theme vars in SVG stroke for theme awareness', () => {
-    const ctx = makeCtx()
+    const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Sparkline', data: [10, 20, 30, 25, 40] }
     const dom = renderNode(node, ctx) as HTMLElement
     const polylines = dom.querySelectorAll('polyline')

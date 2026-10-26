@@ -38,40 +38,12 @@ import {
   clearAllIntervals,
 } from '../src/renderer/actions'
 import type { DispatchContext, McpTransport } from '../src/renderer/actions'
+import { makeDispatchCtx, mockTransport } from './helpers/render'
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
 function parsePrefab(result: McpToolResult): PrefabWireFormat | PrefabUpdateWire {
   return JSON.parse((result.content[0] as { text: string }).text) as PrefabWireFormat | PrefabUpdateWire
-}
-
-function mockTransport(result: unknown = {}): McpTransport & {
-  calls: { name: string; args: Record<string, unknown> }[]
-} {
-  const t = {
-    calls: [] as { name: string; args: Record<string, unknown> }[],
-    callTool: (name: string, args: Record<string, unknown>) => {
-      t.calls.push({ name, args })
-      return Promise.resolve(result)
-    },
-    sendMessage: () => Promise.resolve(),
-  }
-  return t
-}
-
-function makeCtx(
-  state?: Record<string, unknown>,
-  transport?: McpTransport,
-): DispatchContext & { rerendered: number; remounted: unknown[] } {
-  const ctx = {
-    store: new Store(state),
-    transport,
-    rerender: () => { ctx.rerendered++ },
-    remount: (data: Record<string, unknown>) => { ctx.remounted.push(data) },
-    rerendered: 0,
-    remounted: [] as unknown[],
-  }
-  return ctx
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -166,7 +138,7 @@ describe('subscribe native push path with $prefab', () => {
       capabilities: { subscriptions: true },
     }
 
-    const ctx = makeCtx({}, transport)
+    const ctx = makeDispatchCtx({}, transport)
 
     await dispatchActions({
       action: 'subscribe',
@@ -201,7 +173,7 @@ describe('subscribe native push path with $prefab', () => {
       capabilities: { subscriptions: true },
     }
 
-    const ctx = makeCtx({ score: 0 }, transport)
+    const ctx = makeDispatchCtx({ score: 0 }, transport)
 
     await dispatchActions({
       action: 'subscribe',
@@ -229,7 +201,7 @@ describe('subscribe native push path with $prefab', () => {
       capabilities: { subscriptions: true },
     }
 
-    const ctx = makeCtx({}, transport)
+    const ctx = makeDispatchCtx({}, transport)
 
     await dispatchActions({
       action: 'subscribe',
@@ -450,7 +422,7 @@ describe('display_error / display_success consistency', () => {
 describe('callHandler result handling', () => {
   it('stores result in resultKey when provided', async () => {
     const transport = mockTransport({ data: 'hello' })
-    const ctx = makeCtx({}, transport)
+    const ctx = makeDispatchCtx({}, transport)
 
     await dispatchActions({
       action: 'callHandler',
@@ -464,7 +436,7 @@ describe('callHandler result handling', () => {
 
   it('does not crash without resultKey', async () => {
     const transport = mockTransport({ data: 'hello' })
-    const ctx = makeCtx({}, transport)
+    const ctx = makeDispatchCtx({}, transport)
 
     await dispatchActions({
       action: 'callHandler',
@@ -481,7 +453,7 @@ describe('callHandler result handling', () => {
       view: { type: 'Text', text: 'From Handler' },
     }
     const transport = mockTransport(prefabResult)
-    const ctx = makeCtx({}, transport)
+    const ctx = makeDispatchCtx({}, transport)
 
     await dispatchActions({
       action: 'callHandler',
@@ -499,7 +471,7 @@ describe('callHandler result handling', () => {
       update: { state: { items: ['a', 'b'] } },
     }
     const transport = mockTransport(updateResult)
-    const ctx = makeCtx({ items: [] }, transport)
+    const ctx = makeDispatchCtx({ items: [] }, transport)
 
     await dispatchActions({
       action: 'callHandler',
@@ -528,7 +500,7 @@ describe('fetch action $prefab handling', () => {
       })
     ) as unknown as typeof globalThis.fetch
 
-    const ctx = makeCtx({})
+    const ctx = makeDispatchCtx({})
 
     await dispatchActions({
       action: 'fetch',

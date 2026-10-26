@@ -11,10 +11,10 @@ import { describe, it, expect, beforeEach } from 'bun:test'
 import { evaluateTemplate } from '../src/renderer/rx'
 import { Store } from '../src/renderer/state'
 import { renderNode } from '../src/renderer/engine'
-import type { ComponentNode, RenderContext } from '../src/renderer/engine'
+import type { ComponentNode } from '../src/renderer/engine'
 import { registerAllComponents } from '../src/renderer/components/index'
-import { createNoopTransport } from '../src/renderer/transport'
 import { dispatchActions } from '../src/renderer/actions'
+import { makeRenderCtx } from './helpers/render'
 
 beforeEach(() => { registerAllComponents() })
 
@@ -28,10 +28,6 @@ const store = () => new Store({
   big: 12345,
 })
 const ev = (tmpl: string) => evaluateTemplate(tmpl, store(), {})
-
-function makeCtx(state?: Record<string, unknown>): RenderContext {
-  return { store: new Store(state), scope: {}, transport: createNoopTransport(), rerender: () => {} } as RenderContext
-}
 
 describe('formatting pipes', () => {
   it('currency', () => { expect(String(ev('{{ amount | currency }}'))).toBe('$1,234.50') })
@@ -61,12 +57,12 @@ describe('expressions', () => {
 
 describe('state ops', () => {
   it('appendState creates an array when the key is missing', async () => {
-    const ctx = makeCtx({})
+    const ctx = makeRenderCtx({})
     await dispatchActions({ action: 'appendState', key: 'todos', value: 'first' }, ctx)
     expect(ctx.store.get('todos')).toEqual(['first'])
   })
   it('appendState pushes onto an existing array', async () => {
-    const ctx = makeCtx({ todos: ['a'] })
+    const ctx = makeRenderCtx({ todos: ['a'] })
     await dispatchActions({ action: 'appendState', key: 'todos', value: 'b' }, ctx)
     expect(ctx.store.get('todos')).toEqual(['a', 'b'])
   })
@@ -78,7 +74,7 @@ describe('ForEach binds $item and $index', () => {
       type: 'ForEach', expression: '{{ items }}',
       children: [{ type: 'Text', content: '{{ $index }}:{{ $item }}' }],
     }
-    const dom = renderNode(node, makeCtx({ items: ['x', 'y'] })) as unknown as DocumentFragment
+    const dom = renderNode(node, makeRenderCtx({ items: ['x', 'y'] })) as unknown as DocumentFragment
     const host = document.createElement('div'); host.appendChild(dom)
     expect(host.textContent).toContain('0:x')
     expect(host.textContent).toContain('1:y')
@@ -98,7 +94,7 @@ describe('semantic Table', () => {
         ]}]},
       ],
     }
-    const dom = renderNode(node, makeCtx()) as HTMLElement
+    const dom = renderNode(node, makeRenderCtx()) as HTMLElement
     expect(dom.querySelectorAll('th').length).toBe(2)
     expect(dom.querySelectorAll('td').length).toBe(2)
     expect(dom.textContent).toContain('Ada')

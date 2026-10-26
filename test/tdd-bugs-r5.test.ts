@@ -16,23 +16,12 @@
 
 import { describe, it, expect, beforeEach } from 'bun:test'
 import { validateWireFormat } from '../src/core/validate'
-import { Store } from '../src/renderer/state'
 import { renderNode } from '../src/renderer/engine'
-import type { ComponentNode, RenderContext } from '../src/renderer/engine'
+import type { ComponentNode } from '../src/renderer/engine'
 import { registerAllComponents } from '../src/renderer/components/index'
-import { createNoopTransport } from '../src/renderer/transport'
+import { makeRenderCtx } from './helpers/render'
 
 beforeEach(() => { registerAllComponents() })
-
-function makeCtx(state?: Record<string, unknown>): RenderContext {
-  const ctx = {
-    store: new Store(state),
-    scope: {},
-    transport: createNoopTransport(),
-    rerender: () => { /* noop */ },
-  } as RenderContext
-  return ctx
-}
 
 // ── Goal 1: validator catches misplaced children (the `then` bug) ────────────
 
@@ -122,7 +111,7 @@ describe('Goal 2 — DataTable primitive rows', () => {
       columns: [{ key: 'value', header: 'Task' }],
       rows: ['Review pull requests', 'Deploy v2.0'],
     }
-    const dom = renderNode(node, makeCtx()) as HTMLElement
+    const dom = renderNode(node, makeRenderCtx()) as HTMLElement
     const cells = [...dom.querySelectorAll('.pf-datatable-td')].map(td => td.textContent)
     expect(cells).toContain('Review pull requests')
     expect(cells).toContain('Deploy v2.0')
@@ -134,7 +123,7 @@ describe('Goal 2 — DataTable primitive rows', () => {
       columns: [{ key: 'value' }],
       rows: [1, 2, 3],
     }
-    const dom = renderNode(node, makeCtx()) as HTMLElement
+    const dom = renderNode(node, makeRenderCtx()) as HTMLElement
     const cells = [...dom.querySelectorAll('.pf-datatable-td')].map(td => td.textContent)
     expect(cells).toEqual(['1', '2', '3'])
   })
@@ -145,7 +134,7 @@ describe('Goal 2 — DataTable primitive rows', () => {
       columns: [{ key: 'value', header: 'Task' }],
       rows: [{ value: 'Keep working' }],
     }
-    const dom = renderNode(node, makeCtx()) as HTMLElement
+    const dom = renderNode(node, makeRenderCtx()) as HTMLElement
     const cells = [...dom.querySelectorAll('.pf-datatable-td')].map(td => td.textContent)
     expect(cells).toContain('Keep working')
   })

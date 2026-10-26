@@ -7,18 +7,14 @@
 import { describe, it, expect, beforeEach, afterEach, spyOn } from 'bun:test'
 import { Store } from '../src/renderer/state'
 import { renderNode } from '../src/renderer/engine'
-import type { ComponentNode, RenderContext } from '../src/renderer/engine'
+import type { ComponentNode } from '../src/renderer/engine'
 import { registerAllComponents } from '../src/renderer/components/index'
-import { createNoopTransport } from '../src/renderer/transport'
 import { dispatchActions, clearAllIntervals } from '../src/renderer/actions'
 import type { DispatchContext, McpTransport } from '../src/renderer/actions'
+import { makeRenderCtx } from './helpers/render'
 
 beforeEach(() => { registerAllComponents() })
 afterEach(() => { clearAllIntervals() })
-
-function makeCtx(): RenderContext {
-  return { store: new Store({}), scope: {}, transport: createNoopTransport(), rerender: () => {} }
-}
 
 function dispatchCtx(transport?: McpTransport): DispatchContext {
   return { store: new Store({}), scope: {}, transport, rerender: () => {} }
@@ -27,13 +23,13 @@ function dispatchCtx(transport?: McpTransport): DispatchContext {
 describe('Grid responsive columns', () => {
   it('renders a breakpoint map at its widest breakpoint', () => {
     const node: ComponentNode = { type: 'Grid', columns: { sm: 1, md: 2, lg: 3 } }
-    const dom = renderNode(node, makeCtx()) as HTMLElement
+    const dom = renderNode(node, makeRenderCtx()) as HTMLElement
     expect(dom.style.gridTemplateColumns).toBe('repeat(3, 1fr)')
   })
 
   it('falls back to 3 columns for a map without numeric breakpoints', () => {
     const node: ComponentNode = { type: 'Grid', columns: { lg: 'wide' } }
-    const dom = renderNode(node, makeCtx()) as HTMLElement
+    const dom = renderNode(node, makeRenderCtx()) as HTMLElement
     expect(dom.style.gridTemplateColumns).toBe('repeat(3, 1fr)')
   })
 })
@@ -41,7 +37,7 @@ describe('Grid responsive columns', () => {
 describe('charts with malformed data', () => {
   it('renders the empty state when data is not an array', () => {
     const node: ComponentNode = { type: 'BarChart', data: { sales: 1 }, series: [{ dataKey: 'sales' }] }
-    const dom = renderNode(node, makeCtx()) as HTMLElement
+    const dom = renderNode(node, makeRenderCtx()) as HTMLElement
     expect(dom.textContent).toBe('No chart data')
   })
 
@@ -52,7 +48,7 @@ describe('charts with malformed data', () => {
       series: [{ dataKey: 'v' }],
       xAxis: 'm',
     }
-    const dom = renderNode(node, makeCtx()) as HTMLElement
+    const dom = renderNode(node, makeRenderCtx()) as HTMLElement
     expect(dom.querySelectorAll('circle.pf-data-dot')).toHaveLength(2)
   })
 })
