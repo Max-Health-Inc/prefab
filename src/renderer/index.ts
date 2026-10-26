@@ -90,6 +90,8 @@ export interface PrefabWireData {
   pipes?: Record<string, string>
   /** Size hints for the host container. */
   layout?: { preferredHeight?: number; minHeight?: number; maxHeight?: number }
+  /** Runs once when this payload mounts or a tool result remounts it; never on a re-render. */
+  onMount?: ActionJSON | ActionJSON[]
 }
 
 export interface PrefabUpdateData {
@@ -214,6 +216,11 @@ export const PrefabRenderer = {
       }
 
       render()
+      runPayloadMount(newData)
+    }
+
+    function runPayloadMount(payload: PrefabWireData): void {
+      if (payload.onMount != null) fireAndForget(dispatchActions(payload.onMount, ctx), 'onMount')
     }
 
     // Build render context
@@ -275,11 +282,9 @@ export const PrefabRenderer = {
       if (toggleBtn) root.appendChild(toggleBtn)
     }
 
-    // Initial render
+    // Initial render; a node's own onMount runs inside renderNode on every render
     render()
-
-    // Run onMount from the view root (if present)
-    // Already handled by renderNode via queueMicrotask
+    runPayloadMount(data)
 
     return {
       rerender: () => render(),

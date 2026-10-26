@@ -12,6 +12,8 @@ import { serializeValue } from '../core/component.js'
 export interface SubscribeOpts {
   /** Reactive store key where incoming data is written. */
   stateKey: string
+  /** `false` always polls, even on a host with subscriptions: a stateless server sends no resource notifications. Defaults to `true`. */
+  push?: boolean
   /** Poll interval (ms) when the host does not support push subscriptions. Defaults to 2000. */
   fallbackInterval?: number
   /** Tool to call when polling in fallback mode. */
@@ -54,6 +56,7 @@ export class Subscribe implements Action {
       uri: this.uri,
       stateKey: this.opts.stateKey,
     }
+    if (this.opts.push === false) json.push = false
     if (this.opts.fallbackInterval != null) json.fallbackInterval = this.opts.fallbackInterval
     if (this.opts.fallbackTool) json.fallbackTool = this.opts.fallbackTool
     if (this.opts.fallbackArgs) json.fallbackArgs = serializeValue(this.opts.fallbackArgs)
