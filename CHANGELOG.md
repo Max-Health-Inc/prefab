@@ -6,6 +6,8 @@ All notable changes to this project will be documented in this file.
 
 <!-- Add new entries directly below. Keep this line: it makes a release merge conflict rather than file them under a published version. -->
 
+## [0.3.17] — 2026-10-26
+
 ### Fixed
 
 - **`display({ onMount })` runs.** The payload-level `onMount` documented under "Lifecycle: running on mount" was serialized and never dispatched: the renderer only ran a component's own `onMount`, which fires on every re-render. A payload's `onMount` now runs once when it mounts and once each time a tool result remounts the view with a new payload, never on a plain re-render. A server-rendered view can attach a one-shot action, such as a `SendMessage`, to the result it returns.
