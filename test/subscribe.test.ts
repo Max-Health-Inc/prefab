@@ -660,3 +660,49 @@ describe('subscribe validation', () => {
     expect(warns.some(w => w.includes('missing uri'))).toBe(true)
   })
 })
+
+// ── push: false (stateless servers) ──────────────────────────────────────────
+
+describe('Subscribe with push: false', () => {
+  beforeEach(() => clearAllSubscriptions())
+  afterEach(() => clearAllSubscriptions())
+
+  it('serializes push only when it is turned off', () => {
+    expect(new Subscribe('chess://game/abc', { stateKey: '$game' }).toJSON().push).toBeUndefined()
+    expect(new Subscribe('chess://game/abc', { stateKey: '$game', push: false }).toJSON().push).toBe(false)
+  })
+
+  it('polls even when the host supports subscriptions', async () => {
+    const subscribed: string[] = []
+    const calls: { name: string; args: Record<string, unknown> }[] = []
+    const transport: McpTransport = {
+      callTool: (name, args) => {
+        calls.push({ name, args })
+        return Promise.resolve({ ok: true })
+      },
+      sendMessage: () => Promise.resolve(),
+      subscribe: (uri) => {
+        subscribed.push(uri)
+        return () => {}
+      },
+      capabilities: { subscriptions: true },
+    }
+    const ctx: DispatchContext = { store: new Store({ id: 'g1' }), transport, rerender: () => {}, onToast: () => {} }
+
+    await dispatchActions({
+      action: 'subscribe',
+      uri: 'chess://game/g1',
+      stateKey: '$game',
+      push: false,
+      fallbackInterval: 100,
+      fallbackTool: '_action',
+      fallbackArgs: { action: 'refresh', gameId: '{{ id }}' },
+    }, ctx)
+
+    await new Promise(r => setTimeout(r, 150))
+    clearAllSubscriptions()
+
+    expect(subscribed).toEqual([])
+    expect(calls[0]).toEqual({ name: '_action', args: { action: 'refresh', gameId: 'g1' } })
+  })
+})
