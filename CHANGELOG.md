@@ -6,6 +6,8 @@ All notable changes to this project will be documented in this file.
 
 <!-- Add new entries directly below. Keep this line: it makes a release merge conflict rather than file them under a published version. -->
 
+## [0.3.18] — 2026-10-29
+
 ### Fixed
 
 - **`sendMessage` reaches hosts that validate `ui/message`.** The bridge sent `content` as a single `{ type, text }` object. The ext-apps schema, which Claude Desktop and ChatGPT validate against, requires an array of content blocks, so the message was rejected. It now sends `[{ type: 'text', text }]`.
