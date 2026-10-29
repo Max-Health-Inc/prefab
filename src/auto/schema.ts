@@ -31,6 +31,7 @@
  * ```
  */
 
+import { optionalRecord } from '../core/guards.js'
 import type { AutoFormField, AutoFormOption } from './form.js'
 
 // ── Schema shape ─────────────────────────────────────────────────────────────
@@ -110,12 +111,6 @@ const FORMAT_TYPE: Record<string, string> = {
  */
 function asNode(value: unknown): JsonSchemaNode | undefined {
   return value != null && typeof value === 'object' && !Array.isArray(value) ? value : undefined
-}
-
-/** The `properties` map, read the same defensive way. */
-function asRecord(value: unknown): Record<string, unknown> | undefined {
-  const node = asNode(value)
-  return node as Record<string, unknown> | undefined
 }
 
 /** Types a flat form can ask for. Everything else is structure, not a value. */
@@ -268,7 +263,7 @@ export function fieldsFromJsonSchema(
 ): AutoFormField[] {
   const root = asNode(schema)
   const resolved = root == null ? undefined : resolveNode(root)
-  const properties = asRecord(resolved?.properties)
+  const properties = optionalRecord(resolved?.properties)
   if (properties == null) return []
 
   const required = new Set(Array.isArray(resolved?.required) ? resolved.required : [])
