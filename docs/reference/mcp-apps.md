@@ -147,7 +147,7 @@ cannot change for a given server build, which is what makes it safe to mark
 `public` with a long TTL. Values the handler returns win over the per-resource
 `cacheHint`, which in turn wins over the server-level `cacheHints` option.
 
-**Shortcut:** if you're using prefab's TypeScript SDK, `registerViewerResource()` handles all of the above in one call — MIME type, CSP on both locations, the cache fields, and the `io.modelcontextprotocol/apps` extension capability (SEP-2133):
+**Shortcut:** if you're using prefab's TypeScript SDK, `registerViewerResource()` handles all of the above in one call — MIME type, CSP on both locations, the cache fields, and the `io.modelcontextprotocol/ui` extension capability (SEP-2133):
 
 ```ts
 import { registerViewerResource, PREFAB_RESOURCE_URI } from '@maxhealth.tech/prefab/mcp'
@@ -379,6 +379,67 @@ Methods (per the MCP Apps spec):
 > that one travels host → sandbox proxy and is internal to VS Code.
 > After receiving the response to `ui/initialize`, the View must send
 > `ui/notifications/initialized` to signal readiness.
+
+### Notification ordering
+
+The spec fixes the order of the tool notifications a view receives:
+
+1. `ui/notifications/tool-input-partial`: zero or more times, only while the agent is still streaming arguments.
+2. `ui/notifications/tool-input`: exactly once, with the complete arguments.
+3. `ui/notifications/tool-result` when the tool finishes, or `ui/notifications/tool-cancelled` when it was cancelled (user action, sampling error, classifier intervention). A host sends one of the two, never both.
+
+The host sends nothing to the view before the view has sent
+`ui/notifications/initialized`.
+
+### Calling the server from the view
+
+A view can call tools and read resources on the MCP server; the host
+proxies the request. Check `hostCapabilities.serverTools` and
+`hostCapabilities.serverResources` in the `ui/initialize` result first.
+
+```js
+post({ jsonrpc: '2.0', id: nextId++, method: 'tools/call',
+       params: { name: 'get_weather', arguments: { location: 'NYC' } } })
+
+post({ jsonrpc: '2.0', id: nextId++, method: 'resources/read',
+       params: { uri: 'data://weather/cache' } })
+```
+
+A tool called this way produces the same `tool-input-partial`,
+`tool-input`, `tool-result` sequence as one the agent started. In
+prefab, the `toolCall` action and `ctx.transport.callTool` send
+`tools/call` for you.
+
+### Tool visibility
+
+`_meta.ui.visibility` decides who may call a tool:
+
+```ts
+const toolMeta = { ui: { resourceUri: 'ui://your/viewer', visibility: ['app'] } }
+```
+
+| `visibility` | Agent sees it | View can call it |
+|---|---|---|
+| `['model', 'app']` (default) | Yes | Yes |
+| `['model']` | Yes | No |
+| `['app']` | No | Yes |
+
+Use `['app']` for UI-only tools such as refresh, pagination, or form
+submission. The host leaves them out of the agent's tool list and
+rejects a `tools/call` from the view for a tool without `'app'`.
+
+### Sending a chat message (`ui/message`)
+
+`content` is an array of content blocks, and `role` must be `'user'`:
+
+```js
+post({ jsonrpc: '2.0', id: nextId++, method: 'ui/message',
+       params: { role: 'user', content: [{ type: 'text', text: 'Show me tomorrow' }] } })
+```
+
+The ext-apps host schema rejects a bare `{ type, text }` object. The
+host may ask the user before adding the message, and a message starts a
+follow-up turn. The `sendMessage` action sends this envelope.
 
 ### Telling the model what happened in the view
 
@@ -622,6 +683,13 @@ Wrong (will timeout on Claude Desktop / ChatGPT):
 
 Fixed in **v0.2.15**.
 
+The spec's own "Transport Layer" section adds to the confusion: its
+native example sends `initialize` with `clientInfo` and `capabilities`,
+which is the core MCP handshake for an iframe acting as a full MCP
+client. The `ui/initialize` handshake is the formal
+`McpUiInitializeRequest` (`appInfo`, `appCapabilities`), and that is
+what Claude Desktop and ChatGPT validate.
+
 ## `@modelcontextprotocol/ext-apps` SDK vs native `ui/*` JSON-RPC
 
 The ext-apps SDK and the `ui/*` JSON-RPC protocol are **the same wire
@@ -649,6 +717,20 @@ adds 325 KB of bundle weight.
 If you need the SDK for its React hooks (`useHostStyleVariables`,
 `useDocumentTheme`) or `App.setupSizeChangedNotifications()`, install
 `@modelcontextprotocol/ext-apps` separately.
+
+## Other spec features
+
+These are part of MCP Apps but outside what this guide walks through.
+The [spec](https://github.com/modelcontextprotocol/ext-apps/blob/main/specification/2026-01-26/apps.mdx)
+has the details.
+
+- **`hostContext`** in the `ui/initialize` result: theme and style variables (the renderer applies these), plus `displayMode`, `availableDisplayModes`, `containerDimensions`, `locale`, `timeZone`, `platform`, `deviceCapabilities` and `safeAreaInsets`. Changes arrive as `ui/notifications/host-context-changed`.
+- **Container dimensions**: each of height and width is fixed (`height` / `width`, the host decides) or flexible (`maxHeight` / `maxWidth`, the view decides up to the limit and reports its size with `ui/notifications/size-changed`).
+- **Display modes**: a view lists the modes it supports in `appCapabilities.availableDisplayModes` and asks for one with `ui/request-display-mode` (the `requestDisplayMode` action). The host answers with the mode it actually set.
+- **`_meta.ui.domain`**: a stable sandbox origin, for OAuth callbacks or CORS allowlists. The format is host-specific, such as `{hash}.claudemcpcontent.com` or `www-example-com.oaiusercontent.com`. It sits on the resource next to `csp`.
+- **`_meta.ui.prefersBorder`**: `true` asks the host for a border and background, `false` for none. Set it explicitly, since host defaults differ.
+- **Capability negotiation**: a client announces MCP Apps support under `capabilities.extensions["io.modelcontextprotocol/ui"]`, and ext-apps' `getUiCapability()` reads it. On the server side, `registerViewerResource` declares the extension for you (opt out with `declareCapability: false`).
+- **Newer than `2026-01-26`**: the ext-apps SDK and the draft spec add `ui/download-file` (host-mediated downloads, since a sandboxed iframe cannot download) and `sampling/createMessage` (behind `hostCapabilities.sampling`). Check the host's capabilities before using them.
 
 ## Reference
 
