@@ -191,7 +191,7 @@ Text(rx('name').upper().truncate(20)) // → "{{ name | upper | truncate:20 }}"
 Text(STATE.count)                    // → "{{ count }}"
 ```
 
-**Built-in pipes:** `upper`, `lower`, `capitalize`, `truncate`, `currency`, `number`, `percent`, `date`, `time`, `datetime`, `length`, `default`, `json`, `keys`, `values`, `first`, `last`, `find`, `dot`, `join`, `abs`, `round`, `compact`, `pluralize`, `selectattr`, `rejectattr`
+**Built-in pipes:** `upper`, `lower`, `truncate`, `currency`, `number`, `percent`, `date`, `time`, `datetime`, `length`, `default`, `first`, `last`, `find`, `dot`, `join`, `abs`, `round`, `compact`, `pluralize`, `selectattr`, `rejectattr`
 
 ## Signals, Collections & Selection
 

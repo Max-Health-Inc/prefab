@@ -6,6 +6,19 @@ All notable changes to this project will be documented in this file.
 
 <!-- Add new entries directly below. Keep this line: it makes a release merge conflict rather than file them under a published version. -->
 
+### Fixed
+
+- **`sendMessage` reaches hosts that validate `ui/message`.** The bridge sent `content` as a single `{ type, text }` object. The ext-apps schema, which Claude Desktop and ChatGPT validate against, requires an array of content blocks, so the message was rejected. It now sends `[{ type: 'text', text }]`.
+- **The `prefab-ui` skill teaches payloads that render.** Its references used `{{ state.key }}` and `{{ item.x }}` (both resolve to nothing; state keys are bare and loop variables are `$item` / `$index`), a `ForEach` shaped as `each` / `as` instead of `expression`, `showToast` with `title` instead of `message`, and `appendState` with `item` instead of `value`. The wire-format reference had the same expression and scope-variable errors, a `Button` example with `content` instead of `label`, and listed 91 of the 119 component types. The README listed four pipes that do not exist (`capitalize`, `json`, `keys`, `values`).
+
+### Changed
+
+- **The MCP Apps guide covers the rest of the `ui/*` protocol**: notification ordering, calling tools and resources from the view, tool `visibility`, the `ui/message` envelope, and a short map of the spec features it does not walk through. It also names the extension capability correctly (`io.modelcontextprotocol/ui`). Downstream copies of this guide can now link here instead.
+
+### Internal
+
+- **`test/wire-format-reference.test.ts` keeps both wire-format references (`docs/reference/` and the skill's copy) in step with the renderer**: component types against `COMPONENT_TYPES`, action names and fields against what each action builder emits, pipes against `BUILTIN_PIPES` (now exported from `src/renderer/rx.ts`, next to the switch that implements them), and every action in a JSON example across README, docs, skill and example files.
+
 ## [0.3.17] — 2026-10-26
 
 ### Fixed
