@@ -9,7 +9,7 @@ url: /prefab/reference/api/mcp/functions/a2uiPayload.md
 function a2uiPayload(messages): A2uiMessageList;
 ```
 
-Defined in: [mcp/a2ui.ts:49](https://github.com/Max-Health-Inc/prefab/blob/7a2e43417fa83301b42abd7447c199249e6c40f6/src/mcp/a2ui.ts#L49)
+Defined in: [mcp/a2ui.ts:49](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/mcp/a2ui.ts#L49)
 
 Wrap messages in the list envelope A2UI defines for non-streaming transports.
 

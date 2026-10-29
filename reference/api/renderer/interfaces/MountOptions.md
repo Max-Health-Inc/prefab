@@ -5,7 +5,7 @@ url: /prefab/reference/api/renderer/interfaces/MountOptions.md
 
 # Interface: MountOptions
 
-Defined in: [renderer/index.ts:102](https://github.com/Max-Health-Inc/prefab/blob/7a2e43417fa83301b42abd7447c199249e6c40f6/src/renderer/index.ts#L102)
+Defined in: [renderer/index.ts:103](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/renderer/index.ts#L103)
 
 ## Properties
 
@@ -15,7 +15,7 @@ Defined in: [renderer/index.ts:102](https://github.com/Max-Health-Inc/prefab/blo
 optional transport?: McpTransport | McpTransportOptions;
 ```
 
-Defined in: [renderer/index.ts:104](https://github.com/Max-Health-Inc/prefab/blob/7a2e43417fa83301b42abd7447c199249e6c40f6/src/renderer/index.ts#L104)
+Defined in: [renderer/index.ts:105](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/renderer/index.ts#L105)
 
 MCP transport configuration.
 
@@ -27,7 +27,7 @@ MCP transport configuration.
 optional onToast?: (toast) => void;
 ```
 
-Defined in: [renderer/index.ts:106](https://github.com/Max-Health-Inc/prefab/blob/7a2e43417fa83301b42abd7447c199249e6c40f6/src/renderer/index.ts#L106)
+Defined in: [renderer/index.ts:107](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/renderer/index.ts#L107)
 
 Toast notification handler.
 
@@ -49,7 +49,7 @@ Toast notification handler.
 optional themeToggle?: boolean | ThemeToggleOptions;
 ```
 
-Defined in: [renderer/index.ts:108](https://github.com/Max-Health-Inc/prefab/blob/7a2e43417fa83301b42abd7447c199249e6c40f6/src/renderer/index.ts#L108)
+Defined in: [renderer/index.ts:109](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/renderer/index.ts#L109)
 
 Show a built-in theme toggle. Default: true. Set false to suppress.
 
@@ -61,6 +61,6 @@ Show a built-in theme toggle. Default: true. Set false to suppress.
 optional validate?: boolean;
 ```
 
-Defined in: [renderer/index.ts:110](https://github.com/Max-Health-Inc/prefab/blob/7a2e43417fa83301b42abd7447c199249e6c40f6/src/renderer/index.ts#L110)
+Defined in: [renderer/index.ts:111](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/renderer/index.ts#L111)
 
 Warn (console) on wire-format problems before rendering. Default: true. Non-fatal.

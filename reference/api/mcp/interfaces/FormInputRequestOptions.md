@@ -5,7 +5,7 @@ url: /prefab/reference/api/mcp/interfaces/FormInputRequestOptions.md
 
 # Interface: FormInputRequestOptions
 
-Defined in: [mcp/input-required.ts:156](https://github.com/Max-Health-Inc/prefab/blob/7a2e43417fa83301b42abd7447c199249e6c40f6/src/mcp/input-required.ts#L156)
+Defined in: [mcp/input-required.ts:156](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/mcp/input-required.ts#L156)
 
 ## Properties
 
@@ -15,7 +15,7 @@ Defined in: [mcp/input-required.ts:156](https://github.com/Max-Health-Inc/prefab
 optional key?: string;
 ```
 
-Defined in: [mcp/input-required.ts:161](https://github.com/Max-Health-Inc/prefab/blob/7a2e43417fa83301b42abd7447c199249e6c40f6/src/mcp/input-required.ts#L161)
+Defined in: [mcp/input-required.ts:161](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/mcp/input-required.ts#L161)
 
 Key the request is filed under, and the key the answer comes back on.
 
@@ -33,7 +33,7 @@ Key the request is filed under, and the key the answer comes back on.
 optional message?: string;
 ```
 
-Defined in: [mcp/input-required.ts:163](https://github.com/Max-Health-Inc/prefab/blob/7a2e43417fa83301b42abd7447c199249e6c40f6/src/mcp/input-required.ts#L163)
+Defined in: [mcp/input-required.ts:163](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/mcp/input-required.ts#L163)
 
 Prompt shown to the user.
 
@@ -51,6 +51,6 @@ the field list's own title, or a generic ask
 optional requestState?: string;
 ```
 
-Defined in: [mcp/input-required.ts:165](https://github.com/Max-Health-Inc/prefab/blob/7a2e43417fa83301b42abd7447c199249e6c40f6/src/mcp/input-required.ts#L165)
+Defined in: [mcp/input-required.ts:165](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/mcp/input-required.ts#L165)
 
 Opaque state echoed back on the retry. Sign it; see the SDK's request-state codec.

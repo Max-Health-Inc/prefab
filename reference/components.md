@@ -759,8 +759,8 @@ ForEach({ expression: rx('items'), children: [
 
 | Prop | Type | Description |
 |------|------|-------------|
-| `each` | `Rx \| string` | Expression for the array to iterate |
-| `as` | `string` | Variable name for each item (default: `item`) |
+| `expression` | `Rx \| string` | Expression for the array to iterate |
+| `let` | `Record<string, unknown>` | Extra scope bindings for each iteration. The item and its position are always `$item` and `$index`. |
 
 ### `If(condition, children)` / `If(props)` / `Elif` / `Else`
 

@@ -5,7 +5,7 @@ url: /prefab/reference/api/actions/classes/Subscribe.md
 
 # Class: Subscribe
 
-Defined in: [actions/subscribe.ts:47](https://github.com/Max-Health-Inc/prefab/blob/7a2e43417fa83301b42abd7447c199249e6c40f6/src/actions/subscribe.ts#L47)
+Defined in: [actions/subscribe.ts:47](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/actions/subscribe.ts#L47)
 
 Subscribe to a resource URI for real-time updates.
 
@@ -37,7 +37,7 @@ new Subscribe('chess://game/abc123', {
 new Subscribe(uri, opts): Subscribe;
 ```
 
-Defined in: [actions/subscribe.ts:48](https://github.com/Max-Health-Inc/prefab/blob/7a2e43417fa83301b42abd7447c199249e6c40f6/src/actions/subscribe.ts#L48)
+Defined in: [actions/subscribe.ts:48](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/actions/subscribe.ts#L48)
 
 #### Parameters
 
@@ -58,7 +58,7 @@ Defined in: [actions/subscribe.ts:48](https://github.com/Max-Health-Inc/prefab/b
 readonly uri: string;
 ```
 
-Defined in: [actions/subscribe.ts:49](https://github.com/Max-Health-Inc/prefab/blob/7a2e43417fa83301b42abd7447c199249e6c40f6/src/actions/subscribe.ts#L49)
+Defined in: [actions/subscribe.ts:49](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/actions/subscribe.ts#L49)
 
 ## Methods
 
@@ -68,7 +68,7 @@ Defined in: [actions/subscribe.ts:49](https://github.com/Max-Health-Inc/prefab/b
 toJSON(): ActionJSON;
 ```
 
-Defined in: [actions/subscribe.ts:53](https://github.com/Max-Health-Inc/prefab/blob/7a2e43417fa83301b42abd7447c199249e6c40f6/src/actions/subscribe.ts#L53)
+Defined in: [actions/subscribe.ts:53](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/actions/subscribe.ts#L53)
 
 #### Returns
 

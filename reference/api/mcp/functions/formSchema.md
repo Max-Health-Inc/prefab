@@ -9,7 +9,7 @@ url: /prefab/reference/api/mcp/functions/formSchema.md
 function formSchema(fields): McpRestrictedSchema;
 ```
 
-Defined in: [mcp/input-required.ts:142](https://github.com/Max-Health-Inc/prefab/blob/7a2e43417fa83301b42abd7447c199249e6c40f6/src/mcp/input-required.ts#L142)
+Defined in: [mcp/input-required.ts:142](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/mcp/input-required.ts#L142)
 
 Derive the restricted elicitation schema from form fields.
 

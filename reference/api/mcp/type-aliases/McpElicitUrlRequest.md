@@ -9,7 +9,7 @@ url: /prefab/reference/api/mcp/type-aliases/McpElicitUrlRequest.md
 type McpElicitUrlRequest = object;
 ```
 
-Defined in: [mcp/types.ts:249](https://github.com/Max-Health-Inc/prefab/blob/7a2e43417fa83301b42abd7447c199249e6c40f6/src/mcp/types.ts#L249)
+Defined in: [mcp/types.ts:249](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/mcp/types.ts#L249)
 
 URL-mode elicitation: the client sends the user out of band and reports back.
 
@@ -21,7 +21,7 @@ URL-mode elicitation: the client sends the user out of band and reports back.
 method: "elicitation/create";
 ```
 
-Defined in: [mcp/types.ts:250](https://github.com/Max-Health-Inc/prefab/blob/7a2e43417fa83301b42abd7447c199249e6c40f6/src/mcp/types.ts#L250)
+Defined in: [mcp/types.ts:250](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/mcp/types.ts#L250)
 
 ***
 
@@ -31,7 +31,7 @@ Defined in: [mcp/types.ts:250](https://github.com/Max-Health-Inc/prefab/blob/7a2
 params: object;
 ```
 
-Defined in: [mcp/types.ts:251](https://github.com/Max-Health-Inc/prefab/blob/7a2e43417fa83301b42abd7447c199249e6c40f6/src/mcp/types.ts#L251)
+Defined in: [mcp/types.ts:251](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/mcp/types.ts#L251)
 
 #### mode
 

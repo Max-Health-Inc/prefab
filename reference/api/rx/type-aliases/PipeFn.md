@@ -9,7 +9,7 @@ url: /prefab/reference/api/rx/type-aliases/PipeFn.md
 type PipeFn = (value, ...args) => unknown;
 ```
 
-Defined in: [rx/pipes.ts:21](https://github.com/Max-Health-Inc/prefab/blob/7a2e43417fa83301b42abd7447c199249e6c40f6/src/rx/pipes.ts#L21)
+Defined in: [rx/pipes.ts:21](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/rx/pipes.ts#L21)
 
 A pipe function receives the current value and optional arguments.
 

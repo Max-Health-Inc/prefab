@@ -5,7 +5,7 @@ url: /prefab/reference/api/mcp/interfaces/StateUpdate.md
 
 # Interface: StateUpdate
 
-Defined in: [mcp/display.ts:209](https://github.com/Max-Health-Inc/prefab/blob/7a2e43417fa83301b42abd7447c199249e6c40f6/src/mcp/display.ts#L209)
+Defined in: [mcp/display.ts:209](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/mcp/display.ts#L209)
 
 ## Properties
 
@@ -15,7 +15,7 @@ Defined in: [mcp/display.ts:209](https://github.com/Max-Health-Inc/prefab/blob/7
 state: Record<string, unknown>;
 ```
 
-Defined in: [mcp/display.ts:211](https://github.com/Max-Health-Inc/prefab/blob/7a2e43417fa83301b42abd7447c199249e6c40f6/src/mcp/display.ts#L211)
+Defined in: [mcp/display.ts:211](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/mcp/display.ts#L211)
 
 State key-value pairs to merge into the existing UI state.
 
@@ -29,6 +29,6 @@ optional actions?:
   | ActionJSON[];
 ```
 
-Defined in: [mcp/display.ts:213](https://github.com/Max-Health-Inc/prefab/blob/7a2e43417fa83301b42abd7447c199249e6c40f6/src/mcp/display.ts#L213)
+Defined in: [mcp/display.ts:213](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/mcp/display.ts#L213)
 
 Actions to fire after the state delta is applied.

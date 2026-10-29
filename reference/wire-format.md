@@ -50,11 +50,10 @@ Every component serializes to a flat JSON object:
 ```json
 {
   "type": "Button",
-  "content": "Click me",
+  "label": "Click me",
   "variant": "default",
   "size": "sm",
-  "onClick": { "action": "setState", "key": "count", "value": "{{ state.count + 1 }}" },
-  "children": []
+  "onClick": { "action": "setState", "key": "count", "value": "{{ count + 1 }}" }
 }
 ```
 
@@ -71,19 +70,27 @@ Every component serializes to a flat JSON object:
 Component types use PascalCase and map 1:1 to the TypeScript/Python function names:
 
 ```
-Column, Row, Grid, GridItem, Container, Div, Span, MasterDetail, Detail,
-H1, H2, H3, H4, Text, Heading, Muted, Code, Markdown, Link, Kbd,
-Card, CardHeader, CardTitle, CardContent, CardFooter,
-DataTable, Badge, Metric, Progress, Separator, Loader, Icon,
-Table, TableHead, TableBody, TableRow, TableHeader, TableCell,
-Form, Input, Textarea, Button, Select, SelectOption, Checkbox, Switch, Slider,
-Radio, RadioGroup, Combobox, ComboboxOption, Calendar, DatePicker,
-Field, FieldTitle, FieldDescription, FieldContent, FieldError, ChoiceCard,
-Tabs, Tab, Accordion, AccordionItem, Dialog, Popover, Tooltip, Carousel,
-BarChart, LineChart, AreaChart, PieChart, Sparkline, RadialChart, Histogram,
-Image, Audio, Video, Embed, Svg, DropZone, Mermaid,
-Alert, AlertTitle, AlertDescription,
-ForEach, If, Elif, Else, Define, Use, Slot
+Layout:       Column, Row, Grid, GridItem, Container, Div, Span,
+              Dashboard, DashboardItem, Pages, Page, MasterDetail, Detail
+Typography:   Heading, H1, H2, H3, H4, Text, P, Lead, Large, Small, Muted,
+              BlockQuote, Label, Link, Code, Markdown, Kbd
+Card:         Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter
+Data:         DataTable, Badge, Dot, Metric, Ring, Progress, Separator, Loader, Icon
+Table:        Table, TableHead, TableBody, TableFooter, TableRow,
+              TableHeader, TableCell, TableCaption, ExpandableRow
+Form:         Form, Input, Textarea, Button, ButtonGroup,
+              Select, SelectOption, SelectGroup, SelectLabel, SelectSeparator,
+              Checkbox, Switch, Slider, Radio, RadioGroup,
+              Combobox, ComboboxOption, ComboboxGroup, ComboboxLabel, ComboboxSeparator,
+              Calendar, DatePicker, Field, FieldTitle, FieldDescription,
+              FieldContent, FieldError, ChoiceCard
+Interactive:  Tabs, Tab, Accordion, AccordionItem, Dialog, Popover, Tooltip,
+              HoverCard, Carousel
+Charts:       BarChart, LineChart, AreaChart, PieChart, RadarChart, ScatterChart,
+              Sparkline, RadialChart, Histogram
+Media:        Image, Audio, Video, Embed, Svg, DropZone, Mermaid, PdfViewer
+Alert:        Alert, AlertTitle, AlertDescription
+Control:      ForEach, If, Elif, Else, Condition, Define, Use, Slot
 ```
 
 ## Action JSON
@@ -95,7 +102,7 @@ Actions are serialized as objects with an `action` field:
 ```
 
 ```json
-{ "action": "toolCall", "tool": "get_data", "arguments": { "id": "{{ state.selectedId }}" } }
+{ "action": "toolCall", "tool": "get_data", "arguments": { "id": "{{ selectedId }}" } }
 ```
 
 ```json
@@ -110,27 +117,29 @@ Actions are serialized as objects with an `action` field:
 | `toggleState` | Toggle boolean | `key` |
 | `appendState` | Append to array | `key`, `value`, `index?` |
 | `popState` | Remove from array | `key`, `index` |
-| `showToast` | Toast notification | `message`, `variant?`, `duration?` |
+| `showToast` | Toast notification | `message`, `description?`, `variant?`, `duration?` |
 | `closeOverlay` | Close dialog/popover | — |
 | `openLink` | Navigate to URL | `url`, `target?` |
 | `setInterval` | Periodic timer | `intervalMs`, `onTick` |
-| `fetch` | HTTP request | `url`, `method?`, `resultKey?` |
+| `fetch` | HTTP request | `url`, `method?`, `headers?`, `body?`, `resultKey?` |
 | `openFilePicker` | File picker | `accept?`, `multiple?`, `resultKey?` |
-| `callHandler` | Client handler | `handler`, `arguments?` |
+| `callHandler` | Client handler | `handler`, `arguments?`, `resultKey?` |
 | `toolCall` | MCP tool call | `tool`, `arguments?`, `resultKey?` |
 | `sendMessage` | Chat message | `message` |
 | `updateContext` | Host context update | `context` |
 | `requestDisplayMode` | Display mode | `mode` |
+| `subscribe` | Resource subscription, polling fallback | `uri`, `stateKey`, `push?`, `fallbackInterval?`, `fallbackTool?`, `fallbackArgs?`, `onData?` |
+| `unsubscribe` | End a subscription | `uri` |
 
-All actions support optional `onSuccess` and `onError` callbacks (single action or array).
+All actions support optional `onSuccess` and `onError` callbacks (single action or array). The renderer also accepts `callTool` as an alias of `toolCall`.
 
 ## Reactive Expressions
 
 String values containing `{{ }}` are evaluated as reactive expressions:
 
 ```json
-{ "type": "Text", "content": "{{ state.count }}" }
-{ "type": "Text", "content": "Hello, {{ state.name | upper }}!" }
+{ "type": "Text", "content": "{{ count }}" }
+{ "type": "Text", "content": "Hello, {{ name | upper }}!" }
 ```
 
 ### Expression Grammar
@@ -148,27 +157,42 @@ dotpath      = identifier ("." identifier)*
 piped        = expression ("|" pipeName (":" pipeArg ("," pipeArg)*)? )*
 ```
 
-### Key Pipes for Collections
+### Pipes
 
 | Pipe | Syntax | Description |
 |------|--------|-------------|
+| `upper` / `lower` | `name \| upper` | Change case |
+| `truncate` | `desc \| truncate:50` | Cut to N characters |
+| `currency` | `price \| currency:'EUR'` | Format as currency (default `USD`) |
+| `number` | `value \| number:2` | Number, optionally fixed to N decimals |
+| `percent` | `rate \| percent:1` | Ratio as a percentage |
+| `compact` | `count \| compact` | Compact number (1.2K) |
+| `round` | `value \| round:2` | Round to N decimals |
+| `abs` | `delta \| abs` | Absolute value |
+| `date` / `time` / `datetime` | `ts \| date` | Locale date, time, or both |
+| `length` | `items \| length` | Array or string length |
+| `first` / `last` | `items \| first` | First or last element |
+| `join` | `tags \| join:', '` | Join an array |
+| `default` | `name \| default:'N/A'` | Fallback for `null`, `undefined`, or `''` |
+| `pluralize` | `count \| pluralize:'item'` | The word, with `s` unless the value is 1 |
+| `selectattr` / `rejectattr` | `rows \| selectattr:'active'` | Keep rows whose field is truthy / falsy |
 | `find` | `collection \| find:'keyField',stateKeyRef` | Find a row where `row[keyField]` matches the value of `stateKeyRef` |
 | `dot` | `object \| dot:'field'` | Extract a property from an object |
 
-Example: `{{ patients | find:'id',selectedPatientId | dot:'name' }}`
-
-These pipes enable the Signal/Collection/Ref data pattern on the wire format level.
+Pipes chain left to right: `{{ patients | find:'id',selectedPatientId | dot:'name' }}`. `find` and `dot` carry the Signal/Collection/Ref data pattern on the wire. A wire or custom pipe cannot shadow a built-in name.
 
 ### Scope Variables
 
 | Variable | Available In | Description |
 |----------|-------------|-------------|
-| `state.*` | Everywhere | Reactive state store |
-| `item` | `ForEach` body | Current iteration item |
-| `index` | `ForEach` body | Current iteration index |
-| `event` | `onChange`/`onSubmit` | Event data |
-| `error` | `onError` callback | Error value |
-| `result` | `onSuccess` callback | Action result |
+| `key.path` | Everywhere | State value, by dot path (no `state.` prefix) |
+| `$item` | `ForEach` body | Current iteration item |
+| `$index` | `ForEach` body | Current iteration index |
+| `$event` | `onChange` | The new value |
+| `$error` | `onError` callback | Error value |
+| `$result` | `onSuccess` callback | Action result |
+
+In `onSubmit`, each form field is available by its `name`.
 
 ## Theme (authoring input → compiled `css`)
 

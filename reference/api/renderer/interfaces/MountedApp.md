@@ -5,7 +5,7 @@ url: /prefab/reference/api/renderer/interfaces/MountedApp.md
 
 # Interface: MountedApp
 
-Defined in: [renderer/index.ts:113](https://github.com/Max-Health-Inc/prefab/blob/7a2e43417fa83301b42abd7447c199249e6c40f6/src/renderer/index.ts#L113)
+Defined in: [renderer/index.ts:114](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/renderer/index.ts#L114)
 
 ## Properties
 
@@ -15,7 +15,7 @@ Defined in: [renderer/index.ts:113](https://github.com/Max-Health-Inc/prefab/blo
 rerender: () => void;
 ```
 
-Defined in: [renderer/index.ts:115](https://github.com/Max-Health-Inc/prefab/blob/7a2e43417fa83301b42abd7447c199249e6c40f6/src/renderer/index.ts#L115)
+Defined in: [renderer/index.ts:116](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/renderer/index.ts#L116)
 
 Re-render the entire UI from current state.
 
@@ -31,7 +31,7 @@ Re-render the entire UI from current state.
 update: (data) => void;
 ```
 
-Defined in: [renderer/index.ts:117](https://github.com/Max-Health-Inc/prefab/blob/7a2e43417fa83301b42abd7447c199249e6c40f6/src/renderer/index.ts#L117)
+Defined in: [renderer/index.ts:118](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/renderer/index.ts#L118)
 
 Apply a state update (from display\_update).
 
@@ -53,7 +53,7 @@ Apply a state update (from display\_update).
 store: Store;
 ```
 
-Defined in: [renderer/index.ts:119](https://github.com/Max-Health-Inc/prefab/blob/7a2e43417fa83301b42abd7447c199249e6c40f6/src/renderer/index.ts#L119)
+Defined in: [renderer/index.ts:120](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/renderer/index.ts#L120)
 
 Get the reactive store.
 
@@ -65,7 +65,7 @@ Get the reactive store.
 destroy: () => void;
 ```
 
-Defined in: [renderer/index.ts:121](https://github.com/Max-Health-Inc/prefab/blob/7a2e43417fa83301b42abd7447c199249e6c40f6/src/renderer/index.ts#L121)
+Defined in: [renderer/index.ts:122](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/renderer/index.ts#L122)
 
 Unmount and clean up.
 
