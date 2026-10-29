@@ -1066,7 +1066,7 @@ describe('Bridge.notifyPreferredSize', () => {
   })
 })
 
-describe('Bridge model context updates', () => {
+describe('Bridge model context and chat messages', () => {
   let bridge: Bridge
 
   beforeEach(() => { bridge = new Bridge('*') })
@@ -1090,6 +1090,24 @@ describe('Bridge model context updates', () => {
     })
 
     expect(sent).toEqual([{ content: [{ type: 'text', text: '3D preview failed: HTTP 404' }], structuredContent: { state: 'error' } }])
+    window.removeEventListener('message', host)
+  })
+
+  it('sends ui/message content as a ContentBlock array, as the ext-apps schema requires', async () => {
+    bridge.connect()
+    const sent: Record<string, unknown>[] = []
+    const host = (event: MessageEvent): void => {
+      const msg = event.data
+      if (msg?.jsonrpc !== '2.0' || msg.id == null || !msg.method) return
+      if (msg.method === 'ui/message') sent.push(msg.params)
+      window.postMessage({ jsonrpc: '2.0', id: msg.id, result: msg.method === 'ui/initialize' ? { hostInfo: { name: 'Host' } } : {} }, '*')
+    }
+    window.addEventListener('message', host)
+
+    await bridge.initialize({})
+    await bridge.createTransport().sendMessage('Show me the forecast')
+
+    expect(sent).toEqual([{ role: 'user', content: [{ type: 'text', text: 'Show me the forecast' }] }])
     window.removeEventListener('message', host)
   })
 

@@ -41,6 +41,7 @@ import type { McpTransportOptions } from './transport.js'
 import { app } from './app.js'
 import { Bridge, isIframe } from './bridge.js'
 import { registerPipe, unregisterPipe, listPipes, getCustomPipe } from '../rx/pipes.js'
+import { BUILTIN_PIPES } from './rx.js'
 import type { PipeFn } from '../rx/pipes.js'
 import { registerComponent } from './engine.js'
 import { validateWireFormat } from '../core/validate.js'
@@ -332,14 +333,6 @@ export const PrefabRenderer = {
 }
 
 // ── Pipe hydration ───────────────────────────────────────────────────────────
-
-/** Built-in pipe names that wire pipes must never shadow. */
-const BUILTIN_PIPES = new Set([
-  'find', 'dot', 'length', 'upper', 'lower', 'truncate', 'join',
-  'first', 'last', 'abs', 'round', 'number', 'currency', 'percent',
-  'compact', 'date', 'time', 'datetime', 'pluralize', 'default',
-  'selectattr', 'rejectattr',
-])
 
 /**
  * Per-mount pipe hydration state.

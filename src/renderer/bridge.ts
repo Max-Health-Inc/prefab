@@ -592,7 +592,7 @@ export class Bridge {
       sendMessage: async (message: string): Promise<void> => {
         await this.sendRpcRequest('ui/message', {
           role: 'user',
-          content: { type: 'text', text: message },
+          content: [{ type: 'text', text: message }],
         })
       },
       updateModelContext: async (update: ModelContextUpdate): Promise<void> => {

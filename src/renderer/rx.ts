@@ -183,6 +183,14 @@ function evaluateCore(expr: string, store: Store, scope?: EvalScope): unknown {
 
 // ── Pipe filters ─────────────────────────────────────────────────────────────
 
+/** Pipe names `applyFilter` implements; wire and custom pipes never shadow them. */
+export const BUILTIN_PIPES: ReadonlySet<string> = new Set([
+  'find', 'dot', 'length', 'upper', 'lower', 'truncate', 'join',
+  'first', 'last', 'abs', 'round', 'number', 'currency', 'percent',
+  'compact', 'date', 'time', 'datetime', 'pluralize', 'default',
+  'selectattr', 'rejectattr',
+])
+
 function applyFilter(filterStr: string, value: unknown, store?: Store, scope?: EvalScope): unknown {
   const colonIdx = filterStr.indexOf(':')
   const name = colonIdx >= 0 ? filterStr.slice(0, colonIdx).trim() : filterStr
