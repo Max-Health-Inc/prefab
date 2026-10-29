@@ -37,7 +37,7 @@ Two-pane layout. First child = master list, second = detail.
 ```json
 { "type": "MasterDetail", "masterWidth": "33%", "gap": 16, "children": [
   { "type": "Column", "children": [...] },
-  { "type": "Detail", "of": "{{ state.selectedId }}", "children": [...] }
+  { "type": "Detail", "of": "{{ selectedId }}", "children": [...] }
 ]}
 ```
 
@@ -68,7 +68,7 @@ Shorthands: `H1`, `H2`, `H3`, `H4` — same as `Heading` with fixed level.
 ### Text / P / Lead / Large / Small / Muted
 
 ```json
-{ "type": "Text", "content": "Hello {{ state.name }}" }
+{ "type": "Text", "content": "Hello {{ name }}" }
 { "type": "Muted", "content": "Last updated 5 min ago" }
 ```
 
@@ -203,7 +203,7 @@ Same as Input plus `rows: number`.
 ### Button
 
 ```json
-{ "type": "Button", "label": "Save", "variant": "default", "size": "default", "onClick": { "action": "showToast", "title": "Saved!" } }
+{ "type": "Button", "label": "Save", "variant": "default", "size": "default", "onClick": { "action": "showToast", "message": "Saved!" } }
 ```
 
 | Prop | Values |
@@ -352,10 +352,10 @@ Variants: `default`, `info`, `success`, `warning`, `destructive`
 ### ForEach
 
 ```json
-{ "type": "ForEach", "each": "{{ state.items }}", "as": "item", "children": [
+{ "type": "ForEach", "expression": "{{ items }}", "children": [
   { "type": "Row", "children": [
-    { "type": "Text", "content": "{{ item.name }}" },
-    { "type": "Badge", "label": "{{ item.status }}" }
+    { "type": "Text", "content": "{{ $item.name }}" },
+    { "type": "Badge", "label": "{{ $item.status }}" }
   ]}
 ]}
 ```
@@ -363,8 +363,8 @@ Variants: `default`, `info`, `success`, `warning`, `destructive`
 ### If / Elif / Else
 
 ```json
-{ "type": "If", "condition": "{{ state.loading }}", "children": [{ "type": "Loader" }] }
-{ "type": "Elif", "condition": "{{ state.error }}", "children": [{ "type": "Alert", "variant": "destructive", "children": [...] }] }
+{ "type": "If", "condition": "{{ loading }}", "children": [{ "type": "Loader" }] }
+{ "type": "Elif", "condition": "{{ error }}", "children": [{ "type": "Alert", "variant": "destructive", "children": [...] }] }
 { "type": "Else", "children": [{ "type": "Text", "content": "Data loaded!" }] }
 ```
 

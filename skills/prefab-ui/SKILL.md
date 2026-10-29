@@ -41,7 +41,7 @@ Use `"children"` for nesting. Use `"content"` for text content.
 3. **Layout first** — Use `Column` (vertical) or `Row` (horizontal) as root containers
 4. **`gap` for spacing** — `{ "type": "Column", "gap": 16, "children": [...] }`
 5. **Cards for grouping** — Wrap related content in `Card > CardHeader + CardContent + CardFooter`
-6. **State for interactivity** — Declare initial values in `"state"`, reference via `{{ state.key }}`
+6. **State for interactivity** — Declare initial values in `"state"`, reference by key, e.g. `{{ key }}`
 7. **Actions on events** — `onClick`, `onChange`, `onSubmit` take action objects or arrays
 
 ## Component Quick Reference
@@ -116,7 +116,7 @@ Use `"children"` for nesting. Use `"content"` for text content.
 ### Control Flow
 | Type | Purpose | Key Props |
 |------|---------|-----------|
-| `ForEach` | Loop over array | `each`, `as` |
+| `ForEach` | Loop over array (`$item`, `$index` in scope) | `expression`, `let` |
 | `If` / `Elif` / `Else` | Conditional render | `condition` |
 
 ## Actions Quick Reference
@@ -124,10 +124,10 @@ Use `"children"` for nesting. Use `"content"` for text content.
 ```json
 { "action": "setState", "key": "name", "value": "Alice" }
 { "action": "toggleState", "key": "darkMode" }
-{ "action": "appendState", "key": "items", "item": "{{ newItem }}" }
+{ "action": "appendState", "key": "items", "value": "{{ newItem }}" }
 { "action": "popState", "key": "items", "index": 0 }
-{ "action": "showToast", "title": "Done!", "description": "Saved successfully." }
-{ "action": "toolCall", "tool": "get_data", "arguments": { "id": "{{ state.selectedId }}" }, "resultKey": "data" }
+{ "action": "showToast", "message": "Done!", "description": "Saved successfully." }
+{ "action": "toolCall", "tool": "get_data", "arguments": { "id": "{{ selectedId }}" }, "resultKey": "data" }
 { "action": "openLink", "url": "https://example.com", "target": "_blank" }
 { "action": "fetch", "url": "/api/data", "method": "GET", "resultKey": "apiData" }
 ```
@@ -139,9 +139,9 @@ Multiple actions: use an array `[{ "action": "setState", ... }, { "action": "sho
 Use `{{ }}` in any string value to make it reactive:
 
 ```json
-{ "type": "Text", "content": "Hello, {{ state.name }}!" }
-{ "type": "Text", "content": "{{ state.count }} {{ state.count | pluralize:'item' }}" }
-{ "type": "Badge", "label": "{{ state.active ? 'Online' : 'Offline' }}", "variant": "{{ state.active ? 'success' : 'secondary' }}" }
+{ "type": "Text", "content": "Hello, {{ name }}!" }
+{ "type": "Text", "content": "{{ count }} {{ count | pluralize:'item' }}" }
+{ "type": "Badge", "label": "{{ active ? 'Online' : 'Offline' }}", "variant": "{{ active ? 'success' : 'secondary' }}" }
 ```
 
 ### Key Pipes

@@ -44,21 +44,21 @@ state and rendering the result in a table.
         { "type": "Button", "label": "Search", "onClick": {
           "action": "toolCall",
           "tool": "search_records",
-          "arguments": { "query": "{{ state.query }}" },
+          "arguments": { "query": "{{ query }}" },
           "resultKey": "results",
           "onSuccess": { "action": "setState", "key": "items", "value": "{{ result.data }}" },
-          "onError": { "action": "showToast", "title": "Error", "description": "{{ error }}", "variant": "destructive" }
+          "onError": { "action": "showToast", "message": "Error", "description": "{{ error }}", "variant": "destructive" }
         }}
       ]},
-      { "type": "If", "condition": "{{ state.loading }}", "children": [{ "type": "Loader" }] },
-      { "type": "If", "condition": "{{ state.items | length > 0 }}", "children": [
+      { "type": "If", "condition": "{{ loading }}", "children": [{ "type": "Loader" }] },
+      { "type": "If", "condition": "{{ items | length > 0 }}", "children": [
         { "type": "DataTable",
           "columns": [
             { "key": "name", "header": "Name", "sortable": true },
             { "key": "type", "header": "Type" },
             { "key": "updated", "header": "Updated", "format": "date" }
           ],
-          "rows": "{{ state.items }}",
+          "rows": "{{ items }}",
           "search": false
         }
       ]}
@@ -72,7 +72,7 @@ state and rendering the result in a table.
 
 1. **Missing envelope** — Always wrap in `{ "$prefab": { "version": "0.3" }, "view": { ... } }`
 2. **Flat layout** — Don't put 10 children at root level. Group into Cards/Rows/Columns.
-3. **Missing state** — If you use `{{ state.x }}`, declare `x` in `"state"`
+3. **Missing state** — If you use `{{ x }}`, declare `x` in `"state"`
 4. **camelCase types** — Wrong: `"type": "dataTable"` → Right: `"type": "DataTable"`
 5. **Orphan options** — `SelectOption` must be inside `Select.children` (or use `options` shorthand)
 6. **Giant JSON** — Keep responses under ~200 components. Split into pages if larger.

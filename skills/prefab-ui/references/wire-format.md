@@ -41,7 +41,7 @@ Every component is a flat JSON object:
   "type": "Button",
   "label": "Click me",
   "variant": "default",
-  "onClick": { "action": "setState", "key": "count", "value": "{{ state.count + 1 }}" }
+  "onClick": { "action": "setState", "key": "count", "value": "{{ count + 1 }}" }
 }
 ```
 
@@ -74,9 +74,9 @@ Interactive:  Tabs, Tab, Accordion, AccordionItem, Dialog, Popover, Tooltip,
               HoverCard, Carousel
 Charts:       BarChart, LineChart, AreaChart, PieChart, RadarChart, ScatterChart,
               Sparkline, RadialChart, Histogram
-Media:        Image, Audio, Video, Embed, Svg, DropZone, Mermaid
+Media:        Image, Audio, Video, Embed, Svg, DropZone, Mermaid, PdfViewer
 Alert:        Alert, AlertTitle, AlertDescription
-Control:      ForEach, If, Elif, Else, Define, Use, Slot
+Control:      ForEach, If, Elif, Else, Condition, Define, Use, Slot
 ```
 
 ## Action JSON
@@ -87,28 +87,30 @@ Actions are objects with an `"action"` field, attached to `onClick`, `onChange`,
 |--------|------------|-------------|
 | `setState` | `key`, `value` | Set a state value |
 | `toggleState` | `key` | Toggle boolean state |
-| `appendState` | `key`, `item` | Append to state array |
+| `appendState` | `key`, `value`, `index?` | Append to state array |
 | `popState` | `key`, `index` | Remove from state array |
-| `showToast` | `title`, `description?`, `variant?`, `duration?` | Show toast notification |
+| `showToast` | `message`, `description?`, `variant?`, `duration?` | Show toast notification |
 | `closeOverlay` | — | Close current dialog/popover |
 | `openLink` | `url`, `target?` | Navigate to URL |
 | `setInterval` | `intervalMs`, `onTick` | Start periodic timer |
-| `fetch` | `url`, `method?`, `body?`, `resultKey?` | HTTP request |
+| `fetch` | `url`, `method?`, `headers?`, `body?`, `resultKey?` | HTTP request |
 | `openFilePicker` | `accept?`, `multiple?`, `resultKey?` | Open file picker |
-| `callHandler` | `handler`, `arguments?` | Call client-side handler |
+| `callHandler` | `handler`, `arguments?`, `resultKey?` | Call client-side handler |
 | `toolCall` | `tool`, `arguments?`, `resultKey?` | MCP tool call |
 | `sendMessage` | `message` | Send chat message |
 | `updateContext` | `context` | Update host context |
 | `requestDisplayMode` | `mode` | Request display mode change |
+| `subscribe` | `uri`, `stateKey`, `push?`, `fallbackInterval?`, `fallbackTool?`, `fallbackArgs?`, `onData?` | Resource subscription with polling fallback |
+| `unsubscribe` | `uri` | End a subscription |
 
-All actions support `onSuccess` and `onError` callbacks (action or action array).
+All actions support `onSuccess` and `onError` callbacks (action or action array). `callTool` is accepted as an alias of `toolCall`.
 
 Multiple actions on one event: use an array.
 
 ```json
 "onClick": [
   { "action": "setState", "key": "saved", "value": true },
-  { "action": "showToast", "title": "Saved!" }
+  { "action": "showToast", "message": "Saved!" }
 ]
 ```
 
@@ -119,13 +121,13 @@ String values containing `{{ }}` are evaluated reactively and update when state 
 ### Syntax
 
 ```
-{{ state.count }}                    — state access
-{{ state.count + 1 }}                — arithmetic
-{{ state.name | upper }}             — pipe
-{{ state.active ? 'Yes' : 'No' }}   — ternary
-{{ state.a && state.b }}             — logical
-{{ state.count > 0 }}                — comparison
-{{ !state.loading }}                 — negation
+{{ count }}                   — state access
+{{ count + 1 }}               — arithmetic
+{{ name | upper }}            — pipe
+{{ active ? 'Yes' : 'No' }}   — ternary
+{{ a && b }}                  — logical
+{{ count > 0 }}               — comparison
+{{ !loading }}                — negation
 ```
 
 ### Operator Precedence (high to low)
@@ -164,12 +166,14 @@ Pipes chain: `{{ name | upper | truncate:20 }}`
 
 | Variable | Available In | Description |
 |----------|-------------|-------------|
-| `state.*` | Everywhere | Reactive state store |
-| `item` | `ForEach` body | Current iteration item |
-| `index` | `ForEach` body | Current iteration index |
-| `event` | `onChange`/`onSubmit` | Event data |
-| `error` | `onError` callback | Error value |
-| `result` | `onSuccess` callback | Action result |
+| `key.path` | Everywhere | State value, by dot path (no `state.` prefix) |
+| `$item` | `ForEach` body | Current iteration item |
+| `$index` | `ForEach` body | Current iteration index |
+| `$event` | `onChange` | The new value |
+| `$error` | `onError` callback | Error value |
+| `$result` | `onSuccess` callback | Action result |
+
+In `onSubmit`, each form field is available by its `name`.
 
 ## Theme (authoring input → compiled `css`)
 
