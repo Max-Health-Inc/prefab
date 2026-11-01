@@ -14,6 +14,7 @@ import { log } from '../core/logger.js'
 import { dispatchActions, fireAndForget } from './actions.js'
 import { toCamelCase } from '../core/component.js'
 import { stringifyValue } from '../core/stringify.js'
+import { isRecord, optionalString } from '../core/guards.js'
 
 // ── Key normalisation ────────────────────────────────────────────────────────
 
@@ -28,12 +29,10 @@ export function normalizeNode<T extends Record<string, unknown>>(node: T): T {
     const key = k.startsWith('$') ? k : toCamelCase(k)
     if (Array.isArray(v)) {
       result[key] = v.map((item: unknown) =>
-        item != null && typeof item === 'object' && !Array.isArray(item)
-          ? normalizeNode(item as Record<string, unknown>)
-          : item,
+        isRecord(item) ? normalizeNode(item) : item,
       )
-    } else if (v != null && typeof v === 'object' && !Array.isArray(v)) {
-      result[key] = normalizeNode(v as Record<string, unknown>)
+    } else if (isRecord(v)) {
+      result[key] = normalizeNode(v)
     } else {
       result[key] = v
     }
@@ -281,7 +280,7 @@ function renderConditionalChain(
 
   // Evaluate the If node
   const ifNode = children[i]
-  if (evalCondition(ifNode.condition as string, ctx)) {
+  if (evalCondition(optionalString(ifNode.condition) ?? '', ctx)) {
     renderBranchChildren(ifNode, parent, ctx)
     matched = true
   }
@@ -291,7 +290,7 @@ function renderConditionalChain(
   while (i < children.length) {
     const sibling = children[i]
     if (sibling.type === 'Elif') {
-      if (!matched && evalCondition(sibling.condition as string, ctx)) {
+      if (!matched && evalCondition(optionalString(sibling.condition) ?? '', ctx)) {
         renderBranchChildren(sibling, parent, ctx)
         matched = true
       }

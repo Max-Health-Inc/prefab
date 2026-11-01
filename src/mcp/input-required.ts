@@ -37,6 +37,7 @@
 
 import type { AutoFormField } from '../auto/form.js'
 import { createLogger } from '../core/logger.js'
+import { humanizeKey } from '../core/humanize.js'
 import type {
   McpElicitFormRequest,
   McpElicitResult,
@@ -66,14 +67,6 @@ const NUMERIC: Record<string, 'number' | 'integer' | undefined> = {
   integer: 'integer',
 }
 
-/** Humanize a field name the same way `autoForm` does, for schema titles. */
-function humanize(name: string): string {
-  return name
-    .replace(/[_-]+/g, ' ')
-    .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
-    .replace(/\b\w/g, c => c.toUpperCase())
-}
-
 /**
  * Derive the restricted schema for one field.
  *
@@ -82,7 +75,7 @@ function humanize(name: string): string {
  * render it; the type is dropped rather than misrepresented.
  */
 function fieldSchema(field: AutoFormField): McpPrimitiveSchema {
-  const title = field.label ?? humanize(field.name)
+  const title = field.label ?? humanizeKey(field.name)
   const common = { title, ...(field.description != null && { description: field.description }) }
 
   if (field.options != null && field.options.length > 0) {

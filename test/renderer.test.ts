@@ -198,6 +198,15 @@ describe('Actions', () => {
     expect(store.get('items')).toEqual(['a', 'c'])
   })
 
+  it('popState resolves a template index the way setState resolves its value', async () => {
+    store.set('items', ['a', 'b', 'c'])
+    await dispatchActions({ action: 'popState', key: 'items', index: '{{ $index }}' }, { ...ctx, scope: { $index: 1 } })
+    expect(store.get('items')).toEqual(['a', 'c'])
+
+    await dispatchActions({ action: 'popState', key: 'items', index: '{{ $item }}' }, { ...ctx, scope: { $item: 'c' } })
+    expect(store.get('items')).toEqual(['a'])
+  })
+
   it('showToast emits toast event', async () => {
     await dispatchActions({ action: 'showToast', message: 'Hello', variant: 'success' }, ctx)
     expect(toasts).toHaveLength(1)

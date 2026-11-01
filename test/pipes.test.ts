@@ -135,3 +135,18 @@ describe('Ref.pipe() builder', () => {
     expect(evaluateExpression(expr, store)).toBe('hello!')
   })
 })
+
+describe('date pipes', () => {
+  test('leave a value that is not a date as it is instead of printing "Invalid Date"', () => {
+    const store = new Store({ when: 'not a date', missing: null })
+    for (const pipe of ['date', 'time', 'datetime']) {
+      expect(evaluateExpression(`when | ${pipe}`, store)).toBe('not a date')
+      expect(evaluateExpression(`missing | ${pipe}`, store)).toBeNull()
+    }
+  })
+
+  test('format a real date', () => {
+    const store = new Store({ when: '2026-03-27T16:00:00Z' })
+    expect(evaluateExpression('when | date', store)).toBe(new Date('2026-03-27T16:00:00Z').toLocaleDateString())
+  })
+})

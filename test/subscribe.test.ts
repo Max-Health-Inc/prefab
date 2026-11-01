@@ -80,6 +80,32 @@ describe('subscribe action dispatch — push path', () => {
   beforeEach(() => { clearAllSubscriptions() })
   afterEach(() => { clearAllSubscriptions() })
 
+  it('runs onError when the host refuses the push subscription, and lets it be retried', async () => {
+    const refusals: ((error: unknown) => void)[] = []
+    const transport = {
+      ...mockSubscriptionTransport(),
+      subscribe: (_uri: string, _onData: (data: unknown) => void, onError?: (error: unknown) => void) => {
+        if (onError) refusals.push(onError)
+        return () => {}
+      },
+    }
+    const ctx = makeDispatchCtx({}, transport)
+    const subscribe = {
+      action: 'subscribe',
+      uri: 'chess://game/abc',
+      stateKey: '$game',
+      onError: { action: 'showToast', message: 'Live updates unavailable', variant: 'error' },
+    }
+
+    await dispatchActions(subscribe, ctx)
+    refusals[0]?.(new Error('resources/subscribe: method not found'))
+    await new Promise(r => setTimeout(r, 0))
+
+    expect(ctx.toasts.map(t => t.message)).toEqual(['Live updates unavailable'])
+    await dispatchActions(subscribe, ctx)
+    expect(refusals).toHaveLength(2)
+  })
+
   it('uses transport.subscribe when host supports subscriptions', async () => {
     const transport = mockSubscriptionTransport()
     const ctx = makeDispatchCtx({}, transport)

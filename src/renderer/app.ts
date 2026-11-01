@@ -32,6 +32,7 @@ import type { McpTransportOptions } from './transport.js'
 import type { McpTransport } from './actions.js'
 import { registerAllComponents } from './components/index.js'
 import { Store } from './state.js'
+import { optionalRecord } from '../core/guards.js'
 import { renderNode } from './engine.js'
 import type { ComponentNode, RenderContext } from './engine.js'
 
@@ -165,7 +166,7 @@ export async function app(options?: AppOptions): Promise<PrefabApp> {
   // Wire up bridge lifecycle events
   if (bridge) {
     bridge.on('prefab:tool-input', (payload) => {
-      const args = (payload.args ?? payload) as Record<string, unknown>
+      const args = optionalRecord(payload.args) ?? payload
       if (toolInputHandler) {
         toolInputHandler(args)
       } else {
@@ -184,7 +185,7 @@ export async function app(options?: AppOptions): Promise<PrefabApp> {
       toolCancelledHandler?.()
     })
     bridge.on('prefab:tool-input-partial', (payload) => {
-      toolInputPartialHandler?.((payload.args ?? payload) as Record<string, unknown>)
+      toolInputPartialHandler?.(optionalRecord(payload.args) ?? payload)
     })
     bridge.on('prefab:theme-update', (payload) => {
       if (typeof document !== 'undefined') {

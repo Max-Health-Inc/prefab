@@ -5,6 +5,13 @@
 import { registerComponent, renderNode, renderChildArray } from '../engine.js'
 import type { ComponentNode, RenderContext } from '../engine.js'
 import { evaluateTemplate, isRxExpression } from '../rx.js'
+import { isRecord, optionalRecord, optionalString } from '../../core/guards.js'
+import { isComponentNode } from '../node-guard.js'
+
+function nodeSlots(value: unknown): Record<string, ComponentNode[]> {
+  if (!isRecord(value)) return {}
+  return Object.fromEntries(Object.entries(value).map(([slot, nodes]) => [slot, Array.isArray(nodes) ? nodes.filter(isComponentNode) : []]))
+}
 
 export function registerControlComponents(): void {
   registerComponent('ForEach', renderForEach)
@@ -19,7 +26,7 @@ export function registerControlComponents(): void {
 
 function renderForEach(node: ComponentNode, ctx: RenderContext): DocumentFragment {
   const frag = document.createDocumentFragment()
-  const expr = node.expression as string | undefined
+  const expr = optionalString(node.expression)
   if (!expr) return frag
   let items: unknown[]
 
@@ -31,7 +38,7 @@ function renderForEach(node: ComponentNode, ctx: RenderContext): DocumentFragmen
     items = Array.isArray(val) ? val : []
   }
 
-  const letBindings = (node.let as Record<string, unknown> | undefined) ?? {}
+  const letBindings = optionalRecord(node.let) ?? {}
 
   for (let i = 0; i < items.length; i++) {
     const item = items[i]
@@ -64,7 +71,7 @@ function renderForEach(node: ComponentNode, ctx: RenderContext): DocumentFragmen
  * (they're consumed by the parent's If chain logic).
  */
 function renderIf(node: ComponentNode, ctx: RenderContext): HTMLElement | DocumentFragment {
-  const condition = evaluateCondition(node.condition as string, ctx)
+  const condition = evaluateCondition(optionalString(node.condition) ?? '', ctx)
 
   if (condition) {
     const frag = document.createDocumentFragment()
@@ -135,7 +142,7 @@ function renderCondition(node: ComponentNode, ctx: RenderContext): DocumentFragm
  * Renders nothing — content is materialized via Use.
  */
 function renderDefine(node: ComponentNode, ctx: RenderContext): DocumentFragment {
-  const name = node.name as string
+  const name = optionalString(node.name)
   if (name && node.children) {
     ctx.templates = ctx.templates ?? {}
     ctx.templates[name] = node.children
@@ -149,11 +156,11 @@ function renderDefine(node: ComponentNode, ctx: RenderContext): DocumentFragment
  */
 function renderUse(node: ComponentNode, ctx: RenderContext): DocumentFragment {
   const frag = document.createDocumentFragment()
-  const name = (node.def ?? node.name) as string
-  const children = ctx.templates?.[name]
+  const name = optionalString(node.def ?? node.name)
+  const children = name != null ? ctx.templates?.[name] : undefined
   if (!children) return frag
 
-  const overrides = (node.overrides ?? {}) as Record<string, unknown>
+  const overrides = optionalRecord(node.overrides) ?? {}
   const childScope = { ...ctx.scope, ...overrides }
 
   // Slot content: the Use node's own children fill the default slot, and a
@@ -161,7 +168,7 @@ function renderUse(node: ComponentNode, ctx: RenderContext): DocumentFragment {
   // could only ever render its fallback.
   const slots: Record<string, ComponentNode[]> = {
     ...(ctx.slots ?? {}),
-    ...((node.slots as Record<string, ComponentNode[]> | undefined) ?? {}),
+    ...nodeSlots(node.slots),
   }
   if (Array.isArray(node.children)) slots.default = node.children
 
@@ -178,7 +185,7 @@ function renderUse(node: ComponentNode, ctx: RenderContext): DocumentFragment {
  */
 function renderSlot(node: ComponentNode, ctx: RenderContext): DocumentFragment {
   const frag = document.createDocumentFragment()
-  const slotName = (node.name as string | undefined) ?? 'default'
+  const slotName = optionalString(node.name) ?? 'default'
 
   // Check if parent context provided slot content
   const slotContent = ctx.slots?.[slotName]

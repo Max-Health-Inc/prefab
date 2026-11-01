@@ -56,8 +56,8 @@ function renderTableCell(node: ComponentNode, ctx: RenderContext): HTMLElement {
   const td = document.createElement('td')
   td.className = 'pf-table-cell'
   td.style.padding = '8px 12px'
-  if (node.colSpan != null) td.colSpan = node.colSpan as number
-  if (node.rowSpan != null) td.rowSpan = node.rowSpan as number
+  if (node.colSpan != null) td.colSpan = Number(node.colSpan)
+  if (node.rowSpan != null) td.rowSpan = Number(node.rowSpan)
   renderChildren(node, td, ctx)
   return td
 }

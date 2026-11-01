@@ -1,22 +1,6 @@
 /**
- * Serving A2UI over MCP — the `a2ui://` sibling of `./resource.ts`'s `ui://`.
- *
- * The two delivery models are not variations on one theme:
- *
- *   - **MCP Apps (`ui://`)** ships an HTML document that the host renders in a
- *     sandboxed iframe. prefab's renderer runs inside it and draws the
- *     `$prefab` payload. `registerViewerResource` in `./resource.ts` sets that up.
- *   - **A2UI (`a2ui://`)** ships the UI *description*. No iframe and no
- *     renderer of prefab's: the host's own A2UI renderer draws native widgets
- *     from the component list.
- *
- * A server can offer both from the same tool. The A2UI payload is identified by
- * the `application/a2ui+json` MIME type, either as a standalone resource or as
- * an `EmbeddedResource` inside a tool result, which is what
- * [A2UI over MCP](https://a2ui.org/guides/a2ui_over_mcp/) specifies.
- *
- * The payload itself is the list-wrapper envelope `{ messages: [...] }` rather
- * than a bare array, because a resource body has to be a JSON object.
+ * A2UI over MCP (`a2ui://`): the UI description as `application/a2ui+json`, drawn by the host's own A2UI renderer,
+ * where `ui://` ships prefab's renderer in an iframe. See https://a2ui.org/guides/a2ui_over_mcp/.
  */
 
 import { PrefabApp } from '../app.js'
@@ -35,11 +19,7 @@ import { resolveCache, type McpServerLike, type ResourceConfig } from './resourc
 
 const log = createLogger('a2ui')
 
-/**
- * An A2UI surface is rebuilt on every read, so it defaults to no caching. That
- * is the opposite of the viewer HTML in `./resource.ts`, which is pinned to the
- * package version and safely shared-cacheable.
- */
+/** A surface is rebuilt on every read, so it is not cached unless the caller says so. */
 const DEFAULT_SURFACE_CACHE: Required<McpCacheHint> = { ttlMs: 0, cacheScope: 'private' }
 
 /** Default URI for a server that serves a single A2UI surface. */
@@ -55,11 +35,7 @@ export function a2uiPayload(messages: A2uiMessage[]): A2uiMessageList {
 export interface DisplayA2uiOptions extends A2uiEmitOptions {
   /** URI stamped on the embedded resource. @default 'a2ui://prefab/surface' */
   uri?: string
-  /**
-   * Called with anything lost in translation. Without it, a `degraded` or
-   * `unsupported` diagnostic is logged at warn level, because silently shipping
-   * a lesser UI is the failure mode worth making noisy.
-   */
+  /** Called with anything lost in translation; without it, `degraded` and `unsupported` diagnostics are logged as warnings. */
   onDiagnostics?: (diagnostics: A2uiDiagnostic[]) => void
 }
 
@@ -75,11 +51,7 @@ function reportDiagnostics(diagnostics: A2uiDiagnostic[], options?: DisplayA2uiO
 }
 
 /**
- * Return a view as an A2UI tool result.
- *
- * The messages travel as an `EmbeddedResource` in `content`, which is where a
- * host looks for a payload it should route to its A2UI renderer, and as
- * `structuredContent` for hosts that read results structurally.
+ * A view as an A2UI tool result: an `EmbeddedResource` in `content`, and the same payload as `structuredContent`.
  *
  * @example
  * ```ts
@@ -124,14 +96,8 @@ export interface A2uiResourceOptions extends A2uiEmitOptions {
 }
 
 /**
- * Register a static A2UI surface as an `a2ui://` resource.
- *
- * Static is the point: a surface that does not depend on the conversation is
- * cheaper as a resource than as a tool, because the host can read it once and
- * cache it. Anything that varies per call belongs in {@link display_a2ui}.
- *
- * `builder` runs on every read rather than once at registration, so a surface
- * that closes over data refreshes without re-registering.
+ * Register an A2UI surface that does not depend on the conversation as an `a2ui://` resource; `builder` runs on every read.
+ * Per-call views belong in {@link display_a2ui}.
  *
  * @example
  * ```ts

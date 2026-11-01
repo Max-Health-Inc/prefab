@@ -66,5 +66,5 @@ export default PrefabA2UI
 export { emit, envelope }
 
 if (typeof window !== 'undefined') {
-  ;(window as unknown as Record<string, unknown>).PrefabA2UI = PrefabA2UI
+  Object.assign(window, { PrefabA2UI })
 }

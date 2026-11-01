@@ -14,6 +14,15 @@
 import type { Store } from './state.js'
 import { getCustomPipe } from '../rx/pipes.js'
 import { stringifyValue } from '../core/stringify.js'
+import { isRecord } from '../core/guards.js'
+
+/** `value` formatted as a date, or unchanged when it is not one. */
+function formatDate(value: unknown, format: (date: Date) => string): unknown {
+  const date = value instanceof Date ? value
+    : typeof value === 'string' || typeof value === 'number' ? new Date(value)
+    : undefined
+  return date && !Number.isNaN(date.getTime()) ? format(date) : value
+}
 
 /** Scope for expression evaluation (loop variables, event data, etc.) */
 export interface EvalScope {
@@ -255,8 +264,8 @@ function applyFilter(filterStr: string, value: unknown, store?: Store, scope?: E
       if (!keyMap) {
         keyMap = new Map()
         for (const item of value) {
-          if (item != null && typeof item === 'object') {
-            const fv = (item as Record<string, unknown>)[field]
+          if (isRecord(item)) {
+            const fv = item[field]
             if (fv != null) keyMap.set(stringifyValue(fv), item)
           }
         }
@@ -267,7 +276,7 @@ function applyFilter(filterStr: string, value: unknown, store?: Store, scope?: E
     case 'dot': {
       // dot:'field' — extract a property from an object
       if (value == null || typeof value !== 'object' || typeof arg !== 'string') return undefined
-      return (value as Record<string, unknown>)[arg]
+      return Reflect.get(value, arg)
     }
     case 'length':
       return Array.isArray(value) ? value.length : typeof value === 'string' ? value.length : 0
@@ -307,11 +316,11 @@ function applyFilter(filterStr: string, value: unknown, store?: Store, scope?: E
       } catch { return value }
     }
     case 'date':
-      try { return new Date(value as string).toLocaleDateString() } catch { return value }
+      return formatDate(value, date => date.toLocaleDateString())
     case 'time':
-      try { return new Date(value as string).toLocaleTimeString() } catch { return value }
+      return formatDate(value, date => date.toLocaleTimeString())
     case 'datetime':
-      try { return new Date(value as string).toLocaleString() } catch { return value }
+      return formatDate(value, date => date.toLocaleString())
     case 'pluralize': {
       const n = Number(value)
       const word = typeof arg === 'string' ? arg : ''
@@ -321,13 +330,13 @@ function applyFilter(filterStr: string, value: unknown, store?: Store, scope?: E
       return value == null || value === '' ? arg : value
     case 'selectattr':
       return Array.isArray(value) && typeof arg === 'string'
-        ? value.filter(item => item != null && typeof item === 'object' && Boolean((item as Record<string, unknown>)[arg]))
+        ? value.filter(item => isRecord(item) && Boolean(item[arg]))
         : value
     case 'rejectattr':
       return Array.isArray(value) && typeof arg === 'string'
         ? value.filter(item => {
-          if (item == null || typeof item !== 'object') return false
-          const attr = (item as Record<string, unknown>)[arg]
+          if (!isRecord(item)) return false
+          const attr = item[arg]
           return attr == null || attr === false || attr === 0 || attr === ''
         })
         : value
@@ -471,8 +480,8 @@ function resolveDeep(obj: unknown, path: string): unknown {
   const parts = path.split('.')
   let current = obj
   for (const part of parts) {
-    if (current == null || typeof current !== 'object') return undefined
-    current = (current as Record<string, unknown>)[part]
+    if (!isRecord(current) && !Array.isArray(current)) return undefined
+    current = Reflect.get(current, part)
   }
   return current
 }

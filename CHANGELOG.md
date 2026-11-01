@@ -6,6 +6,24 @@ All notable changes to this project will be documented in this file.
 
 <!-- Add new entries directly below. Keep this line: it makes a release merge conflict rather than file them under a published version. -->
 
+### Fixed
+
+- **`registerViewerResource` allows every origin the viewer loads from.** Script origins went into the CSP `resourceDomains`, but `stylesheets` and a custom `cdnBase` did not, so a host enforcing the CSP blocked the extra stylesheets and, with `cdnBase`, the renderer itself.
+- **`Subscribe`'s `onError` runs when the host refuses the push subscription.** A rejected or timed-out `resources/subscribe` was dropped as an unhandled rejection and the view waited forever. `onError` now runs and the same `Subscribe` can be dispatched again. `McpTransport.subscribe` and `Bridge.subscribe` take an optional `onError` for this.
+- **`popState` resolves a template `index`** the way `setState` resolves its `value`, so `pop(items, '{{ $index }}')` inside a `ForEach` removes that row instead of nothing.
+- **`humanizeKey` gives camelCase keys the same sentence-case label as snake_case**: `firstName` is now `First name` (was `First Name`), and acronyms stay whole (`userID` is `User ID`, was `User I D`). Elicitation schema titles from `formSchema` used a separate Title Case copy and now share it, so they match the `autoForm` labels.
+- **The `date`, `time` and `datetime` pipes leave a value that is not a date unchanged** instead of rendering `Invalid Date`.
+- **A `DataTable` with `rowKey` and `selected` renders `null` rows** instead of throwing.
+- **The bridge ignores foreign `postMessage` traffic without a `type`** (strings, browser-extension messages) instead of throwing in its message listener.
+- **Host themes keep only values the renderer can apply**: an unknown `theme` color scheme and non-string CSS variables are dropped, and `availableDisplayModes` is filtered to known modes.
+- **`PdfViewer` reads `page`, `height` and numeric `zoom` given as numeric strings**, and falls back to its defaults for anything else instead of writing an invalid height.
+- **Docs that promised more than the code does**: `PdfViewer` has no text layer and no zoom control in its toolbar, and `signal(..., { urlSync })` is stored for app code but not synced to the address bar by the renderer.
+
+### Internal
+
+- Renderer components, the bridge handshake, `validateWireFormat` and the pipe implementations narrow wire values with `src/core/guards.ts` instead of `as` casts.
+- Long explanatory comments across `src/mcp`, `src/a2ui`, `src/core` and `src/rx` are cut to one or two lines.
+
 ## [0.3.18] — 2026-10-29
 
 ### Fixed

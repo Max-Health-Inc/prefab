@@ -1,13 +1,5 @@
 /**
- * Centralized logger — the single sink for all prefab console output.
- *
- * Zero-dependency by design (prefab's renderer bundle ships no runtime deps),
- * but API-compatible with the org-wide `@maxhealth.tech/utils` `createLogger`
- * so call sites read the same everywhere and could later swap to the shared
- * package without churn.
- *
- * Adds a runtime level (the utils logger gates on NODE_ENV, which is unreliable
- * in a browser bundle) so an embedding host can raise or mute prefab's output:
+ * The one sink for prefab's console output, with a runtime level a host can raise or mute:
  *
  * ```ts
  * import { setLogLevel } from '@maxhealth.tech/prefab'

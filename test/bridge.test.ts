@@ -30,6 +30,24 @@ describe('Bridge (prefab:* protocol)', () => {
     bridge.disconnect()
   })
 
+  it('ignores foreign messages that carry no type instead of throwing on them', async () => {
+    const errors: unknown[] = []
+    const onError = (event: ErrorEvent): void => { errors.push(event.error ?? event.message) }
+    window.addEventListener('error', onError)
+    const original = console.error
+    console.error = (...args: unknown[]) => { errors.push(args) }
+    try {
+      bridge.connect()
+      window.postMessage('hello from an extension', '*')
+      window.postMessage({ source: 'react-devtools-content-script' }, '*')
+      await new Promise((r) => setTimeout(r, 50))
+    } finally {
+      console.error = original
+      window.removeEventListener('error', onError)
+    }
+    expect(errors).toEqual([])
+  })
+
   it('dispatches incoming messages to registered listeners', () => {
     bridge.connect()
 
@@ -494,6 +512,22 @@ describe('Bridge (JSON-RPC ui/* protocol)', () => {
     })
   })
 
+  it('passes on only a color scheme and CSS variables the theme can apply', async () => {
+    bridge.connect()
+
+    let received: Record<string, unknown> | undefined
+    bridge.on('prefab:theme-update', (payload) => { received = payload })
+
+    window.postMessage({
+      jsonrpc: '2.0',
+      method: 'ui/notifications/host-context-changed',
+      params: { theme: 'sepia', styles: { variables: { '--accent': 'blue', '--radius': { px: 4 } } } },
+    }, '*')
+    await new Promise((r) => setTimeout(r, 50))
+
+    expect(received).toEqual({ variables: { '--accent': 'blue' } })
+  })
+
   it('dispatches prefab:host-context-changed with full params', () => {
     bridge.connect()
 
@@ -576,6 +610,25 @@ describe('Bridge (JSON-RPC ui/* protocol)', () => {
       expect(r.content).toBeDefined()
       window.removeEventListener('message', respondToToolCall)
     })
+  })
+
+  it('hands a refused resources/subscribe to the subscriber instead of dropping it', async () => {
+    bridge.connect()
+    ;(bridge as unknown as { protocol: string }).protocol = 'jsonrpc'
+    const refuse = (event: MessageEvent): void => {
+      const msg = event.data
+      if (msg?.jsonrpc === '2.0' && msg.method === 'resources/subscribe' && msg.id != null) {
+        window.postMessage({ jsonrpc: '2.0', id: msg.id, error: { code: -32601, message: 'Method not found' } }, '*')
+      }
+    }
+    window.addEventListener('message', refuse)
+
+    const errors: unknown[] = []
+    bridge.createTransport().subscribe?.('chess://game/abc', () => {}, (error) => { errors.push(error) })
+    await new Promise((r) => setTimeout(r, 50))
+    window.removeEventListener('message', refuse)
+
+    expect(errors).toHaveLength(1)
   })
 
   it('parallel race — JSON-RPC wins without waiting for prefab:init timeout', async () => {

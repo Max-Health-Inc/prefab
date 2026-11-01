@@ -26,6 +26,9 @@
 
 import type { McpTransport, ModelContextUpdate } from './actions.js'
 import { VERSION } from '../core/version.js'
+import { isRecord, optionalRecord, optionalString } from '../core/guards.js'
+import { availableDisplayModes, isBridgeMessage, parseHostTheme, prefabHostContext } from './host-context.js'
+import { stringifyValue } from '../core/stringify.js'
 
 // ── Public types ─────────────────────────────────────────────────────────────
 
@@ -88,11 +91,7 @@ type JsonRpcMessage = JsonRpcRequest | JsonRpcResponse
 
 /** Type guard: is this a JSON-RPC 2.0 envelope? */
 function isJsonRpcEnvelope(msg: unknown): msg is JsonRpcMessage {
-  return (
-    msg !== null &&
-    typeof msg === 'object' &&
-    (msg as Record<string, unknown>).jsonrpc === '2.0'
-  )
+  return isRecord(msg) && msg.jsonrpc === '2.0'
 }
 
 // ── Bridge Class ─────────────────────────────────────────────────────────────
@@ -139,8 +138,8 @@ export class Bridge {
       }
 
       // ── prefab:* messages ───────────────────────────────────────────────
-      const bmsg = msg as BridgeMessage | undefined
-      if (!bmsg?.type.startsWith('prefab:')) return
+      if (!isBridgeMessage(msg) || !msg.type.startsWith('prefab:')) return
+      const bmsg = msg
 
       // Resolve pending tool-call promises
       if (bmsg.type === 'prefab:tool-call-response' && bmsg.id) {
@@ -148,7 +147,7 @@ export class Bridge {
         if (p) {
           this.pending.delete(bmsg.id)
           if (bmsg.payload?.error != null) {
-            p.reject(new Error(bmsg.payload.error as string))
+            p.reject(new Error(stringifyValue(bmsg.payload.error)))
           } else {
             p.resolve(bmsg.payload?.result)
           }
@@ -285,14 +284,10 @@ export class Bridge {
   }
 
   /**
-   * Subscribe to a resource URI for real-time push updates.
-   *
-   * Sends `ui/resources/subscribe` (JSON-RPC) or `prefab:subscribe` (prefab)
-   * to the host and registers a listener for incoming update notifications.
-   *
-   * @returns Cleanup function that unsubscribes from the resource.
+   * Subscribe to push updates for a resource URI via `resources/subscribe` (JSON-RPC) or `prefab:subscribe`.
+   * `onError` receives a refused or timed-out JSON-RPC subscription. Returns the unsubscribe function.
    */
-  subscribe(uri: string, onData: (data: unknown) => void): () => void {
+  subscribe(uri: string, onData: (data: unknown) => void, onError?: (error: unknown) => void): () => void {
     const handler = (payload: Record<string, unknown>): void => {
       if (payload.uri !== uri) return
       onData(payload.contents ?? payload.data ?? payload)
@@ -300,7 +295,10 @@ export class Bridge {
 
     if (this.protocol === 'jsonrpc') {
       this.on('prefab:resource-updated', handler)
-      void this.sendRpcRequest('resources/subscribe', { uri })
+      this.sendRpcRequest('resources/subscribe', { uri }).catch((error: unknown) => {
+        this.off('prefab:resource-updated', handler)
+        onError?.(error)
+      })
     } else {
       this.on('prefab:resource-updated', handler)
       this.sendPrefab('prefab:subscribe', { uri })
@@ -309,7 +307,7 @@ export class Bridge {
     return () => {
       this.off('prefab:resource-updated', handler)
       if (this.protocol === 'jsonrpc') {
-        void this.sendRpcRequest('resources/unsubscribe', { uri })
+        this.sendRpcRequest('resources/unsubscribe', { uri }).catch(noop)
       } else {
         this.sendPrefab('prefab:unsubscribe', { uri })
       }
@@ -366,10 +364,8 @@ export class Bridge {
         settled = true
         this.off('prefab:init-response', onResponse)
         this.protocol = 'prefab'
-        // Detect subscription support from host capabilities
-        const caps = (payload as unknown as HostContext).capabilities as Record<string, unknown> | undefined
-        this._hostSupportsSubscriptions = caps?.subscriptions === true
-        resolve(payload as unknown as HostContext)
+        this._hostSupportsSubscriptions = optionalRecord(payload.capabilities)?.subscriptions === true
+        resolve(prefabHostContext(payload))
       }
       this.on('prefab:init-response', onResponse)
       this.sendPrefab('prefab:init', { capabilities: appCapabilities })
@@ -408,8 +404,8 @@ export class Bridge {
         this.sendPrefab('prefab:update-context', { context: update.structuredContent, content: update.content })
         return Promise.resolve()
       },
-      subscribe: (uri: string, onData: (data: unknown) => void): (() => void) => {
-        return this.subscribe(uri, onData)
+      subscribe: (uri: string, onData: (data: unknown) => void, onError?: (error: unknown) => void): (() => void) => {
+        return this.subscribe(uri, onData, onError)
       },
       capabilities: { subscriptions: this._hostSupportsSubscriptions },
     }
@@ -467,16 +463,7 @@ export class Bridge {
         this.dispatch('prefab:tool-cancelled', params)
         break
       case 'ui/notifications/host-context-changed': {
-        const theme: HostTheme = {}
-        if (typeof params.theme === 'string') {
-          theme.colorScheme = params.theme as 'light' | 'dark' | 'auto'
-        }
-        if (typeof params.styles === 'object' && params.styles !== null) {
-          const styles = params.styles as { variables?: Record<string, string>; css?: { fonts?: string } }
-          if (styles.variables) theme.variables = styles.variables
-          if (typeof styles.css?.fonts === 'string') theme.fontCss = styles.css.fonts
-        }
-        this.dispatch('prefab:theme-update', theme as Record<string, unknown>)
+        this.dispatch('prefab:theme-update', { ...parseHostTheme(params) })
         // Dispatch full params so components can react to arbitrary host context fields
         this.dispatch('prefab:host-context-changed', params)
         break
@@ -503,24 +490,12 @@ export class Bridge {
           settled = true
           this.protocol = 'jsonrpc'
 
-          const r = (result ?? {}) as Record<string, unknown>
-          const hostInfo = (r.hostInfo ?? {}) as Record<string, string>
-          const hostCtx = (r.hostContext ?? {}) as Record<string, unknown>
-          const hostCaps = (r.hostCapabilities ?? {}) as Record<string, unknown>
+          const r = optionalRecord(result) ?? {}
+          const hostInfo = optionalRecord(r.hostInfo) ?? {}
+          const hostCtx = optionalRecord(r.hostContext) ?? {}
+          const hostCaps = optionalRecord(r.hostCapabilities) ?? {}
 
-          // Parse theme from hostContext
-          let theme: HostTheme | undefined
-          if (typeof hostCtx.theme === 'string' || typeof hostCtx.styles === 'object') {
-            theme = {}
-            if (typeof hostCtx.theme === 'string') {
-              theme.colorScheme = hostCtx.theme as 'light' | 'dark' | 'auto'
-            }
-            if (typeof hostCtx.styles === 'object' && hostCtx.styles !== null) {
-              const styles = hostCtx.styles as { variables?: Record<string, string>; css?: { fonts?: string } }
-              if (styles.variables) theme.variables = styles.variables
-              if (typeof styles.css?.fonts === 'string') theme.fontCss = styles.css.fonts
-            }
-          }
+          const theme = typeof hostCtx.theme === 'string' || isRecord(hostCtx.styles) ? parseHostTheme(hostCtx) : undefined
 
           // Send ui/notifications/initialized to confirm readiness
           this.postJsonRpc({
@@ -530,19 +505,19 @@ export class Bridge {
           })
 
           // Detect subscription support from host capabilities
-          const resourcesCaps = hostCaps.resources as Record<string, unknown> | undefined
+          const resourcesCaps = optionalRecord(hostCaps.resources)
           this._hostSupportsSubscriptions =
             hostCaps.subscriptions === true ||
             resourcesCaps?.subscribe === true
 
           resolve({
-            hostName: hostInfo.name,
-            hostVersion: hostInfo.version,
+            hostName: optionalString(hostInfo.name),
+            hostVersion: optionalString(hostInfo.version),
             capabilities: {
               toast: true,
               navigation: hostCaps.openLinks != null,
               messaging: true,
-              displayModes: (hostCtx.availableDisplayModes ?? []) as DisplayMode[],
+              displayModes: availableDisplayModes(hostCtx.availableDisplayModes),
             },
             theme,
             toolInput: undefined,
@@ -598,8 +573,8 @@ export class Bridge {
       updateModelContext: async (update: ModelContextUpdate): Promise<void> => {
         await this.sendRpcRequest('ui/update-model-context', { ...update })
       },
-      subscribe: (uri: string, onData: (data: unknown) => void): (() => void) => {
-        return this.subscribe(uri, onData)
+      subscribe: (uri: string, onData: (data: unknown) => void, onError?: (error: unknown) => void): (() => void) => {
+        return this.subscribe(uri, onData, onError)
       },
       capabilities: { subscriptions: this._hostSupportsSubscriptions },
     }
@@ -629,8 +604,8 @@ export class Bridge {
   private postJsonRpc(msg: Record<string, unknown>): void {
     if (typeof window === 'undefined') return
     // Track outgoing request ids to filter self-messages in same-window envs
-    if (msg.id != null && typeof msg.method === 'string') {
-      this.sentRpcIds.add(msg.id as number | string)
+    if ((typeof msg.id === 'number' || typeof msg.id === 'string') && typeof msg.method === 'string') {
+      this.sentRpcIds.add(msg.id)
     }
     if (this.postFn) {
       this.postFn(msg)
@@ -698,12 +673,13 @@ export function isIframe(): boolean {
 /** Detect VS Code webview API (acquireVsCodeApi). Returns the API object or undefined. */
 function detectVsCodeApi(): { postMessage: (msg: unknown) => void } | undefined {
   if (typeof window === 'undefined') return undefined
-  const win = window as unknown as Record<string, unknown>
-  if (typeof win.acquireVsCodeApi === 'function') {
+  const acquire: unknown = Reflect.get(window, 'acquireVsCodeApi')
+  if (typeof acquire === 'function') {
     try {
-      const api = (win.acquireVsCodeApi as () => unknown)()
-      if (api !== null && typeof api === 'object' && 'postMessage' in api) {
-        return api as { postMessage: (msg: unknown) => void }
+      const api: unknown = Reflect.apply(acquire, undefined, [])
+      if (isRecord(api) && typeof api.postMessage === 'function') {
+        const post = api.postMessage
+        return { postMessage: (msg: unknown) => { Reflect.apply(post, api, [msg]) } }
       }
     } catch {
       return undefined

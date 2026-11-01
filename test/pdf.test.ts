@@ -4,6 +4,9 @@
 
 import { describe, it, expect } from 'bun:test'
 import { PdfViewer } from '../src/components/pdf'
+import { renderNode } from '../src/renderer/engine'
+import { registerPdfComponents } from '../src/renderer/components/pdf'
+import { makeRenderCtx } from './helpers/render'
 
 describe('PdfViewer', () => {
   it('creates component from URL string', () => {
@@ -58,5 +61,21 @@ describe('PdfViewer', () => {
     expect(json.zoom).toBe('fit-width')
     expect(json.toolbar).toBe(true)
     expect(json.height).toBe(600)
+  })
+})
+
+describe('PdfViewer renderer', () => {
+  it('sizes the viewer from a numeric height and falls back to 600px for anything else', () => {
+    registerPdfComponents()
+    const ctx = makeRenderCtx()
+    const height = (value: unknown): string => {
+      const el = renderNode({ type: 'PdfViewer', height: value }, ctx)
+      return el instanceof HTMLElement ? el.style.height : 'not an element'
+    }
+
+    expect(height(480)).toBe('480px')
+    expect(height('480')).toBe('480px')
+    expect(height({ px: 480 })).toBe('600px')
+    expect(height('tall')).toBe('600px')
   })
 })
