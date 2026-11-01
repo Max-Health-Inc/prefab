@@ -1,9 +1,5 @@
 /**
- * Signal — Named reactive scalar for the prefab wire format.
- *
- * Signals carry identity values (string, number, boolean, null) — never
- * full objects. They serialize into `state` as a key-value pair and
- * produce `{{ key }}` expressions wherever they're referenced.
+ * A named reactive scalar: serializes into `state` and renders as `{{ key }}` wherever it is referenced.
  *
  * @example
  * ```ts
@@ -20,17 +16,11 @@ import { trackState } from './state-collector.js'
 export type SignalValue = string | number | boolean | null
 
 export interface SignalOptions {
-  /**
-   * URL query parameter name. When set, the runtime syncs the signal
-   * value with `?param=value` in the address bar. Opt-in.
-   */
+  /** A URL query parameter name, kept on the signal for app code. The renderer does not sync it to the address bar. */
   urlSync?: string
 }
 
-/**
- * A named reactive scalar. Carries a state key, an initial value,
- * and produces rx expressions for component props.
- */
+/** A state key with an initial value, usable wherever a prop takes an rx expression. */
 export class Signal<T extends SignalValue = SignalValue> {
   readonly key: string
   readonly initial: T

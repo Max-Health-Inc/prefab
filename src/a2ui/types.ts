@@ -1,25 +1,6 @@
 /**
- * A2UI v1.0 wire types.
- *
- * A2UI (`a2ui.org`) is the declarative agent-to-UI protocol: the agent streams
- * JSON describing a component tree plus a data model, and the renderer maps the
- * abstract component names onto its own widgets. prefab emits it as a second
- * output target alongside the `$prefab` wire format.
- *
- * Two structural differences drive the whole emitter:
- *
- *   1. **Flat, not nested.** A2UI components live in an adjacency list — every
- *      component carries an `id`, and parents reference children by id rather
- *      than embedding them. `$prefab` nests `children` directly.
- *   2. **Bound, not interpolated.** A2UI reads dynamic values through JSON
- *      Pointer `{ path }` bindings into the data model. `$prefab` interpolates
- *      `{{ expr }}` templates, which is strictly more expressive, so only the
- *      plain-path subset survives the crossing (see `./expr.ts`).
- *
- * Mirrors `specification/v1_0/json/agent_to_renderer.json` and
- * `catalogs/basic/catalog.json` from a2ui-project/a2ui (Apache-2.0). Only the
- * agent-to-renderer direction is modelled: prefab produces UI, it does not
- * consume renderer events.
+ * A2UI v1.0 agent-to-renderer wire types (a2ui-project/a2ui, Apache-2.0): a flat, id-linked component list whose
+ * values bind through JSON Pointers, where `$prefab` nests children and interpolates `{{ }}`.
  */
 
 // ── Constants ────────────────────────────────────────────────────────────────
@@ -46,13 +27,7 @@ export interface A2uiDataBinding {
   path: string
 }
 
-/**
- * A call to a catalog function, used for formatting and validation.
- *
- * The function name lives under `call`, and the object IS the call — it is not
- * wrapped in a `functionCall` key. That wrapper appears only where a function
- * stands in for an {@link A2uiAction}.
- */
+/** A catalog function call, unwrapped; the `functionCall` wrapper exists only inside an {@link A2uiAction}. */
 export interface A2uiFunctionCall {
   call: string
   catalogId?: string
@@ -97,13 +72,7 @@ export interface A2uiAccessibility {
   live?: 'off' | 'polite' | 'assertive'
 }
 
-/**
- * One entry in a surface's adjacency list.
- *
- * The index signature carries catalog-specific props (`text`, `url`, `options`,
- * …) that vary per component, which is how the catalog stays open to component
- * sets beyond Basic without a type per component.
- */
+/** One entry in a surface's component list; catalog-specific props ride the index signature. */
 export interface A2uiComponentProps {
   component: string
   catalogId?: string
@@ -112,12 +81,7 @@ export interface A2uiComponentProps {
   [prop: string]: unknown
 }
 
-/**
- * Split from {@link A2uiComponentProps} by extension rather than by
- * `Omit<A2uiComponent, 'id'>`. `Omit` resolves `keyof` to `string | number`
- * on a type carrying an index signature, which erases every named property, so
- * the omitted form would no longer be known to supply `component`.
- */
+/** Extends {@link A2uiComponentProps} because `Omit` over an index signature erases the named properties. */
 export interface A2uiComponent extends A2uiComponentProps {
   id: string
 }
@@ -158,25 +122,14 @@ export interface A2uiDeleteSurface {
   surfaceId: string
 }
 
-/**
- * One agent-to-renderer message.
- *
- * A type alias rather than an interface so it keeps an implicit index
- * signature: these land in `structuredContent`, which the MCP SDK types as
- * `{ [x: string]: unknown }`, and TypeScript grants that signature to object
- * aliases but never to interfaces. Same reasoning as `src/mcp/types.ts`.
- */
+/** One agent-to-renderer message; a type alias so it fits `structuredContent` (see `src/mcp/types.ts`). */
 export type A2uiMessage =
   | { version: string; createSurface: A2uiCreateSurface }
   | { version: string; updateComponents: A2uiUpdateComponents }
   | { version: string; updateDataModel: A2uiUpdateDataModel }
   | { version: string; deleteSurface: A2uiDeleteSurface }
 
-/**
- * The list-wrapper envelope, for transports that need a top-level JSON object
- * rather than a bare array. This is what prefab writes into an MCP resource or
- * an embedded resource, per `agent_to_renderer_list_wrapper.json`.
- */
+/** The `{ messages }` envelope prefab writes into MCP resources, per `agent_to_renderer_list_wrapper.json`. */
 // eslint-disable-next-line @typescript-eslint/consistent-type-definitions -- must be a type alias to get an implicit index signature; see the note on A2uiMessage
 export type A2uiMessageList = {
   messages: A2uiMessage[]

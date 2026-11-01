@@ -1,9 +1,3 @@
-/**
- * Subscribe action — declarative real-time resource subscriptions with polling fallback.
- *
- * Enables server→client push via MCP resource subscriptions when the host supports it.
- * Automatically falls back to SetInterval + CallTool polling otherwise.
- */
 
 import type { Action, ActionJSON } from './types.js'
 import { serializeCallbacks } from './types.js'
@@ -22,16 +16,12 @@ export interface SubscribeOpts {
   fallbackArgs?: Record<string, unknown>
   /** Action(s) executed whenever new data arrives (push or poll). */
   onData?: Action | Action[]
-  /** Action(s) executed on subscription or poll error. */
+  /** Action(s) executed when the host refuses the subscription or a poll fails. */
   onError?: Action | Action[]
 }
 
 /**
- * Subscribe to a resource URI for real-time updates.
- *
- * When the host supports MCP resource subscriptions (`capabilities.subscriptions`),
- * the renderer uses push notifications via the bridge. Otherwise it falls back to
- * periodic polling using `SetInterval` + `CallTool`.
+ * Subscribe to a resource URI: push when the host supports resource subscriptions, otherwise poll `fallbackTool`.
  *
  * @example
  * ```ts
@@ -66,12 +56,7 @@ export class Subscribe implements Action {
   }
 }
 
-/**
- * Unsubscribe from a previously subscribed resource URI.
- *
- * Typically used in cleanup or when navigating away from a view.
- * The renderer also automatically unsubscribes on destroy.
- */
+/** Unsubscribe from a resource URI; the renderer also unsubscribes everything on destroy. */
 export class Unsubscribe implements Action {
   constructor(readonly uri: string) {}
 

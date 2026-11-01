@@ -46,8 +46,8 @@ export interface McpTransport {
   sendMessage(message: string): Promise<void>
   /** Replace what this view has told the model, without starting a turn. */
   updateModelContext?(update: ModelContextUpdate): Promise<void>
-  /** Subscribe to a resource URI for push updates. Returns an unsubscribe function. */
-  subscribe?(uri: string, onData: (data: unknown) => void): () => void
+  /** Subscribe to a resource URI for push updates; `onError` hears a refused subscription. Returns an unsubscribe function. */
+  subscribe?(uri: string, onData: (data: unknown) => void, onError?: (error: unknown) => void): () => void
   /** Transport capabilities discovered during handshake. */
   readonly capabilities?: { subscriptions?: boolean }
 }
@@ -197,7 +197,7 @@ function handleAppendState(action: ActionJSON, ctx: DispatchContext): void {
 function handlePopState(action: ActionJSON, ctx: DispatchContext): void {
   const key = stateKey(action, 'popState')
   if (key === undefined) return
-  const index = action.index
+  const index = isRxExpression(action.index) ? evaluateTemplate(action.index, ctx.store, ctx.scope) : action.index
   if (typeof index !== 'number' && typeof index !== 'string') {
     log.warn('popState: missing index')
     return
@@ -432,7 +432,10 @@ function handleSubscribe(action: ActionJSON, ctx: DispatchContext): void {
 
   // Push path: transport supports native subscriptions and the action allows it
   if (action.push !== false && ctx.transport?.subscribe && ctx.transport.capabilities?.subscriptions) {
-    const unsubscribe = ctx.transport.subscribe(uri, onDataCallback)
+    const unsubscribe = ctx.transport.subscribe(uri, onDataCallback, (err: unknown) => {
+      if (activeSubscriptions.get(uri) === unsubscribe) activeSubscriptions.delete(uri)
+      void reportActionError('subscribe', err, action.onError, ctx)
+    })
     activeSubscriptions.set(uri, unsubscribe)
     return
   }

@@ -1,20 +1,6 @@
 /**
- * VS Code theme bridge for the viewer HTML.
- *
- * `prefab.css` resolves every token through a fallback chain: MCP Apps host
- * variable first, then the VS Code webview variable, then a static default.
- * That ordering is right in general, but it means a host which defines the MCP
- * Apps `--color-*` variables shadows the VS Code ones entirely, and the viewer
- * stops following the user's editor theme.
- *
- * This module emits a stylesheet that re-declares the affected tokens with the
- * VS Code variable *first* and the MCP Apps layer dropped, at a specificity and
- * document position that beat each of `prefab.css`'s four token blocks. It is
- * opt-in via `rendererHtml({ themeBridge: 'vscode' })`.
- *
- * The table below is the single source of truth for the mapping.
- * `test/theme-bridge.test.ts` cross-checks every entry against `prefab.css`, so
- * the bridge cannot drift from the base theme it overrides.
+ * VS Code theme bridge: re-declares tokens with the `--vscode-*` variable first, so a host's MCP Apps `--color-*`
+ * layer no longer shadows the editor theme. `test/theme-bridge.test.ts` checks the table against `prefab.css`.
  */
 
 /** How one prefab token is sourced from the VS Code webview. */
@@ -27,12 +13,7 @@ export interface VsCodeTokenSource {
   dark?: string
 }
 
-/**
- * prefab tokens that VS Code can supply, with the same variables and static
- * fallbacks `prefab.css` uses. Tokens VS Code has no equivalent for (`--success`,
- * `--warning`, shadows, radii) are deliberately absent: the bridge only overrides
- * what the editor can actually provide.
- */
+/** prefab tokens VS Code can supply, with `prefab.css`'s own fallbacks; tokens it cannot supply are absent. */
 export const VSCODE_BRIDGE: Readonly<Record<string, VsCodeTokenSource>> = {
   'background': { vscode: 'vscode-editor-background', light: '#ffffff', dark: '#09090b' },
   'foreground': { vscode: 'vscode-editor-foreground', light: '#09090b', dark: '#fafafa' },
@@ -65,13 +46,7 @@ export const VSCODE_BRIDGE: Readonly<Record<string, VsCodeTokenSource>> = {
 /** Supported theme bridges. */
 export type ThemeBridge = 'vscode'
 
-/**
- * Runtime whitelist for {@link ThemeBridge}.
- *
- * Kept as a value, not just the union type, so the guard in `themeBridgeCss`
- * still rejects a bad name handed over from untyped JS. A `!==` chain against a
- * single-member union narrows itself away and validates nothing.
- */
+/** Runtime list of {@link ThemeBridge}, so untyped JS callers are validated too. */
 const THEME_BRIDGES: readonly ThemeBridge[] = ['vscode']
 
 function declarations(scheme: 'light' | 'dark', indent: string): string {
@@ -85,20 +60,8 @@ function declarations(scheme: 'light' | 'dark', indent: string): string {
 }
 
 /**
- * Generate the theme-bridge CSS (the contents of a `<style>` element).
- *
- * Mirrors the selectors `prefab.css` uses for *host-driven* tokens, so the
- * override lands in both schemes rather than only in light mode: the `:root`
- * default (alongside `[data-theme="light"]`, whose higher specificity would
- * otherwise win) and the `prefers-color-scheme: dark` media block. Each selector
- * matches its counterpart's specificity and is emitted after `prefab.css`, so it
- * wins on document order.
- *
- * `:root[data-theme="dark"]` is deliberately NOT bridged. That block is
- * prefab's standalone dark palette with static values and no host chain at all,
- * the explicit separation of host theming (which cascades) from the manual theme
- * toggle. Overriding it would make an app that pins `data-theme="dark"` follow
- * the editor instead of its own choice.
+ * The theme-bridge CSS, matching `prefab.css`'s host-driven selectors in both schemes. `[data-theme="dark"]` is
+ * left alone, so an app that pins it keeps its own palette.
  *
  * @example
  * ```ts

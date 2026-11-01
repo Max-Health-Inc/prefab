@@ -1,18 +1,6 @@
 /**
- * Custom pipe registry — extension point for domain-specific formatters.
- *
- * prefab ships no domain formatters of its own. A companion module adds them by
- * calling `registerPipe()` at import time, hand-written or emitted by a code
- * generator for whatever schema the consumer works with. Write such pipes
- * closure-free so they survive the `fn.toString()` → `new Function()` wire
- * round-trip.
- *
- * Registering locally is also the CSP-safe path: `hydratePipe` skips eval for any
- * name already in this registry, so a host whose CSP omits `'unsafe-eval'` can
- * load the companion module through `rendererHtml({ scripts })` rather than
- * relying on wire hydration.
- *
- * Built-in pipes in applyFilter always take precedence over custom pipes.
+ * Custom pipe registry. Pipes sent over the wire must be closure-free (they are rebuilt with `new Function`);
+ * registering one locally skips that eval, which keeps hosts without `'unsafe-eval'` working. Built-ins always win.
  */
 
 import { log } from '../core/logger.js'
@@ -22,11 +10,7 @@ export type PipeFn = (value: unknown, ...args: unknown[]) => unknown
 
 const pipes = new Map<string, PipeFn>()
 
-/**
- * Register a custom pipe filter.
- * Re-registration warns and overwrites (HMR-friendly).
- * Built-in pipes in applyFilter always shadow custom pipes.
- */
+/** Register a custom pipe. Re-registering warns and overwrites; a built-in of the same name still wins. */
 export function registerPipe(name: string, fn: PipeFn): void {
   if (pipes.has(name) && pipes.get(name) !== fn) {
     log.warn(`pipe "${name}" re-registered`)

@@ -6,6 +6,7 @@
  */
 
 import { log } from '../core/logger.js'
+import { isRecord } from '../core/guards.js'
 
 export type Subscriber = () => void
 export type Unsubscribe = () => void
@@ -123,7 +124,7 @@ function resolvePath(obj: unknown, path: string): unknown {
   let current = obj
   for (const part of parts) {
     if (current == null || typeof current !== 'object') return undefined
-    current = (current as Record<string, unknown>)[part]
+    current = Reflect.get(current, part)
   }
   return current
 }
@@ -140,10 +141,14 @@ function setPath(obj: Record<string, unknown>, path: string, value: unknown): vo
   let current: Record<string, unknown> = obj
   for (let i = 0; i < parts.length - 1; i++) {
     const key = parts[i]
-    if (current[key] == null || typeof current[key] !== 'object') {
-      current[key] = {}
+    const next = current[key]
+    if (isRecord(next)) {
+      current = next
+    } else {
+      const created: Record<string, unknown> = {}
+      current[key] = created
+      current = created
     }
-    current = current[key] as Record<string, unknown>
   }
   current[parts[parts.length - 1]] = value
 }

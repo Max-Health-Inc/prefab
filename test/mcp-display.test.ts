@@ -697,6 +697,18 @@ describe('registerViewerResource()', () => {
     expect(meta.ui.csp.resourceDomains).toContain('https://cdn.example.com')
   })
 
+  it('adds stylesheet and cdnBase origins to CSP resourceDomains, since the viewer loads from them', () => {
+    const server = createMockServer()
+    registerViewerResource(server, {
+      stylesheets: ['https://styles.example.com/brand.css'],
+      cdnBase: 'https://assets.example.com/prefab/dist',
+    })
+
+    const meta = server.registered[0].config._meta as { ui: { csp: Record<string, string[]> } }
+    expect(meta.ui.csp.resourceDomains).toContain('https://styles.example.com')
+    expect(meta.ui.csp.resourceDomains).toContain('https://assets.example.com')
+  })
+
   it('includes permissions when specified', () => {
     const server = createMockServer()
     registerViewerResource(server, {

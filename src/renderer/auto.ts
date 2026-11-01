@@ -24,6 +24,7 @@ import { app } from './app.js'
 import { PrefabRenderer } from './index.js'
 import type { PrefabWireData, PrefabUpdateData, MountedApp } from './index.js'
 import { createLogger } from '../core/logger.js'
+import { isRecord } from '../core/guards.js'
 
 const log = createLogger('auto')
 const ROOT_SELECTOR = '#root'
@@ -41,22 +42,17 @@ function isPrefabUpdate(data: unknown): data is PrefabUpdateData {
  * Handles both direct wire data and MCP Apps tool-result envelope
  * where the actual data is nested inside `structuredContent`.
  */
-interface ContentItem {
-  type: string
-  text?: string
-}
 
 function extractWireData(payload: unknown): PrefabWireData | null {
   if (isPrefabWire(payload)) return payload
-  if (payload !== null && typeof payload === 'object') {
-    const obj = payload as Record<string, unknown>
+  if (isRecord(payload)) {
+    const obj = payload
     // MCP Apps tool-result: { content: [...], structuredContent: { $prefab, view } }
     if (isPrefabWire(obj.structuredContent)) return obj.structuredContent
     // Try parsing text content items
     if (Array.isArray(obj.content)) {
-      for (const raw of obj.content) {
-        const item = raw as ContentItem
-        if (item.type === 'text' && typeof item.text === 'string') {
+      for (const item of obj.content) {
+        if (isRecord(item) && item.type === 'text' && typeof item.text === 'string') {
           try {
             const parsed: unknown = JSON.parse(item.text)
             if (isPrefabWire(parsed)) return parsed

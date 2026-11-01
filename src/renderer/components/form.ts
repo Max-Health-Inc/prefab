@@ -8,6 +8,7 @@ import { registerComponent, renderChildren, resolveStr, el, makeDispatchCtx } fr
 import type { ComponentNode, RenderContext } from '../engine.js'
 import { dispatchActions, fireAndForget } from '../actions.js'
 import { stringifyValue } from '../../core/stringify.js'
+import { optionalString } from '../../core/guards.js'
 
 export function registerFormComponents(): void {
   registerComponent('Form', renderForm)
@@ -71,7 +72,7 @@ function prependLabel(wrapper: HTMLElement, node: ComponentNode, ctx: RenderCont
   const label = document.createElement('label')
   label.className = 'pf-input-label'
   label.textContent = resolveStr(node.label, ctx)
-  if (node.name != null) label.htmlFor = node.name as string
+  if (node.name != null) label.htmlFor = stringifyValue(node.name)
   label.style.fontSize = '14px'
   label.style.fontWeight = '500'
   wrapper.insertBefore(label, wrapper.firstChild)
@@ -120,15 +121,15 @@ function renderInput(node: ComponentNode, ctx: RenderContext): HTMLElement {
 
   const input = document.createElement('input')
   input.className = 'pf-input'
-  input.type = (node.inputType as string | undefined) ?? 'text'
-  if (node.name != null) input.name = node.name as string
-  if (node.name != null) input.id = `pf-input-${node.name as string}`
+  input.type = optionalString(node.inputType) ?? 'text'
+  if (node.name != null) input.name = stringifyValue(node.name)
+  if (node.name != null) input.id = `pf-input-${stringifyValue(node.name)}`
   if (node.placeholder != null) input.placeholder = resolveStr(node.placeholder, ctx)
   markRequired(input, node)
   if (node.error != null) input.setAttribute('aria-invalid', 'true')
 
   // Bind to state
-  const name = node.name as string | undefined
+  const name = optionalString(node.name)
   if (name) {
     const stateVal = ctx.store.get(name)
     if (stateVal != null) input.value = stringifyValue(stateVal)
@@ -150,13 +151,13 @@ function renderTextarea(node: ComponentNode, ctx: RenderContext): HTMLElement {
 
   const textarea = document.createElement('textarea')
   textarea.className = 'pf-textarea'
-  if (node.name != null) textarea.name = node.name as string
-  if (node.name != null) textarea.id = `pf-textarea-${node.name as string}`
+  if (node.name != null) textarea.name = stringifyValue(node.name)
+  if (node.name != null) textarea.id = `pf-textarea-${stringifyValue(node.name)}`
   if (node.placeholder != null) textarea.placeholder = resolveStr(node.placeholder, ctx)
-  if (node.rows != null) textarea.rows = node.rows as number
+  if (node.rows != null) textarea.rows = Number(node.rows)
   markRequired(textarea, node)
 
-  const name = node.name as string | undefined
+  const name = optionalString(node.name)
   if (name != null) {
     const stateVal = ctx.store.get(name)
     if (stateVal != null) textarea.value = stringifyValue(stateVal)
@@ -179,11 +180,11 @@ function renderButton(node: ComponentNode, ctx: RenderContext): HTMLElement {
   btn.type = node.submit === true ? 'submit' : 'button'
   btn.textContent = resolveStr(node.label, ctx)
 
-  const variant = (node.variant as string | undefined) ?? 'default'
+  const variant = optionalString(node.variant) ?? 'default'
   btn.setAttribute('data-variant', variant)
   applyButtonStyle(btn, variant)
 
-  if (node.size != null) btn.setAttribute('data-size', node.size as string)
+  if (node.size != null) btn.setAttribute('data-size', stringifyValue(node.size))
   if (node.disabled === true) btn.disabled = true
 
   return btn
@@ -207,10 +208,10 @@ function renderCheckbox(node: ComponentNode, ctx: RenderContext): HTMLElement {
   const input = document.createElement('input')
   input.type = 'checkbox'
   input.className = 'pf-checkbox'
-  if (node.name != null) input.name = node.name as string
+  if (node.name != null) input.name = stringifyValue(node.name)
   if (node.checked === true) input.checked = true
 
-  const name = node.name as string | undefined
+  const name = optionalString(node.name)
   if (name) {
     const stateVal = ctx.store.get(name)
     if (typeof stateVal === 'boolean') input.checked = stateVal
@@ -243,9 +244,9 @@ function renderSwitch(node: ComponentNode, ctx: RenderContext): HTMLElement {
   input.type = 'checkbox'
   input.className = 'pf-switch'
   input.setAttribute('role', 'switch')
-  if (node.name != null) input.name = node.name as string
+  if (node.name != null) input.name = stringifyValue(node.name)
 
-  const name = node.name as string | undefined
+  const name = optionalString(node.name)
   if (name) {
     const stateVal = ctx.store.get(name)
     if (typeof stateVal === 'boolean') input.checked = stateVal
@@ -273,12 +274,12 @@ function renderSlider(node: ComponentNode, ctx: RenderContext): HTMLElement {
   const input = document.createElement('input')
   input.type = 'range'
   input.className = 'pf-slider'
-  if (node.name != null) input.name = node.name as string
+  if (node.name != null) input.name = stringifyValue(node.name)
   if (node.min != null) input.min = stringifyValue(node.min)
   if (node.max != null) input.max = stringifyValue(node.max)
   if (node.step != null) input.step = stringifyValue(node.step)
 
-  const name = node.name as string | undefined
+  const name = optionalString(node.name)
   if (name) {
     const stateVal = ctx.store.get(name)
     if (stateVal != null) input.value = stringifyValue(stateVal)

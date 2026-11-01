@@ -5,6 +5,8 @@
 import { registerComponent, resolveStr, el, text } from '../engine.js'
 import type { ComponentNode, RenderContext } from '../engine.js'
 import { escapeHtml } from '../../core/escape.js'
+import { optionalNumber } from '../../core/guards.js'
+import { stringifyValue } from '../../core/stringify.js'
 
 export function registerTypographyComponents(): void {
   registerComponent('Heading', renderHeading)
@@ -27,7 +29,7 @@ export function registerTypographyComponents(): void {
 }
 
 function renderHeading(node: ComponentNode, ctx: RenderContext): HTMLElement {
-  const level = (node.level as number | undefined) ?? 2
+  const level = optionalNumber(node.level) ?? 2
   const tag = `h${Math.min(Math.max(level, 1), 6)}`
   const e = document.createElement(tag)
   e.className = `pf-heading pf-${tag}`
@@ -78,7 +80,7 @@ function renderCode(node: ComponentNode, ctx: RenderContext): HTMLElement {
   const pre = el('pre', 'pf-code')
   const code = el('code')
   code.textContent = resolveStr(node.content, ctx)
-  if (node.language != null) code.setAttribute('data-language', node.language as string)
+  if (node.language != null) code.setAttribute('data-language', stringifyValue(node.language))
   pre.appendChild(code)
   return pre
 }

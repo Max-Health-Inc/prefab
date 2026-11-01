@@ -66,7 +66,7 @@ describe('formSchema', () => {
 
   test('titles a field from its name when no label is given', () => {
     const [prop] = Object.values(formSchema([{ name: 'first_name' }]).properties) as McpPrimitiveSchema[]
-    expect(prop.title).toBe('First Name')
+    expect(prop.title).toBe('First name')
   })
 
   test('gives a password field no format it cannot honour', () => {

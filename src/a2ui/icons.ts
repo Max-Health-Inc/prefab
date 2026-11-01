@@ -1,24 +1,6 @@
 /**
- * prefab icon name → A2UI Basic catalog icon.
- *
- * The one place where the two catalogs disagree on *values* rather than on
- * component shape. prefab's `Icon(name)` takes any string, because its renderer
- * resolves Lucide names at runtime and new icons cost nothing. A2UI's
- * `Icon.name` is a closed enum of 59 names, so an unrecognised value does not
- * render as a fallback glyph — it makes the whole component fail validation.
- *
- * Passing the name through unchecked therefore emits an invalid surface for
- * every icon outside those 59, which is most of them. Instead the name is
- * normalised, matched against the enum, and dropped with a diagnostic when
- * nothing fits, so an unmappable icon costs a glyph rather than the payload.
- */
-
-/**
- * The A2UI Basic catalog's `Icon.name` enum, v1.0.
- *
- * Duplicated as a literal because prefab ships zero runtime dependencies and
- * cannot read the catalog JSON at emit time. `test/a2ui-icons.test.ts` asserts
- * this matches the vendored catalog exactly, so it cannot drift silently.
+ * The A2UI Basic catalog's closed `Icon.name` enum (v1.0); an unknown name fails the whole component's validation.
+ * `test/a2ui-icons.test.ts` keeps this literal equal to the vendored catalog.
  */
 export const A2UI_ICONS: readonly string[] = [
   'accountCircle', 'add', 'arrowBack', 'arrowForward', 'attachFile', 'calendarToday',
@@ -35,14 +17,7 @@ export const A2UI_ICONS: readonly string[] = [
 /** Lookup by normalised form, so `Arrow-Back`, `arrow_back` and `ArrowBack` all hit. */
 const BY_NORMALISED = new Map(A2UI_ICONS.map(name => [normalise(name), name]))
 
-/**
- * Names that differ between the two vocabularies rather than merely in case.
- *
- * prefab follows Lucide, A2UI follows Material. Where the concept exists in both
- * under different words, the alias keeps the icon; where it does not, the entry
- * is absent and the icon is dropped rather than mapped to something that means
- * something else. Keys are normalised, so one entry covers every spelling.
- */
+/** Lucide names whose Material counterpart is spelled differently, keyed by normalised name. */
 const ALIASES: Record<string, string> = {
   // Status and feedback
   alertcircle: 'error', alerttriangle: 'warning', alertoctagon: 'error',
@@ -79,12 +54,7 @@ function normalise(name: string): string {
   return name.replace(/[\s._-]/g, '').toLowerCase()
 }
 
-/**
- * Resolve a prefab icon name to an A2UI one.
- *
- * @returns the catalog name, or `undefined` when nothing in the enum means the
- *   same thing. Callers drop the icon and record a diagnostic.
- */
+/** A prefab icon name as an A2UI one, or `undefined` (callers drop the icon with a diagnostic). */
 export function a2uiIconName(name: string): string | undefined {
   const key = normalise(name)
   return BY_NORMALISED.get(key) ?? ALIASES[key]

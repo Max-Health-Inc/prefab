@@ -1,12 +1,6 @@
 /**
- * PdfViewer component — render PDF documents inside MCP Apps.
- *
- * Uses Mozilla PDF.js loaded on-demand from CDN. Renders pages to `<canvas>`
- * with an optional text layer for copy/paste and search.
- *
- * CSP requirements:
- * - `resourceDomains`: include the PDF.js CDN (jsdelivr by default)
- * - `connectDomains`: include the origin serving your PDF files
+ * PdfViewer: PDF.js (from jsDelivr, so list it in `resourceDomains`) draws pages to a `<canvas>`.
+ * A `src` URL's origin belongs in `connectDomains`.
  */
 
 import { Component } from '../../core/component.js'
@@ -23,7 +17,7 @@ export interface PdfViewerProps extends ComponentProps {
   page?: number
   /** Zoom mode or scale factor. @default 'fit-width' */
   zoom?: PdfZoom
-  /** Show navigation toolbar (page nav + zoom). @default true */
+  /** Show the page navigation toolbar. @default true */
   toolbar?: boolean
   /** Container height in pixels. @default 600 */
   height?: number
