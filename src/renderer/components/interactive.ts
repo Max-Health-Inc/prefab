@@ -4,6 +4,7 @@
 
 import { registerComponent, renderChildren, renderNode, resolveStr, el } from '../engine.js'
 import type { ComponentNode, RenderContext } from '../engine.js'
+import { optionalString } from '../../core/guards.js'
 
 export function registerInteractiveComponents(): void {
   registerComponent('Tabs', renderTabs)
@@ -50,7 +51,7 @@ function renderTabs(node: ComponentNode, ctx: RenderContext): HTMLElement {
       const btn = document.createElement('button')
       btn.type = 'button'
       btn.className = 'pf-tab-trigger'
-      btn.textContent = (tab.title as string | undefined) ?? `Tab ${i + 1}`
+      btn.textContent = optionalString(tab.title) ?? `Tab ${String(i + 1)}`
       btn.setAttribute('role', 'tab')
       btn.setAttribute('aria-selected', i === active ? 'true' : 'false')
       btn.setAttribute('aria-controls', panelId)
@@ -145,7 +146,7 @@ function renderAccordionItem(node: ComponentNode, ctx: RenderContext): HTMLEleme
   const trigger = document.createElement('button')
   trigger.type = 'button'
   trigger.className = 'pf-accordion-trigger'
-  trigger.textContent = (node.title as string | undefined) ?? ''
+  trigger.textContent = optionalString(node.title) ?? ''
   trigger.setAttribute('aria-expanded', 'false')
   trigger.setAttribute('aria-controls', contentId)
   trigger.style.width = '100%'

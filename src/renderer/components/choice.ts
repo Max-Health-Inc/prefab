@@ -11,6 +11,7 @@ import { registerComponent, renderChildren, renderNode, resolveStr, el, makeDisp
 import type { ComponentNode, RenderContext } from '../engine.js'
 import { dispatchActions, fireAndForget } from '../actions.js'
 import { stringifyValue } from '../../core/stringify.js'
+import { optionalString } from '../../core/guards.js'
 import { withLabel, markRequired, applyInputStyle, renderContainerDiv, renderTextSpan, renderSeparatorHr } from './form.js'
 
 export function registerChoiceComponents(): void {
@@ -34,7 +35,7 @@ function renderSelect(node: ComponentNode, ctx: RenderContext): HTMLElement {
 
   const select = document.createElement('select')
   select.className = 'pf-select'
-  if (node.name != null) select.name = node.name as string
+  if (node.name != null) select.name = stringifyValue(node.name)
   if (node.multiple === true) select.multiple = true
   markRequired(select, node)
   applyInputStyle(select)
@@ -66,8 +67,8 @@ function renderSelect(node: ComponentNode, ctx: RenderContext): HTMLElement {
     for (const child of node.children) {
       if (child.type === 'SelectOption') {
         const option = document.createElement('option')
-        option.value = (child.value as string | undefined) ?? ''
-        option.textContent = (child.label as string | undefined) ?? option.value
+        option.value = optionalString(child.value) ?? ''
+        option.textContent = optionalString(child.label) ?? option.value
         select.appendChild(option)
       } else {
         select.appendChild(renderNode(child, ctx) as HTMLElement)
@@ -75,7 +76,7 @@ function renderSelect(node: ComponentNode, ctx: RenderContext): HTMLElement {
     }
   }
 
-  const name = node.name as string | undefined
+  const name = optionalString(node.name)
   if (name) {
     const stateVal = ctx.store.get(name)
     if (stateVal != null) applySelectValue(select, stateVal)

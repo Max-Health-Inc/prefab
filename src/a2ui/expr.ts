@@ -1,29 +1,6 @@
 /**
- * `{{ }}` template → A2UI data binding.
- *
- * `$prefab` interpolates arbitrary expressions client-side. A2UI binds values
- * through JSON Pointers and, for text that mixes literals with values, through
- * the `formatString` catalog function. Between them those cover more than a
- * plain-path conversion would suggest:
- *
- *   - `{{ user.name }}`        → `{ path: '/user/name' }`
- *   - `Hi {{ name }}!`         → `{ call: 'formatString', args: { value: 'Hi ${/name}!' } }`
- *   - `{{ p | currency:'EUR' }}` → `{ call: 'formatCurrency', args: { … } }`
- *   - `{{ count + 1 }}`        → nothing; A2UI has no expression language
- *
- * What does not survive is arithmetic, conditionals, and the pipes that
- * transform data rather than format it (see `./pipes.ts`). Those are reported as
- * `expression` diagnostics rather than emitted as a binding that would render an
- * empty string in someone's renderer.
- *
- * ## Scopes
- *
- * A binding is resolved against a {@link BindScope}, which is how names local to
- * a region become pointers. Inside a list template A2UI resolves relative paths
- * against the current item, so prefab's `$item` maps to the empty prefix; inside
- * an inlined definition, a `Use`'s overrides map to wherever the emitter seeded
- * them. Without this, a name that means something local would silently bind to
- * the root of the data model and read whatever happened to be there.
+ * `{{ }}` templates as A2UI values: `{{ user.name }}` → `{ path: '/user/name' }`, `Hi {{ name }}!` → `formatString`,
+ * `{{ p | currency }}` → `formatCurrency`. Arithmetic, conditionals and data pipes (also inside mixed text) are unbindable.
  */
 
 import { parsePipe, pipeCall } from './pipes.js'
@@ -35,31 +12,16 @@ const SOLE_TEMPLATE = /^\s*\{\{\s*(.+?)\s*\}\}\s*$/s
 /** Matches every `{{ … }}` occurrence, for interpolating mixed text. */
 const EVERY_TEMPLATE = /\{\{\s*(.+?)\s*\}\}/g
 
-/**
- * A plain member path: `user.name`, `items.0.label`, `count`, `$item.title`.
- *
- * Deliberately narrow. Anything outside this shape (operators, pipes, calls,
- * ternaries, string literals) has no A2UI equivalent.
- */
+/** A plain member path (`user.name`, `items.0.label`, `$item.title`); anything richer has no A2UI equivalent. */
 const PLAIN_PATH = /^\$?[A-Za-z_][\w$]*(?:\.(?:[A-Za-z_$][\w$]*|\d+))*$/
 
-/**
- * Names local to a region, mapped to the pointer they resolve to.
- *
- * An empty-string value means "relative to the current template item", which is
- * how A2UI addresses fields inside a list template.
- */
+/** Names local to a region (`$item`, a `Use`'s overrides) mapped to their pointer; `''` means relative to the current list item. */
 export type BindScope = Record<string, string>
 
 /** prefab's loop index. A2UI exposes the same thing as a system function. */
 const LOOP_INDEX = '$index'
 
-/**
- * Escape one JSON Pointer reference token (RFC 6901 §3).
- *
- * `~` must be escaped before `/`, otherwise the `~1` produced for a slash gets
- * re-escaped into `~01` on the second pass.
- */
+/** Escape one JSON Pointer token (RFC 6901): `~` before `/`, or the `~1` for a slash becomes `~01`. */
 export function escapePointerToken(token: string): string {
   return token.replace(/~/g, '~0').replace(/\//g, '~1')
 }
@@ -69,41 +31,27 @@ export function toJsonPointer(segments: string[]): string {
   return '/' + segments.map(escapePointerToken).join('/')
 }
 
-/**
- * prefab state expressions address state keys directly (`count`), but actions
- * and docs also spell the same key as `state.count`. Both mean the root of the
- * data model, so the prefix is stripped before the pointer is built.
- */
+/** `state.count` and `count` both address the data-model root. */
 function stripStatePrefix(path: string): string {
   return path.startsWith('state.') ? path.slice('state.'.length) : path
 }
 
-/**
- * Resolve a member path to a JSON Pointer under `scope`.
- *
- * A leading segment named in the scope is replaced by its prefix; everything
- * else resolves from the data-model root.
- */
+/** A member path as a JSON Pointer: a leading scoped name takes its prefix, anything else resolves from the root. */
 function pathToPointer(expr: string, scope: BindScope): string | undefined {
   if (!PLAIN_PATH.test(expr)) return undefined
 
   const segments = stripStatePrefix(expr).split('.')
   const head = segments[0]
-  // `hasOwn` rather than a truthiness check: '' is a meaningful prefix, meaning
-  // "relative to the current template item".
   const prefix = Object.hasOwn(scope, head) ? scope[head] : undefined
 
   if (prefix === undefined) {
-    // A `$`-prefixed name is a runtime binding prefab supplies ($event, $error,
-    // $result). Outside a scope that defines it, there is nothing to point at.
+    // $event, $error, $result: runtime-only names with nothing to point at.
     if (head.startsWith('$')) return undefined
     return toJsonPointer(segments)
   }
 
   const rest = segments.slice(1)
   if (prefix === '') {
-    // Relative to the current template item. `{{ $item }}` alone has no field to
-    // address, so it cannot become a pointer.
     return rest.length === 0 ? undefined : rest.map(escapePointerToken).join('/')
   }
   return rest.length === 0 ? prefix : `${prefix}/${rest.map(escapePointerToken).join('/')}`
@@ -115,33 +63,19 @@ export type BindingResult =
   | { kind: 'literal'; value: string }
   /** A `{{ path }}` that mapped cleanly onto a JSON Pointer. */
   | { kind: 'binding'; value: A2uiDataBinding }
-  /**
-   * A value produced by a catalog function: interpolated text, or a pipe that
-   * maps onto one of A2UI's formatters. `note` carries anything the mapping
-   * cost, for the caller to report.
-   */
+  /** Interpolated text or a formatting pipe as a catalog function; `note` is what the mapping cost. */
   | { kind: 'format'; value: A2uiFunctionCall; note?: string }
   /** The loop index, which A2UI exposes as a system function. */
   | { kind: 'index'; value: A2uiFunctionCall }
   /** A template too rich for A2UI. `expression` is the source, for diagnostics. */
   | { kind: 'unbindable'; expression: string }
 
-/**
- * Escape a literal segment for a `formatString` template.
- *
- * `${` is the interpolation opener, so a literal one has to be escaped or the
- * renderer reads the surrounding text as an expression.
- */
+/** Escape a literal `${` so `formatString` does not read it as an interpolation. */
 function escapeFormatLiteral(text: string): string {
   return text.replace(/\$\{/g, '\\${')
 }
 
-/**
- * Convert mixed literal and template text into a `formatString` call.
- *
- * @returns `undefined` when any embedded expression is richer than a path, in
- *   which case the whole string is unbindable rather than partly interpolated.
- */
+/** Mixed text as a `formatString` call, or `undefined` when any embedded expression is richer than a path. */
 function toFormatString(value: string, scope: BindScope): A2uiFunctionCall | undefined {
   let failed: string | undefined
   let interpolated = ''
@@ -164,12 +98,7 @@ function toFormatString(value: string, scope: BindScope): A2uiFunctionCall | und
   return { call: 'formatString', args: { value: interpolated } }
 }
 
-/**
- * Resolve a piped expression to a catalog-function call.
- *
- * The base must itself be a plain path or a literal, since A2UI function
- * arguments take a value rather than an expression to evaluate.
- */
+/** A piped expression as a catalog-function call; its base must be a plain path or a number literal. */
 function toPipeCall(expr: string, scope: BindScope): BindingResult | undefined {
   const pipe = parsePipe(expr)
   if (pipe == null) return undefined
@@ -186,21 +115,11 @@ function toPipeCall(expr: string, scope: BindScope): BindingResult | undefined {
   return { kind: 'format', value: mapped.call, ...(mapped.note != null && { note: mapped.note }) }
 }
 
-/**
- * Convert a prefab string value into an A2UI dynamic value.
- *
- * A whole-string template over a plain path becomes a binding, one over a
- * formatting pipe becomes a catalog-function call, mixed text becomes a
- * `formatString` call, a string with no template passes through, and anything
- * else is unbindable.
- */
+/** A prefab string as an A2UI dynamic value: binding, catalog-function call, `formatString`, literal, or unbindable. */
 export function toBinding(value: string, scope: BindScope = {}): BindingResult {
   const sole = SOLE_TEMPLATE.exec(value)
 
-  // The capture is lazy but still spans `}} … {{`, so `{{ a }} of {{ b }}`
-  // matches as one template whose body is `a }} of {{ b`. Rejecting a capture
-  // that contains delimiters sends those strings down the interpolation path,
-  // which is where they belong.
+  // The lazy capture still spans `{{ a }} of {{ b }}`; such strings belong to the interpolation path.
   const isSole = sole != null && !sole[1].includes('{{') && !sole[1].includes('}}')
 
   if (isSole) {
@@ -213,8 +132,6 @@ export function toBinding(value: string, scope: BindScope = {}): BindingResult {
     const pointer = pathToPointer(expr, scope)
     if (pointer != null) return { kind: 'binding', value: { path: pointer } }
 
-    // A pipe is not part of A2UI's expression language, but the common
-    // formatting ones exist in its catalog as functions.
     const piped = toPipeCall(expr, scope)
     if (piped != null) return piped
 
@@ -228,10 +145,7 @@ export function toBinding(value: string, scope: BindScope = {}): BindingResult {
   return { kind: 'unbindable', expression: value }
 }
 
-/**
- * Resolve a value to an `A2uiDynamicString`, or `undefined` when it cannot be
- * expressed. Callers pair this with a diagnostic when it returns `undefined`.
- */
+/** A value as an `A2uiDynamicString`, or `undefined` (which callers report as a diagnostic). */
 export function dynamicString(value: string | undefined, scope: BindScope = {}): A2uiDynamicString | undefined {
   if (value == null) return undefined
   const r = toBinding(value, scope)

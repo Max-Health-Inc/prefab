@@ -7,6 +7,7 @@
 
 import type { PrefabWireFormat } from '../app.js'
 import { COMPONENT_TYPES } from './component-types.js'
+import { isRecord } from './guards.js'
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -43,18 +44,16 @@ export function validateWireFormat(
   const errors: ValidationError[] = []
   const strict = opts.strict ?? false
 
-  if (data == null || typeof data !== 'object') {
+  if (!isRecord(data)) {
     errors.push({ path: '$', message: 'Wire data must be a non-null object' })
     return { valid: false, errors }
   }
 
-  const obj = data as Record<string, unknown>
-
-  // $prefab header
-  if (obj.$prefab == null || typeof obj.$prefab !== 'object') {
+  const obj = data
+  const header = obj.$prefab
+  if (!isRecord(header)) {
     errors.push({ path: '$.$prefab', message: 'Missing or invalid $prefab header' })
   } else {
-    const header = obj.$prefab as Record<string, unknown>
     if (typeof header.version !== 'string') {
       errors.push({ path: '$.$prefab.version', message: 'version must be a string' })
     }
@@ -95,22 +94,24 @@ export function validateWireFormat(
   }
 
   // defs (optional)
-  if (obj.defs !== undefined) {
-    if (obj.defs === null || typeof obj.defs !== 'object' || Array.isArray(obj.defs)) {
+  const defs = obj.defs
+  if (defs !== undefined) {
+    if (!isRecord(defs)) {
       errors.push({ path: '$.defs', message: 'defs must be a plain object' })
     } else {
-      for (const [name, def] of Object.entries(obj.defs as Record<string, unknown>)) {
+      for (const [name, def] of Object.entries(defs)) {
         validateComponent(def, `$.defs.${name}`, errors, strict)
       }
     }
   }
 
   // keyBindings (optional)
-  if (obj.keyBindings !== undefined) {
-    if (obj.keyBindings === null || typeof obj.keyBindings !== 'object' || Array.isArray(obj.keyBindings)) {
+  const keyBindings = obj.keyBindings
+  if (keyBindings !== undefined) {
+    if (!isRecord(keyBindings)) {
       errors.push({ path: '$.keyBindings', message: 'keyBindings must be a plain object' })
     } else {
-      for (const [key, action] of Object.entries(obj.keyBindings as Record<string, unknown>)) {
+      for (const [key, action] of Object.entries(keyBindings)) {
         validateAction(action, `$.keyBindings.${key}`, errors)
       }
     }
@@ -134,12 +135,12 @@ function validateComponent(
   errors: ValidationError[],
   strict: boolean,
 ): void {
-  if (node == null || typeof node !== 'object' || Array.isArray(node)) {
+  if (!isRecord(node)) {
     errors.push({ path, message: 'Component must be a plain object' })
     return
   }
 
-  const comp = node as Record<string, unknown>
+  const comp = node
 
   if (typeof comp.type !== 'string' || comp.type.length === 0) {
     errors.push({ path: `${path}.type`, message: 'Component must have a non-empty "type" string' })
@@ -201,9 +202,7 @@ const COMPONENT_SLOT_KEYS = new Set(['children', 'fallback', 'trigger', 'empty',
 
 /** Is the value a component node of a recognized type? */
 function isComponentLike(value: unknown): boolean {
-  if (value == null || typeof value !== 'object' || Array.isArray(value)) return false
-  const t = (value as Record<string, unknown>).type
-  return typeof t === 'string' && KNOWN_TYPES.has(t)
+  return isRecord(value) && typeof value.type === 'string' && KNOWN_TYPES.has(value.type)
 }
 
 function validateAction(action: unknown, path: string, errors: ValidationError[]): void {
@@ -214,22 +213,21 @@ function validateAction(action: unknown, path: string, errors: ValidationError[]
     return
   }
 
-  if (action == null || typeof action !== 'object') {
+  if (!isRecord(action)) {
     errors.push({ path, message: 'Action must be an object or array of objects' })
     return
   }
 
-  const act = action as Record<string, unknown>
-  const hasType = typeof act.type === 'string' && act.type.length > 0
-  const hasAction = typeof act.action === 'string' && act.action.length > 0
-  if (!hasType && !hasAction) {
+  const act = action
+  const name = typeof act.action === 'string' && act.action.length > 0 ? act.action
+    : typeof act.type === 'string' && act.type.length > 0 ? act.type
+    : undefined
+  if (name === undefined) {
     errors.push({ path: `${path}.type`, message: 'Action must have a non-empty "type" or "action" string' })
     return
   }
 
-  // Required-field checks for known actions. showToast without `message` fires an
-  // empty heading (a real bug when authors reach for `title` instead).
-  const name = (hasAction ? act.action : act.type) as string
+  // showToast without `message` renders an empty toast (authors reach for `title`).
   if (name.toLowerCase() === 'showtoast') {
     if (typeof act.message !== 'string' || act.message.length === 0) {
       errors.push({ path: `${path}.message`, message: 'showToast requires a non-empty "message" string' })
@@ -250,15 +248,14 @@ function validateStringArray(value: unknown, path: string, errors: ValidationErr
 }
 
 function validateTheme(theme: unknown, errors: ValidationError[]): void {
-  if (theme === null || typeof theme !== 'object' || Array.isArray(theme)) {
+  if (!isRecord(theme)) {
     errors.push({ path: '$.theme', message: 'theme must be a plain object' })
     return
   }
 
-  const t = theme as Record<string, unknown>
   for (const mode of ['light', 'dark']) {
-    if (t[mode] !== undefined) {
-      if (t[mode] === null || typeof t[mode] !== 'object' || Array.isArray(t[mode])) {
+    if (theme[mode] !== undefined) {
+      if (!isRecord(theme[mode])) {
         errors.push({ path: `$.theme.${mode}`, message: `theme.${mode} must be a plain object` })
       }
     }

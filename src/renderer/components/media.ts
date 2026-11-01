@@ -5,6 +5,8 @@
 import { registerComponent, resolveStr, el, makeDispatchCtx } from '../engine.js'
 import type { ComponentNode, RenderContext } from '../engine.js'
 import { dispatchActions, fireAndForget } from '../actions.js'
+import { optionalString } from '../../core/guards.js'
+import { stringifyValue } from '../../core/stringify.js'
 
 export function registerMediaComponents(): void {
   registerComponent('Image', renderImage)
@@ -21,8 +23,8 @@ function renderImage(node: ComponentNode, ctx: RenderContext): HTMLElement {
   img.className = 'pf-image'
   img.src = resolveStr(node.src, ctx)
   if (node.alt != null) img.alt = resolveStr(node.alt, ctx)
-  if (node.width != null) img.width = node.width as number
-  if (node.height != null) img.height = node.height as number
+  if (node.width != null) img.width = Number(node.width)
+  if (node.height != null) img.height = Number(node.height)
   img.style.maxWidth = '100%'
   return img
 }
@@ -40,8 +42,8 @@ function renderVideo(node: ComponentNode, ctx: RenderContext): HTMLElement {
   video.className = 'pf-video'
   video.src = resolveStr(node.src, ctx)
   video.controls = true
-  if (node.width != null) video.width = node.width as number
-  if (node.height != null) video.height = node.height as number
+  if (node.width != null) video.width = Number(node.width)
+  if (node.height != null) video.height = Number(node.height)
   video.style.maxWidth = '100%'
   return video
 }
@@ -51,7 +53,7 @@ function renderEmbed(node: ComponentNode, ctx: RenderContext): HTMLElement {
   const iframe = document.createElement('iframe')
   iframe.src = resolveStr(node.src, ctx)
   iframe.style.width = '100%'
-  iframe.style.height = node.height != null ? `${node.height as number}px` : '400px'
+  iframe.style.height = node.height != null ? `${String(Number(node.height))}px` : '400px'
   iframe.style.border = 'none'
   iframe.setAttribute('sandbox', 'allow-scripts')
   wrapper.appendChild(iframe)
@@ -137,7 +139,7 @@ function renderDropZone(node: ComponentNode, ctx: RenderContext): HTMLElement {
   const input = document.createElement('input')
   input.type = 'file'
   input.style.display = 'none'
-  if (node.accept != null) input.accept = node.accept as string
+  if (node.accept != null) input.accept = stringifyValue(node.accept)
   if (node.multiple === true) input.multiple = true
   e.appendChild(input)
 
@@ -145,14 +147,15 @@ function renderDropZone(node: ComponentNode, ctx: RenderContext): HTMLElement {
   e.tabIndex = 0
 
   function accepted(files: FileList | null): File[] {
-    const all = Array.from(files ?? []).filter(f => matchesAccept(f, node.accept as string | undefined))
+    const all = Array.from(files ?? []).filter(f => matchesAccept(f, optionalString(node.accept)))
     return node.multiple === true ? all : all.slice(0, 1)
   }
 
   function handle(files: File[]): void {
     if (files.length === 0) return
-    if (node.resultKey != null) {
-      ctx.store.set(node.resultKey as string, files)
+    const resultKey = optionalString(node.resultKey)
+    if (resultKey != null) {
+      ctx.store.set(resultKey, files)
       ctx.rerender()
     }
     if (node.onDrop != null) {
@@ -205,7 +208,7 @@ function renderMermaid(node: ComponentNode, ctx: RenderContext): HTMLElement {
   e.textContent = content
 
   // Attempt to render if mermaid is available globally
-  if (typeof (globalThis as Record<string, unknown>).mermaid !== 'undefined') {
+  if ('mermaid' in globalThis) {
     e.classList.add('mermaid')
     e.textContent = content
   }

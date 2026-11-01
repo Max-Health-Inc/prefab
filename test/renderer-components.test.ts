@@ -940,6 +940,22 @@ describe('Icon component', () => {
   })
 })
 
+describe('DataTable selection', () => {
+  it('renders a null row beside the selected one instead of throwing', () => {
+    const ctx = makeRenderCtx({ rows: [null, { id: 1, name: 'Alice' }], sel: 1 })
+    const node: ComponentNode = {
+      type: 'DataTable',
+      columns: [{ key: 'name', header: 'Name' }],
+      rows: '{{ rows }}',
+      rowKey: 'id',
+      selected: '{{ sel }}',
+    }
+    const dom = renderNode(node, ctx)
+    const selected = dom instanceof HTMLElement ? dom.querySelectorAll('.pf-datatable-row-selected') : []
+    expect(selected).toHaveLength(1)
+  })
+})
+
 describe('DataTable with search', () => {
   it('renders search input when search=true', () => {
     const ctx = makeRenderCtx({

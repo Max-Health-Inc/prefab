@@ -1,15 +1,7 @@
-/**
- * PdfViewer renderer — lazy-loads PDF.js from CDN and renders to <canvas>.
- *
- * Features:
- * - On-demand loading (~180KB only when PdfViewer is used)
- * - Page navigation toolbar (prev/next, page input, zoom)
- * - Canvas rendering with text layer for copy/paste
- * - Supports URL (`src`) or inline base64 (`data`)
- * - Responsive fit-width / fit-page zoom modes
- */
+/** PdfViewer renderer: lazy-loads PDF.js from the CDN and draws one page at a time to a <canvas>, with a page toolbar. */
 
 import { registerComponent, resolveStr, el } from '../engine.js'
+import { isRecord, optionalString } from '../../core/guards.js'
 import type { ComponentNode, RenderContext } from '../engine.js'
 
 /** CDN URL for pdf.js (ES module build). */
@@ -36,13 +28,28 @@ interface PdfPage {
   render(opts: { canvasContext: CanvasRenderingContext2D; viewport: { width: number; height: number } }): { promise: Promise<void> }
 }
 
+function isPdfjsLib(mod: unknown): mod is PdfjsLib {
+  return isRecord(mod) && typeof mod.getDocument === 'function' && isRecord(mod.GlobalWorkerOptions)
+}
+
+/** A finite number, or a string holding one; otherwise `fallback`. */
+function numberProp(value: unknown, fallback: number): number {
+  const n = typeof value === 'string' && value.trim() !== '' ? Number(value) : value
+  return typeof n === 'number' && Number.isFinite(n) ? n : fallback
+}
+
+function zoomProp(value: unknown): string | number {
+  return value === 'fit-page' || value === 'fit-width' ? value : numberProp(value, 0) || 'fit-width'
+}
+
 /** Load PDF.js on demand. Cached after first call. */
 async function loadPdfjs(): Promise<PdfjsLib> {
   if (pdfjsLib) return pdfjsLib
   if (loadPromise) return loadPromise
 
-  loadPromise = import(/* webpackIgnore: true */ PDFJS_CDN).then((mod) => {
-    const lib = mod as unknown as PdfjsLib
+  loadPromise = import(/* webpackIgnore: true */ PDFJS_CDN).then((mod: unknown) => {
+    if (!isPdfjsLib(mod)) throw new Error('PDF.js did not load')
+    const lib = mod
     lib.GlobalWorkerOptions.workerSrc = PDFJS_WORKER_CDN
     pdfjsLib = lib
     return lib
@@ -58,11 +65,11 @@ export function registerPdfComponents(): void {
 function renderPdfViewer(node: ComponentNode, ctx: RenderContext): HTMLElement {
   const wrapper = el('div', 'pf-pdf-viewer')
   const src = node.src != null ? resolveStr(node.src, ctx) : undefined
-  const data = node.data as string | undefined
-  const initialPage = node.page != null ? (node.page as number) : 1
-  const zoom = node.zoom != null ? (node.zoom as string | number) : 'fit-width'
+  const data = optionalString(node.data)
+  const initialPage = numberProp(node.page, 1)
+  const zoom = zoomProp(node.zoom)
   const showToolbar = node.toolbar !== false
-  const height = node.height != null ? (node.height as number) : 600
+  const height = numberProp(node.height, 600)
 
   wrapper.style.height = `${height}px`
   wrapper.style.display = 'flex'

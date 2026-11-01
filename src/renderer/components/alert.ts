@@ -4,6 +4,8 @@
 
 import { registerComponent, renderChildren, resolveStr, el } from '../engine.js'
 import type { ComponentNode, RenderContext } from '../engine.js'
+import { optionalString } from '../../core/guards.js'
+import { stringifyValue } from '../../core/stringify.js'
 
 export function registerAlertComponents(): void {
   registerComponent('Alert', renderAlert)
@@ -14,13 +16,13 @@ export function registerAlertComponents(): void {
 function renderAlert(node: ComponentNode, ctx: RenderContext): HTMLElement {
   const e = el('div', 'pf-alert')
   e.setAttribute('role', 'alert')
-  const variant = (node.variant as string | undefined) ?? 'default'
+  const variant = optionalString(node.variant) ?? 'default'
   e.setAttribute('data-variant', variant)
   e.style.padding = '12px 16px'
 
   if (node.icon != null) {
     const icon = el('span', 'pf-alert-icon')
-    icon.setAttribute('data-icon', node.icon as string)
+    icon.setAttribute('data-icon', stringifyValue(node.icon))
     icon.style.marginRight = '8px'
     e.appendChild(icon)
   }

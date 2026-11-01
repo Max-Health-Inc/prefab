@@ -6,6 +6,7 @@ import { registerComponent, resolveStr, resolveValue, el, makeDispatchCtx } from
 import type { ComponentNode, RenderContext } from '../engine.js'
 import { dispatchActions, fireAndForget } from '../actions.js'
 import { stringifyValue } from '../../core/stringify.js'
+import { isRecord, optionalNumber, optionalString } from '../../core/guards.js'
 
 export function registerDataComponents(): void {
   registerComponent('DataTable', renderDataTable)
@@ -29,8 +30,8 @@ function renderDataTable(node: ComponentNode, ctx: RenderContext): HTMLElement {
 
   const cols = (node.columns as { key: string; header?: string; format?: string; accessor?: string }[] | undefined) ?? []
   const rows = resolveValue(node.rows, ctx)
-  const rowKey = node.rowKey as string | undefined
-  const selectedExpr = node.selected as string | undefined
+  const rowKey = optionalString(node.rowKey)
+  const selectedExpr = optionalString(node.selected)
 
   // Header
   const thead = document.createElement('thead')
@@ -54,7 +55,8 @@ function renderDataTable(node: ComponentNode, ctx: RenderContext): HTMLElement {
     for (const row of rows) {
       const tr = document.createElement('tr')
       tr.className = 'pf-datatable-row'
-      const rec = row as Record<string, unknown>
+      const item: unknown = row
+      const rec = isRecord(item) ? item : {}
       // A primitive row (string/number/boolean) IS the cell value — `row[col.key]`
       // would be undefined and render blank. Common for a plain string list.
       const isPrimitiveRow = row === null || typeof row !== 'object'
@@ -68,7 +70,7 @@ function renderDataTable(node: ComponentNode, ctx: RenderContext): HTMLElement {
       if (node.onRowClick != null && rowKey) {
         tr.style.cursor = 'pointer'
         tr.addEventListener('click', () => {
-          const rowScope = { ...ctx.scope, $item: rec, $index: rows.indexOf(row) }
+          const rowScope = { ...ctx.scope, $item: item, $index: rows.indexOf(row) }
           const dispCtx = makeDispatchCtx({ ...ctx, scope: rowScope })
           fireAndForget(dispatchActions(node.onRowClick, dispCtx), 'onRowClick')
         })
@@ -81,7 +83,7 @@ function renderDataTable(node: ComponentNode, ctx: RenderContext): HTMLElement {
         if (col.accessor) {
           // accessor is a pipe expression like "name | humanName" — resolve it with $item scope
           // accessor already includes any formatting, so skip format when accessor is present
-          cellVal = resolveValue(`{{ $item.${col.accessor} }}`, { ...ctx, scope: { ...ctx.scope, $item: rec } })
+          cellVal = resolveValue(`{{ $item.${col.accessor} }}`, { ...ctx, scope: { ...ctx.scope, $item: item } })
         } else {
           cellVal = isPrimitiveRow ? row : rec[col.key]
           // Apply format pipe if specified (works for both built-in and custom pipes)
@@ -126,7 +128,7 @@ function renderDataTable(node: ComponentNode, ctx: RenderContext): HTMLElement {
 
 function renderBadge(node: ComponentNode, ctx: RenderContext): HTMLElement {
   const e = el('span', 'pf-badge')
-  const variant = (node.variant as string | undefined) ?? 'default'
+  const variant = optionalString(node.variant) ?? 'default'
   e.setAttribute('data-variant', variant)
   e.style.alignItems = 'center'
   e.style.padding = '2px 10px'
@@ -140,7 +142,7 @@ function renderBadge(node: ComponentNode, ctx: RenderContext): HTMLElement {
 
 function renderDot(node: ComponentNode, _ctx: RenderContext): HTMLElement {
   const e = el('span', 'pf-dot')
-  const color = (node.color as string | undefined) ?? 'gray'
+  const color = optionalString(node.color) ?? 'gray'
   e.style.display = 'inline-block'
   e.style.width = '8px'
   e.style.height = '8px'
@@ -166,8 +168,8 @@ function renderMetric(node: ComponentNode, ctx: RenderContext): HTMLElement {
   if (node.delta != null) {
     const delta = el('span', 'pf-metric-delta')
     delta.textContent = resolveStr(node.delta, ctx)
-    const trend = (node.trend as string | undefined) ?? ''
-    const sentiment = (node.trendSentiment as string | undefined) ?? 'neutral'
+    const trend = optionalString(node.trend) ?? ''
+    const sentiment = optionalString(node.trendSentiment) ?? 'neutral'
     delta.style.fontSize = '14px'
     delta.style.color = sentiment === 'positive' ? 'green' : sentiment === 'negative' ? 'red' : 'inherit'
     if (trend === 'up') delta.textContent = '↑ ' + delta.textContent
@@ -187,8 +189,8 @@ function renderMetric(node: ComponentNode, ctx: RenderContext): HTMLElement {
 
 function renderRing(node: ComponentNode, ctx: RenderContext): HTMLElement {
   const e = el('div', 'pf-ring')
-  const size = (node.size as number | undefined) ?? 80
-  const thickness = (node.thickness as number | undefined) ?? 8
+  const size = optionalNumber(node.size) ?? 80
+  const thickness = optionalNumber(node.thickness) ?? 8
   const rawValue = Number(resolveValue(node.value, ctx) ?? 0)
   const value = Math.max(0, Math.min(100, rawValue))
   const radius = (size - thickness) / 2
@@ -239,7 +241,7 @@ function renderProgress(node: ComponentNode, ctx: RenderContext): HTMLElement {
   const e = el('div', 'pf-progress')
   e.setAttribute('role', 'progressbar')
   const value = Number(resolveValue(node.value, ctx) ?? 0)
-  const max = (node.max as number | undefined) ?? 100
+  const max = optionalNumber(node.max) ?? 100
   const pct = max > 0 ? Math.max(0, Math.min(100, (value / max) * 100)) : 0
   e.setAttribute('aria-valuenow', String(value))
   e.setAttribute('aria-valuemin', '0')
@@ -284,11 +286,11 @@ function renderIcon(node: ComponentNode, ctx: RenderContext): HTMLElement {
 
 function renderSparkline(node: ComponentNode, _ctx: RenderContext): HTMLElement {
   const e = el('div', 'pf-sparkline')
-  const data = (node.data as number[] | undefined) ?? []
+  const data = Array.isArray(node.data) ? node.data.filter((n): n is number => typeof n === 'number' && Number.isFinite(n)) : []
   if (data.length === 0) return e
 
-  const w = (node.width as number | undefined) ?? 120
-  const h = (node.height as number | undefined) ?? 32
+  const w = optionalNumber(node.width) ?? 120
+  const h = optionalNumber(node.height) ?? 32
   const max = Math.max(...data)
   const min = Math.min(...data)
   const range = max - min || 1

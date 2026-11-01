@@ -1,14 +1,4 @@
-/**
- * MCP Apps resource helpers — register the prefab viewer as a `ui://` resource.
- *
- * Covers the three things every MCP Apps host checks and the two the
- * 2026-07-28 protocol revision added:
- *   - the `text/html;profile=mcp-app` MIME type,
- *   - `_meta.ui` CSP / permissions on BOTH the listing and the content item,
- *   - the viewer HTML itself (CDN-pinned to this exact package version),
- *   - `ttlMs` / `cacheScope` on the read result (SEP-2549 `CacheableResult`),
- *   - the `io.modelcontextprotocol/ui` extension capability (SEP-2133).
- */
+/** Register the prefab viewer as a `ui://` MCP Apps resource: MIME type, `_meta.ui` on listing and content, CDN-pinned HTML, cache fields, extension capability. */
 
 import { VERSION } from '../app.js'
 import { createLogger } from '../core/logger.js'
@@ -60,11 +50,7 @@ interface McpAppPermissionsWire {
 }
 
 /**
- * Generate the `_meta` object for MCP Apps `ui://` resource registration.
- *
- * Includes CSP and Permission Policy configuration per the MCP Apps spec.
- * Use on both the resource listing AND the content item (VS Code reads
- * only the content item; other hosts may read either).
+ * The `_meta` (CSP, permissions) for a `ui://` resource. Put it on the listing and the content item: VS Code reads only the latter.
  *
  * @example
  * ```ts
@@ -128,46 +114,16 @@ export const PREFAB_RESOURCE_URI = 'ui://prefab/viewer'
 /** MIME type required by MCP Apps hosts. */
 export const MCP_APP_MIME = 'text/html;profile=mcp-app'
 
-/**
- * Capability key for the MCP Apps extension (versioned independently of core).
- *
- * The identifier is `…/ui`, and the trap here is that `…/apps` looks right and is
- * wrong. The normative source is the MCP Apps spec, which states "This extension is
- * identified as: `io.modelcontextprotocol/ui`" in both the current `2026-01-26`
- * revision and the draft, and the reference implementation agrees:
- * `ext-apps/src/server/index.ts` exports `EXTENSION_ID = "io.modelcontextprotocol/ui"`.
- *
- * `io.modelcontextprotocol/apps` appears only as illustrative "e.g." text in the Rust
- * and C# SDKs' generic `ServerCapabilities.extensions` doc comments (and their test
- * fixtures), showing the SHAPE of the extensions map rather than naming this extension.
- * Copying it from there declares the capability under a key no host looks up, which
- * fails silently: rendering still works, because hosts fall back to detecting apps via
- * `_meta.ui` plus the MIME type, so only the SEP-2133 declaration is lost.
- *
- * Duplicated as a literal rather than imported, because prefab ships zero dependencies.
- */
+/** The MCP Apps extension id, `…/ui` per the spec and ext-apps (`…/apps` in some SDK doc examples is only illustrative). */
 export const APPS_EXTENSION = 'io.modelcontextprotocol/ui'
 
-/**
- * Default cache hint for the viewer resource.
- *
- * The HTML is a pure function of this package's `VERSION` (the CDN base pins
- * the exact version), so it cannot change for a given server build — it is
- * safely shared-cacheable. Without this the SDK falls back to the conservative
- * `{ ttlMs: 0, cacheScope: 'private' }` and the viewer is re-fetched every time.
- */
+/** Viewer cache hint: the HTML is a pure function of `VERSION`, so it is shared-cacheable for a day. */
 export const DEFAULT_VIEWER_CACHE: Required<McpCacheHint> = {
   ttlMs: 86_400_000, // 24h
   cacheScope: 'public',
 }
 
-/**
- * Runtime whitelist for {@link McpCacheScope}.
- *
- * Kept as a value (not just the union type) so the guard in `resolveCache` still
- * rejects a bad scope handed over from untyped JS — a `!==` chain against the
- * union narrows itself away and validates nothing.
- */
+/** Runtime list of {@link McpCacheScope}, so untyped JS callers are validated too. */
 const CACHE_SCOPES: readonly McpCacheScope[] = ['public', 'private']
 
 /** CDN base for the @maxhealth.tech/prefab package (exact version, never stale). */
@@ -186,22 +142,12 @@ export interface RendererHtmlOptions {
   stylesheets?: string[]
   /** Override CDN base URL (no trailing slash). @default jsdelivr CDN */
   cdnBase?: string
-  /**
-   * Inject a theme bridge stylesheet after `prefab.css`.
-   *
-   * `'vscode'` re-declares the tokens VS Code can supply with the
-   * `--vscode-*` variable first, dropping the MCP Apps `--color-*` layer that
-   * would otherwise shadow it, so the viewer follows the user's editor theme.
-   * Emitted before `stylesheets`, which stay the outermost override.
-   */
+  /** Theme bridge stylesheet after `prefab.css` (before `stylesheets`); `'vscode'` follows the editor theme. */
   themeBridge?: ThemeBridge
 }
 
 /**
- * Generate the HTML page for a prefab MCP Apps viewer resource.
- *
- * Returns the minimal HTML that loads `prefab.css` and `renderer.auto.min.js`
- * from the CDN, plus any additional scripts/stylesheets you specify.
+ * The viewer HTML: `prefab.css` and `renderer.auto.min.js` from the CDN, plus your scripts and stylesheets.
  *
  * @example
  * ```ts
@@ -216,8 +162,7 @@ export interface RendererHtmlOptions {
 export function rendererHtml(options?: RendererHtmlOptions): string {
   const title = options?.title ?? 'Prefab'
   const base = options?.cdnBase ?? cdnBase()
-  // Order in <head> is load-bearing: prefab.css, then the bridge (which must win
-  // over it), then the caller's stylesheets as the outermost override.
+  // Order matters: prefab.css, then the bridge, then the caller's stylesheets.
   const bridge = options?.themeBridge
     ? `  <style>\n${themeBridgeCss(options.themeBridge)}\n  </style>\n`
     : ''
@@ -260,22 +205,11 @@ export interface ViewerResourceOptions {
   stylesheets?: string[]
   /** Override CDN base URL (no trailing slash). */
   cdnBase?: string
-  /**
-   * Inject a theme bridge stylesheet. `'vscode'` makes the viewer follow the
-   * user's editor theme. See {@link RendererHtmlOptions.themeBridge}.
-   */
+  /** See {@link RendererHtmlOptions.themeBridge}. */
   themeBridge?: ThemeBridge
-  /**
-   * Cache fields for the `resources/read` result (SEP-2549).
-   * @default { ttlMs: 86_400_000, cacheScope: 'public' }
-   */
+  /** Cache fields for the `resources/read` result (SEP-2549). @default { ttlMs: 86_400_000, cacheScope: 'public' } */
   cache?: McpCacheHint
-  /**
-   * Declare the `io.modelcontextprotocol/ui` extension capability on the
-   * server (SEP-2133). Must happen before the server connects; a server that
-   * is already connected keeps its existing capabilities and a warning is
-   * logged. @default true
-   */
+  /** Declare the `io.modelcontextprotocol/ui` capability (SEP-2133); only works before the server connects. @default true */
   declareCapability?: boolean
 }
 
@@ -297,13 +231,7 @@ interface CapabilityDeclaration {
   extensions?: Record<string, Record<string, unknown>>
 }
 
-/**
- * MCP server interface expected by registerViewerResource.
- *
- * Structural rather than an SDK import, so fastmcp and hand-rolled servers stay
- * compatible. `registerResource` is preferred; `resource` is the v1 overload
- * that v2 retired and is used only as a fallback.
- */
+/** The server shape registerViewerResource needs, structural so any SDK fits; `resource` is the v1 fallback. */
 export interface McpServerLike {
   registerResource?(name: string, uri: string, config: ResourceConfig, handler: ResourceReadHandler): unknown
   resource?(name: string, uri: string, config: ResourceConfig, handler: ResourceReadHandler): unknown
@@ -313,15 +241,7 @@ export interface McpServerLike {
   registerCapabilities?(capabilities: CapabilityDeclaration): void
 }
 
-/**
- * Fill in and validate the `CacheableResult` fields, rejecting values the SDK
- * would silently discard in favour of `ttlMs: 0`.
- *
- * `defaults` differ per resource kind: the viewer HTML is a pure function of the
- * package version and is safely shared-cacheable, while an `a2ui://` surface is
- * rebuilt on every read and defaults to no caching. Exported so `./a2ui.ts`
- * resolves its hints through the same guard rather than restating it.
- */
+/** Fill in and validate `CacheableResult` fields, throwing on values the SDK would silently replace with `ttlMs: 0`. */
 export function resolveCache(
   hint?: McpCacheHint,
   defaults: Required<McpCacheHint> = DEFAULT_VIEWER_CACHE,
@@ -339,25 +259,18 @@ export function resolveCache(
 
 /** Declare the MCP Apps extension capability, tolerating servers that cannot. */
 function declareAppsExtension(server: McpServerLike): void {
-  // Not named `declare` — that is a TS modifier keyword at statement position
-  // and some transpilers refuse to parse a call to a binding of that name.
   const declareCaps = server.registerCapabilities?.bind(server)
     ?? server.server?.registerCapabilities?.bind(server.server)
   if (declareCaps == null) return
   try {
     declareCaps({ extensions: { [APPS_EXTENSION]: {} } })
   } catch (e) {
-    // Both SDK generations throw when called after connect. The server still
-    // serves the resource — it just does not advertise the extension.
     log.warn(`could not declare the ${APPS_EXTENSION} capability (register the viewer before connecting):`, e)
   }
 }
 
 /**
- * Register the prefab viewer as a `ui://` resource on an MCP server.
- *
- * Handles the MIME type, CSP on both listing and content item, HTML generation,
- * the `CacheableResult` fields and the Apps extension capability in one call.
+ * Register the prefab viewer as a `ui://` resource. The CSP admits jsDelivr and every origin the page loads from.
  *
  * @example
  * ```ts
@@ -388,12 +301,12 @@ export function registerViewerResource(server: McpServerLike, options?: ViewerRe
       }
     : { resourceDomains: ['https://cdn.jsdelivr.net'] }
 
-  // Add script origins to CSP resourceDomains
-  if (options?.scripts && options.scripts.length > 0) {
-    const scriptOrigins = options.scripts
-      .map(url => { try { return new URL(url).origin } catch { return null } })
-      .filter((o): o is string => o !== null)
-    csp.resourceDomains = [...new Set([...(csp.resourceDomains ?? []), ...scriptOrigins])]
+  const loadedFrom = [...(options?.scripts ?? []), ...(options?.stylesheets ?? []), ...(options?.cdnBase != null ? [options.cdnBase] : [])]
+  const loadedOrigins = loadedFrom.flatMap(url => {
+    try { return [new URL(url).origin] } catch { return [] }
+  })
+  if (loadedOrigins.length > 0) {
+    csp.resourceDomains = [...new Set([...(csp.resourceDomains ?? []), ...loadedOrigins])]
   }
 
   const meta = resourceMeta({ csp, permissions: options?.permissions })
@@ -418,14 +331,10 @@ export function registerViewerResource(server: McpServerLike, options?: ViewerRe
       text: html,
       _meta: meta,
     }],
-    // Handler-provided cache fields take precedence over any server hint, and
-    // make the result spec-compliant on servers that fill in nothing.
     ttlMs: cache.ttlMs,
     cacheScope: cache.cacheScope,
   })
 
-  // registerResource is the current API in both SDK generations; resource() is
-  // the v1 overload that v2 dropped.
   const register = server.registerResource?.bind(server) ?? server.resource?.bind(server)
   if (register == null) {
     throw new TypeError('registerViewerResource: server exposes neither registerResource() nor resource()')

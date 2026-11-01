@@ -1,24 +1,6 @@
 /**
- * Value → string coercion for display and identity.
- *
- * Component props, state entries and row cells are all typed `unknown` because
- * they arrive from JSON. Passing those straight to `String()` renders every
- * object as `[object Object]`, which blanks out table cells and chart labels
- * and — worse — makes every distinct object collide when the result is used as
- * a lookup key. Route those coercions through {@link stringifyValue} instead.
- */
-
-/**
- * Coerce an arbitrary value to a string for display or identity comparison.
- *
- * - `null` / `undefined` → `''`
- * - strings pass through verbatim, other primitives use `String()`
- * - `Date` → ISO string (invalid dates → `''`)
- * - arrays → members stringified and joined with `', '`
- * - any other object → compact JSON (honouring `toJSON()`), never `[object Object]`
- *
- * The result is stable for a given value, so it is also safe to use as a map
- * key or for equality checks between two loosely-typed values.
+ * A value as display text, never `[object Object]`: nullish → `''`, Date → ISO, arrays joined with `', '`,
+ * other objects as compact JSON. Loose by design, so `1` and `'1'` give the same string.
  */
 export function stringifyValue(value: unknown): string {
   if (value == null) return ''
@@ -29,8 +11,7 @@ export function stringifyValue(value: unknown): string {
   if (value instanceof Date) return Number.isNaN(value.getTime()) ? '' : value.toISOString()
   if (Array.isArray(value)) return value.map(stringifyValue).join(', ')
   try {
-    // The lib types declare `string`, but an object whose `toJSON()` returns
-    // undefined makes JSON.stringify return undefined too — hence the guard.
+    // JSON.stringify returns undefined when toJSON() does, despite its declared type.
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     return JSON.stringify(value) ?? ''
   } catch {

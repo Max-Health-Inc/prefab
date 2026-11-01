@@ -179,7 +179,8 @@ export const PrefabRenderer = {
 
     // Remount function — replaces current view with a new wire payload
     function remount(wireData: Record<string, unknown>): void {
-      const newData = wireData as unknown as PrefabWireData
+      if (!PrefabRenderer.isPrefabData(wireData)) return
+      const newData = wireData
       // Update the mutable reference so render() uses the new view
       data = newData
       // Merge new state into existing store (preserves transport-set keys)
@@ -530,9 +531,8 @@ function getOrCreateToastContainer(): HTMLElement {
 
 if (typeof window !== 'undefined') {
   // Expose as window.PrefabRenderer (legacy) and window.prefab (new API)
-  const w = window as unknown as Record<string, unknown>
-  w.PrefabRenderer = PrefabRenderer
-  w.prefab = {
+  Object.assign(window, { PrefabRenderer })
+  Object.assign(window, { prefab: {
     app,
     mount: PrefabRenderer.mount.bind(PrefabRenderer),
     isPrefabData: PrefabRenderer.isPrefabData.bind(PrefabRenderer),
@@ -546,11 +546,10 @@ if (typeof window !== 'undefined') {
     createThemeToggle,
     validateWireFormat,
     setLogLevel,
-  }
+  } })
 
-  // Auto-mount if data is available
-  const prefabData = w.__PREFAB_DATA__ as PrefabWireData | undefined
-  if (prefabData != null) {
+  const prefabData: unknown = Reflect.get(window, '__PREFAB_DATA__')
+  if (PrefabRenderer.isPrefabData(prefabData)) {
     const root = document.getElementById('prefab-root')
     if (root) {
       PrefabRenderer.mount(root, prefabData)
