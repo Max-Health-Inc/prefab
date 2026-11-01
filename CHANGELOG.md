@@ -6,6 +6,8 @@ All notable changes to this project will be documented in this file.
 
 <!-- Add new entries directly below. Keep this line: it makes a release merge conflict rather than file them under a published version. -->
 
+## [0.3.19] — 2026-11-01
+
 ### Fixed
 
 - **`registerViewerResource` allows every origin the viewer loads from.** Script origins went into the CSP `resourceDomains`, but `stylesheets` and a custom `cdnBase` did not, so a host enforcing the CSP blocked the extra stylesheets and, with `cdnBase`, the renderer itself.
