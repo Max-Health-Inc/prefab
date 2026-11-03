@@ -17,7 +17,7 @@
  */
 
 export { emitA2UI } from './emit.js'
-export type { A2uiEmitOptions, A2uiEmitResult } from './emit.js'
+export type { A2uiEmitOptions, A2uiEmitResult, A2uiEmitSource } from './emit.js'
 
 export { mappedTypes } from './catalog.js'
 export { a2uiIconName, A2UI_ICONS } from './icons.js'

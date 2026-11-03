@@ -114,7 +114,7 @@ export interface SelectProps extends StatefulProps {
 }
 
 export function Select(props: SelectProps): ContainerComponent {
-  const c = new ContainerComponent('Select', props) as ContainerComponent & StatefulComponent
+  const c = new ContainerComponent('Select', props)
   c.getProps = () => ({
     ...statefulProps(props),
     ...(props.placeholder != null && { placeholder: props.placeholder }),
