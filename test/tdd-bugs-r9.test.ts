@@ -8,11 +8,10 @@
 import { describe, it, expect, beforeEach } from 'bun:test'
 import { evaluateTemplate } from '../src/renderer/rx'
 import { Store } from '../src/renderer/state'
-import { renderNode } from '../src/renderer/engine'
 import type { ComponentNode } from '../src/renderer/engine'
 import { registerAllComponents } from '../src/renderer/components/index'
 import { dispatchActions } from '../src/renderer/actions'
-import { makeRenderCtx } from './helpers/render'
+import { makeRenderCtx, renderEl, query, queryAll } from './helpers/render'
 
 beforeEach(() => { registerAllComponents() })
 
@@ -26,7 +25,7 @@ describe('DataTable interactions', () => {
       columns: [{ key: 'name', header: 'Name', accessor: 'user.name' }],
       rows: [{ user: { name: 'Ada' } }],
     }
-    const dom = renderNode(node, makeRenderCtx()) as HTMLElement
+    const dom = renderEl(node, makeRenderCtx())
     expect(dom.textContent).toContain('Ada')
   })
 
@@ -39,8 +38,8 @@ describe('DataTable interactions', () => {
       rows: [{ id: 1, name: 'Ada' }, { id: 2, name: 'Alan' }],
       onRowClick: [{ action: 'setState', key: 'picked', value: '{{ $item.name }}' }],
     }
-    const dom = renderNode(node, ctx) as HTMLElement
-    const rows = [...dom.querySelectorAll('.pf-datatable-row')] as HTMLElement[]
+    const dom = renderEl(node, ctx)
+    const rows = queryAll(dom, '.pf-datatable-row')
     rows[1].click()
     await new Promise(r => setTimeout(r, 20))
     expect(ctx.store.get('picked')).toBe('Alan')
@@ -53,25 +52,25 @@ describe('DataTable interactions', () => {
       columns: [{ key: 'name' }],
       rows: [{ name: 'Ada' }, { name: 'Alan' }, { name: 'Grace' }],
     }
-    const dom = renderNode(node, makeRenderCtx()) as HTMLElement
-    const input = dom.querySelector('.pf-datatable-search') as HTMLInputElement
+    const dom = renderEl(node, makeRenderCtx())
+    const input = query(dom, '.pf-datatable-search', HTMLInputElement)
     input.value = 'grace'
     input.dispatchEvent(new Event('input', { bubbles: true }))
-    const visible = [...dom.querySelectorAll('.pf-datatable-row')]
-      .filter(r => (r as HTMLElement).style.display !== 'none')
-    expect(visible.length).toBe(1)
+    const visible = queryAll(dom, '.pf-datatable-row').filter(r => r.style.display !== 'none')
+    expect(visible.map(r => r.textContent)).toEqual(['Grace'])
   })
 })
 
 describe('chart edge cases (must not crash)', () => {
   it('BarChart with empty data shows a graceful empty state (no crash)', () => {
     const node: ComponentNode = { type: 'BarChart', data: [], series: [{ dataKey: 'v', label: 'V' }], xAxis: 'k', height: 120 }
-    const dom = renderNode(node, makeRenderCtx()) as HTMLElement
+    const dom = renderEl(node, makeRenderCtx())
     expect(dom.textContent).toContain('No chart data')
   })
   it('LineChart with a single point does not produce NaN coordinates', () => {
     const node: ComponentNode = { type: 'LineChart', data: [{ k: 'A', v: 5 }], series: [{ dataKey: 'v', label: 'V' }], xAxis: 'k', height: 120 }
-    const dom = renderNode(node, makeRenderCtx()) as HTMLElement
+    const dom = renderEl(node, makeRenderCtx())
+    expect(query(dom, 'svg path', SVGPathElement).getAttribute('d')).toBeTruthy()
     expect(dom.innerHTML).not.toContain('NaN')
   })
 })
@@ -86,6 +85,8 @@ describe('expression / pipe corners', () => {
   it('date pipe on an ISO string', () => {
     const out = String(ev('{{ d | date }}', { d: '2026-01-15' }))
     expect(out).not.toBe('')
+    expect(out).not.toBe('2026-01-15')
+    expect(out).toContain('2026')
     expect(out.toLowerCase()).not.toContain('invalid')
   })
   it('toggleState on an undefined key becomes true', async () => {

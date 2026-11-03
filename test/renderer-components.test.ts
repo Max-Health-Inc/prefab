@@ -5,10 +5,9 @@
  */
 
 import { describe, it, expect, beforeEach } from 'bun:test'
-import { renderNode } from '../src/renderer/engine'
 import type { ComponentNode } from '../src/renderer/engine'
 import { registerAllComponents } from '../src/renderer/components/index'
-import { makeRenderCtx } from './helpers/render'
+import { makeRenderCtx, renderEl, query, queryAll, textsOf } from './helpers/render'
 
 beforeEach(() => { registerAllComponents() })
 
@@ -27,12 +26,9 @@ describe('BarChart', () => {
       series: [{ dataKey: 'sales', label: 'Sales' }],
       xAxis: 'month',
     }
-    const dom = renderNode(node, ctx) as HTMLElement
-    const svg = dom.querySelector('svg')
-    expect(svg).toBeTruthy()
-    const rects = Array.from(svg!.querySelectorAll('rect')).filter(
-      r => r.getAttribute('fill') !== 'transparent',
-    )
+    const dom = renderEl(node, ctx)
+    const svg = query(dom, 'svg', SVGSVGElement)
+    const rects = queryAll(svg, 'rect:not([fill="transparent"])', SVGRectElement)
     expect(rects.length).toBe(3)
   })
 
@@ -43,7 +39,7 @@ describe('BarChart', () => {
       data: [],
       series: [{ dataKey: 'sales' }],
     }
-    const dom = renderNode(node, ctx) as HTMLElement
+    const dom = renderEl(node, ctx)
     expect(dom.textContent).toContain('No chart data')
   })
 
@@ -56,12 +52,9 @@ describe('BarChart', () => {
       data: '{{ chartData }}',
       series: [{ dataKey: 'x' }],
     }
-    const dom = renderNode(node, ctx) as HTMLElement
-    const svg = dom.querySelector('svg')
-    expect(svg).toBeTruthy()
-    const rects = Array.from(svg!.querySelectorAll('rect')).filter(
-      r => r.getAttribute('fill') !== 'transparent',
-    )
+    const dom = renderEl(node, ctx)
+    const svg = query(dom, 'svg', SVGSVGElement)
+    const rects = queryAll(svg, 'rect:not([fill="transparent"])', SVGRectElement)
     expect(rects.length).toBe(2)
   })
 })
@@ -78,10 +71,9 @@ describe('LineChart', () => {
       ],
       series: [{ dataKey: 'value', label: 'Values' }],
     }
-    const dom = renderNode(node, ctx) as HTMLElement
-    const svg = dom.querySelector('svg')
-    expect(svg).toBeTruthy()
-    const paths = svg!.querySelectorAll('path')
+    const dom = renderEl(node, ctx)
+    const svg = query(dom, 'svg', SVGSVGElement)
+    const paths = svg.querySelectorAll('path')
     expect(paths.length).toBeGreaterThan(0)
   })
 
@@ -97,11 +89,10 @@ describe('LineChart', () => {
       series: [{ dataKey: 'value' }],
       xAxis: 'month',
     }
-    const dom = renderNode(node, ctx) as HTMLElement
-    const svg = dom.querySelector('svg')!
-    const texts = svg.querySelectorAll('text')
-    const labels = [...texts].map(t => t.textContent).filter(t => ['Jan', 'Feb', 'Mar'].includes(t!))
-    expect(labels.length).toBe(3)
+    const dom = renderEl(node, ctx)
+    const svg = query(dom, 'svg', SVGSVGElement)
+    const labels = textsOf(svg, 'text').filter(t => ['Jan', 'Feb', 'Mar'].includes(t))
+    expect(labels).toEqual(['Jan', 'Feb', 'Mar'])
   })
 
   it('renders Y-axis labels by default', () => {
@@ -111,8 +102,8 @@ describe('LineChart', () => {
       data: [{ v: 50 }, { v: 100 }],
       series: [{ dataKey: 'v' }],
     }
-    const dom = renderNode(node, ctx) as HTMLElement
-    const svg = dom.querySelector('svg')!
+    const dom = renderEl(node, ctx)
+    const svg = query(dom, 'svg', SVGSVGElement)
     // Y-axis draws text elements with text-anchor=end (left side)
     const yLabels = [...svg.querySelectorAll('text')].filter(
       t => t.getAttribute('text-anchor') === 'end',
@@ -127,8 +118,8 @@ describe('LineChart', () => {
       data: [{ v: 10 }, { v: 20 }],
       series: [{ dataKey: 'v' }],
     }
-    const dom = renderNode(node, ctx) as HTMLElement
-    const svg = dom.querySelector('svg')!
+    const dom = renderEl(node, ctx)
+    const svg = query(dom, 'svg', SVGSVGElement)
     const lines = svg.querySelectorAll('line')
     expect(lines.length).toBeGreaterThan(0)
   })
@@ -141,8 +132,8 @@ describe('LineChart', () => {
       series: [{ dataKey: 'v' }],
       showGrid: true,
     }
-    const dom = renderNode(node, ctx) as HTMLElement
-    const svg = dom.querySelector('svg')!
+    const dom = renderEl(node, ctx)
+    const svg = query(dom, 'svg', SVGSVGElement)
     // Grid lines are dashed
     const dashed = [...svg.querySelectorAll('line')].filter(
       l => l.getAttribute('stroke-dasharray') != null,
@@ -170,8 +161,8 @@ describe('LineChart dual Y-axis', () => {
       showYAxisRight: true,
       xAxis: 'month',
     }
-    const dom = renderNode(node, ctx) as HTMLElement
-    const svg = dom.querySelector('svg')!
+    const dom = renderEl(node, ctx)
+    const svg = query(dom, 'svg', SVGSVGElement)
     // Left Y-axis: text-anchor=end, Right Y-axis: text-anchor=start
     const leftLabels = [...svg.querySelectorAll('text')].filter(
       t => t.getAttribute('text-anchor') === 'end',
@@ -194,8 +185,8 @@ describe('LineChart dual Y-axis', () => {
       ],
       showYAxisRight: true,
     }
-    const dom = renderNode(node, ctx) as HTMLElement
-    const svg = dom.querySelector('svg')!
+    const dom = renderEl(node, ctx)
+    const svg = query(dom, 'svg', SVGSVGElement)
     const paths = svg.querySelectorAll('path')
     const dashed = [...paths].filter(p => p.getAttribute('stroke-dasharray') != null)
     expect(dashed.length).toBe(1) // only the right-axis series
@@ -215,15 +206,13 @@ describe('LineChart dual Y-axis', () => {
       ],
       showYAxisRight: true,
     }
-    const dom = renderNode(node, ctx) as HTMLElement
-    const svg = dom.querySelector('svg')!
-    // Right axis ticks should be small numbers (not 1000s)
-    const rightLabels = [...svg.querySelectorAll('text')]
-      .filter(t => t.getAttribute('text-anchor') === 'start')
-      .map(t => t.textContent!)
-    // Verify we have small-scale ticks (0, 1, 2 range), not big-scale
-    const rightValues = rightLabels.map(Number).filter(n => !isNaN(n))
-    expect(rightValues.every(v => v <= 10)).toBe(true)
+    const dom = renderEl(node, ctx)
+    const svg = query(dom, 'svg', SVGSVGElement)
+    const rightValues = textsOf(svg, 'text[text-anchor="start"]').map(Number).filter(n => !isNaN(n))
+    expect(rightValues.length).toBeGreaterThan(0)
+    expect(Math.max(...rightValues)).toBeLessThanOrEqual(10)
+    const leftValues = textsOf(svg, 'text[text-anchor="end"]').map(Number).filter(n => !isNaN(n))
+    expect(Math.max(...leftValues)).toBeGreaterThan(10)
   })
 
   it('does not render right Y-axis when showYAxisRight is false', () => {
@@ -237,8 +226,8 @@ describe('LineChart dual Y-axis', () => {
       ],
       showYAxisRight: false,
     }
-    const dom = renderNode(node, ctx) as HTMLElement
-    const svg = dom.querySelector('svg')!
+    const dom = renderEl(node, ctx)
+    const svg = query(dom, 'svg', SVGSVGElement)
     const rightLabels = [...svg.querySelectorAll('text')].filter(
       t => t.getAttribute('text-anchor') === 'start',
     )
@@ -255,8 +244,8 @@ describe('BarChart axes', () => {
       series: [{ dataKey: 'v' }],
       xAxis: 'm',
     }
-    const dom = renderNode(node, ctx) as HTMLElement
-    const svg = dom.querySelector('svg')!
+    const dom = renderEl(node, ctx)
+    const svg = query(dom, 'svg', SVGSVGElement)
     const yLabels = [...svg.querySelectorAll('text')].filter(
       t => t.getAttribute('text-anchor') === 'end',
     )
@@ -270,8 +259,8 @@ describe('BarChart axes', () => {
       data: [{ v: 10 }],
       series: [{ dataKey: 'v' }],
     }
-    const dom = renderNode(node, ctx) as HTMLElement
-    const svg = dom.querySelector('svg')!
+    const dom = renderEl(node, ctx)
+    const svg = query(dom, 'svg', SVGSVGElement)
     const lines = svg.querySelectorAll('line')
     expect(lines.length).toBeGreaterThan(0)
   })
@@ -289,29 +278,31 @@ describe('PieChart', () => {
       ],
       series: [{ dataKey: 'value' }],
     }
-    const dom = renderNode(node, ctx) as HTMLElement
-    const svg = dom.querySelector('svg')
-    expect(svg).toBeTruthy()
-    const paths = svg!.querySelectorAll('path')
+    const dom = renderEl(node, ctx)
+    const svg = query(dom, 'svg', SVGSVGElement)
+    const paths = svg.querySelectorAll('path')
     expect(paths.length).toBe(3)
   })
 })
 
 describe('Histogram', () => {
-  it('renders SVG with bars', () => {
+  it('bins numeric values into bars', () => {
+    const ctx = makeRenderCtx()
+    const node: ComponentNode = { type: 'Histogram', data: [1, 1, 1, 2, 3, 3], bins: 3, height: 90 }
+    const dom = renderEl(node, ctx)
+    const bars = queryAll(query(dom, 'svg', SVGSVGElement), 'rect', SVGRectElement)
+    expect(bars.map(b => b.getAttribute('height'))).toEqual(['90', '30', '60'])
+  })
+
+  it('shows "No data" when no value is numeric', () => {
     const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'Histogram',
-      data: [
-        { bin: '0-10', count: 5 },
-        { bin: '10-20', count: 12 },
-        { bin: '20-30', count: 8 },
-      ],
-      series: [{ dataKey: 'count' }],
+      data: [{ bin: '0-10', count: 5 }, { bin: '10-20', count: 12 }],
     }
-    const dom = renderNode(node, ctx) as HTMLElement
-    const svg = dom.querySelector('svg')
-    expect(svg).toBeTruthy()
+    const dom = renderEl(node, ctx)
+    expect(dom.querySelector('svg')).toBeNull()
+    expect(dom.textContent).toBe('No data')
   })
 })
 
@@ -332,7 +323,7 @@ describe('Chart tooltips', () => {
       series: [{ dataKey: 'sales' }],
       xAxis: 'month',
     }
-    const dom = renderNode(node, ctx) as HTMLElement
+    const dom = renderEl(node, ctx)
     const tooltip = dom.querySelector('.pf-chart-tooltip')
     expect(tooltip).not.toBeNull()
   })
@@ -346,7 +337,7 @@ describe('Chart tooltips', () => {
       xAxis: 'month',
       showTooltip: false,
     }
-    const dom = renderNode(node, ctx) as HTMLElement
+    const dom = renderEl(node, ctx)
     const tooltip = dom.querySelector('.pf-chart-tooltip')
     expect(tooltip).toBeNull()
   })
@@ -359,12 +350,9 @@ describe('Chart tooltips', () => {
       series: [{ dataKey: 'sales' }],
       xAxis: 'month',
     }
-    const dom = renderNode(node, ctx) as HTMLElement
-    const svg = dom.querySelector('svg')!
-    // Hit zones are transparent rects (not the colored bar rects)
-    const rects = Array.from(svg.querySelectorAll('rect'))
-    const hitZones = rects.filter(r => r.getAttribute('fill') === 'transparent')
-    expect(hitZones.length).toBe(3) // one per data point
+    const dom = renderEl(node, ctx)
+    const svg = query(dom, 'svg', SVGSVGElement)
+    expect(queryAll(svg, 'rect[fill="transparent"]', SVGRectElement)).toHaveLength(3)
   })
 
   it('LineChart creates tooltip div when showTooltip is true (default)', () => {
@@ -375,7 +363,7 @@ describe('Chart tooltips', () => {
       series: [{ dataKey: 'sales' }, { dataKey: 'cost' }],
       xAxis: 'month',
     }
-    const dom = renderNode(node, ctx) as HTMLElement
+    const dom = renderEl(node, ctx)
     const tooltip = dom.querySelector('.pf-chart-tooltip')
     expect(tooltip).not.toBeNull()
   })
@@ -388,7 +376,7 @@ describe('Chart tooltips', () => {
       series: [{ dataKey: 'sales' }],
       showTooltip: false,
     }
-    const dom = renderNode(node, ctx) as HTMLElement
+    const dom = renderEl(node, ctx)
     expect(dom.querySelector('.pf-chart-tooltip')).toBeNull()
   })
 
@@ -400,11 +388,9 @@ describe('Chart tooltips', () => {
       series: [{ dataKey: 'sales' }],
       xAxis: 'month',
     }
-    const dom = renderNode(node, ctx) as HTMLElement
-    const svg = dom.querySelector('svg')!
-    const hitZones = Array.from(svg.querySelectorAll('rect')).filter(
-      r => r.getAttribute('fill') === 'transparent',
-    )
+    const dom = renderEl(node, ctx)
+    const svg = query(dom, 'svg', SVGSVGElement)
+    const hitZones = queryAll(svg, 'rect[fill="transparent"]', SVGRectElement)
     expect(hitZones.length).toBe(3)
   })
 
@@ -419,12 +405,10 @@ describe('Chart tooltips', () => {
       series: [{ dataKey: 'value' }],
       xAxis: 'name',
     }
-    const dom = renderNode(node, ctx) as HTMLElement
-    const tooltip = dom.querySelector('.pf-chart-tooltip')
-    expect(tooltip).not.toBeNull()
-    // Each pie slice path should have cursor set
-    const paths = dom.querySelectorAll('svg path')
-    expect(paths.length).toBe(2)
+    const dom = renderEl(node, ctx)
+    expect(dom.querySelector('.pf-chart-tooltip')).not.toBeNull()
+    const paths = queryAll(dom, 'svg path', SVGPathElement)
+    expect(paths).toHaveLength(2)
   })
 
   it('AreaChart inherits tooltip from LineChart renderer', () => {
@@ -435,7 +419,7 @@ describe('Chart tooltips', () => {
       series: [{ dataKey: 'sales' }],
       xAxis: 'month',
     }
-    const dom = renderNode(node, ctx) as HTMLElement
+    const dom = renderEl(node, ctx)
     expect(dom.querySelector('.pf-chart-tooltip')).not.toBeNull()
   })
 
@@ -446,8 +430,8 @@ describe('Chart tooltips', () => {
       data: chartData,
       series: [{ dataKey: 'sales' }],
     }
-    const dom = renderNode(node, ctx) as HTMLElement
-    const tooltip = dom.querySelector('.pf-chart-tooltip')!
+    const dom = renderEl(node, ctx)
+    const tooltip = query(dom, '.pf-chart-tooltip')
     expect(tooltip.classList.contains('pf-visible')).toBe(false)
   })
 
@@ -459,12 +443,10 @@ describe('Chart tooltips', () => {
       series: [{ dataKey: 'sales', label: 'Sales' }],
       xAxis: 'month',
     }
-    const dom = renderNode(node, ctx) as HTMLElement
-    const tooltip = dom.querySelector('.pf-chart-tooltip')!
-    const svg = dom.querySelector('svg')!
-    const hitZone = Array.from(svg.querySelectorAll('rect')).find(
-      r => r.getAttribute('fill') === 'transparent',
-    )!
+    const dom = renderEl(node, ctx)
+    const tooltip = query(dom, '.pf-chart-tooltip')
+    const svg = query(dom, 'svg', SVGSVGElement)
+    const hitZone = query(svg, 'rect[fill="transparent"]', SVGRectElement)
     hitZone.dispatchEvent(new Event('mouseenter'))
     expect(tooltip.classList.contains('pf-visible')).toBe(true)
     // Should contain series label and value
@@ -479,12 +461,10 @@ describe('Chart tooltips', () => {
       data: chartData,
       series: [{ dataKey: 'sales' }],
     }
-    const dom = renderNode(node, ctx) as HTMLElement
-    const tooltip = dom.querySelector('.pf-chart-tooltip')!
-    const svg = dom.querySelector('svg')!
-    const hitZone = Array.from(svg.querySelectorAll('rect')).find(
-      r => r.getAttribute('fill') === 'transparent',
-    )!
+    const dom = renderEl(node, ctx)
+    const tooltip = query(dom, '.pf-chart-tooltip')
+    const svg = query(dom, 'svg', SVGSVGElement)
+    const hitZone = query(svg, 'rect[fill="transparent"]', SVGRectElement)
     hitZone.dispatchEvent(new Event('mouseenter'))
     expect(tooltip.classList.contains('pf-visible')).toBe(true)
     hitZone.dispatchEvent(new Event('mouseleave'))
@@ -499,13 +479,11 @@ describe('Chart tooltips', () => {
       series: [{ dataKey: 'val' }],
       xAxis: 'name',
     }
-    const dom = renderNode(node, ctx) as HTMLElement
-    const svg = dom.querySelector('svg')!
-    const hitZone = Array.from(svg.querySelectorAll('rect')).find(
-      r => r.getAttribute('fill') === 'transparent',
-    )!
+    const dom = renderEl(node, ctx)
+    const svg = query(dom, 'svg', SVGSVGElement)
+    const hitZone = query(svg, 'rect[fill="transparent"]', SVGRectElement)
     hitZone.dispatchEvent(new Event('mouseenter'))
-    const tooltip = dom.querySelector('.pf-chart-tooltip')!
+    const tooltip = query(dom, '.pf-chart-tooltip')
     expect(tooltip.innerHTML).not.toContain('<script>')
     expect(tooltip.innerHTML).toContain('&lt;script&gt;')
   })
@@ -523,21 +501,15 @@ describe('Chart tooltips', () => {
       xAxis: 'date',
       tooltipXKey: 'datetime',
     }
-    const dom = renderNode(node, ctx) as HTMLElement
+    const dom = renderEl(node, ctx)
 
-    // X-axis labels should show abbreviated dates
-    const svg = dom.querySelector('svg')!
-    const axisLabels = Array.from(svg.querySelectorAll('text')).filter(
-      t => t.textContent === 'Jan 15' || t.textContent === 'Jan 16',
-    )
+    const svg = query(dom, 'svg', SVGSVGElement)
+    const axisLabels = textsOf(svg, 'text').filter(t => t === 'Jan 15' || t === 'Jan 16')
     expect(axisLabels.length).toBeGreaterThanOrEqual(2)
 
-    // Tooltip should show full datetime from tooltipXKey
-    const hitZone = Array.from(svg.querySelectorAll('rect')).find(
-      r => r.getAttribute('fill') === 'transparent',
-    )!
+    const hitZone = query(svg, 'rect[fill="transparent"]', SVGRectElement)
     hitZone.dispatchEvent(new Event('mouseenter'))
-    const tooltip = dom.querySelector('.pf-chart-tooltip')!
+    const tooltip = query(dom, '.pf-chart-tooltip')
     expect(tooltip.textContent).toContain('2024-01-15 14:30')
     expect(tooltip.textContent).not.toContain('Jan 15')
   })
@@ -556,15 +528,13 @@ describe('Chart tooltips', () => {
       xAxis: 'date',
       tooltipXKey: 'datetime',
     }
-    const dom = renderNode(node, ctx) as HTMLElement
-    const svg = dom.querySelector('svg')!
+    const dom = renderEl(node, ctx)
+    const svg = query(dom, 'svg', SVGSVGElement)
 
     // Trigger tooltip on first hit zone
-    const hitZone = Array.from(svg.querySelectorAll('rect')).find(
-      r => r.getAttribute('fill') === 'transparent',
-    )!
+    const hitZone = query(svg, 'rect[fill="transparent"]', SVGRectElement)
     hitZone.dispatchEvent(new Event('mouseenter'))
-    const tooltip = dom.querySelector('.pf-chart-tooltip')!
+    const tooltip = query(dom, '.pf-chart-tooltip')
     expect(tooltip.textContent).toContain('Monday, Jan 15 2024')
   })
 
@@ -581,11 +551,11 @@ describe('Chart tooltips', () => {
       xAxis: 'abbr',
       tooltipXKey: 'country',
     }
-    const dom = renderNode(node, ctx) as HTMLElement
-    const svg = dom.querySelector('svg')!
+    const dom = renderEl(node, ctx)
+    const svg = query(dom, 'svg', SVGSVGElement)
     const slices = svg.querySelectorAll('path')
     slices[0].dispatchEvent(new Event('mouseenter'))
-    const tooltip = dom.querySelector('.pf-chart-tooltip')!
+    const tooltip = query(dom, '.pf-chart-tooltip')
     expect(tooltip.textContent).toContain('United States')
   })
 
@@ -600,13 +570,11 @@ describe('Chart tooltips', () => {
       series: [{ dataKey: 'sales', label: 'Sales' }],
       xAxis: 'month',
     }
-    const dom = renderNode(node, ctx) as HTMLElement
-    const svg = dom.querySelector('svg')!
-    const hitZone = Array.from(svg.querySelectorAll('rect')).find(
-      r => r.getAttribute('fill') === 'transparent',
-    )!
+    const dom = renderEl(node, ctx)
+    const svg = query(dom, 'svg', SVGSVGElement)
+    const hitZone = query(svg, 'rect[fill="transparent"]', SVGRectElement)
     hitZone.dispatchEvent(new Event('mouseenter'))
-    const tooltip = dom.querySelector('.pf-chart-tooltip')!
+    const tooltip = query(dom, '.pf-chart-tooltip')
     expect(tooltip.textContent).toContain('Jan')
   })
 
@@ -621,11 +589,9 @@ describe('Chart tooltips', () => {
       xAxis: 'name',
       xAxisFormat: 'upper',
     }
-    const dom = renderNode(node, ctx) as HTMLElement
-    const svg = dom.querySelector('svg')!
-    const labels = Array.from(svg.querySelectorAll('text'))
-      .map(t => t.textContent)
-      .filter(t => t === 'ALPHA' || t === 'BETA')
+    const dom = renderEl(node, ctx)
+    const svg = query(dom, 'svg', SVGSVGElement)
+    const labels = textsOf(svg, 'text').filter(t => t === 'ALPHA' || t === 'BETA')
     expect(labels).toEqual(['ALPHA', 'BETA'])
   })
 
@@ -638,17 +604,13 @@ describe('Chart tooltips', () => {
       xAxis: 'name',
       tooltipXFormat: 'upper',
     }
-    const dom = renderNode(node, ctx) as HTMLElement
-    const svg = dom.querySelector('svg')!
-    // Axis should be unformatted
-    const axisLabel = Array.from(svg.querySelectorAll('text')).find(t => t.textContent === 'alpha')
-    expect(axisLabel).not.toBeNull()
-    // Tooltip should be uppercased
-    const hitZone = Array.from(svg.querySelectorAll('rect')).find(
-      r => r.getAttribute('fill') === 'transparent',
-    )!
+    const dom = renderEl(node, ctx)
+    const svg = query(dom, 'svg', SVGSVGElement)
+    expect(textsOf(svg, 'text')).toContain('alpha')
+    expect(textsOf(svg, 'text')).not.toContain('ALPHA')
+    const hitZone = query(svg, 'rect[fill="transparent"]', SVGRectElement)
     hitZone.dispatchEvent(new Event('mouseenter'))
-    const tooltip = dom.querySelector('.pf-chart-tooltip')!
+    const tooltip = query(dom, '.pf-chart-tooltip')
     expect(tooltip.textContent).toContain('ALPHA')
   })
 
@@ -665,17 +627,12 @@ describe('Chart tooltips', () => {
       xAxisFormat: 'truncate:5',
       tooltipXFormat: 'upper',
     }
-    const dom = renderNode(node, ctx) as HTMLElement
-    const svg = dom.querySelector('svg')!
-    // Axis labels should be truncated
-    const truncated = Array.from(svg.querySelectorAll('text')).find(t => t.textContent === 'hello')
-    expect(truncated).not.toBeNull()
-    // Tooltip should be uppercased (not truncated)
-    const hitZone = Array.from(svg.querySelectorAll('rect')).find(
-      r => r.getAttribute('fill') === 'transparent',
-    )!
+    const dom = renderEl(node, ctx)
+    const svg = query(dom, 'svg', SVGSVGElement)
+    expect(textsOf(svg, 'text')).toContain('hello')
+    const hitZone = query(svg, 'rect[fill="transparent"]', SVGRectElement)
     hitZone.dispatchEvent(new Event('mouseenter'))
-    const tooltip = dom.querySelector('.pf-chart-tooltip')!
+    const tooltip = query(dom, '.pf-chart-tooltip')
     expect(tooltip.textContent).toContain('HELLO WORLD LONGNAME')
   })
 
@@ -690,17 +647,13 @@ describe('Chart tooltips', () => {
       ],
       xAxis: 'x',
     }
-    const dom = renderNode(node, ctx) as HTMLElement
-    const svg = dom.querySelector('svg')!
-    const hitZone = Array.from(svg.querySelectorAll('rect')).find(
-      r => r.getAttribute('fill') === 'transparent',
-    )!
+    const dom = renderEl(node, ctx)
+    const svg = query(dom, 'svg', SVGSVGElement)
+    const hitZone = query(svg, 'rect[fill="transparent"]', SVGRectElement)
     hitZone.dispatchEvent(new Event('mouseenter'))
-    const tooltip = dom.querySelector('.pf-chart-tooltip')!
-    // Revenue should be formatted as currency via pipe
+    const tooltip = query(dom, '.pf-chart-tooltip')
     expect(tooltip.textContent).toContain('$')
     expect(tooltip.textContent).toContain('1,234.50')
-    // Count should still use default formatter
     expect(tooltip.textContent).toContain('42')
   })
 
@@ -716,25 +669,29 @@ describe('Chart tooltips', () => {
       xAxis: 'name',
       tooltipXFormat: 'upper',
     }
-    const dom = renderNode(node, ctx) as HTMLElement
-    const svg = dom.querySelector('svg')!
+    const dom = renderEl(node, ctx)
+    const svg = query(dom, 'svg', SVGSVGElement)
     const slices = svg.querySelectorAll('path')
     slices[0].dispatchEvent(new Event('mouseenter'))
-    const tooltip = dom.querySelector('.pf-chart-tooltip')!
+    const tooltip = query(dom, '.pf-chart-tooltip')
     expect(tooltip.textContent).toContain('ALPHA')
   })
 })
 
-describe('RadarChart (fallback)', () => {
-  it('renders placeholder for unsupported chart', () => {
+describe('RadarChart', () => {
+  it('renders an SVG radar with grid rings and a data polygon', () => {
     const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'RadarChart',
-      data: [{ x: 1 }],
+      data: [{ axis: 'A', x: 1 }, { axis: 'B', x: 2 }, { axis: 'C', x: 3 }],
       series: [{ dataKey: 'x' }],
+      xAxis: 'axis',
     }
-    const dom = renderNode(node, ctx) as HTMLElement
-    expect(dom).toBeTruthy()
+    const dom = renderEl(node, ctx)
+    const svg = query(dom, 'svg', SVGSVGElement)
+    expect(svg.getAttribute('aria-label')).toBe('Radar chart')
+    expect(queryAll(svg, 'polygon', SVGPolygonElement).length).toBeGreaterThan(1)
+    expect(svg.innerHTML).not.toContain('NaN')
   })
 })
 
@@ -777,7 +734,7 @@ describe('Table components', () => {
         },
       ],
     }
-    const dom = renderNode(node, ctx) as HTMLElement
+    const dom = renderEl(node, ctx)
     expect(dom.tagName).toBe('TABLE')
     expect(dom.querySelector('thead')).toBeTruthy()
     expect(dom.querySelector('tbody')).toBeTruthy()
@@ -796,10 +753,8 @@ describe('Table components', () => {
         { type: 'TableBody', children: [] },
       ],
     }
-    const dom = renderNode(node, ctx) as HTMLElement
-    const caption = dom.querySelector('caption')
-    expect(caption).toBeTruthy()
-    expect(caption!.textContent).toBe('User List')
+    const dom = renderEl(node, ctx)
+    expect(query(dom, 'caption').textContent).toBe('User List')
   })
 
   it('renders TableCell with colSpan', () => {
@@ -809,7 +764,7 @@ describe('Table components', () => {
       colSpan: 3,
       children: [{ type: 'Text', content: 'Wide cell' }],
     }
-    const dom = renderNode(node, ctx) as HTMLTableCellElement
+    const dom = renderEl(node, ctx, HTMLTableCellElement)
     expect(dom.tagName).toBe('TD')
     expect(dom.colSpan).toBe(3)
   })
@@ -822,7 +777,7 @@ describe('Table components', () => {
         { type: 'TableFooter', children: [{ type: 'TableRow', children: [{ type: 'TableCell', children: [{ type: 'Text', content: 'Total' }] }] }] },
       ],
     }
-    const dom = renderNode(node, ctx) as HTMLElement
+    const dom = renderEl(node, ctx)
     expect(dom.querySelector('tfoot')).toBeTruthy()
     expect(dom.textContent).toContain('Total')
   })
@@ -834,7 +789,7 @@ describe('Media components', () => {
   it('renders Audio element with controls', () => {
     const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Audio', src: '/audio.mp3' }
-    const dom = renderNode(node, ctx) as HTMLAudioElement
+    const dom = renderEl(node, ctx, HTMLAudioElement)
     expect(dom.tagName).toBe('AUDIO')
     expect(dom.getAttribute('src')).toBe('/audio.mp3')
     expect(dom.controls).toBe(true)
@@ -843,7 +798,7 @@ describe('Media components', () => {
   it('renders Video element with controls', () => {
     const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Video', src: '/video.mp4', width: 640, height: 480 }
-    const dom = renderNode(node, ctx) as HTMLVideoElement
+    const dom = renderEl(node, ctx, HTMLVideoElement)
     expect(dom.tagName).toBe('VIDEO')
     expect(dom.getAttribute('src')).toBe('/video.mp4')
     expect(dom.controls).toBe(true)
@@ -854,8 +809,8 @@ describe('Media components', () => {
   it('renders Embed as sandboxed iframe', () => {
     const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Embed', src: 'https://example.com/widget', height: 500 }
-    const dom = renderNode(node, ctx) as HTMLElement
-    const iframe = dom.querySelector('iframe')!
+    const dom = renderEl(node, ctx)
+    const iframe = query(dom, 'iframe', HTMLIFrameElement)
     expect(iframe.getAttribute('src')).toBe('https://example.com/widget')
     expect(iframe.style.height).toBe('500px')
     expect(iframe.getAttribute('sandbox')).toContain('allow-scripts')
@@ -864,7 +819,7 @@ describe('Media components', () => {
   it('renders Mermaid as data-mermaid container', () => {
     const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Mermaid', content: 'graph TD; A-->B;' }
-    const dom = renderNode(node, ctx) as HTMLElement
+    const dom = renderEl(node, ctx)
     expect(dom.getAttribute('data-mermaid')).toBe('true')
     expect(dom.textContent).toContain('graph TD')
   })
@@ -872,7 +827,7 @@ describe('Media components', () => {
   it('renders DropZone with label', () => {
     const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'DropZone', label: 'Upload here' }
-    const dom = renderNode(node, ctx) as HTMLElement
+    const dom = renderEl(node, ctx)
     expect(dom.className).toContain('pf-dropzone')
     expect(dom.textContent).toContain('Upload here')
   })
@@ -884,7 +839,7 @@ describe('Metric component', () => {
   it('renders label and value', () => {
     const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Metric', label: 'Users', value: '1,234' }
-    const dom = renderNode(node, ctx) as HTMLElement
+    const dom = renderEl(node, ctx)
     expect(dom.textContent).toContain('Users')
     expect(dom.textContent).toContain('1,234')
   })
@@ -899,7 +854,7 @@ describe('Metric component', () => {
       trend: 'up',
       trendSentiment: 'positive',
     }
-    const dom = renderNode(node, ctx) as HTMLElement
+    const dom = renderEl(node, ctx)
     expect(dom.textContent).toContain('↑')
     expect(dom.textContent).toContain('+12%')
   })
@@ -907,7 +862,7 @@ describe('Metric component', () => {
   it('resolves value from state', () => {
     const ctx = makeRenderCtx({ userCount: 42 })
     const node: ComponentNode = { type: 'Metric', label: 'Users', value: '{{ userCount }}' }
-    const dom = renderNode(node, ctx) as HTMLElement
+    const dom = renderEl(node, ctx)
     expect(dom.textContent).toContain('42')
   })
 })
@@ -916,7 +871,7 @@ describe('Dot component', () => {
   it('renders colored dot', () => {
     const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Dot', color: 'green' }
-    const dom = renderNode(node, ctx) as HTMLElement
+    const dom = renderEl(node, ctx)
     expect(dom.style.backgroundColor).toBe('green')
     expect(dom.style.borderRadius).toBe('50%')
   })
@@ -926,7 +881,7 @@ describe('Loader component', () => {
   it('renders loader element', () => {
     const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Loader' }
-    const dom = renderNode(node, ctx) as HTMLElement
+    const dom = renderEl(node, ctx)
     expect(dom.className).toContain('pf-loader')
   })
 })
@@ -935,8 +890,9 @@ describe('Icon component', () => {
   it('renders icon with name', () => {
     const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Icon', name: 'check' }
-    const dom = renderNode(node, ctx) as HTMLElement
-    expect(dom).toBeTruthy()
+    const dom = renderEl(node, ctx)
+    expect(dom.className).toContain('pf-icon')
+    expect(dom.getAttribute('data-icon')).toBe('check')
   })
 })
 
@@ -950,9 +906,8 @@ describe('DataTable selection', () => {
       rowKey: 'id',
       selected: '{{ sel }}',
     }
-    const dom = renderNode(node, ctx)
-    const selected = dom instanceof HTMLElement ? dom.querySelectorAll('.pf-datatable-row-selected') : []
-    expect(selected).toHaveLength(1)
+    const dom = renderEl(node, ctx)
+    expect(queryAll(dom, '.pf-datatable-row-selected')).toHaveLength(1)
   })
 })
 
@@ -967,10 +922,8 @@ describe('DataTable with search', () => {
       rows: '{{ rows }}',
       search: true,
     }
-    const dom = renderNode(node, ctx) as HTMLElement
-    const searchInput = dom.querySelector('.pf-datatable-search') as HTMLInputElement
-    expect(searchInput).toBeTruthy()
-    expect(searchInput.type).toBe('text')
+    const dom = renderEl(node, ctx)
+    expect(query(dom, '.pf-datatable-search', HTMLInputElement).type).toBe('text')
   })
 
   it('search filters rows', () => {
@@ -983,17 +936,16 @@ describe('DataTable with search', () => {
       rows: '{{ rows }}',
       search: true,
     }
-    const dom = renderNode(node, ctx) as HTMLElement
-    const searchInput = dom.querySelector('.pf-datatable-search') as HTMLInputElement
-    const tbody = dom.querySelector('tbody') as HTMLElement
+    const dom = renderEl(node, ctx)
+    const searchInput = query(dom, '.pf-datatable-search', HTMLInputElement)
+    const rows = queryAll(dom, 'tbody tr')
+    expect(rows).toHaveLength(3)
 
     searchInput.value = 'alice'
     searchInput.dispatchEvent(new Event('input', { bubbles: true }))
 
-    const visibleRows = Array.from(tbody.querySelectorAll('tr')).filter(
-      tr => (tr as HTMLElement).style.display !== 'none',
-    )
-    expect(visibleRows.length).toBe(1)
+    const visibleRows = rows.filter(tr => tr.style.display !== 'none')
+    expect(visibleRows.map(tr => tr.textContent)).toEqual(['Alice'])
   })
 })
 
@@ -1003,7 +955,7 @@ describe('Markdown component', () => {
   it('renders headings', () => {
     const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Markdown', content: '# Hello\n## World' }
-    const dom = renderNode(node, ctx) as HTMLElement
+    const dom = renderEl(node, ctx)
     expect(dom.querySelector('h1')?.textContent).toBe('Hello')
     expect(dom.querySelector('h2')?.textContent).toBe('World')
   })
@@ -1011,7 +963,7 @@ describe('Markdown component', () => {
   it('renders paragraphs', () => {
     const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Markdown', content: 'First paragraph\n\nSecond paragraph' }
-    const dom = renderNode(node, ctx) as HTMLElement
+    const dom = renderEl(node, ctx)
     const ps = dom.querySelectorAll('p')
     expect(ps.length).toBe(2)
     expect(ps[0].textContent).toBe('First paragraph')
@@ -1021,7 +973,7 @@ describe('Markdown component', () => {
   it('renders bold and italic inline', () => {
     const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Markdown', content: '**bold** and *italic*' }
-    const dom = renderNode(node, ctx) as HTMLElement
+    const dom = renderEl(node, ctx)
     expect(dom.querySelector('strong')?.textContent).toBe('bold')
     expect(dom.querySelector('em')?.textContent).toBe('italic')
   })
@@ -1029,15 +981,15 @@ describe('Markdown component', () => {
   it('renders inline code', () => {
     const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Markdown', content: 'Use `npm install` to install' }
-    const dom = renderNode(node, ctx) as HTMLElement
+    const dom = renderEl(node, ctx)
     expect(dom.querySelector('code')?.textContent).toBe('npm install')
   })
 
   it('renders fenced code blocks', () => {
     const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Markdown', content: '```ts\nconst x = 1\n```' }
-    const dom = renderNode(node, ctx) as HTMLElement
-    const code = dom.querySelector('code')!
+    const dom = renderEl(node, ctx)
+    const code = query(dom, 'code')
     expect(code.textContent).toBe('const x = 1')
     expect(code.getAttribute('data-language')).toBe('ts')
   })
@@ -1045,8 +997,8 @@ describe('Markdown component', () => {
   it('renders links', () => {
     const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Markdown', content: '[Click here](https://example.com)' }
-    const dom = renderNode(node, ctx) as HTMLElement
-    const a = dom.querySelector('a')!
+    const dom = renderEl(node, ctx)
+    const a = query(dom, 'a', HTMLAnchorElement)
     expect(a.textContent).toBe('Click here')
     expect(a.getAttribute('href')).toBe('https://example.com')
   })
@@ -1054,7 +1006,7 @@ describe('Markdown component', () => {
   it('sanitizes javascript: links', () => {
     const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Markdown', content: '[xss](javascript:alert(1))' }
-    const dom = renderNode(node, ctx) as HTMLElement
+    const dom = renderEl(node, ctx)
     const a = dom.querySelector('a')
     expect(a).toBeNull()
   })
@@ -1062,7 +1014,7 @@ describe('Markdown component', () => {
   it('renders unordered lists', () => {
     const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Markdown', content: '- Item 1\n- Item 2\n- Item 3' }
-    const dom = renderNode(node, ctx) as HTMLElement
+    const dom = renderEl(node, ctx)
     const items = dom.querySelectorAll('li')
     expect(items.length).toBe(3)
     expect(items[0].textContent).toBe('Item 1')
@@ -1071,7 +1023,7 @@ describe('Markdown component', () => {
   it('renders ordered lists', () => {
     const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Markdown', content: '1. First\n2. Second' }
-    const dom = renderNode(node, ctx) as HTMLElement
+    const dom = renderEl(node, ctx)
     expect(dom.querySelector('ol')).toBeTruthy()
     expect(dom.querySelectorAll('li').length).toBe(2)
   })
@@ -1079,7 +1031,7 @@ describe('Markdown component', () => {
   it('renders blockquotes', () => {
     const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Markdown', content: '> Quote text' }
-    const dom = renderNode(node, ctx) as HTMLElement
+    const dom = renderEl(node, ctx)
     expect(dom.querySelector('blockquote')).toBeTruthy()
     expect(dom.querySelector('blockquote')?.textContent).toContain('Quote text')
   })
@@ -1087,22 +1039,22 @@ describe('Markdown component', () => {
   it('renders horizontal rules', () => {
     const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Markdown', content: 'Above\n\n---\n\nBelow' }
-    const dom = renderNode(node, ctx) as HTMLElement
+    const dom = renderEl(node, ctx)
     expect(dom.querySelector('hr')).toBeTruthy()
   })
 
   it('renders strikethrough', () => {
     const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Markdown', content: '~~deleted~~' }
-    const dom = renderNode(node, ctx) as HTMLElement
+    const dom = renderEl(node, ctx)
     expect(dom.querySelector('del')?.textContent).toBe('deleted')
   })
 
   it('renders images', () => {
     const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Markdown', content: '![alt text](https://example.com/img.png)' }
-    const dom = renderNode(node, ctx) as HTMLElement
-    const img = dom.querySelector('img')!
+    const dom = renderEl(node, ctx)
+    const img = query(dom, 'img', HTMLImageElement)
     expect(img.getAttribute('src')).toBe('https://example.com/img.png')
     expect(img.getAttribute('alt')).toBe('alt text')
   })
@@ -1110,7 +1062,7 @@ describe('Markdown component', () => {
   it('escapes HTML to prevent XSS', () => {
     const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Markdown', content: '<script>alert("xss")</script>' }
-    const dom = renderNode(node, ctx) as HTMLElement
+    const dom = renderEl(node, ctx)
     expect(dom.querySelector('script')).toBeNull()
     expect(dom.innerHTML).toContain('&lt;script&gt;')
   })
@@ -1130,7 +1082,7 @@ console.log('hello')
 
 > A quote`
     const node: ComponentNode = { type: 'Markdown', content: md }
-    const dom = renderNode(node, ctx) as HTMLElement
+    const dom = renderEl(node, ctx)
     expect(dom.querySelector('h1')).toBeTruthy()
     expect(dom.querySelector('strong')).toBeTruthy()
     expect(dom.querySelector('a')).toBeTruthy()
@@ -1152,7 +1104,7 @@ describe('Layout components', () => {
         { type: 'Text', content: 'B' },
       ],
     }
-    const dom = renderNode(node, ctx) as HTMLElement
+    const dom = renderEl(node, ctx)
     expect(dom.style.display).toBe('flex')
     expect(dom.style.flexDirection).toBe('row')
   })
@@ -1168,8 +1120,9 @@ describe('Layout components', () => {
         { type: 'Text', content: '3' },
       ],
     }
-    const dom = renderNode(node, ctx) as HTMLElement
+    const dom = renderEl(node, ctx)
     expect(dom.style.display).toBe('grid')
+    expect(dom.style.gridTemplateColumns).toBe('repeat(3, 1fr)')
   })
 
   it('Container renders max-width wrapper', () => {
@@ -1178,7 +1131,7 @@ describe('Layout components', () => {
       type: 'Container',
       children: [{ type: 'Text', content: 'Content' }],
     }
-    const dom = renderNode(node, ctx) as HTMLElement
+    const dom = renderEl(node, ctx)
     expect(dom.className).toContain('pf-container')
   })
 })
@@ -1189,7 +1142,7 @@ describe('Typography components', () => {
   it('H1 renders as h1 tag', () => {
     const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'H1', content: 'Title' }
-    const dom = renderNode(node, ctx) as HTMLElement
+    const dom = renderEl(node, ctx)
     expect(dom.tagName).toBe('H1')
     expect(dom.textContent).toBe('Title')
   })
@@ -1197,22 +1150,23 @@ describe('Typography components', () => {
   it('Code renders as code element', () => {
     const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Code', content: 'const x = 1' }
-    const dom = renderNode(node, ctx) as HTMLElement
+    const dom = renderEl(node, ctx)
     expect(dom.tagName === 'CODE' || dom.querySelector('code') !== null).toBe(true)
   })
 
   it('Link renders as anchor with target', () => {
     const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Link', content: 'Click me', href: 'https://example.com', target: '_blank' }
-    const dom = renderNode(node, ctx) as HTMLAnchorElement
-    expect(dom.tagName).toBe('A')
+    const dom = renderEl(node, ctx, HTMLAnchorElement)
     expect(dom.getAttribute('href')).toBe('https://example.com')
+    expect(dom.target).toBe('_blank')
+    expect(dom.textContent).toBe('Click me')
   })
 
   it('BlockQuote renders as blockquote', () => {
     const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'BlockQuote', content: 'A wise quote' }
-    const dom = renderNode(node, ctx) as HTMLElement
+    const dom = renderEl(node, ctx)
     expect(dom.tagName).toBe('BLOCKQUOTE')
     expect(dom.textContent).toContain('A wise quote')
   })

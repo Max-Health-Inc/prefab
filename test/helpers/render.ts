@@ -116,6 +116,14 @@ export function queryAll(root: ParentNode, selector: string, ctor: Constructor<E
   return Array.from(root.querySelectorAll(selector), el => expectInstance(el, ctor))
 }
 
+export function textsOf(root: ParentNode, selector: string): string[] {
+  return Array.from(root.querySelectorAll(selector), el => el.textContent ?? '')
+}
+
+export function keydown(target: EventTarget, key: string, init: KeyboardEventInit = {}): void {
+  target.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true, ...init, key }))
+}
+
 export function expectRecord(value: unknown): Record<string, unknown> {
   if (!isRecord(value)) throw new TypeError(`expected an object, got ${typeof value}`)
   return value
