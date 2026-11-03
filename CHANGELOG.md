@@ -6,6 +6,8 @@ All notable changes to this project will be documented in this file.
 
 <!-- Add new entries directly below. Keep this line: it makes a release merge conflict rather than file them under a published version. -->
 
+## [0.3.20] — 2026-11-03
+
 ### Fixed
 
 - **A `Histogram` whose `data` holds no numbers shows `No data`** instead of an empty chart of zero-height bars.
