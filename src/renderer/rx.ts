@@ -212,7 +212,7 @@ function applyFilter(filterStr: string, value: unknown, store?: Store, scope?: E
       if (!Array.isArray(value) || !argStr) return undefined
       const parts = splitFilterArgs(argStr)
       if (parts.length < 2) return undefined
-      const field = parseLiteral(parts[0]) as string
+      const field = String(parseLiteral(parts[0]))
       const keyRef = parts[1].trim()
       // Resolve keyRef: if it's a quoted literal use it, else resolve from store/scope
       let keyVal: unknown

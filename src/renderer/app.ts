@@ -299,8 +299,8 @@ function resolveTarget(target: string | HTMLElement): HTMLElement {
       throw new Error('Cannot resolve selector outside browser')
     }
     const el = document.querySelector(target)
-    if (!el) throw new Error(`Element not found: ${target}`)
-    return el as HTMLElement
+    if (!(el instanceof HTMLElement)) throw new Error(`Element not found: ${target}`)
+    return el
   }
   return target
 }

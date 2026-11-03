@@ -107,7 +107,9 @@ export function withLabel(
  */
 export function markRequired(element: HTMLElement, node: ComponentNode): void {
   if (node.required !== true) return
-  if ('required' in element) (element as HTMLInputElement).required = true
+  if (element instanceof HTMLInputElement || element instanceof HTMLSelectElement || element instanceof HTMLTextAreaElement) {
+    element.required = true
+  }
   element.setAttribute('aria-required', 'true')
 }
 

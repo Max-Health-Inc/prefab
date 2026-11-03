@@ -6,7 +6,7 @@ import { registerComponent, resolveStr, resolveValue, el, makeDispatchCtx } from
 import type { ComponentNode, RenderContext } from '../engine.js'
 import { dispatchActions, fireAndForget } from '../actions.js'
 import { stringifyValue } from '../../core/stringify.js'
-import { isRecord, optionalNumber, optionalString } from '../../core/guards.js'
+import { isRecord, optionalNumber, optionalString, recordList } from '../../core/guards.js'
 
 export function registerDataComponents(): void {
   registerComponent('DataTable', renderDataTable)
@@ -28,7 +28,12 @@ function renderDataTable(node: ComponentNode, ctx: RenderContext): HTMLElement {
   table.style.width = '100%'
   table.style.borderCollapse = 'collapse'
 
-  const cols = (node.columns as { key: string; header?: string; format?: string; accessor?: string }[] | undefined) ?? []
+  const cols = recordList(node.columns).map(c => ({
+    key: stringifyValue(c.key),
+    header: c.header != null ? stringifyValue(c.header) : undefined,
+    format: optionalString(c.format),
+    accessor: optionalString(c.accessor),
+  }))
   const rows = resolveValue(node.rows, ctx)
   const rowKey = optionalString(node.rowKey)
   const selectedExpr = optionalString(node.selected)
@@ -112,11 +117,8 @@ function renderDataTable(node: ComponentNode, ctx: RenderContext): HTMLElement {
     input.style.boxSizing = 'border-box'
     input.addEventListener('input', () => {
       const q = input.value.toLowerCase()
-      const trs = Array.from(tbody.querySelectorAll('tr'))
-      for (const tr of trs) {
-        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- textContent is string | null per DOM spec
-        const cellText = ((tr as HTMLElement).textContent ?? '').toLowerCase()
-        ;(tr as HTMLElement).style.display = cellText.includes(q) ? '' : 'none'
+      for (const tr of tbody.querySelectorAll('tr')) {
+        tr.style.display = tr.textContent.toLowerCase().includes(q) ? '' : 'none'
       }
     })
     wrapper.appendChild(input)

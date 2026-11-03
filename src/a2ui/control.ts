@@ -17,6 +17,7 @@
  */
 
 import type { ComponentJSON } from '../core/component.js'
+import { componentList, isRecord } from '../core/guards.js'
 import { escapePointerToken } from './expr.js'
 import type { Mapper } from './catalog.js'
 
@@ -29,9 +30,9 @@ function textOf(node: ComponentJSON, ...keys: string[]): string | undefined {
   return undefined
 }
 
-/** Narrow an unknown `slots` prop to the shape the renderer expects. */
-function isNodeMap(value: unknown): value is Record<string, ComponentJSON[]> {
-  return value != null && typeof value === 'object' && !Array.isArray(value)
+function nodeSlots(value: unknown): Record<string, ComponentJSON[]> {
+  if (!isRecord(value)) return {}
+  return Object.fromEntries(Object.entries(value).map(([slot, nodes]) => [slot, componentList(nodes)]))
 }
 
 export const CONTROL_MAPPERS: Record<string, Mapper> = {
@@ -89,7 +90,7 @@ export const CONTROL_MAPPERS: Record<string, Mapper> = {
     }
 
     const slots: Record<string, ComponentJSON[]> = {
-      ...(isNodeMap(node.slots) ? node.slots : {}),
+      ...nodeSlots(node.slots),
       ...(Array.isArray(node.children) && node.children.length > 0 ? { default: node.children } : {}),
     }
 

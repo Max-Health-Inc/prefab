@@ -19,6 +19,7 @@
 import type { ComponentJSON } from '../core/component.js'
 import type { A2uiProps, EmitContext } from './catalog.js'
 import { dynamicString, toBinding } from './expr.js'
+import { optionalString, recordList } from '../core/guards.js'
 
 /** prefab table parts that only exist inside a `Table` and never map on their own. */
 export const TABLE_PART_TYPES = [
@@ -32,14 +33,11 @@ interface ColumnDef {
 
 /** Read a `DataTable`'s serialized column definitions defensively. */
 function columnDefs(node: ComponentJSON): ColumnDef[] {
-  if (!Array.isArray(node.columns)) return []
   const defs: ColumnDef[] = []
-  for (const raw of node.columns) {
-    if (raw == null || typeof raw !== 'object') continue
-    const col = raw as Record<string, unknown>
-    const key = typeof col.accessor === 'string' ? col.accessor : typeof col.key === 'string' ? col.key : undefined
+  for (const col of recordList(node.columns)) {
+    const key = optionalString(col.accessor) ?? optionalString(col.key)
     if (key == null) continue
-    defs.push({ key, header: typeof col.header === 'string' ? col.header : key })
+    defs.push({ key, header: optionalString(col.header) ?? key })
   }
   return defs
 }

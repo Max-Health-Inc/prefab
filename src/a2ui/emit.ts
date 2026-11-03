@@ -20,6 +20,7 @@
 import type { ComponentJSON } from '../core/component.js'
 import type { PrefabWireFormat } from '../app.js'
 import { createLogger } from '../core/logger.js'
+import { componentList, isRecord } from '../core/guards.js'
 import { dynamicString, escapePointerToken, toBinding, type BindScope, type BindingResult } from './expr.js'
 import { fallbackMapper, isConsumedByParent, mapperFor, type A2uiProps, type EmitContext } from './catalog.js'
 import {
@@ -66,6 +67,9 @@ export interface A2uiEmitResult {
   messages: A2uiMessage[]
   diagnostics: A2uiDiagnostic[]
 }
+
+/** A `$prefab` payload; the emitter reads `view`, `state` and `defs`. */
+export type A2uiEmitSource = Partial<PrefabWireFormat> & Pick<PrefabWireFormat, 'view'>
 
 /**
  * The wrapper `toJSON()` puts around every view. It carries a CSS class and
@@ -218,11 +222,9 @@ class Emitter implements EmitContext {
   }
 
   children(nodes: unknown): string[] {
-    if (!Array.isArray(nodes)) return []
     const ids: string[] = []
-    for (const node of nodes as unknown[]) {
-      if (node == null || typeof node !== 'object') continue
-      const id = this.emit(node as ComponentJSON, false)
+    for (const node of componentList(nodes)) {
+      const id = this.emit(node, false)
       if (id != null) ids.push(id)
     }
     return ids
@@ -245,9 +247,9 @@ class Emitter implements EmitContext {
       }
       return this.action(value[0], subject)
     }
-    if (typeof value !== 'object') return undefined
+    if (!isRecord(value)) return undefined
 
-    const json = value as Record<string, unknown>
+    const json = value
     const kind = typeof json.action === 'string' ? json.action : undefined
     if (kind == null) return undefined
 
@@ -291,9 +293,9 @@ class Emitter implements EmitContext {
    * value rather than shipping the uninterpolated template to the agent.
    */
   private eventContext(value: unknown, subject: string): Record<string, A2uiDynamicValue> | undefined {
-    if (value == null || typeof value !== 'object' || Array.isArray(value)) return undefined
+    if (!isRecord(value)) return undefined
     const context: Record<string, A2uiDynamicValue> = {}
-    for (const [key, raw] of Object.entries(value as Record<string, unknown>)) {
+    for (const [key, raw] of Object.entries(value)) {
       if (typeof raw === 'number' || typeof raw === 'boolean' || raw === null) {
         context[key] = raw
         continue
@@ -360,7 +362,7 @@ class Emitter implements EmitContext {
     return id
   }
 
-  finish(wire: PrefabWireFormat, options: A2uiEmitOptions): A2uiEmitResult {
+  finish(wire: A2uiEmitSource, options: A2uiEmitOptions): A2uiEmitResult {
     const surfaceId = options.surfaceId ?? 'prefab'
 
     // Envelope-level defs first, then any `Define` in the tree, which wins on a
@@ -427,7 +429,7 @@ class Emitter implements EmitContext {
  * if (diagnostics.length > 0) console.warn(diagnostics)
  * ```
  */
-export function emitA2UI(wire: PrefabWireFormat, options?: A2uiEmitOptions): A2uiEmitResult {
+export function emitA2UI(wire: A2uiEmitSource, options?: A2uiEmitOptions): A2uiEmitResult {
   const opts = options ?? {}
   return new Emitter(opts.warn === true).finish(wire, opts)
 }

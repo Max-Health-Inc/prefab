@@ -8,6 +8,7 @@
 
 import { type Component, type ContainerComponent } from '../core/component.js'
 import { stringifyValue } from '../core/stringify.js'
+import { isRecord } from '../core/guards.js'
 import { humanizeColumnKey } from '../core/humanize.js'
 import { Column, Row } from '../components/layout/index.js'
 import { Heading, Text, Muted } from '../components/typography/index.js'
@@ -96,13 +97,11 @@ export function registerStatusVariants(mappings: Record<string, BadgeVariant>): 
 
 // ── Type detection helpers ──────────────────────────────────────────────────
 
-function isDateString(value: unknown): boolean {
-  if (typeof value !== 'string') return false
+function isDateString(value: string): boolean {
   return /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2})?/.test(value)
 }
 
-function isStatusLike(key: string, value: unknown): boolean {
-  if (typeof value !== 'string') return false
+function isStatusLike(key: string, value: string): boolean {
   const statusKeys = ['status', 'state', 'phase', 'condition', 'mode']
   return statusKeys.some(sk => key.toLowerCase().includes(sk))
     || value.toLowerCase().replace(/[\s-]/g, '_') in STATUS_VARIANTS
@@ -198,13 +197,11 @@ function buildDetailFields(
   // Nested objects as sub-sections
   if (depth < maxDepth) {
     for (const [key, value] of entries) {
-      if (typeof value !== 'object' || value === null || Array.isArray(value)) continue
+      if (!isRecord(value)) continue
 
       if (shown > 0) components.push(Separator())
       const label = humanizeColumnKey(key)
-      const nestedFields = buildDetailFields(
-        value as Record<string, unknown>, exclude, null, depth + 1, maxDepth,
-      )
+      const nestedFields = buildDetailFields(value, exclude, null, depth + 1, maxDepth)
 
       components.push(
         Column({ gap: 2, cssClass: 'py-2', children: [
@@ -226,11 +223,9 @@ function renderFieldValue(key: string, value: unknown): Component {
   if (typeof value === 'boolean') {
     return Badge(value ? 'Yes' : 'No', { variant: value ? 'success' : 'outline' })
   }
-  if (isStatusLike(key, value)) {
-    return Badge(value as string, { variant: statusVariant(value as string) })
-  }
-  if (isDateString(value)) {
-    return Text(value as string, { cssClass: 'font-medium tabular-nums' })
+  if (typeof value === 'string') {
+    if (isStatusLike(key, value)) return Badge(value, { variant: statusVariant(value) })
+    if (isDateString(value)) return Text(value, { cssClass: 'font-medium tabular-nums' })
   }
   return Text(stringifyValue(value), { cssClass: 'font-medium' })
 }
