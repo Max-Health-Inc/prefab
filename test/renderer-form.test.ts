@@ -48,7 +48,7 @@ describe('Input rendering', () => {
   it('renders label element linked by htmlFor', () => {
     const ctx = makeRenderCtx()
     const dom = renderEl({ type: 'Input', name: 'email', label: 'Email Address' }, ctx)
-    const label = dom.querySelector('label')!
+    const label = query(dom, 'label', HTMLLabelElement)
     expect(label).toBeTruthy()
     expect(label.textContent).toBe('Email Address')
     expect(label.htmlFor).toBe('email')
@@ -57,28 +57,28 @@ describe('Input rendering', () => {
   it('sets placeholder attribute', () => {
     const ctx = makeRenderCtx()
     const dom = renderEl({ type: 'Input', name: 'search', placeholder: 'Search...' }, ctx)
-    const input = dom.querySelector('input')!
+    const input = query(dom, 'input', HTMLInputElement)
     expect(input.placeholder).toBe('Search...')
   })
 
   it('sets input type from inputType prop', () => {
     const ctx = makeRenderCtx()
     const dom = renderEl({ type: 'Input', name: 'pass', inputType: 'password' }, ctx)
-    const input = dom.querySelector('input')!
+    const input = query(dom, 'input', HTMLInputElement)
     expect(input.type).toBe('password')
   })
 
   it('defaults input type to text', () => {
     const ctx = makeRenderCtx()
     const dom = renderEl({ type: 'Input', name: 'name' }, ctx)
-    const input = dom.querySelector('input')!
+    const input = query(dom, 'input', HTMLInputElement)
     expect(input.type).toBe('text')
   })
 
   it('sets required and aria-required', () => {
     const ctx = makeRenderCtx()
     const dom = renderEl({ type: 'Input', name: 'email', required: true }, ctx)
-    const input = dom.querySelector('input')!
+    const input = query(dom, 'input', HTMLInputElement)
     expect(input.required).toBe(true)
     expect(input.getAttribute('aria-required')).toBe('true')
   })
@@ -86,7 +86,7 @@ describe('Input rendering', () => {
   it('sets aria-invalid when error is present', () => {
     const ctx = makeRenderCtx()
     const dom = renderEl({ type: 'Input', name: 'email', error: 'Invalid email' }, ctx)
-    const input = dom.querySelector('input')!
+    const input = query(dom, 'input', HTMLInputElement)
     expect(input.getAttribute('aria-invalid')).toBe('true')
   })
 })
@@ -97,14 +97,14 @@ describe('Textarea rendering', () => {
   it('sets placeholder attribute', () => {
     const ctx = makeRenderCtx()
     const dom = renderEl({ type: 'Textarea', name: 'bio', placeholder: 'About you' }, ctx)
-    const textarea = dom.querySelector('textarea')!
+    const textarea = query(dom, 'textarea', HTMLTextAreaElement)
     expect(textarea.placeholder).toBe('About you')
   })
 
   it('sets rows attribute', () => {
     const ctx = makeRenderCtx()
     const dom = renderEl({ type: 'Textarea', name: 'bio', rows: 8 }, ctx)
-    const textarea = dom.querySelector('textarea')!
+    const textarea = query(dom, 'textarea', HTMLTextAreaElement)
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-conversion -- HappyDOM returns string
     expect(Number(textarea.rows)).toBe(8)
   })
@@ -136,7 +136,7 @@ describe('Checkbox rendering', () => {
   it('renders label text next to checkbox', () => {
     const ctx = makeRenderCtx({ agree: false })
     const dom = renderEl({ type: 'Checkbox', name: 'agree', label: 'I agree to terms' }, ctx)
-    const span = dom.querySelector('span')!
+    const span = query(dom, 'span', HTMLSpanElement)
     expect(span.textContent).toBe('I agree to terms')
   })
 })
@@ -147,7 +147,7 @@ describe('Switch rendering', () => {
   it('renders label text next to switch', () => {
     const ctx = makeRenderCtx({ notify: false })
     const dom = renderEl({ type: 'Switch', name: 'notify', label: 'Enable notifications' }, ctx)
-    const span = dom.querySelector('span')!
+    const span = query(dom, 'span', HTMLSpanElement)
     expect(span.textContent).toBe('Enable notifications')
   })
 })
@@ -170,7 +170,7 @@ describe('RadioGroup rendering', () => {
     const ctx = makeRenderCtx({})
     const dom = renderEl(radioGroupNode, ctx)
     expect(dom.tagName).toBe('FIELDSET')
-    const legend = dom.querySelector('legend')!
+    const legend = query(dom, 'legend', HTMLLegendElement)
     expect(legend.textContent).toBe('Select size')
   })
 
@@ -218,7 +218,7 @@ describe('Radio rendering', () => {
     expect(dom.tagName).toBe('LABEL')
     const input = query(dom, 'input[type="radio"]', HTMLInputElement)
     expect(input.value).toBe('yes')
-    const span = dom.querySelector('span')!
+    const span = query(dom, 'span', HTMLSpanElement)
     expect(span.textContent).toBe('Yes')
   })
 })
@@ -241,7 +241,7 @@ describe('Combobox rendering', () => {
   it('renders input with placeholder', () => {
     const ctx = makeRenderCtx({})
     const dom = renderEl(comboboxNode, ctx)
-    const input = dom.querySelector('input')!
+    const input = query(dom, 'input', HTMLInputElement)
     expect(input.placeholder).toBe('Select country')
     expect(input.name).toBe('country')
   })
@@ -256,7 +256,7 @@ describe('Combobox rendering', () => {
   it('dropdown shows on focus', () => {
     const ctx = makeRenderCtx({})
     const dom = renderEl(comboboxNode, ctx)
-    const input = dom.querySelector('input')!
+    const input = query(dom, 'input', HTMLInputElement)
     input.dispatchEvent(new Event('focus', { bubbles: true }))
     const dropdown = query(dom, '.pf-combobox-dropdown')
     expect(dropdown.style.display).toBe('block')
@@ -274,7 +274,7 @@ describe('Combobox rendering', () => {
   it('filters options on input when searchable', () => {
     const ctx = makeRenderCtx({})
     const dom = renderEl(comboboxNode, ctx)
-    const input = dom.querySelector('input')!
+    const input = query(dom, 'input', HTMLInputElement)
 
     input.value = 'ger'
     input.dispatchEvent(new Event('input', { bubbles: true }))
@@ -387,9 +387,9 @@ describe('ChoiceCard rendering', () => {
     }, ctx)
     expect(dom.className).toBe('pf-choice-card')
     expect(dom.dataset.value).toBe('pro')
-    const label = dom.querySelector('.pf-choice-card-label')!
+    const label = query(dom, '.pf-choice-card-label')
     expect(label.textContent).toBe('Pro Plan')
-    const desc = dom.querySelector('.pf-choice-card-description')!
+    const desc = query(dom, '.pf-choice-card-description')
     expect(desc.textContent).toBe('$29/mo')
   })
 
@@ -446,10 +446,10 @@ describe('Field compound rendering', () => {
     }, ctx)
 
     expect(dom.className).toBe('pf-field')
-    expect(dom.querySelector('.pf-field-title')!.textContent).toBe('Email')
-    expect(dom.querySelector('.pf-field-description')!.textContent).toBe('Your work email address')
-    expect(dom.querySelector('.pf-field-content')!.querySelector('input')).toBeTruthy()
-    expect(dom.querySelector('.pf-field-error')!.textContent).toBe('Required field')
+    expect(query(dom, '.pf-field-title').textContent).toBe('Email')
+    expect(query(dom, '.pf-field-description').textContent).toBe('Your work email address')
+    expect(query(dom, '.pf-field-content').querySelector('input')).toBeTruthy()
+    expect(query(dom, '.pf-field-error').textContent).toBe('Required field')
   })
 })
 
@@ -488,7 +488,7 @@ describe('Select options shorthand', () => {
         { label: 'Bug Report', value: 'bug' },
       ],
     }, ctx)
-    const select = dom.querySelector('select')!
+    const select = query(dom, 'select', HTMLSelectElement)
     const opts = Array.from(select.querySelectorAll('option'))
     expect(opts.length).toBe(2)
     expect(opts[0].value).toBe('general')
@@ -505,7 +505,7 @@ describe('Select options shorthand', () => {
       placeholder: 'Choose one',
       options: [{ label: 'A', value: 'a' }],
     }, ctx)
-    const select = dom.querySelector('select')!
+    const select = query(dom, 'select', HTMLSelectElement)
     const opts = Array.from(select.querySelectorAll('option'))
     expect(opts.length).toBe(2)
     expect(opts[0].textContent).toBe('Choose one')
@@ -538,7 +538,7 @@ describe('Select sub-components rendering', () => {
       children: [{ type: 'SelectLabel', content: 'Fruits' }],
     }, ctx)
     expect(dom.className).toBe('pf-select-group')
-    expect(dom.querySelector('.pf-select-label')!.textContent).toBe('Fruits')
+    expect(query(dom, '.pf-select-label').textContent).toBe('Fruits')
   })
 })
 
@@ -567,7 +567,7 @@ describe('Combobox sub-components rendering', () => {
       children: [{ type: 'ComboboxLabel', content: 'Top' }],
     }, ctx)
     expect(dom.className).toBe('pf-combobox-group')
-    expect(dom.querySelector('.pf-combobox-label')!.textContent).toBe('Top')
+    expect(query(dom, '.pf-combobox-label').textContent).toBe('Top')
   })
 })
 
@@ -606,7 +606,7 @@ describe('Textarea onChange action', () => {
       onChange: { action: 'setState', key: 'lastEvent', value: 'changed' },
     }
     const dom = renderEl(node, ctx)
-    const textarea = dom.querySelector('textarea')!
+    const textarea = query(dom, 'textarea', HTMLTextAreaElement)
     textarea.value = 'Hello'
     textarea.dispatchEvent(new Event('input', { bubbles: true }))
     expect(ctx.store.get('lastEvent')).toBe('changed')
@@ -636,7 +636,7 @@ describe('Switch onChange action', () => {
       onChange: { action: 'setState', key: 'lastEvent', value: 'switched' },
     }
     const dom = renderEl(node, ctx)
-    const input = dom.querySelector('input')!
+    const input = query(dom, 'input', HTMLInputElement)
     input.checked = true
     input.dispatchEvent(new Event('change', { bubbles: true }))
     expect(ctx.store.get('lastEvent')).toBe('switched')
