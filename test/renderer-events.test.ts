@@ -6,10 +6,9 @@
  */
 
 import { describe, it, expect, beforeEach } from 'bun:test'
-import { renderNode } from '../src/renderer/engine'
 import type { ComponentNode } from '../src/renderer/engine'
 import { registerAllComponents } from '../src/renderer/components/index'
-import { makeRenderCtx } from './helpers/render'
+import { makeRenderCtx, renderEl, query } from './helpers/render'
 
 beforeEach(() => { registerAllComponents() })
 
@@ -23,7 +22,7 @@ describe('Button onClick', () => {
       label: 'Increment',
       onClick: { action: 'setState', key: 'count', value: 1 },
     }
-    const dom = renderNode(node, ctx) as HTMLButtonElement
+    const dom = renderEl(node, ctx, HTMLButtonElement)
     dom.click()
     await new Promise(r => queueMicrotask(r))
     expect(ctx.store.get('count')).toBe(1)
@@ -39,7 +38,7 @@ describe('Button onClick', () => {
         { action: 'toggleState', key: 'clicked' },
       ],
     }
-    const dom = renderNode(node, ctx) as HTMLButtonElement
+    const dom = renderEl(node, ctx, HTMLButtonElement)
     dom.click()
     // dispatchActions is async (fire-and-forget via void), await microtask
     await new Promise(r => queueMicrotask(r))
@@ -47,7 +46,7 @@ describe('Button onClick', () => {
     expect(ctx.store.get('clicked')).toBe(true)
   })
 
-  it('disabled button does not dispatch', () => {
+  it('disabled button does not dispatch', async () => {
     const ctx = makeRenderCtx({ count: 0 })
     const node: ComponentNode = {
       type: 'Button',
@@ -55,9 +54,11 @@ describe('Button onClick', () => {
       disabled: true,
       onClick: { action: 'setState', key: 'count', value: 99 },
     }
-    const dom = renderNode(node, ctx) as HTMLButtonElement
+    const dom = renderEl(node, ctx, HTMLButtonElement)
     expect(dom.disabled).toBe(true)
-    // Browsers block click on disabled buttons; verify it's marked disabled
+    dom.click()
+    await new Promise(r => queueMicrotask(r))
+    expect(ctx.store.get('count')).toBe(0)
   })
 })
 
@@ -74,15 +75,10 @@ describe('Form onSubmit', () => {
         { type: 'Button', label: 'Submit', submit: true },
       ],
     }
-    const form = renderNode(node, ctx) as HTMLFormElement
+    const form = renderEl(node, ctx, HTMLFormElement)
+    query(form, 'input', HTMLInputElement).value = 'Alice'
+    expect(ctx.store.get('username')).toBeUndefined()
 
-    // Fill in the input
-    const input = form.querySelector('input')!
-    input.value = 'Alice'
-    // Trigger native input event to sync state
-    input.dispatchEvent(new Event('input', { bubbles: true }))
-
-    // Submit the form
     form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }))
     expect(ctx.store.get('submitted')).toBe(true)
     expect(ctx.store.get('username')).toBe('Alice')
@@ -95,7 +91,7 @@ describe('Form onSubmit', () => {
       label: 'Go',
       submit: true,
     }
-    const btn = renderNode(node, ctx) as HTMLButtonElement
+    const btn = renderEl(node, ctx, HTMLButtonElement)
     expect(btn.type).toBe('submit')
   })
 
@@ -105,7 +101,7 @@ describe('Form onSubmit', () => {
       type: 'Button',
       label: 'Cancel',
     }
-    const btn = renderNode(node, ctx) as HTMLButtonElement
+    const btn = renderEl(node, ctx, HTMLButtonElement)
     expect(btn.type).toBe('button')
   })
 })
@@ -116,8 +112,8 @@ describe('Input state binding', () => {
   it('syncs input value to store on input event', () => {
     const ctx = makeRenderCtx({ email: '' })
     const node: ComponentNode = { type: 'Input', name: 'email' }
-    const dom = renderNode(node, ctx) as HTMLElement
-    const input = dom.querySelector('input')!
+    const dom = renderEl(node, ctx)
+    const input = query(dom, 'input', HTMLInputElement)
 
     input.value = 'bob@test.com'
     input.dispatchEvent(new Event('input', { bubbles: true }))
@@ -127,8 +123,8 @@ describe('Input state binding', () => {
   it('reads initial value from state', () => {
     const ctx = makeRenderCtx({ name: 'PreFilled' })
     const node: ComponentNode = { type: 'Input', name: 'name' }
-    const dom = renderNode(node, ctx) as HTMLElement
-    const input = dom.querySelector('input')!
+    const dom = renderEl(node, ctx)
+    const input = query(dom, 'input', HTMLInputElement)
     expect(input.value).toBe('PreFilled')
   })
 
@@ -139,8 +135,8 @@ describe('Input state binding', () => {
       name: 'search',
       onChange: { action: 'setState', key: 'lastEvent', value: 'changed' },
     }
-    const dom = renderNode(node, ctx) as HTMLElement
-    const input = dom.querySelector('input')!
+    const dom = renderEl(node, ctx)
+    const input = query(dom, 'input', HTMLInputElement)
 
     input.value = 'hello'
     input.dispatchEvent(new Event('input', { bubbles: true }))
@@ -154,8 +150,8 @@ describe('Textarea state binding', () => {
   it('syncs textarea value to store', () => {
     const ctx = makeRenderCtx({ bio: '' })
     const node: ComponentNode = { type: 'Textarea', name: 'bio', rows: 5 }
-    const dom = renderNode(node, ctx) as HTMLElement
-    const textarea = dom.querySelector('textarea')!
+    const dom = renderEl(node, ctx)
+    const textarea = query(dom, 'textarea', HTMLTextAreaElement)
 
     textarea.value = 'Hello world'
     textarea.dispatchEvent(new Event('input', { bubbles: true }))
@@ -165,8 +161,8 @@ describe('Textarea state binding', () => {
   it('reads initial value from state', () => {
     const ctx = makeRenderCtx({ desc: 'Initial text' })
     const node: ComponentNode = { type: 'Textarea', name: 'desc' }
-    const dom = renderNode(node, ctx) as HTMLElement
-    const textarea = dom.querySelector('textarea')!
+    const dom = renderEl(node, ctx)
+    const textarea = query(dom, 'textarea', HTMLTextAreaElement)
     expect(textarea.value).toBe('Initial text')
   })
 })
@@ -177,16 +173,16 @@ describe('Checkbox state binding', () => {
   it('reads initial boolean from state', () => {
     const ctx = makeRenderCtx({ agree: true })
     const node: ComponentNode = { type: 'Checkbox', name: 'agree', label: 'I agree' }
-    const dom = renderNode(node, ctx) as HTMLElement
-    const input = dom.querySelector('input[type="checkbox"]') as HTMLInputElement
+    const dom = renderEl(node, ctx)
+    const input = query(dom, 'input[type="checkbox"]', HTMLInputElement)
     expect(input.checked).toBe(true)
   })
 
   it('syncs checked state on change', () => {
     const ctx = makeRenderCtx({ agree: false })
     const node: ComponentNode = { type: 'Checkbox', name: 'agree', label: 'I agree' }
-    const dom = renderNode(node, ctx) as HTMLElement
-    const input = dom.querySelector('input[type="checkbox"]') as HTMLInputElement
+    const dom = renderEl(node, ctx)
+    const input = query(dom, 'input[type="checkbox"]', HTMLInputElement)
 
     input.checked = true
     input.dispatchEvent(new Event('change', { bubbles: true }))
@@ -200,16 +196,16 @@ describe('Switch state binding', () => {
   it('renders with role=switch', () => {
     const ctx = makeRenderCtx({ darkMode: false })
     const node: ComponentNode = { type: 'Switch', name: 'darkMode', label: 'Dark mode' }
-    const dom = renderNode(node, ctx) as HTMLElement
-    const input = dom.querySelector('[role="switch"]')!
-    expect(input).toBeTruthy()
+    const dom = renderEl(node, ctx)
+    const input = query(dom, '[role="switch"]', HTMLInputElement)
+    expect(input.type).toBe('checkbox')
   })
 
   it('syncs boolean state on change', () => {
     const ctx = makeRenderCtx({ darkMode: false })
     const node: ComponentNode = { type: 'Switch', name: 'darkMode', label: 'Dark mode' }
-    const dom = renderNode(node, ctx) as HTMLElement
-    const input = dom.querySelector('input')!
+    const dom = renderEl(node, ctx)
+    const input = query(dom, 'input', HTMLInputElement)
 
     input.checked = true
     input.dispatchEvent(new Event('change', { bubbles: true }))
@@ -223,16 +219,16 @@ describe('Slider state binding', () => {
   it('reads initial value from state', () => {
     const ctx = makeRenderCtx({ volume: 75 })
     const node: ComponentNode = { type: 'Slider', name: 'volume', min: 0, max: 100 }
-    const dom = renderNode(node, ctx) as HTMLElement
-    const input = dom.querySelector('input[type="range"]') as HTMLInputElement
+    const dom = renderEl(node, ctx)
+    const input = query(dom, 'input[type="range"]', HTMLInputElement)
     expect(input.value).toBe('75')
   })
 
   it('syncs numeric state on input', () => {
     const ctx = makeRenderCtx({ volume: 50 })
     const node: ComponentNode = { type: 'Slider', name: 'volume', min: 0, max: 100 }
-    const dom = renderNode(node, ctx) as HTMLElement
-    const input = dom.querySelector('input[type="range"]') as HTMLInputElement
+    const dom = renderEl(node, ctx)
+    const input = query(dom, 'input[type="range"]', HTMLInputElement)
 
     input.value = '80'
     input.dispatchEvent(new Event('input', { bubbles: true }))
@@ -254,8 +250,8 @@ describe('Select state binding', () => {
         { type: 'SelectOption', value: 'green', label: 'Green' },
       ],
     }
-    const dom = renderNode(node, ctx) as HTMLElement
-    const select = dom.querySelector('select')!
+    const dom = renderEl(node, ctx)
+    const select = query(dom, 'select', HTMLSelectElement)
     expect(select.value).toBe('blue')
   })
 
@@ -269,8 +265,8 @@ describe('Select state binding', () => {
         { type: 'SelectOption', value: 'blue', label: 'Blue' },
       ],
     }
-    const dom = renderNode(node, ctx) as HTMLElement
-    const select = dom.querySelector('select')!
+    const dom = renderEl(node, ctx)
+    const select = query(dom, 'select', HTMLSelectElement)
 
     select.value = 'blue'
     select.dispatchEvent(new Event('change', { bubbles: true }))
@@ -288,8 +284,8 @@ describe('Select state binding', () => {
         { type: 'SelectOption', value: 'blue', label: 'Blue' },
       ],
     }
-    const dom = renderNode(node, ctx) as HTMLElement
-    const select = dom.querySelector('select')!
+    const dom = renderEl(node, ctx)
+    const select = query(dom, 'select', HTMLSelectElement)
 
     select.value = 'blue'
     select.dispatchEvent(new Event('change', { bubbles: true }))

@@ -6,6 +6,14 @@ All notable changes to this project will be documented in this file.
 
 <!-- Add new entries directly below. Keep this line: it makes a release merge conflict rather than file them under a published version. -->
 
+### Fixed
+
+- **A `Histogram` whose `data` holds no numbers shows `No data`** instead of an empty chart of zero-height bars.
+
+### Internal
+
+- Renderer, theme and TDD regression tests use the typed helpers in `test/helpers/render.ts` instead of `as` casts and non-null assertions, and several tests that could not fail now assert real behaviour.
+
 ## [0.3.19] — 2026-11-01
 
 ### Fixed
