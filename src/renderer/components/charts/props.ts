@@ -11,8 +11,9 @@ export function chartRows(node: ComponentNode, ctx: RenderContext): ChartRow[] {
 
 export function chartValues(node: ComponentNode, ctx: RenderContext): number[] | undefined {
   const raw = resolveValue(node.data, ctx)
-  if (!Array.isArray(raw) || raw.length === 0) return undefined
-  return raw.filter((v): v is number => typeof v === 'number' && Number.isFinite(v))
+  if (!Array.isArray(raw)) return undefined
+  const values = raw.filter((v): v is number => typeof v === 'number' && Number.isFinite(v))
+  return values.length > 0 ? values : undefined
 }
 
 function parseYAxisId(value: unknown): SeriesEntry['yAxisId'] {

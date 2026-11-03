@@ -293,7 +293,7 @@ describe('DataTable search', () => {
     const ctx = makeRenderCtx()
     const dom = renderEl(makeTable(), ctx)
     const searchInput = query(dom, '.pf-datatable-search', HTMLInputElement)
-    const tbody = dom.querySelector('tbody')!
+    const tbody = query(dom, 'tbody', HTMLTableSectionElement)
 
     searchInput.value = 'bob'
     searchInput.dispatchEvent(new Event('input', { bubbles: true }))

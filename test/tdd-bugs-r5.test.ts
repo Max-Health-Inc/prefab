@@ -16,10 +16,9 @@
 
 import { describe, it, expect, beforeEach } from 'bun:test'
 import { validateWireFormat } from '../src/core/validate'
-import { renderNode } from '../src/renderer/engine'
 import type { ComponentNode } from '../src/renderer/engine'
 import { registerAllComponents } from '../src/renderer/components/index'
-import { makeRenderCtx } from './helpers/render'
+import { makeRenderCtx, renderEl, textsOf } from './helpers/render'
 
 beforeEach(() => { registerAllComponents() })
 
@@ -111,10 +110,8 @@ describe('Goal 2 — DataTable primitive rows', () => {
       columns: [{ key: 'value', header: 'Task' }],
       rows: ['Review pull requests', 'Deploy v2.0'],
     }
-    const dom = renderNode(node, makeRenderCtx()) as HTMLElement
-    const cells = [...dom.querySelectorAll('.pf-datatable-td')].map(td => td.textContent)
-    expect(cells).toContain('Review pull requests')
-    expect(cells).toContain('Deploy v2.0')
+    const dom = renderEl(node, makeRenderCtx())
+    expect(textsOf(dom, '.pf-datatable-td')).toEqual(['Review pull requests', 'Deploy v2.0'])
   })
 
   it('renders number rows', () => {
@@ -123,9 +120,8 @@ describe('Goal 2 — DataTable primitive rows', () => {
       columns: [{ key: 'value' }],
       rows: [1, 2, 3],
     }
-    const dom = renderNode(node, makeRenderCtx()) as HTMLElement
-    const cells = [...dom.querySelectorAll('.pf-datatable-td')].map(td => td.textContent)
-    expect(cells).toEqual(['1', '2', '3'])
+    const dom = renderEl(node, makeRenderCtx())
+    expect(textsOf(dom, '.pf-datatable-td')).toEqual(['1', '2', '3'])
   })
 
   it('still renders object rows by column key (regression)', () => {
@@ -134,9 +130,8 @@ describe('Goal 2 — DataTable primitive rows', () => {
       columns: [{ key: 'value', header: 'Task' }],
       rows: [{ value: 'Keep working' }],
     }
-    const dom = renderNode(node, makeRenderCtx()) as HTMLElement
-    const cells = [...dom.querySelectorAll('.pf-datatable-td')].map(td => td.textContent)
-    expect(cells).toContain('Keep working')
+    const dom = renderEl(node, makeRenderCtx())
+    expect(textsOf(dom, '.pf-datatable-td')).toEqual(['Keep working'])
   })
 })
 

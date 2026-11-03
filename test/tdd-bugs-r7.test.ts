@@ -11,10 +11,9 @@
  */
 
 import { describe, it, expect, beforeEach } from 'bun:test'
-import { renderNode } from '../src/renderer/engine'
 import type { ComponentNode } from '../src/renderer/engine'
 import { registerAllComponents } from '../src/renderer/components/index'
-import { makeRenderCtx } from './helpers/render'
+import { makeRenderCtx, renderEl, query } from './helpers/render'
 
 beforeEach(() => { registerAllComponents() })
 
@@ -25,15 +24,14 @@ describe('Popover trigger', () => {
       trigger: { type: 'Button', label: 'Open' },
       children: [{ type: 'Text', content: 'popover body' }],
     }
-    const dom = renderNode(node, makeRenderCtx()) as HTMLElement
-    const trigger = dom.querySelector('.pf-button') as HTMLElement
-    const content = dom.querySelector('.pf-popover-content') as HTMLElement
-    expect(trigger).not.toBeNull()
+    const dom = renderEl(node, makeRenderCtx())
+    const trigger = query(dom, '.pf-button', HTMLButtonElement)
+    const content = query(dom, '.pf-popover-content')
     expect(trigger.textContent).toContain('Open')
-    expect(content.style.display).toBe('none')          // hidden initially
+    expect(content.style.display).toBe('none')
     expect(content.textContent).toContain('popover body')
     trigger.click()
-    expect(content.style.display).toBe('block')          // shown after click
+    expect(content.style.display).toBe('block')
   })
 })
 
@@ -44,9 +42,9 @@ describe('HoverCard trigger', () => {
       trigger: { type: 'Button', label: 'Hover me' },
       children: [{ type: 'Text', content: 'card body' }],
     }
-    const dom = renderNode(node, makeRenderCtx()) as HTMLElement
-    const trigger = dom.querySelector('.pf-button') as HTMLElement
-    const content = dom.querySelector('.pf-hover-card-content') as HTMLElement
+    const dom = renderEl(node, makeRenderCtx())
+    const trigger = query(dom, '.pf-button', HTMLButtonElement)
+    const content = query(dom, '.pf-hover-card-content')
     expect(trigger.textContent).toContain('Hover me')
     expect(content.style.display).toBe('none')
     dom.dispatchEvent(new Event('mouseenter'))
@@ -67,7 +65,7 @@ describe('Slot injection via Use', () => {
         { type: 'Use', def: 'panel', children: [{ type: 'Text', content: 'injected content' }] },
       ],
     }
-    const dom = renderNode(view, makeRenderCtx()) as HTMLElement
+    const dom = renderEl(view, makeRenderCtx())
     expect(dom.textContent).toContain('injected content')
   })
 
@@ -81,7 +79,7 @@ describe('Slot injection via Use', () => {
         { type: 'Use', def: 'panel' },
       ],
     }
-    const dom = renderNode(view, makeRenderCtx()) as HTMLElement
+    const dom = renderEl(view, makeRenderCtx())
     expect(dom.textContent).toContain('fallback content')
   })
 })

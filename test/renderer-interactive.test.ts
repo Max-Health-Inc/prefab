@@ -4,11 +4,10 @@
  * @happy-dom
  */
 
-import { describe, it, expect, beforeEach } from 'bun:test'
-import { renderNode } from '../src/renderer/engine'
+import { describe, it, expect, beforeEach, afterEach } from 'bun:test'
 import type { ComponentNode } from '../src/renderer/engine'
 import { registerAllComponents } from '../src/renderer/components/index'
-import { makeRenderCtx } from './helpers/render'
+import { makeRenderCtx, renderEl, query, queryAll, keydown } from './helpers/render'
 
 beforeEach(() => { registerAllComponents() })
 
@@ -26,121 +25,107 @@ describe('Tabs', () => {
     }
   }
 
+  function mountTabs(): { tablist: HTMLElement; tabs: HTMLButtonElement[]; panels: HTMLElement[] } {
+    const dom = renderEl(makeTabs(), makeRenderCtx())
+    document.body.appendChild(dom)
+    return {
+      tablist: query(dom, '[role="tablist"]'),
+      tabs: queryAll(dom, '[role="tab"]', HTMLButtonElement),
+      panels: queryAll(dom, '[role="tabpanel"]'),
+    }
+  }
+
+  function selected(tabs: HTMLElement[]): number[] {
+    return tabs.flatMap((tab, i) => tab.getAttribute('aria-selected') === 'true' ? [i] : [])
+  }
+
+  afterEach(() => { document.body.replaceChildren() })
+
   it('renders tab bar with role=tablist', () => {
-    const dom = renderNode(makeTabs(), makeRenderCtx()) as HTMLElement
-    const tablist = dom.querySelector('[role="tablist"]')
-    expect(tablist).toBeTruthy()
+    const { tablist, tabs } = mountTabs()
+    expect(tabs.every(tab => tab.parentElement === tablist)).toBe(true)
   })
 
   it('renders tab buttons with role=tab', () => {
-    const dom = renderNode(makeTabs(), makeRenderCtx()) as HTMLElement
-    const tabs = dom.querySelectorAll('[role="tab"]')
-    expect(tabs.length).toBe(3)
+    expect(mountTabs().tabs).toHaveLength(3)
   })
 
   it('first tab is selected by default', () => {
-    const dom = renderNode(makeTabs(), makeRenderCtx()) as HTMLElement
-    const tabs = dom.querySelectorAll('[role="tab"]')
-    expect(tabs[0].getAttribute('aria-selected')).toBe('true')
-    expect(tabs[1].getAttribute('aria-selected')).toBe('false')
+    const { tabs } = mountTabs()
+    expect(selected(tabs)).toEqual([0])
+    expect(tabs.map(tab => tab.tabIndex)).toEqual([0, -1, -1])
   })
 
   it('first panel is visible, others hidden', () => {
-    const dom = renderNode(makeTabs(), makeRenderCtx()) as HTMLElement
-    const panels = dom.querySelectorAll('[role="tabpanel"]')
-    expect((panels[0] as HTMLElement).style.display).toBe('block')
-    expect((panels[1] as HTMLElement).style.display).toBe('none')
-    expect((panels[2] as HTMLElement).style.display).toBe('none')
+    const { panels } = mountTabs()
+    expect(panels.map(p => p.style.display)).toEqual(['block', 'none', 'none'])
   })
 
   it('clicking second tab activates it', () => {
-    const dom = renderNode(makeTabs(), makeRenderCtx()) as HTMLElement
-    const tabs = dom.querySelectorAll('[role="tab"]')
-    const panels = dom.querySelectorAll('[role="tabpanel"]')
-
-    ;(tabs[1] as HTMLElement).click()
-
-    expect(tabs[1].getAttribute('aria-selected')).toBe('true')
-    expect(tabs[0].getAttribute('aria-selected')).toBe('false')
-    expect((panels[1] as HTMLElement).style.display).toBe('block')
-    expect((panels[0] as HTMLElement).style.display).toBe('none')
+    const { tabs, panels } = mountTabs()
+    tabs[1].click()
+    expect(selected(tabs)).toEqual([1])
+    expect(panels.map(p => p.style.display)).toEqual(['none', 'block', 'none'])
   })
 
-  it('ArrowRight moves to next tab', () => {
-    const dom = renderNode(makeTabs(), makeRenderCtx()) as HTMLElement
-    const tablist = dom.querySelector('[role="tablist"]')!
-    const tabs = dom.querySelectorAll('[role="tab"]')
+  it('ArrowRight on the focused tab moves selection and focus to the next tab', () => {
+    const { tabs, panels } = mountTabs()
+    tabs[0].focus()
+    keydown(tabs[0], 'ArrowRight')
+    expect(selected(tabs)).toEqual([1])
+    expect(tabs.map(tab => tab.tabIndex)).toEqual([-1, 0, -1])
+    expect(document.activeElement).toBe(tabs[1])
+    expect(panels.map(p => p.style.display)).toEqual(['none', 'block', 'none'])
+  })
 
-    // Focus on first tab, press ArrowRight
-    tablist.dispatchEvent(new KeyboardEvent('keydown', {
-      key: 'ArrowRight',
-      bubbles: true,
-    }))
-    // Note: keydown target needs to be the button itself
-    const event = new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true })
-    Object.defineProperty(event, 'target', { value: tabs[0] })
-    tablist.dispatchEvent(event)
-
-    expect(tabs[1].getAttribute('aria-selected')).toBe('true')
+  it('ArrowRight wraps from last to first tab', () => {
+    const { tabs } = mountTabs()
+    tabs[2].click()
+    keydown(tabs[2], 'ArrowRight')
+    expect(selected(tabs)).toEqual([0])
   })
 
   it('ArrowLeft wraps to last tab', () => {
-    const dom = renderNode(makeTabs(), makeRenderCtx()) as HTMLElement
-    const tablist = dom.querySelector('[role="tablist"]')!
-    const tabs = dom.querySelectorAll('[role="tab"]')
-
-    const event = new KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true })
-    Object.defineProperty(event, 'target', { value: tabs[0] })
-    tablist.dispatchEvent(event)
-
-    expect(tabs[2].getAttribute('aria-selected')).toBe('true')
+    const { tabs } = mountTabs()
+    keydown(tabs[0], 'ArrowLeft')
+    expect(selected(tabs)).toEqual([2])
+    expect(document.activeElement).toBe(tabs[2])
   })
 
   it('Home key activates first tab', () => {
-    const dom = renderNode(makeTabs(), makeRenderCtx()) as HTMLElement
-    const tablist = dom.querySelector('[role="tablist"]')!
-    const tabs = dom.querySelectorAll('[role="tab"]')
-
-    // First activate tab 2
-    ;(tabs[2] as HTMLElement).click()
-    expect(tabs[2].getAttribute('aria-selected')).toBe('true')
-
-    // Press Home
-    const event = new KeyboardEvent('keydown', { key: 'Home', bubbles: true })
-    Object.defineProperty(event, 'target', { value: tabs[2] })
-    tablist.dispatchEvent(event)
-
-    expect(tabs[0].getAttribute('aria-selected')).toBe('true')
+    const { tabs } = mountTabs()
+    tabs[2].click()
+    expect(selected(tabs)).toEqual([2])
+    keydown(tabs[2], 'Home')
+    expect(selected(tabs)).toEqual([0])
   })
 
   it('End key activates last tab', () => {
-    const dom = renderNode(makeTabs(), makeRenderCtx()) as HTMLElement
-    const tablist = dom.querySelector('[role="tablist"]')!
-    const tabs = dom.querySelectorAll('[role="tab"]')
+    const { tabs } = mountTabs()
+    keydown(tabs[0], 'End')
+    expect(selected(tabs)).toEqual([2])
+  })
 
-    const event = new KeyboardEvent('keydown', { key: 'End', bubbles: true })
-    Object.defineProperty(event, 'target', { value: tabs[0] })
-    tablist.dispatchEvent(event)
+  it('ignores arrow keys that do not come from a tab', () => {
+    const { tablist, tabs } = mountTabs()
+    keydown(tablist, 'ArrowRight')
+    expect(selected(tabs)).toEqual([0])
+  })
 
-    expect(tabs[2].getAttribute('aria-selected')).toBe('true')
+  it('ignores unrelated keys on a tab', () => {
+    const { tabs } = mountTabs()
+    keydown(tabs[0], 'Enter')
+    expect(selected(tabs)).toEqual([0])
   })
 
   it('panels have aria-labelledby pointing to tab button', () => {
-    const dom = renderNode(makeTabs(), makeRenderCtx()) as HTMLElement
-    const tabs = dom.querySelectorAll('[role="tab"]')
-    const panels = dom.querySelectorAll('[role="tabpanel"]')
-
-    expect(panels[0].getAttribute('aria-labelledby')).toBe(tabs[0].id)
-    expect(panels[1].getAttribute('aria-labelledby')).toBe(tabs[1].id)
+    const { tabs, panels } = mountTabs()
+    expect(panels.map(p => p.getAttribute('aria-labelledby'))).toEqual(tabs.map(t => t.id))
   })
 
   it('tab buttons have aria-controls pointing to panel', () => {
-    const dom = renderNode(makeTabs(), makeRenderCtx()) as HTMLElement
-    const tabs = dom.querySelectorAll('[role="tab"]')
-    const panels = dom.querySelectorAll('[role="tabpanel"]')
-
-    expect(tabs[0].getAttribute('aria-controls')).toBe(panels[0].id)
-    expect(tabs[1].getAttribute('aria-controls')).toBe(panels[1].id)
+    const { tabs, panels } = mountTabs()
+    expect(tabs.map(t => t.getAttribute('aria-controls'))).toEqual(panels.map(p => p.id))
   })
 })
 
@@ -157,55 +142,44 @@ describe('Accordion', () => {
     }
   }
 
-  it('renders accordion items collapsed by default', () => {
-    const dom = renderNode(makeAccordion(), makeRenderCtx()) as HTMLElement
-    const contents = dom.querySelectorAll('.pf-accordion-content')
-    for (const content of Array.from(contents)) {
-      expect((content as HTMLElement).style.display).toBe('none')
+  function renderAccordion(): { triggers: HTMLElement[]; contents: HTMLElement[] } {
+    const dom = renderEl(makeAccordion(), makeRenderCtx())
+    return {
+      triggers: queryAll(dom, '.pf-accordion-trigger'),
+      contents: queryAll(dom, '.pf-accordion-content'),
     }
+  }
+
+  it('renders accordion items collapsed by default', () => {
+    const { contents } = renderAccordion()
+    expect(contents.map(c => c.style.display)).toEqual(['none', 'none'])
   })
 
   it('trigger buttons have aria-expanded=false', () => {
-    const dom = renderNode(makeAccordion(), makeRenderCtx()) as HTMLElement
-    const triggers = dom.querySelectorAll('.pf-accordion-trigger')
-    for (const trigger of Array.from(triggers)) {
-      expect(trigger.getAttribute('aria-expanded')).toBe('false')
-    }
+    const { triggers } = renderAccordion()
+    expect(triggers.map(t => t.getAttribute('aria-expanded'))).toEqual(['false', 'false'])
   })
 
   it('clicking trigger expands content', () => {
-    const dom = renderNode(makeAccordion(), makeRenderCtx()) as HTMLElement
-    const triggers = dom.querySelectorAll('.pf-accordion-trigger')
-    const contents = dom.querySelectorAll('.pf-accordion-content')
-
-    ;(triggers[0] as HTMLElement).click()
-
-    expect((contents[0] as HTMLElement).style.display).toBe('block')
+    const { triggers, contents } = renderAccordion()
+    triggers[0].click()
+    expect(contents.map(c => c.style.display)).toEqual(['block', 'none'])
     expect(triggers[0].getAttribute('aria-expanded')).toBe('true')
-    // Second item stays collapsed
-    expect((contents[1] as HTMLElement).style.display).toBe('none')
   })
 
   it('clicking again collapses content', () => {
-    const dom = renderNode(makeAccordion(), makeRenderCtx()) as HTMLElement
-    const triggers = dom.querySelectorAll('.pf-accordion-trigger')
-    const contents = dom.querySelectorAll('.pf-accordion-content')
-
-    ;(triggers[0] as HTMLElement).click() // expand
-    ;(triggers[0] as HTMLElement).click() // collapse
-
-    expect((contents[0] as HTMLElement).style.display).toBe('none')
+    const { triggers, contents } = renderAccordion()
+    triggers[0].click()
+    triggers[0].click()
+    expect(contents[0].style.display).toBe('none')
     expect(triggers[0].getAttribute('aria-expanded')).toBe('false')
   })
 
   it('trigger has aria-controls pointing to content', () => {
-    const dom = renderNode(makeAccordion(), makeRenderCtx()) as HTMLElement
-    const triggers = dom.querySelectorAll('.pf-accordion-trigger')
-    const contents = dom.querySelectorAll('.pf-accordion-content')
-
+    const { triggers, contents } = renderAccordion()
     const controlsId = triggers[0].getAttribute('aria-controls')
     expect(controlsId).toBeTruthy()
-    expect(contents[0].id).toBe(controlsId!)
+    expect(contents[0].id).toBe(controlsId ?? '')
   })
 })
 
@@ -213,46 +187,43 @@ describe('Accordion', () => {
 
 describe('Dialog', () => {
   it('renders dialog element with aria-modal', () => {
-    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'Dialog',
       title: 'Confirm',
       children: [{ type: 'Text', content: 'Are you sure?' }],
     }
-    const dom = renderNode(node, ctx) as HTMLElement
-    const dialog = dom.querySelector('dialog')
-    expect(dialog).toBeTruthy()
-    expect(dialog!.getAttribute('aria-modal')).toBe('true')
+    const dialog = query(renderEl(node, makeRenderCtx()), 'dialog', HTMLDialogElement)
+    expect(dialog.getAttribute('aria-modal')).toBe('true')
   })
 
   it('has aria-labelledby pointing to title', () => {
-    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'Dialog',
       title: 'My Dialog',
       children: [{ type: 'Text', content: 'Content' }],
     }
-    const dom = renderNode(node, ctx) as HTMLElement
-    const dialog = dom.querySelector('dialog') as HTMLElement
-    const labelId = dialog.getAttribute('aria-labelledby')
+    const dom = renderEl(node, makeRenderCtx())
+    const labelId = query(dom, 'dialog', HTMLDialogElement).getAttribute('aria-labelledby')
     expect(labelId).toBeTruthy()
-    const titleEl = dom.querySelector(`#${labelId}`)
-    expect(titleEl).toBeTruthy()
-    expect(titleEl!.textContent).toBe('My Dialog')
+    expect(query(dom, `#${labelId ?? ''}`).textContent).toBe('My Dialog')
   })
 
   it('renders trigger button that opens dialog', () => {
-    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'Dialog',
       title: 'Test',
       trigger: { type: 'Button', label: 'Open' },
       children: [{ type: 'Text', content: 'Inside' }],
     }
-    const dom = renderNode(node, ctx) as HTMLElement
-    const btn = dom.querySelector('button')
-    expect(btn).toBeTruthy()
-    expect(btn!.textContent).toBe('Open')
+    const dom = renderEl(node, makeRenderCtx())
+    document.body.appendChild(dom)
+    const btn = query(dom, 'button', HTMLButtonElement)
+    const dialog = query(dom, 'dialog', HTMLDialogElement)
+    expect(btn.textContent).toBe('Open')
+    expect(dialog.open).toBe(false)
+    btn.click()
+    expect(dialog.open).toBe(true)
+    dom.remove()
   })
 })
 
@@ -260,14 +231,21 @@ describe('Dialog', () => {
 
 describe('Tooltip', () => {
   it('renders trigger and hidden content', () => {
-    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'Tooltip',
       content: 'Tooltip text',
       children: [{ type: 'Button', label: 'Hover me' }],
     }
-    const dom = renderNode(node, ctx) as HTMLElement
-    expect(dom.textContent).toContain('Hover me')
+    const dom = renderEl(node, makeRenderCtx())
+    const tip = query(dom, '[role="tooltip"]')
+    expect(query(dom, 'button').textContent).toBe('Hover me')
+    expect(tip.textContent).toBe('Tooltip text')
+    expect(tip.style.display).toBe('none')
+    expect(dom.getAttribute('aria-describedby')).toBe(tip.id)
+    dom.dispatchEvent(new Event('mouseenter'))
+    expect(tip.style.display).toBe('block')
+    dom.dispatchEvent(new Event('mouseleave'))
+    expect(tip.style.display).toBe('none')
   })
 })
 
@@ -275,7 +253,6 @@ describe('Tooltip', () => {
 
 describe('Carousel', () => {
   it('renders carousel with navigation buttons', () => {
-    const ctx = makeRenderCtx()
     const node: ComponentNode = {
       type: 'Carousel',
       children: [
@@ -284,57 +261,43 @@ describe('Carousel', () => {
         { type: 'Text', content: 'Slide 3' },
       ],
     }
-    const dom = renderNode(node, ctx) as HTMLElement
+    const dom = renderEl(node, makeRenderCtx())
     expect(dom.className).toContain('pf-carousel')
-    // Should have prev/next buttons
-    const buttons = dom.querySelectorAll('button')
-    expect(buttons.length).toBeGreaterThanOrEqual(2)
+    expect(query(dom, '[aria-label="Previous slide"]', HTMLButtonElement)).toBeTruthy()
+    expect(query(dom, '[aria-label="Next slide"]', HTMLButtonElement)).toBeTruthy()
   })
 })
 
 // ── ExpandableRow ────────────────────────────────────────────────────────────
 
 describe('ExpandableRow', () => {
-  it('renders collapsed by default', () => {
-    const ctx = makeRenderCtx()
+  function renderRow(): { summary: HTMLElement; detail: HTMLElement } {
     const node: ComponentNode = {
       type: 'ExpandableRow',
       summary: [{ type: 'Text', content: 'Row title' }],
       children: [{ type: 'Text', content: 'Detail content' }],
     }
-    const dom = renderNode(node, ctx) as HTMLElement
-    const detail = dom.querySelector('.pf-expandable-row-detail') as HTMLElement
-    expect(detail.style.display).toBe('none')
+    const dom = renderEl(node, makeRenderCtx())
+    return {
+      summary: query(dom, '.pf-expandable-row-summary'),
+      detail: query(dom, '.pf-expandable-row-detail'),
+    }
+  }
+
+  it('renders collapsed by default', () => {
+    expect(renderRow().detail.style.display).toBe('none')
   })
 
   it('clicking summary expands detail', () => {
-    const ctx = makeRenderCtx()
-    const node: ComponentNode = {
-      type: 'ExpandableRow',
-      summary: [{ type: 'Text', content: 'Row title' }],
-      children: [{ type: 'Text', content: 'Detail content' }],
-    }
-    const dom = renderNode(node, ctx) as HTMLElement
-    const summary = dom.querySelector('.pf-expandable-row-summary') as HTMLElement
-    const detail = dom.querySelector('.pf-expandable-row-detail') as HTMLElement
-
+    const { summary, detail } = renderRow()
     summary.click()
     expect(detail.style.display).toBe('block')
   })
 
   it('clicking again collapses detail', () => {
-    const ctx = makeRenderCtx()
-    const node: ComponentNode = {
-      type: 'ExpandableRow',
-      summary: [{ type: 'Text', content: 'Row title' }],
-      children: [{ type: 'Text', content: 'Detail content' }],
-    }
-    const dom = renderNode(node, ctx) as HTMLElement
-    const summary = dom.querySelector('.pf-expandable-row-summary') as HTMLElement
-    const detail = dom.querySelector('.pf-expandable-row-detail') as HTMLElement
-
-    summary.click() // expand
-    summary.click() // collapse
+    const { summary, detail } = renderRow()
+    summary.click()
+    summary.click()
     expect(detail.style.display).toBe('none')
   })
 })

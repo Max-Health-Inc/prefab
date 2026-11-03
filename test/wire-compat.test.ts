@@ -716,9 +716,9 @@ describe('Wire compat: Round-trip TS→JSON→DOM', () => {
       defs: { myWidget: myDef },
     }).toJSON()
 
-    expect(wire.defs).toBeDefined()
-    expect(wire.defs!.myWidget.type).toBe('Text')
-    expect(wire.defs!.myWidget.content).toBe('I am from a def')
+    const myWidget = fieldRecord(fieldRecord(wire, 'defs'), 'myWidget')
+    expect(myWidget.type).toBe('Text')
+    expect(myWidget.content).toBe('I am from a def')
   })
 })
 

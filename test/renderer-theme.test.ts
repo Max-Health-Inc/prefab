@@ -10,10 +10,9 @@
  */
 
 import { describe, it, expect, beforeEach } from 'bun:test'
-import { renderNode } from '../src/renderer/engine'
 import type { ComponentNode } from '../src/renderer/engine'
 import { registerAllComponents } from '../src/renderer/components/index'
-import { makeRenderCtx } from './helpers/render'
+import { makeRenderCtx, renderEl, query, queryAll } from './helpers/render'
 
 beforeEach(() => { registerAllComponents() })
 
@@ -31,6 +30,7 @@ const THEME_PROPERTIES = [
   'border-left',
   'border-right',
   'border-radius',
+  'border-bottom-color',
   'color',
 ]
 
@@ -40,35 +40,10 @@ function hasThemeVariable(value: string): boolean {
 }
 
 function getThemeInlineStyles(element: HTMLElement): string[] {
-  const violations: string[] = []
-  const style = element.style
-
-  for (const prop of THEME_PROPERTIES) {
-    const value = style.getPropertyValue(prop)
-    if (value && hasThemeVariable(value)) {
-      violations.push(`${prop}: ${value}`)
-    }
-  }
-
-  const camelMap: Record<string, string> = {
-    backgroundColor: 'background-color',
-    borderColor: 'border-color',
-    borderRadius: 'border-radius',
-    borderTop: 'border-top',
-    borderBottom: 'border-bottom',
-    borderBottomColor: 'border-bottom-color',
-  }
-
-  for (const [camel, css] of Object.entries(camelMap)) {
-    const value = (style as unknown as Record<string, string>)[camel]
-    if (value && hasThemeVariable(value)) {
-      if (!violations.some(v => v.startsWith(css))) {
-        violations.push(`${css}: ${value}`)
-      }
-    }
-  }
-
-  return violations
+  return THEME_PROPERTIES.flatMap(prop => {
+    const value = element.style.getPropertyValue(prop)
+    return value && hasThemeVariable(value) ? [`${prop}: ${value}`] : []
+  })
 }
 
 function collectAllElements(root: HTMLElement): HTMLElement[] {
@@ -96,6 +71,16 @@ function collectViolations(dom: HTMLElement): string[] {
   return violations
 }
 
+describe('Theme violation detector', () => {
+  it('flags inline theme variables so the checks below can fail', () => {
+    const el = document.createElement('div')
+    el.style.backgroundColor = 'var(--card)'
+    el.style.borderBottomColor = 'var(--primary)'
+    expect(collectViolations(el)).toHaveLength(1)
+    expect(getThemeInlineStyles(el)).toEqual(['background-color: var(--card)', 'border-bottom-color: var(--primary)'])
+  })
+})
+
 // ── Card ─────────────────────────────────────────────────────────────────────
 
 describe('Theme: Card', () => {
@@ -105,28 +90,28 @@ describe('Theme: Card', () => {
       type: 'Card',
       children: [{ type: 'CardContent', children: [{ type: 'Text', content: 'Hello' }] }],
     }
-    const dom = renderNode(node, ctx) as HTMLElement
+    const dom = renderEl(node, ctx)
     expect(collectViolations(dom)).toEqual([])
   })
 
   it('should not inline border with var(--border)', () => {
     const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Card', children: [] }
-    const dom = renderNode(node, ctx) as HTMLElement
+    const dom = renderEl(node, ctx)
     expect(dom.style.border).toBe('')
   })
 
   it('should not inline border-radius with var(--radius)', () => {
     const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Card', children: [] }
-    const dom = renderNode(node, ctx) as HTMLElement
+    const dom = renderEl(node, ctx)
     expect(dom.style.borderRadius).toBe('')
   })
 
   it('should have the pf-card class', () => {
     const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Card', children: [] }
-    const dom = renderNode(node, ctx) as HTMLElement
+    const dom = renderEl(node, ctx)
     expect(dom.classList.contains('pf-card')).toBe(true)
   })
 })
@@ -141,7 +126,7 @@ describe('Theme: Alert', () => {
       variant: 'default',
       children: [{ type: 'AlertTitle', content: 'Info' }],
     }
-    const dom = renderNode(node, ctx) as HTMLElement
+    const dom = renderEl(node, ctx)
     expect(collectViolations(dom)).toEqual([])
   })
 
@@ -152,14 +137,14 @@ describe('Theme: Alert', () => {
       variant: 'destructive',
       children: [{ type: 'AlertTitle', content: 'Error' }],
     }
-    const dom = renderNode(node, ctx) as HTMLElement
+    const dom = renderEl(node, ctx)
     expect(collectViolations(dom)).toEqual([])
   })
 
   it('should set data-variant for styling via CSS', () => {
     const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Alert', variant: 'destructive', children: [] }
-    const dom = renderNode(node, ctx) as HTMLElement
+    const dom = renderEl(node, ctx)
     expect(dom.getAttribute('data-variant')).toBe('destructive')
   })
 })
@@ -174,7 +159,7 @@ describe('Theme: DataTable', () => {
       columns: [{ key: 'name', header: 'Name' }],
       rows: [{ name: 'Alice' }],
     }
-    const dom = renderNode(node, ctx) as HTMLElement
+    const dom = renderEl(node, ctx)
     expect(collectViolations(dom)).toEqual([])
   })
 
@@ -186,7 +171,7 @@ describe('Theme: DataTable', () => {
       rows: [{ name: 'Alice' }, { name: 'Bob' }],
       selectable: true,
     }
-    const dom = renderNode(node, ctx) as HTMLElement
+    const dom = renderEl(node, ctx)
     expect(collectViolations(dom)).toEqual([])
   })
 })
@@ -197,35 +182,35 @@ describe('Theme: Badge', () => {
   it('should not inline background/color with theme variables on default badge', () => {
     const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Badge', label: 'Test', variant: 'default' }
-    const dom = renderNode(node, ctx) as HTMLElement
+    const dom = renderEl(node, ctx)
     expect(collectViolations(dom)).toEqual([])
   })
 
   it('should not inline on secondary badge', () => {
     const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Badge', label: 'Sec', variant: 'secondary' }
-    const dom = renderNode(node, ctx) as HTMLElement
+    const dom = renderEl(node, ctx)
     expect(collectViolations(dom)).toEqual([])
   })
 
   it('should not inline on destructive badge', () => {
     const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Badge', label: 'Err', variant: 'destructive' }
-    const dom = renderNode(node, ctx) as HTMLElement
+    const dom = renderEl(node, ctx)
     expect(collectViolations(dom)).toEqual([])
   })
 
   it('should not inline outline badge border with var(--border)', () => {
     const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Badge', label: 'Outline', variant: 'outline' }
-    const dom = renderNode(node, ctx) as HTMLElement
+    const dom = renderEl(node, ctx)
     expect(collectViolations(dom)).toEqual([])
   })
 
   it('should set data-variant for CSS styling', () => {
     const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Badge', label: 'X', variant: 'secondary' }
-    const dom = renderNode(node, ctx) as HTMLElement
+    const dom = renderEl(node, ctx)
     expect(dom.getAttribute('data-variant')).toBe('secondary')
   })
 })
@@ -236,7 +221,7 @@ describe('Theme: Separator', () => {
   it('should not inline border with var(--border)', () => {
     const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Separator' }
-    const dom = renderNode(node, ctx) as HTMLElement
+    const dom = renderEl(node, ctx)
     expect(collectViolations(dom)).toEqual([])
   })
 })
@@ -247,42 +232,42 @@ describe('Theme: Button', () => {
   it('should not inline background/color with theme variables on default button', () => {
     const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Button', label: 'Click', variant: 'default' }
-    const dom = renderNode(node, ctx) as HTMLElement
+    const dom = renderEl(node, ctx)
     expect(collectViolations(dom)).toEqual([])
   })
 
   it('should not inline on secondary button', () => {
     const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Button', label: 'Sec', variant: 'secondary' }
-    const dom = renderNode(node, ctx) as HTMLElement
+    const dom = renderEl(node, ctx)
     expect(collectViolations(dom)).toEqual([])
   })
 
   it('should not inline on destructive button', () => {
     const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Button', label: 'Del', variant: 'destructive' }
-    const dom = renderNode(node, ctx) as HTMLElement
+    const dom = renderEl(node, ctx)
     expect(collectViolations(dom)).toEqual([])
   })
 
   it('should not inline border on outline button', () => {
     const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Button', label: 'Click', variant: 'outline' }
-    const dom = renderNode(node, ctx) as HTMLElement
+    const dom = renderEl(node, ctx)
     expect(collectViolations(dom)).toEqual([])
   })
 
   it('should not inline color on link button', () => {
     const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Button', label: 'Link', variant: 'link' }
-    const dom = renderNode(node, ctx) as HTMLElement
+    const dom = renderEl(node, ctx)
     expect(collectViolations(dom)).toEqual([])
   })
 
   it('should set data-variant for CSS styling', () => {
     const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Button', label: 'X', variant: 'outline' }
-    const dom = renderNode(node, ctx) as HTMLElement
+    const dom = renderEl(node, ctx)
     expect(dom.getAttribute('data-variant')).toBe('outline')
   })
 })
@@ -293,14 +278,14 @@ describe('Theme: Metric', () => {
   it('should not inline color with var(--muted-foreground) on label', () => {
     const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Metric', label: 'Users', value: '100' }
-    const dom = renderNode(node, ctx) as HTMLElement
+    const dom = renderEl(node, ctx)
     expect(collectViolations(dom)).toEqual([])
   })
 
   it('should not inline on metric with description', () => {
     const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Metric', label: 'Rev', value: '$1M', description: 'YTD' }
-    const dom = renderNode(node, ctx) as HTMLElement
+    const dom = renderEl(node, ctx)
     expect(collectViolations(dom)).toEqual([])
   })
 })
@@ -318,7 +303,7 @@ describe('Theme: Tabs', () => {
         { type: 'Tab', title: 'Two', children: [{ type: 'Text', content: 'Content 2' }] },
       ],
     }
-    const dom = renderNode(node, ctx) as HTMLElement
+    const dom = renderEl(node, ctx)
     expect(collectViolations(dom)).toEqual([])
   })
 
@@ -331,12 +316,10 @@ describe('Theme: Tabs', () => {
         { type: 'Tab', title: 'A', children: [{ type: 'Text', content: '1' }] },
       ],
     }
-    const dom = renderNode(node, ctx) as HTMLElement
-    const triggers = dom.querySelectorAll('.pf-tab-trigger')
-    for (const trigger of triggers) {
-      const violations = getThemeInlineStyles(trigger as HTMLElement)
-      expect(violations).toEqual([])
-    }
+    const dom = renderEl(node, ctx)
+    const triggers = queryAll(dom, '.pf-tab-trigger')
+    expect(triggers).toHaveLength(1)
+    expect(triggers.flatMap(getThemeInlineStyles)).toEqual([])
   })
 })
 
@@ -346,7 +329,7 @@ describe('Theme: Progress', () => {
   it('should not inline background with var(--muted) or var(--primary)', () => {
     const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Progress', value: 50 }
-    const dom = renderNode(node, ctx) as HTMLElement
+    const dom = renderEl(node, ctx)
     expect(collectViolations(dom)).toEqual([])
   })
 })
@@ -371,7 +354,7 @@ describe('Theme: Table', () => {
         ] },
       ],
     }
-    const dom = renderNode(node, ctx) as HTMLElement
+    const dom = renderEl(node, ctx)
     expect(collectViolations(dom)).toEqual([])
   })
 
@@ -384,7 +367,7 @@ describe('Theme: Table', () => {
         { type: 'TableBody', children: [] },
       ],
     }
-    const dom = renderNode(node, ctx) as HTMLElement
+    const dom = renderEl(node, ctx)
     expect(collectViolations(dom)).toEqual([])
   })
 })
@@ -395,7 +378,7 @@ describe('Theme: Form inputs', () => {
   it('should not inline border on TextInput', () => {
     const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'TextInput', name: 'email', label: 'Email' }
-    const dom = renderNode(node, ctx) as HTMLElement
+    const dom = renderEl(node, ctx)
     expect(collectViolations(dom)).toEqual([])
   })
 
@@ -407,14 +390,14 @@ describe('Theme: Form inputs', () => {
       label: 'Fruit',
       options: [{ value: 'a', label: 'Apple' }],
     }
-    const dom = renderNode(node, ctx) as HTMLElement
+    const dom = renderEl(node, ctx)
     expect(collectViolations(dom)).toEqual([])
   })
 
   it('should not inline border on Textarea', () => {
     const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Textarea', name: 'bio', label: 'Bio' }
-    const dom = renderNode(node, ctx) as HTMLElement
+    const dom = renderEl(node, ctx)
     expect(collectViolations(dom)).toEqual([])
   })
 })
@@ -429,7 +412,7 @@ describe('Theme: Dialog', () => {
       title: 'Confirm',
       children: [{ type: 'Text', content: 'Are you sure?' }],
     }
-    const dom = renderNode(node, ctx) as HTMLElement
+    const dom = renderEl(node, ctx)
     expect(collectViolations(dom)).toEqual([])
   })
 })
@@ -443,7 +426,7 @@ describe('Theme: Popover', () => {
       type: 'Popover',
       children: [{ type: 'Text', content: 'Popover content' }],
     }
-    const dom = renderNode(node, ctx) as HTMLElement
+    const dom = renderEl(node, ctx)
     expect(collectViolations(dom)).toEqual([])
   })
 })
@@ -457,7 +440,7 @@ describe('Theme: HoverCard', () => {
       type: 'HoverCard',
       children: [{ type: 'Text', content: 'Hover content' }],
     }
-    const dom = renderNode(node, ctx) as HTMLElement
+    const dom = renderEl(node, ctx)
     expect(collectViolations(dom)).toEqual([])
   })
 })
@@ -473,7 +456,7 @@ describe('Theme: Accordion', () => {
         { type: 'AccordionItem', title: 'Section 1', children: [{ type: 'Text', content: 'Body' }] },
       ],
     }
-    const dom = renderNode(node, ctx) as HTMLElement
+    const dom = renderEl(node, ctx)
     expect(collectViolations(dom)).toEqual([])
   })
 })
@@ -488,7 +471,7 @@ describe('Theme: Tooltip', () => {
       content: 'Hint text',
       children: [{ type: 'Text', content: 'Hover me' }],
     }
-    const dom = renderNode(node, ctx) as HTMLElement
+    const dom = renderEl(node, ctx)
     expect(collectViolations(dom)).toEqual([])
   })
 })
@@ -502,10 +485,9 @@ describe('Theme: Ring', () => {
   it('should use theme vars in SVG stroke for theme awareness', () => {
     const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Ring', value: 75 }
-    const dom = renderNode(node, ctx) as HTMLElement
-    const circles = dom.querySelectorAll('circle')
-    expect(circles.length).toBe(2)
-    // bg circle uses --muted, fg circle uses --primary
+    const dom = renderEl(node, ctx)
+    const circles = queryAll(dom, 'circle', SVGCircleElement)
+    expect(circles).toHaveLength(2)
     expect(circles[0].getAttribute('stroke')).toContain('var(--muted')
     expect(circles[1].getAttribute('stroke')).toContain('var(--primary')
   })
@@ -517,9 +499,9 @@ describe('Theme: Sparkline', () => {
   it('should use theme vars in SVG stroke for theme awareness', () => {
     const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Sparkline', data: [10, 20, 30, 25, 40] }
-    const dom = renderNode(node, ctx) as HTMLElement
-    const polylines = dom.querySelectorAll('polyline')
-    expect(polylines.length).toBe(1)
+    const dom = renderEl(node, ctx)
+    const polylines = queryAll(dom, 'polyline', SVGPolylineElement)
+    expect(polylines).toHaveLength(1)
     expect(polylines[0].getAttribute('stroke')).toContain('var(--primary')
   })
 })
@@ -533,9 +515,7 @@ describe('Theme Toggle', () => {
     const root = document.createElement('div')
     document.body.appendChild(root)
     const cleanup = createThemeToggle(root)
-    const btn = root.querySelector('.pf-theme-toggle')
-    expect(btn).not.toBeNull()
-    expect(btn?.tagName).toBe('BUTTON')
+    expect(query(root, '.pf-theme-toggle', HTMLButtonElement).getAttribute('aria-label')).toBe('Toggle theme')
     cleanup()
     root.remove()
   })
@@ -555,8 +535,9 @@ describe('Theme Toggle', () => {
     const root = document.createElement('div')
     document.body.appendChild(root)
     const cleanup = createThemeToggle(root, { storageKey: 'test-theme-toggle-2' })
-    const btn = root.querySelector('.pf-theme-toggle') as HTMLElement
-    const initial = root.getAttribute('data-theme')!
+    const btn = query(root, '.pf-theme-toggle', HTMLButtonElement)
+    const initial = root.getAttribute('data-theme')
+    expect(initial === 'light' || initial === 'dark').toBe(true)
     btn.click()
     const toggled = root.getAttribute('data-theme')
     expect(toggled).toBe(initial === 'dark' ? 'light' : 'dark')
@@ -570,15 +551,12 @@ describe('Theme Toggle', () => {
     const root = document.createElement('div')
     document.body.appendChild(root)
     const cleanup = createThemeToggle(root, { storageKey: 'test-theme-toggle-3' })
-    // Force a known state via the built-in toggle click path
-    const btn = root.querySelector('.pf-theme-toggle') as HTMLElement
-    // Click until we're at dark
-    while (root.getAttribute('data-theme') !== 'dark') btn.click()
+    const btn = query(root, '.pf-theme-toggle', HTMLButtonElement)
+    if (root.getAttribute('data-theme') !== 'dark') btn.click()
+    expect(root.getAttribute('data-theme')).toBe('dark')
     expect(document.documentElement.getAttribute('data-theme')).toBe('dark')
 
-    // Simulate external change on <html> — MutationObserver may be async in happy-dom
     document.documentElement.setAttribute('data-theme', 'light')
-    // Wait a tick for MutationObserver
     await new Promise(r => setTimeout(r, 0))
     expect(root.getAttribute('data-theme')).toBe('light')
     cleanup()
@@ -590,15 +568,12 @@ describe('Theme Toggle', () => {
     document.body.appendChild(root)
     document.documentElement.removeAttribute('data-theme')
     const cleanup = createThemeToggle(root, { syncDocument: false, storageKey: 'test-theme-toggle-4' })
-    // The toggle should set data-theme on root but NOT on documentElement
     const rootTheme = root.getAttribute('data-theme')
     expect(rootTheme === 'light' || rootTheme === 'dark').toBe(true)
-    // documentElement should not have been set by the toggle
-    // (it may have been set by earlier tests, so just verify the click doesn't sync)
-    const btn = root.querySelector('.pf-theme-toggle') as HTMLElement
-    const before = document.documentElement.getAttribute('data-theme')
-    btn.click()
-    expect(document.documentElement.getAttribute('data-theme')).toBe(before)
+    expect(document.documentElement.hasAttribute('data-theme')).toBe(false)
+    query(root, '.pf-theme-toggle', HTMLButtonElement).click()
+    expect(root.getAttribute('data-theme')).not.toBe(rootTheme)
+    expect(document.documentElement.hasAttribute('data-theme')).toBe(false)
     cleanup()
     root.remove()
   })
@@ -617,19 +592,15 @@ describe('Theme Toggle', () => {
     const root = document.createElement('div')
     document.body.appendChild(root)
     const cleanup = createThemeToggle(root, { storageKey: 'test-theme-toggle-6' })
-    const btn = root.querySelector('.pf-theme-toggle') as HTMLElement
+    const btn = query(root, '.pf-theme-toggle', HTMLButtonElement)
 
-    // Force dark
     root.setAttribute('data-theme', 'light')
-    btn.click() // toggles from the current root theme
-    // After clicking from light → dark, should show moon
-    if (root.getAttribute('data-theme') === 'dark') {
-      expect(btn.innerHTML).toContain('21.752') // moon path fragment
-    }
-    btn.click() // dark → light, should show sun
-    if (root.getAttribute('data-theme') === 'light') {
-      expect(btn.innerHTML).toContain('M12 3v2.25') // sun path fragment
-    }
+    btn.click()
+    expect(root.getAttribute('data-theme')).toBe('dark')
+    expect(btn.innerHTML).toContain('21.752')
+    btn.click()
+    expect(root.getAttribute('data-theme')).toBe('light')
+    expect(btn.innerHTML).toContain('M12 3v2.25')
 
     cleanup()
     root.remove()
@@ -639,7 +610,7 @@ describe('Theme Toggle', () => {
     const root = document.createElement('div')
     document.body.appendChild(root)
     const cleanup = createThemeToggle(root, { position: 'bottom-left', storageKey: 'test-theme-toggle-7' })
-    const btn = root.querySelector('.pf-theme-toggle') as HTMLElement
+    const btn = query(root, '.pf-theme-toggle', HTMLButtonElement)
     expect(btn.style.bottom).toBe('8px')
     expect(btn.style.left).toBe('8px')
     cleanup()
