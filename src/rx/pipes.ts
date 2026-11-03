@@ -8,6 +8,10 @@ import { log } from '../core/logger.js'
 /** A pipe function receives the current value and optional arguments. */
 export type PipeFn = (value: unknown, ...args: unknown[]) => unknown
 
+export function isPipeFn(value: unknown): value is PipeFn {
+  return typeof value === 'function'
+}
+
 const pipes = new Map<string, PipeFn>()
 
 /** Register a custom pipe. Re-registering warns and overwrites; a built-in of the same name still wins. */

@@ -1,3 +1,6 @@
+import type { ComponentJSON } from './component.js'
+import type { ActionJSON } from '../actions/types.js'
+
 export function isRecord(value: unknown): value is Record<string, unknown> {
   return value != null && typeof value === 'object' && !Array.isArray(value)
 }
@@ -29,4 +32,36 @@ export function scalarStringRecord(value: unknown): Record<string, string> {
     if (typeof v === 'string' || typeof v === 'number' || typeof v === 'boolean') out[key] = String(v)
   }
   return out
+}
+
+function isActionJSON(value: unknown): value is ActionJSON {
+  return isRecord(value) && typeof value.action === 'string'
+}
+
+/** A copy of `value` as a component; ill-typed `id`, `cssClass`, `onMount` and `children` are dropped. */
+export function toComponentJSON(value: unknown): ComponentJSON | undefined {
+  if (!isRecord(value) || typeof value.type !== 'string') return undefined
+  const node: ComponentJSON = { type: value.type }
+  for (const [key, prop] of Object.entries(value)) {
+    if (key === 'children') {
+      if (Array.isArray(prop)) node.children = componentList(prop)
+    } else if (key === 'onMount') {
+      if (isActionJSON(prop) || (Array.isArray(prop) && prop.every(isActionJSON))) node.onMount = prop
+    } else if (key === 'id' || key === 'cssClass') {
+      if (typeof prop === 'string') node[key] = prop
+    } else if (key !== 'type') {
+      node[key] = prop
+    }
+  }
+  return node
+}
+
+export function componentList(value: unknown): ComponentJSON[] {
+  if (!Array.isArray(value)) return []
+  const nodes: ComponentJSON[] = []
+  for (const item of value) {
+    const node = toComponentJSON(item)
+    if (node) nodes.push(node)
+  }
+  return nodes
 }

@@ -4,21 +4,7 @@
 
 import type { McpTransport } from './actions.js'
 import { log } from '../core/logger.js'
-
-/** MCP JSON-RPC response shape */
-interface McpResponse {
-  error?: { message?: string }
-  result?: {
-    content?: McpContentBlock[]
-  }
-  content?: McpContentBlock[]
-}
-
-interface McpContentBlock {
-  type: string
-  text?: string
-  $prefab?: unknown
-}
+import { optionalRecord, optionalString, recordList } from '../core/guards.js'
 
 export interface McpTransportOptions {
   /** Base URL for the MCP endpoint. Defaults to window location origin. */
@@ -56,19 +42,17 @@ export function createHttpTransport(opts?: McpTransportOptions): McpTransport {
         throw new Error(`MCP tool call failed: ${response.status} ${response.statusText}`)
       }
 
-      const result = await response.json() as McpResponse
-      if (result.error) {
-        throw new Error(result.error.message ?? 'MCP tool call returned error')
-      }
+      const body: unknown = await response.json()
+      const result = optionalRecord(body)
+      if (!result) return body
+      const failed = Boolean(result.error)
+      if (failed) throw new Error(optionalString(optionalRecord(result.error)?.message) ?? 'MCP tool call returned error')
 
-      // Parse prefab content from result
-      const content = result.result?.content ?? result.content ?? []
+      const content = recordList(optionalRecord(result.result)?.content ?? result.content)
       for (const block of content) {
-        if (block.type === 'text' && block.text !== undefined) {
+        if (block.type === 'text' && typeof block.text === 'string') {
           try {
             const parsed: unknown = JSON.parse(block.text)
-            if (typeof parsed === 'object' && parsed !== null && '$prefab' in parsed) return parsed
-            // Return the parsed value (unwraps JSON-encoded primitives)
             return parsed
           } catch { /* not JSON — return raw text */ }
           return block.text

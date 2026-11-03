@@ -15,6 +15,7 @@ import { dispatchActions, fireAndForget } from './actions.js'
 import { toCamelCase } from '../core/component.js'
 import { stringifyValue } from '../core/stringify.js'
 import { isRecord, optionalString } from '../core/guards.js'
+import { isActionValue, nodeList } from './node-guard.js'
 
 // ── Key normalisation ────────────────────────────────────────────────────────
 
@@ -23,7 +24,7 @@ import { isRecord, optionalString } from '../core/guards.js'
  * Accepts both formats so the renderer works with TS and Python output.
  * Keys starting with '$' are left unchanged.
  */
-export function normalizeNode<T extends Record<string, unknown>>(node: T): T {
+export function normalizeNode(node: Record<string, unknown>): Record<string, unknown> {
   const result: Record<string, unknown> = {}
   for (const [k, v] of Object.entries(node)) {
     const key = k.startsWith('$') ? k : toCamelCase(k)
@@ -37,7 +38,17 @@ export function normalizeNode<T extends Record<string, unknown>>(node: T): T {
       result[key] = v
     }
   }
-  return result as T
+  return result
+}
+
+function normalizeComponent(node: ComponentNode): ComponentNode {
+  const { id, cssClass, onMount, children, ...props } = normalizeNode(node)
+  const n: ComponentNode = { ...props, type: node.type }
+  if (typeof id === 'string') n.id = id
+  if (typeof cssClass === 'string') n.cssClass = cssClass
+  if (isActionValue(onMount)) n.onMount = onMount
+  if (Array.isArray(children)) n.children = nodeList(children)
+  return n
 }
 
 // ── Types ────────────────────────────────────────────────────────────────────
@@ -167,7 +178,7 @@ export function getRenderer(type: string): RenderFn | undefined {
  */
 export function renderNode(node: ComponentNode, ctx: RenderContext): HTMLElement | DocumentFragment {
   // Normalise keys (snake_case → camelCase) so renderer works with both formats
-  const n = normalizeNode(node)
+  const n = normalizeComponent(node)
 
   // Resolve defs: if node.type matches a def, substitute
   if (ctx.defs?.[n.type]) {
@@ -211,9 +222,8 @@ export function renderNode(node: ComponentNode, ctx: RenderContext): HTMLElement
       if (el.tagName !== 'BUTTON' && el.tagName !== 'A') {
         el.setAttribute('role', 'button')
         el.setAttribute('tabindex', '0')
-        el.addEventListener('keydown', (e: Event) => {
-          const key = (e as KeyboardEvent).key
-          if (key === 'Enter' || key === ' ') {
+        el.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault()
             fireAndForget(dispatchActions(n.onClick, makeDispatchCtx(ctx)), 'onClick')
           }

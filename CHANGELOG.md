@@ -9,10 +9,15 @@ All notable changes to this project will be documented in this file.
 ### Fixed
 
 - **A `Histogram` whose `data` holds no numbers shows `No data`** instead of an empty chart of zero-height bars.
+- **A `Dialog` or `Popover` whose `trigger` renders no element of its own (an `If`, `ForEach` or `Use`) opens on click.** The listener was attached to a document fragment and never fired.
+- **Malformed props are skipped instead of throwing during render**: a `Select` option, `DataTable` column or `Condition` case that is not an object, and a `Condition` `cases` or `ExpandableRow` `summary` that is not a list.
+- **`createHttpTransport` returns a JSON `null` body and skips content blocks that are not objects** instead of throwing.
+- **`PrefabA2UI.emit` skips children that are not components and ignores a `state` or `defs` that is not an object.** A `null` child threw, and a string `state` was spread into the data model one character per key.
 
 ### Internal
 
 - Renderer, theme and TDD regression tests use the typed helpers in `test/helpers/render.ts` instead of `as` casts and non-null assertions, and several tests that could not fail now assert real behaviour.
+- `src/` has no `as` casts or non-null assertions left, and lint now forbids both across `src/`. `emitA2UI` takes an `A2uiEmitSource`, a `$prefab` payload of which only `view` is required.
 
 ## [0.3.19] — 2026-11-01
 

@@ -120,11 +120,7 @@ export default defineConfig(
   // ── Assertion-free modules: wire values are narrowed, never asserted ───
   {
     files: [
-      'src/core/guards.ts',
-      'src/renderer/node-guard.ts',
-      'src/renderer/actions.ts',
-      'src/renderer/components/layout.ts',
-      'src/renderer/components/charts/**/*.ts',
+      'src/**/*.ts',
       'test/helpers/render.ts',
       'test/renderer-components.test.ts',
       'test/renderer-edge-cases.test.ts',
@@ -137,6 +133,7 @@ export default defineConfig(
       'test/tdd-bugs-r7.test.ts',
       'test/tdd-bugs-r9.test.ts',
       'test/wire-compat.test.ts',
+      'test/wire-narrowing.test.ts',
     ],
     rules: {
       '@typescript-eslint/consistent-type-assertions': ['error', { assertionStyle: 'never' }],

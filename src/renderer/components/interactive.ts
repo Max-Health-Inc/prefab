@@ -5,6 +5,17 @@
 import { registerComponent, renderChildren, renderNode, resolveStr, el } from '../engine.js'
 import type { ComponentNode, RenderContext } from '../engine.js'
 import { optionalString } from '../../core/guards.js'
+import { isComponentNode } from '../node-guard.js'
+
+function renderTrigger(trigger: unknown, ctx: RenderContext): HTMLElement | undefined {
+  if (!isComponentNode(trigger)) return undefined
+  const rendered = renderNode(trigger, ctx)
+  if (rendered instanceof HTMLElement) return rendered
+  const host = el('span', 'pf-trigger')
+  host.style.display = 'contents'
+  host.appendChild(rendered)
+  return host
+}
 
 export function registerInteractiveComponents(): void {
   registerComponent('Tabs', renderTabs)
@@ -108,7 +119,7 @@ function renderTabs(node: ComponentNode, ctx: RenderContext): HTMLElement {
 
   // Keyboard navigation (arrow keys)
   tabBar.addEventListener('keydown', (e) => {
-    const current = buttons.indexOf(e.target as HTMLButtonElement)
+    const current = buttons.findIndex(b => b === e.target)
     if (current < 0) return
     let next: number
     if (e.key === 'ArrowRight') next = (current + 1) % buttons.length
@@ -180,9 +191,8 @@ function renderAccordionItem(node: ComponentNode, ctx: RenderContext): HTMLEleme
 function renderDialog(node: ComponentNode, ctx: RenderContext): HTMLElement {
   const wrapper = el('div', 'pf-dialog-wrapper')
 
-  // Trigger button
-  if (node.trigger != null) {
-    const triggerEl = renderNode(node.trigger as ComponentNode, ctx) as HTMLElement
+  const triggerEl = renderTrigger(node.trigger, ctx)
+  if (triggerEl) {
     triggerEl.addEventListener('click', () => {
       dialog.showModal()
     })
@@ -254,14 +264,13 @@ function renderPopover(node: ComponentNode, ctx: RenderContext): HTMLElement {
     content.style.display = content.style.display === 'none' ? 'block' : 'none'
   }
 
-  if (node.trigger != null) {
-    const triggerEl = renderNode(node.trigger as ComponentNode, ctx) as HTMLElement
+  const triggerEl = renderTrigger(node.trigger, ctx)
+  if (triggerEl) {
     triggerEl.addEventListener('click', (e) => { e.stopPropagation(); toggle() })
     wrapper.appendChild(triggerEl)
   } else {
-    // No explicit trigger — the wrapper itself toggles (legacy behavior).
     wrapper.addEventListener('click', (e) => {
-      if (content.contains(e.target as Node) && content.style.display !== 'none') return
+      if (e.target instanceof Node && content.contains(e.target) && content.style.display !== 'none') return
       toggle()
     })
   }
@@ -319,9 +328,8 @@ function renderHoverCard(node: ComponentNode, ctx: RenderContext): HTMLElement {
   content.style.minWidth = '200px'
 
   // `trigger` is the always-visible hover target; children are the card content.
-  if (node.trigger != null) {
-    wrapper.appendChild(renderNode(node.trigger as ComponentNode, ctx) as HTMLElement)
-  }
+  const triggerEl = renderTrigger(node.trigger, ctx)
+  if (triggerEl) wrapper.appendChild(triggerEl)
   renderChildren(node, content, ctx)
 
   wrapper.addEventListener('mouseenter', () => { content.style.display = 'block' })
