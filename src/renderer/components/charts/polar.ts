@@ -4,17 +4,12 @@ import { bindTooltip, createTooltip } from './tooltip.js'
 import {
   COLORS, AXIS_COLOR, GRID_COLOR, AXIS_FONT,
   createSvg, svgEl, svgText, polar, arcPath,
-  applyPipeFormat, resolveValueFormat, addLegend,
+  applyPipeFormat, valueFormatter, addLegend,
 } from './helpers.js'
 import type { SeriesEntry } from './helpers.js'
 import { categoricalKeys, chartHeight, chartRows, chartSeries, seriesMax } from './props.js'
 import { stringifyValue } from '../../../core/stringify.js'
 import { optionalNumber, optionalString } from '../../../core/guards.js'
-
-function valueFormatter(node: ComponentNode, ctx: RenderContext): (v: number) => string {
-  const valueFmt = resolveValueFormat(node)
-  return (v: number): string => valueFmt ? applyPipeFormat(v, valueFmt, ctx) : String(v)
-}
 
 export function renderPieChart(node: ComponentNode, ctx: RenderContext): HTMLElement {
   const wrapper = el('div', 'pf-chart pf-pie-chart')
@@ -63,9 +58,7 @@ export function renderPieChart(node: ComponentNode, ctx: RenderContext): HTMLEle
     const y2 = cy + r * Math.sin(endAngle)
 
     const color = COLORS[i % COLORS.length]
-    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path')
-    path.setAttribute('d', `M ${cx},${cy} L ${x1},${y1} A ${r},${r} 0 ${largeArc} 1 ${x2},${y2} Z`)
-    path.setAttribute('fill', color)
+    const path = svgEl('path', { d: `M ${cx},${cy} L ${x1},${y1} A ${r},${r} 0 ${largeArc} 1 ${x2},${y2} Z`, fill: color })
     path.style.cursor = 'default'
 
     if (ttCtx) {

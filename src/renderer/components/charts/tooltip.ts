@@ -2,9 +2,10 @@
  * Chart tooltip — hit-zone overlays, crosshair, data dots, and tooltip popup.
  */
 
-import { COLORS } from './helpers.js'
+import { COLORS, svgEl } from './helpers.js'
 import type { ChartLayout, SeriesEntry } from './helpers.js'
 import { stringifyValue } from '../../../core/stringify.js'
+import { escapeHtml } from '../../../core/escape.js'
 
 export interface TooltipEntry {
   label: string
@@ -44,12 +45,12 @@ export function showTooltipAt(
 
   let html = ''
   if (categoryLabel) {
-    html += `<div class="pf-chart-tooltip-label">${esc(categoryLabel)}</div>`
+    html += `<div class="pf-chart-tooltip-label">${escapeHtml(categoryLabel)}</div>`
   }
   for (const e of entries) {
     html += `<div class="pf-chart-tooltip-row">`
-    html += `<span class="pf-chart-tooltip-dot" style="background:${esc(e.color)}"></span>`
-    html += `<span>${esc(e.label)}:</span> <strong>${esc(String(e.value))}</strong>`
+    html += `<span class="pf-chart-tooltip-dot" style="background:${escapeHtml(e.color)}"></span>`
+    html += `<span>${escapeHtml(e.label)}:</span> <strong>${escapeHtml(String(e.value))}</strong>`
     html += `</div>`
   }
   tooltip.innerHTML = html
@@ -70,17 +71,48 @@ export function showTooltipAt(
   tooltip.classList.add('pf-visible')
 }
 
-function esc(s: string): string {
-  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+function hideTooltip(ctx: TooltipCtx): void {
+  ctx.tooltip.classList.remove('pf-visible')
 }
 
-export function bindTooltip(target: Element, ttCtx: TooltipCtx, x: number, y: number, title: string, entries: TooltipEntry[]): void {
-  const show = (): void => { showTooltipAt(ttCtx, x, y, title, entries) }
-  const hide = (): void => { ttCtx.tooltip.classList.remove('pf-visible') }
+function bindHover(target: Element, show: () => void, hide: () => void): void {
   target.addEventListener('mouseenter', show)
   target.addEventListener('mouseleave', hide)
   target.addEventListener('touchstart', show, { passive: true })
   target.addEventListener('touchend', hide, { passive: true })
+}
+
+export function bindTooltip(target: Element, ttCtx: TooltipCtx, x: number, y: number, title: string | undefined, entries: TooltipEntry[]): void {
+  bindHover(target, () => { showTooltipAt(ttCtx, x, y, title, entries) }, () => { hideTooltip(ttCtx) })
+}
+
+/** What a hit-zone shows for one data row: the x label and one entry per series. */
+interface ZoneContent {
+  data: Record<string, unknown>[]
+  series: SeriesEntry[]
+  xAxisKey: string | undefined
+  formatValue: (raw: unknown, s: SeriesEntry, si: number) => string
+  formatLabel?: (raw: unknown) => string
+}
+
+function zoneTooltip(content: ZoneContent, di: number): { label: string | undefined; entries: TooltipEntry[] } {
+  const { data, series, xAxisKey, formatValue, formatLabel } = content
+  const rawLabel = xAxisKey ? data[di][xAxisKey] : undefined
+  const label = rawLabel != null
+    ? (formatLabel ? formatLabel(rawLabel) : stringifyValue(rawLabel))
+    : undefined
+  const entries = series.map((s, si) => ({
+    label: s.label ?? s.dataKey,
+    value: formatValue(data[di][s.dataKey], s, si),
+    color: s.color ?? COLORS[si % COLORS.length],
+  }))
+  return { label, entries }
+}
+
+function hitZone(x: number, width: number, layout: ChartLayout): SVGRectElement {
+  const zone = svgEl('rect', { x, y: layout.plotTop, width, height: layout.plotHeight, fill: 'transparent' })
+  zone.style.cursor = 'default'
+  return zone
 }
 
 /** Attach hover hit-zones for bar chart columns. */
@@ -94,34 +126,13 @@ export function addBarTooltipZones(
   formatValue: (raw: unknown, s: SeriesEntry, si: number) => string,
   formatLabel?: (raw: unknown) => string,
 ): void {
+  const content: ZoneContent = { data, series, xAxisKey, formatValue, formatLabel }
   const groupW = layout.plotWidth / data.length
   for (let di = 0; di < data.length; di++) {
     const x = layout.plotLeft + di * groupW
-    const zone = document.createElementNS('http://www.w3.org/2000/svg', 'rect')
-    zone.setAttribute('x', String(x))
-    zone.setAttribute('y', String(layout.plotTop))
-    zone.setAttribute('width', String(groupW))
-    zone.setAttribute('height', String(layout.plotHeight))
-    zone.setAttribute('fill', 'transparent')
-    zone.style.cursor = 'default'
-
-    const rawLabel = xAxisKey ? data[di][xAxisKey] : undefined
-    const label = rawLabel != null
-      ? (formatLabel ? formatLabel(rawLabel) : stringifyValue(rawLabel))
-      : undefined
-    const entries: TooltipEntry[] = series.map((s, si) => ({
-      label: s.label ?? s.dataKey,
-      value: formatValue(data[di][s.dataKey], s, si),
-      color: s.color ?? COLORS[si % COLORS.length],
-    }))
-    const centerX = x + groupW / 2
-
-    const show = (): void => showTooltipAt(ctx, centerX, layout.plotTop, label, entries)
-    const hide = (): void => ctx.tooltip.classList.remove('pf-visible')
-    zone.addEventListener('mouseenter', show)
-    zone.addEventListener('mouseleave', hide)
-    zone.addEventListener('touchstart', show, { passive: true })
-    zone.addEventListener('touchend', hide, { passive: true })
+    const zone = hitZone(x, groupW, layout)
+    const { label, entries } = zoneTooltip(content, di)
+    bindTooltip(zone, ctx, x + groupW / 2, layout.plotTop, label, entries)
     svg.appendChild(zone)
   }
 }
@@ -139,31 +150,15 @@ export function addLineTooltipZones(
   dotGroups?: SVGCircleElement[][],
   formatLabel?: (raw: unknown) => string,
 ): void {
+  const content: ZoneContent = { data, series: allSeries, xAxisKey, formatValue, formatLabel }
   const step = data.length === 1 ? layout.plotWidth : layout.plotWidth / (data.length - 1)
   for (let di = 0; di < data.length; di++) {
     const centerX = data.length === 1
       ? (layout.plotLeft + layout.plotRight) / 2
       : layout.plotLeft + (di / (data.length - 1)) * layout.plotWidth
-    const zoneX = data.length === 1 ? layout.plotLeft : centerX - step / 2
-    const zoneW = data.length === 1 ? layout.plotWidth : step
-
-    const zone = document.createElementNS('http://www.w3.org/2000/svg', 'rect')
-    zone.setAttribute('x', String(Math.max(layout.plotLeft, zoneX)))
-    zone.setAttribute('y', String(layout.plotTop))
-    zone.setAttribute('width', String(Math.min(zoneW, layout.plotRight - Math.max(layout.plotLeft, zoneX))))
-    zone.setAttribute('height', String(layout.plotHeight))
-    zone.setAttribute('fill', 'transparent')
-    zone.style.cursor = 'default'
-
-    const rawLabel = xAxisKey ? data[di][xAxisKey] : undefined
-    const label = rawLabel != null
-      ? (formatLabel ? formatLabel(rawLabel) : stringifyValue(rawLabel))
-      : undefined
-    const entries: TooltipEntry[] = allSeries.map((s, si) => ({
-      label: s.label ?? s.dataKey,
-      value: formatValue(data[di][s.dataKey], s, si),
-      color: s.color ?? COLORS[si % COLORS.length],
-    }))
+    const zoneX = Math.max(layout.plotLeft, data.length === 1 ? layout.plotLeft : centerX - step / 2)
+    const zone = hitZone(zoneX, Math.min(step, layout.plotRight - zoneX), layout)
+    const { label, entries } = zoneTooltip(content, di)
 
     const showHover = (): void => {
       showTooltipAt(ctx, centerX, layout.plotTop, label, entries)
@@ -180,7 +175,7 @@ export function addLineTooltipZones(
       }
     }
     const hideHover = (): void => {
-      ctx.tooltip.classList.remove('pf-visible')
+      hideTooltip(ctx)
       if (crosshair) crosshair.setAttribute('opacity', '0')
       if (dotGroups) {
         for (const dots of dotGroups) {
@@ -189,10 +184,7 @@ export function addLineTooltipZones(
       }
     }
 
-    zone.addEventListener('mouseenter', showHover)
-    zone.addEventListener('mouseleave', hideHover)
-    zone.addEventListener('touchstart', showHover, { passive: true })
-    zone.addEventListener('touchend', hideHover, { passive: true })
+    bindHover(zone, showHover, hideHover)
     svg.appendChild(zone)
   }
 }
