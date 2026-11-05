@@ -16,6 +16,7 @@ All notable changes to this project will be documented in this file.
 ### Internal
 
 - `src/` has no `as` casts or non-null assertions left, and lint now forbids both across `src/`. `emitA2UI` takes an `A2uiEmitSource`, a `$prefab` payload of which only `view` is required.
+- Every SVG element is built through `svgEl`; charts share `valueFormatter`, and the bar and line tooltip hit-zones share one zone builder. Tooltip text is escaped with the core `escapeHtml`.
 
 ## [0.3.20] — 2026-11-03
 

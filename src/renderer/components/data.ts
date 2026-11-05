@@ -7,6 +7,7 @@ import type { ComponentNode, RenderContext } from '../engine.js'
 import { dispatchActions, fireAndForget } from '../actions.js'
 import { stringifyValue } from '../../core/stringify.js'
 import { isRecord, optionalNumber, optionalString, recordList } from '../../core/guards.js'
+import { svgEl } from './charts/helpers.js'
 
 export function registerDataComponents(): void {
   registerComponent('DataTable', renderDataTable)
@@ -199,29 +200,16 @@ function renderRing(node: ComponentNode, ctx: RenderContext): HTMLElement {
   const circumference = 2 * Math.PI * radius
   const offset = circumference * (1 - value / 100)
 
-  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
-  svg.setAttribute('width', String(size))
-  svg.setAttribute('height', String(size))
-  svg.setAttribute('viewBox', `0 0 ${size} ${size}`)
-
-  const bgCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle')
-  bgCircle.setAttribute('cx', String(size / 2))
-  bgCircle.setAttribute('cy', String(size / 2))
-  bgCircle.setAttribute('r', String(radius))
-  bgCircle.setAttribute('fill', 'none')
-  bgCircle.setAttribute('stroke', 'var(--muted, #e5e7eb)')
-  bgCircle.setAttribute('stroke-width', String(thickness))
-
-  const fgCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle')
-  fgCircle.setAttribute('cx', String(size / 2))
-  fgCircle.setAttribute('cy', String(size / 2))
-  fgCircle.setAttribute('r', String(radius))
-  fgCircle.setAttribute('fill', 'none')
-  fgCircle.setAttribute('stroke', 'var(--primary, #3b82f6)')
-  fgCircle.setAttribute('stroke-width', String(thickness))
-  fgCircle.setAttribute('stroke-dasharray', String(circumference))
-  fgCircle.setAttribute('stroke-dashoffset', String(offset))
-  fgCircle.setAttribute('stroke-linecap', 'round')
+  const svg = svgEl('svg', { width: size, height: size, viewBox: `0 0 ${size} ${size}` })
+  const ring = { cx: size / 2, cy: size / 2, r: radius, fill: 'none', 'stroke-width': thickness }
+  const bgCircle = svgEl('circle', { ...ring, stroke: 'var(--muted, #e5e7eb)' })
+  const fgCircle = svgEl('circle', {
+    ...ring,
+    stroke: 'var(--primary, #3b82f6)',
+    'stroke-dasharray': circumference,
+    'stroke-dashoffset': offset,
+    'stroke-linecap': 'round',
+  })
   fgCircle.style.transform = 'rotate(-90deg)'
   fgCircle.style.transformOrigin = 'center'
 
@@ -297,10 +285,7 @@ function renderSparkline(node: ComponentNode, _ctx: RenderContext): HTMLElement 
   const min = Math.min(...data)
   const range = max - min || 1
 
-  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
-  svg.setAttribute('width', String(w))
-  svg.setAttribute('height', String(h))
-  svg.setAttribute('viewBox', `0 0 ${w} ${h}`)
+  const svg = svgEl('svg', { width: w, height: h, viewBox: `0 0 ${w} ${h}` })
 
   const divisor = data.length > 1 ? data.length - 1 : 1
   const points = data.map((v, i) => {
@@ -309,12 +294,7 @@ function renderSparkline(node: ComponentNode, _ctx: RenderContext): HTMLElement 
     return `${x},${y}`
   }).join(' ')
 
-  const polyline = document.createElementNS('http://www.w3.org/2000/svg', 'polyline')
-  polyline.setAttribute('points', points)
-  polyline.setAttribute('fill', 'none')
-  polyline.setAttribute('stroke', 'var(--primary, #3b82f6)')
-  polyline.setAttribute('stroke-width', '1.5')
-  svg.appendChild(polyline)
+  svg.appendChild(svgEl('polyline', { points, fill: 'none', stroke: 'var(--primary, #3b82f6)', 'stroke-width': 1.5 }))
   e.appendChild(svg)
 
   return e
