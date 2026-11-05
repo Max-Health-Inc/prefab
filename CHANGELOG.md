@@ -6,6 +6,8 @@ All notable changes to this project will be documented in this file.
 
 <!-- Add new entries directly below. Keep this line: it makes a release merge conflict rather than file them under a published version. -->
 
+## [0.3.21] — 2026-11-05
+
 ### Fixed
 
 - **A `Dialog` or `Popover` whose `trigger` renders no element of its own (an `If`, `ForEach` or `Use`) opens on click.** The listener was attached to a document fragment and never fired.
