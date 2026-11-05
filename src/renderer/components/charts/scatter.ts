@@ -4,10 +4,12 @@ import { bindTooltip, createTooltip } from './tooltip.js'
 import {
   COLORS, AXIS_COLOR, GRID_COLOR, AXIS_FONT,
   chartLayout, createSvg, svgEl, svgText, drawBaseline,
-  applyPipeFormat, resolveValueFormat, addLegend,
+  valueFormatter, addLegend,
 } from './helpers.js'
 import { chartHeight, chartRows, chartSeries, chartValues } from './props.js'
 import { optionalNumber, optionalString } from '../../../core/guards.js'
+
+const round2 = (v: number): string => String(Math.round(v * 100) / 100)
 
 export function renderScatterChart(node: ComponentNode, ctx: RenderContext): HTMLElement {
   const wrapper = el('div', 'pf-chart pf-scatter-chart')
@@ -25,8 +27,7 @@ export function renderScatterChart(node: ComponentNode, ctx: RenderContext): HTM
 
   const showGrid = node.showGrid !== false
   const color = series[0]?.color ?? COLORS[0]
-  const valueFmt = resolveValueFormat(node)
-  const fmt = (v: number): string => valueFmt ? applyPipeFormat(v, valueFmt, ctx) : String(Math.round(v * 100) / 100)
+  const fmt = valueFormatter(node, ctx, round2)
 
   const xs = data.map(d => Number(d[xKey] ?? 0))
   const ys = data.map(d => Number(d[yKey] ?? 0))
@@ -64,7 +65,7 @@ export function renderScatterChart(node: ComponentNode, ctx: RenderContext): HTM
   for (const xv of [xMin, (xMin + xMax) / 2, xMax]) {
     svg.appendChild(svgText(
       { x: sx(xv), y: layout.plotBottom + 14, 'text-anchor': 'middle', 'font-size': AXIS_FONT, fill: AXIS_COLOR },
-      String(Math.round(xv * 100) / 100),
+      round2(xv),
     ))
   }
 
@@ -120,13 +121,7 @@ export function renderHistogram(node: ComponentNode, ctx: RenderContext): HTMLEl
 
   for (let i = 0; i < binCount; i++) {
     const barH = maxBin > 0 ? (bins[i] / maxBin) * H : 0
-    const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect')
-    rect.setAttribute('x', String(i * barW))
-    rect.setAttribute('y', String(H - barH))
-    rect.setAttribute('width', String(barW - 1))
-    rect.setAttribute('height', String(barH))
-    rect.setAttribute('fill', color)
-    svg.appendChild(rect)
+    svg.appendChild(svgEl('rect', { x: i * barW, y: H - barH, width: barW - 1, height: barH, fill: color }))
   }
 
   wrapper.appendChild(svg)

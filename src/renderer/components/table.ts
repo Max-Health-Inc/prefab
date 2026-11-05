@@ -4,6 +4,7 @@
 
 import { registerComponent, renderChildren, renderNode, resolveStr, el } from '../engine.js'
 import type { ComponentNode, RenderContext } from '../engine.js'
+import { nodeList } from '../node-guard.js'
 
 export function registerTableComponents(): void {
   registerComponent('Table', renderTable)
@@ -85,12 +86,7 @@ function renderExpandableRow(node: ComponentNode, ctx: RenderContext): HTMLEleme
   arrow.style.fontSize = '10px'
   summary.appendChild(arrow)
 
-  const summaryNodes = node.summary as ComponentNode[] | undefined
-  if (summaryNodes) {
-    for (const sn of summaryNodes) {
-      summary.appendChild(renderNode(sn, ctx))
-    }
-  }
+  for (const sn of nodeList(node.summary)) summary.appendChild(renderNode(sn, ctx))
 
   const detail = el('div', 'pf-expandable-row-detail')
   detail.style.display = 'none'

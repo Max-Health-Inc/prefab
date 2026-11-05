@@ -16,6 +16,7 @@
  */
 
 import type { ComponentJSON } from '../core/component.js'
+import { toComponentJSON } from '../core/guards.js'
 import type { A2uiComponentProps, A2uiAction, A2uiDiagnosticKind, A2uiDynamicString, A2uiFunctionCall } from './types.js'
 import type { BindingResult } from './expr.js'
 import { a2uiIconName } from './icons.js'
@@ -501,7 +502,7 @@ const COMPOSITE_MAPPERS: Record<string, Mapper> = {
     // trigger is usually a Button with no onClick — opening the dialog is
     // implicit — which the Button mapper rightly refuses, so falling back to the
     // label as Text is the difference between a working Modal and none at all.
-    const triggerNode = node.trigger as ComponentJSON | undefined
+    const triggerNode = toComponentJSON(node.trigger)
     const label = triggerNode != null
       ? textOf(triggerNode, 'label', 'content') ?? textOf(node, 'title') ?? 'Open'
       : textOf(node, 'title') ?? 'Open'

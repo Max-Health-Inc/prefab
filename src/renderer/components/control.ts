@@ -5,12 +5,12 @@
 import { registerComponent, renderNode, renderChildArray } from '../engine.js'
 import type { ComponentNode, RenderContext } from '../engine.js'
 import { evaluateTemplate, isRxExpression } from '../rx.js'
-import { isRecord, optionalRecord, optionalString } from '../../core/guards.js'
-import { isComponentNode } from '../node-guard.js'
+import { isRecord, optionalRecord, optionalString, recordList } from '../../core/guards.js'
+import { nodeList } from '../node-guard.js'
 
 function nodeSlots(value: unknown): Record<string, ComponentNode[]> {
   if (!isRecord(value)) return {}
-  return Object.fromEntries(Object.entries(value).map(([slot, nodes]) => [slot, Array.isArray(nodes) ? nodes.filter(isComponentNode) : []]))
+  return Object.fromEntries(Object.entries(value).map(([slot, nodes]) => [slot, nodeList(nodes)]))
 }
 
 export function registerControlComponents(): void {
@@ -116,24 +116,8 @@ function evaluateCondition(condition: string, ctx: RenderContext): boolean {
  */
 function renderCondition(node: ComponentNode, ctx: RenderContext): DocumentFragment {
   const frag = document.createDocumentFragment()
-  const cases = node.cases as { when: string; children?: ComponentNode[] }[] | undefined
-  const elseChildren = node.else as ComponentNode[] | undefined
-
-  if (cases) {
-    for (const c of cases) {
-      if (evaluateCondition(c.when, ctx)) {
-        if (c.children) {
-          renderChildArray(c.children, frag, ctx)
-        }
-        return frag
-      }
-    }
-  }
-
-  // No case matched — render else branch if present
-  if (elseChildren) {
-    renderChildArray(elseChildren, frag, ctx)
-  }
+  const match = recordList(node.cases).find(c => evaluateCondition(optionalString(c.when) ?? '', ctx))
+  renderChildArray(nodeList(match ? match.children : node.else), frag, ctx)
   return frag
 }
 

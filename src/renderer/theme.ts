@@ -55,7 +55,7 @@ export function applyTheme(root: HTMLElement, theme?: ThemeConfig): void {
   // byte-identical dark CSS.
   if (theme.dark) {
     const styleId = 'prefab-dark-theme'
-    let styleEl = document.getElementById(styleId) as HTMLStyleElement | null
+    let styleEl = document.getElementById(styleId)
     if (!styleEl) {
       styleEl = document.createElement('style')
       styleEl.id = styleId

@@ -14,6 +14,7 @@
 import type { Action, ActionJSON } from '../actions/types.js'
 import type { Rx } from '../rx/rx.js'
 import type { Ref } from '../rx/collection.js'
+import { isRecord } from './guards.js'
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -47,13 +48,14 @@ export function serializeValue(v: unknown): unknown {
   if (v === undefined || v === null) return undefined
   if (typeof v === 'string' || typeof v === 'number' || typeof v === 'boolean') return v
   if (v instanceof Component) return v.toJSON()
-  if (typeof v === 'object' && 'toJSON' in v && typeof (v as { toJSON: () => unknown }).toJSON === 'function') {
-    return (v as { toJSON: () => unknown }).toJSON()
+  if (typeof v === 'object' && 'toJSON' in v && typeof v.toJSON === 'function') {
+    const json: unknown = Reflect.apply(v.toJSON, v, [])
+    return json
   }
   if (Array.isArray(v)) return v.map(serializeValue)
-  if (typeof v === 'object') {
+  if (isRecord(v)) {
     const result: Record<string, unknown> = {}
-    for (const [k, val] of Object.entries(v as Record<string, unknown>)) {
+    for (const [k, val] of Object.entries(v)) {
       const serialized = serializeValue(val)
       if (serialized !== undefined) result[k] = serialized
     }
@@ -95,7 +97,7 @@ export class Component {
     const json: ComponentJSON = { type: this.componentType }
 
     if (this.id) json.id = this.id
-    if (this.cssClass != null) json.cssClass = serializeValue(this.cssClass) as string
+    if (this.cssClass != null) json.cssClass = typeof this.cssClass === 'string' ? this.cssClass : this.cssClass.toJSON()
     if (this.onClick) {
       json.onClick = Array.isArray(this.onClick)
         ? this.onClick.map(a => a.toJSON())

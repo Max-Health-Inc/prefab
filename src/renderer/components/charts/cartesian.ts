@@ -3,7 +3,7 @@ import type { ComponentNode, RenderContext } from '../../engine.js'
 import { createTooltip, addBarTooltipZones, addLineTooltipZones } from './tooltip.js'
 import {
   COLORS, AXIS_COLOR,
-  chartLayout, createSvg,
+  chartLayout, createSvg, svgEl,
   drawYAxis, drawYAxisRight, drawXAxisLabels, drawBaseline,
   applyPipeFormat, resolveValueFormat, makeTooltipFormatter, addLegend,
 } from './helpers.js'
@@ -62,14 +62,10 @@ export function renderBarChart(node: ComponentNode, ctx: RenderContext): HTMLEle
       const max = s.yAxisId === 'right' ? rightMax : leftMax
       const h = Math.max(0, (Number(raw) / max) * layout.plotHeight)
       const x = layout.plotLeft + di * barGroupWidth + si * barWidth + barWidth / 2
-      const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect')
-      rect.setAttribute('x', String(x))
-      rect.setAttribute('y', String(layout.plotBottom - h))
-      rect.setAttribute('width', String(barWidth * 0.8))
-      rect.setAttribute('height', String(h))
-      rect.setAttribute('fill', s.color ?? COLORS[si % COLORS.length])
-      rect.setAttribute('rx', '2')
-      svg.appendChild(rect)
+      svg.appendChild(svgEl('rect', {
+        x, y: layout.plotBottom - h, width: barWidth * 0.8, height: h,
+        fill: s.color ?? COLORS[si % COLORS.length], rx: 2,
+      }))
     }
   }
 
@@ -99,11 +95,7 @@ function drawAreaFill(svg: SVGSVGElement, points: Pt[], baseline: number, color:
     const d = `M ${seg[0].x},${baseline} ` +
       seg.map(p => `L ${p.x},${p.y}`).join(' ') +
       ` L ${seg[seg.length - 1].x},${baseline} Z`
-    const area = document.createElementNS('http://www.w3.org/2000/svg', 'path')
-    area.setAttribute('d', d)
-    area.setAttribute('fill', color)
-    area.setAttribute('opacity', '0.15')
-    svg.appendChild(area)
+    svg.appendChild(svgEl('path', { d, fill: color, opacity: 0.15 }))
     seg = []
   }
   for (const p of points) {
@@ -122,25 +114,16 @@ function drawLinePath(svg: SVGSVGElement, points: Pt[], color: string, dashed: b
     linePath += `${prevNull ? 'M' : 'L'} ${p.x},${p.y} `
   }
   if (!linePath) return
-  const line = document.createElementNS('http://www.w3.org/2000/svg', 'path')
-  line.setAttribute('d', linePath.trim())
-  line.setAttribute('fill', 'none')
-  line.setAttribute('stroke', color)
-  line.setAttribute('stroke-width', '2')
-  if (dashed) line.setAttribute('stroke-dasharray', '6 3')
-  svg.appendChild(line)
+  svg.appendChild(svgEl('path', {
+    d: linePath.trim(), fill: 'none', stroke: color, 'stroke-width': 2,
+    ...(dashed ? { 'stroke-dasharray': '6 3' } : {}),
+  }))
 }
 
 function drawDots(svg: SVGSVGElement, points: Pt[], color: string): SVGCircleElement[] {
   const seriesDots: SVGCircleElement[] = []
   for (const p of points) {
-    const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle')
-    dot.setAttribute('cx', String(p.x))
-    dot.setAttribute('cy', String(p.y))
-    dot.setAttribute('r', '4')
-    dot.setAttribute('fill', color)
-    dot.setAttribute('class', 'pf-data-dot')
-    dot.setAttribute('data-visible', 'false')
+    const dot = svgEl('circle', { cx: p.x, cy: p.y, r: 4, fill: color, class: 'pf-data-dot', 'data-visible': 'false' })
     dot.style.pointerEvents = 'none'
     if (p.isNull) dot.style.display = 'none'
     svg.appendChild(dot)
@@ -150,16 +133,11 @@ function drawDots(svg: SVGSVGElement, points: Pt[], color: string): SVGCircleEle
 }
 
 function drawCrosshair(svg: SVGSVGElement, layout: ChartLayout): SVGLineElement {
-  const crosshair = document.createElementNS('http://www.w3.org/2000/svg', 'line')
-  crosshair.setAttribute('class', 'pf-crosshair')
-  crosshair.setAttribute('x1', String(layout.plotLeft))
-  crosshair.setAttribute('x2', String(layout.plotLeft))
-  crosshair.setAttribute('y1', String(layout.plotTop))
-  crosshair.setAttribute('y2', String(layout.plotBottom))
-  crosshair.setAttribute('stroke', AXIS_COLOR)
-  crosshair.setAttribute('stroke-width', '1')
-  crosshair.setAttribute('stroke-dasharray', '3 3')
-  crosshair.setAttribute('opacity', '0')
+  const crosshair = svgEl('line', {
+    class: 'pf-crosshair',
+    x1: layout.plotLeft, x2: layout.plotLeft, y1: layout.plotTop, y2: layout.plotBottom,
+    stroke: AXIS_COLOR, 'stroke-width': 1, 'stroke-dasharray': '3 3', opacity: 0,
+  })
   svg.appendChild(crosshair)
   return crosshair
 }

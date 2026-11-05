@@ -175,6 +175,16 @@ export function resolveValueFormat(node: ComponentNode): string | undefined {
   return fmt && fmt !== 'auto' ? fmt : undefined
 }
 
+/** Formats a value with the node's value format, or with `fallback` when it has none. */
+export function valueFormatter(
+  node: ComponentNode,
+  ctx: RenderContext,
+  fallback: (v: number) => string = String,
+): (v: number) => string {
+  const valueFmt = resolveValueFormat(node)
+  return (v: number): string => valueFmt ? applyPipeFormat(v, valueFmt, ctx) : fallback(v)
+}
+
 /** Create a format callback for tooltip entries that handles per-axis formats + null. */
 export function makeTooltipFormatter(
   ctx: RenderContext,
@@ -193,14 +203,10 @@ export function makeTooltipFormatter(
 // ── SVG primitives ───────────────────────────────────────────────────────────
 
 export function createSvg(width: number, height: number, chartType?: string): SVGSVGElement {
-  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
-  svg.setAttribute('width', '100%')
-  svg.setAttribute('height', String(height))
-  svg.setAttribute('viewBox', `0 0 ${width} ${height}`)
-  svg.setAttribute('role', 'img')
-  if (chartType) {
-    svg.setAttribute('aria-label', `${chartType} chart`)
-  }
+  const svg = svgEl('svg', {
+    width: '100%', height, viewBox: `0 0 ${width} ${height}`, role: 'img',
+    ...(chartType ? { 'aria-label': `${chartType} chart` } : {}),
+  })
   svg.style.overflow = 'visible'
   return svg
 }

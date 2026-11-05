@@ -40,9 +40,8 @@ import { createHttpTransport, createNoopTransport } from './transport.js'
 import type { McpTransportOptions } from './transport.js'
 import { app } from './app.js'
 import { Bridge, isIframe } from './bridge.js'
-import { registerPipe, unregisterPipe, listPipes, getCustomPipe } from '../rx/pipes.js'
+import { registerPipe, unregisterPipe, listPipes, getCustomPipe, isPipeFn } from '../rx/pipes.js'
 import { BUILTIN_PIPES } from './rx.js'
-import type { PipeFn } from '../rx/pipes.js'
 import { registerComponent } from './engine.js'
 import { validateWireFormat } from '../core/validate.js'
 import { log, setLogLevel } from '../core/logger.js'
@@ -161,14 +160,14 @@ export const PrefabRenderer = {
     // Initialize state store
     const store = new Store(data.state)
 
-    // Set up transport
+    const transportOption = options?.transport
     let transport: McpTransport
-    if (options?.transport && 'callTool' in options.transport) {
-      transport = options.transport
-    } else if (options?.transport) {
-      transport = createHttpTransport(options.transport as McpTransportOptions)
-    } else {
+    if (!transportOption) {
       transport = createNoopTransport()
+    } else if ('callTool' in transportOption) {
+      transport = transportOption
+    } else {
+      transport = createHttpTransport(transportOption)
     }
 
     // Toast handler with fallback
@@ -378,11 +377,10 @@ function hydratePipe(name: string, source: string, state: PipeHydration): void {
   }
   if (state.evalBlocked) return
   try {
-    // Evaluate the source string as a function expression.
-    // new Function is intentional — it's the only way to hydrate serialized pipe source from wire format.
+    // new Function is the only way to hydrate serialized pipe source from the wire.
     // eslint-disable-next-line @typescript-eslint/no-implied-eval, @typescript-eslint/no-unsafe-call
-    const fn = new Function('return (' + source + ')')() as PipeFn
-    if (typeof fn !== 'function') {
+    const fn: unknown = new Function('return (' + source + ')')()
+    if (!isPipeFn(fn)) {
       log.warn(`wire pipe "${name}" — source did not evaluate to a function`)
       return
     }

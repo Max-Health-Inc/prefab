@@ -21,7 +21,8 @@
 import { emitA2UI, type A2uiEmitOptions, type A2uiEmitResult } from './emit.js'
 import { mappedTypes } from './catalog.js'
 import { VERSION } from '../core/version.js'
-import type { PrefabWireFormat } from '../app.js'
+import type { ComponentJSON } from '../core/component.js'
+import { isRecord, optionalRecord, toComponentJSON } from '../core/guards.js'
 import {
   A2UI_BASIC_CATALOG,
   A2UI_MIME,
@@ -39,10 +40,21 @@ import {
  * is rejected here rather than producing an empty surface further downstream.
  */
 function emit(wire: unknown, options?: A2uiEmitOptions): A2uiEmitResult {
-  if (wire == null || typeof wire !== 'object' || !('view' in wire)) {
+  const view = isRecord(wire) ? toComponentJSON(wire.view) : undefined
+  if (!isRecord(wire) || view == null) {
     throw new TypeError('PrefabA2UI.emit: expected a $prefab payload with a "view"')
   }
-  return emitA2UI(wire as PrefabWireFormat, options)
+  return emitA2UI({ view, state: optionalRecord(wire.state), defs: componentDefs(wire.defs) }, options)
+}
+
+function componentDefs(value: unknown): Record<string, ComponentJSON> | undefined {
+  if (!isRecord(value)) return undefined
+  const defs: Record<string, ComponentJSON> = {}
+  for (const [name, raw] of Object.entries(value)) {
+    const def = toComponentJSON(raw)
+    if (def) defs[name] = def
+  }
+  return defs
 }
 
 /** Wrap messages in the list envelope, for transports needing a JSON object. */

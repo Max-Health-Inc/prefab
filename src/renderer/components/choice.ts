@@ -11,7 +11,7 @@ import { registerComponent, renderChildren, renderNode, resolveStr, el, makeDisp
 import type { ComponentNode, RenderContext } from '../engine.js'
 import { dispatchActions, fireAndForget } from '../actions.js'
 import { stringifyValue } from '../../core/stringify.js'
-import { optionalString } from '../../core/guards.js'
+import { optionalString, recordList } from '../../core/guards.js'
 import { withLabel, markRequired, applyInputStyle, renderContainerDiv, renderTextSpan, renderSeparatorHr } from './form.js'
 
 export function registerChoiceComponents(): void {
@@ -51,15 +51,11 @@ function renderSelect(node: ComponentNode, ctx: RenderContext): HTMLElement {
     select.appendChild(ph)
   }
 
-  // Support shorthand `options` array: [{label, value}]
-  const opts = node.options as { label?: string; value?: string }[] | undefined
-  if (Array.isArray(opts)) {
-    for (const o of opts) {
-      const option = document.createElement('option')
-      option.value = o.value ?? ''
-      option.textContent = o.label ?? option.value
-      select.appendChild(option)
-    }
+  for (const o of recordList(node.options)) {
+    const option = document.createElement('option')
+    option.value = stringifyValue(o.value)
+    option.textContent = o.label != null ? stringifyValue(o.label) : option.value
+    select.appendChild(option)
   }
 
   // Render SelectOption children
@@ -71,7 +67,7 @@ function renderSelect(node: ComponentNode, ctx: RenderContext): HTMLElement {
         option.textContent = optionalString(child.label) ?? option.value
         select.appendChild(option)
       } else {
-        select.appendChild(renderNode(child, ctx) as HTMLElement)
+        select.appendChild(renderNode(child, ctx))
       }
     }
   }
@@ -162,16 +158,15 @@ function renderRadioGroup(node: ComponentNode, ctx: RenderContext): HTMLElement 
   // Wire up name attribute on child radios and pre-select from state
   const name = resolveStr(node.name, ctx)
   const stateVal = ctx.store.get(name)
-  for (const radio of Array.from(e.querySelectorAll('input[type="radio"]'))) {
-    ;(radio as HTMLInputElement).name = name
-    if (stateVal != null && (radio as HTMLInputElement).value === stringifyValue(stateVal)) {
-      ;(radio as HTMLInputElement).checked = true
-    }
+  for (const radio of e.querySelectorAll('input[type="radio"]')) {
+    if (!(radio instanceof HTMLInputElement)) continue
+    radio.name = name
+    if (stateVal != null && radio.value === stringifyValue(stateVal)) radio.checked = true
   }
 
   e.addEventListener('change', (evt) => {
-    const target = evt.target as HTMLInputElement
-    if (target.type === 'radio') {
+    const target = evt.target
+    if (target instanceof HTMLInputElement && target.type === 'radio') {
       ctx.store.set(name, target.value)
       if (node.onChange != null) {
         fireAndForget(dispatchActions(node.onChange, makeDispatchCtx(ctx)), 'onChange')
@@ -219,10 +214,8 @@ function renderCombobox(node: ComponentNode, ctx: RenderContext): HTMLElement {
   if (node.searchable !== false) {
     input.addEventListener('input', () => {
       const q = input.value.toLowerCase()
-      for (const opt of Array.from(dropdown.querySelectorAll('.pf-combobox-option'))) {
-        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- textContent is string | null per DOM spec
-        const text = ((opt as HTMLElement).textContent ?? '').toLowerCase()
-        ;(opt as HTMLElement).style.display = text.includes(q) ? '' : 'none'
+      for (const opt of dropdown.querySelectorAll('.pf-combobox-option')) {
+        if (opt instanceof HTMLElement) opt.style.display = opt.textContent.toLowerCase().includes(q) ? '' : 'none'
       }
     })
   }
@@ -248,7 +241,7 @@ function renderComboboxOption(node: ComponentNode, ctx: RenderContext): HTMLElem
   e.dataset.value = resolveStr(node.value, ctx)
   e.addEventListener('mousedown', () => {
     const combobox = e.closest('.pf-combobox')
-    const input = combobox?.querySelector('input') as HTMLInputElement | null
+    const input = combobox?.querySelector('input')
     if (input) {
       input.value = e.dataset.value ?? ''
       ctx.store.set(input.name, input.value)

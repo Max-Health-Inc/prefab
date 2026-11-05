@@ -105,7 +105,7 @@ export type { McpPrimitiveSchema, McpRestrictedSchema, McpElicitRequest, McpElic
 
 // ── A2UI ─────────────────────────────────────────────────────────────────────
 export { emitA2UI, mappedTypes, A2UI_VERSION, A2UI_BASIC_CATALOG, A2UI_MIME, A2UI_SCHEME } from './a2ui/index.js'
-export type { A2uiEmitOptions, A2uiEmitResult, A2uiMessage, A2uiMessageList, A2uiComponent, A2uiDiagnostic, A2uiDiagnosticKind } from './a2ui/index.js'
+export type { A2uiEmitOptions, A2uiEmitResult, A2uiEmitSource, A2uiMessage, A2uiMessageList, A2uiComponent, A2uiDiagnostic, A2uiDiagnosticKind } from './a2ui/index.js'
 export { display_a2ui, displayA2ui, registerA2uiResource, a2uiPayload, A2UI_RESOURCE_URI } from './mcp/a2ui.js'
 export type { DisplayA2uiOptions, A2uiResourceOptions } from './mcp/a2ui.js'
 
