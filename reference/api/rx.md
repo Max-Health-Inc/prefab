@@ -12,7 +12,7 @@ url: /prefab/reference/api/rx.md
 | [Ref](classes/Ref.md) | A lazy, serializable reference to a row in a collection. The expression is evaluated at runtime by the renderer's pipe evaluator. |
 | [Collection](classes/Collection.md) | A named keyed array. Serializes rows into state and provides typed lookup helpers that compile to pipe expressions. |
 | [Rx](classes/Rx.md) | Rx — Reactive expression builder. |
-| [Signal](classes/Signal.md) | A named reactive scalar. Carries a state key, an initial value, and produces rx expressions for component props. |
+| [Signal](classes/Signal.md) | A state key with an initial value, usable wherever a prop takes an rx expression. |
 
 ## Interfaces
 
@@ -43,7 +43,7 @@ url: /prefab/reference/api/rx.md
 | Function | Description |
 | ------ | ------ |
 | [collection](functions/collection.md) | Create a named keyed collection. |
-| [registerPipe](functions/registerPipe.md) | Register a custom pipe filter. Re-registration warns and overwrites (HMR-friendly). Built-in pipes in applyFilter always shadow custom pipes. |
+| [registerPipe](functions/registerPipe.md) | Register a custom pipe. Re-registering warns and overwrites; a built-in of the same name still wins. |
 | [unregisterPipe](functions/unregisterPipe.md) | Remove a custom pipe (useful in tests). Returns true if it existed. |
 | [listPipes](functions/listPipes.md) | List all registered custom pipe names (useful for debugging). |
 | [rx](functions/rx.md) | Create an Rx expression referencing a state key |

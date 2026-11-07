@@ -9,15 +9,9 @@ url: /prefab/reference/api/mcp/functions/resolveCache.md
 function resolveCache(hint?, defaults?): Required<McpCacheHint>;
 ```
 
-Defined in: [mcp/resource.ts:325](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/mcp/resource.ts#L325)
+Defined in: [mcp/resource.ts:245](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/mcp/resource.ts#L245)
 
-Fill in and validate the `CacheableResult` fields, rejecting values the SDK
-would silently discard in favour of `ttlMs: 0`.
-
-`defaults` differ per resource kind: the viewer HTML is a pure function of the
-package version and is safely shared-cacheable, while an `a2ui://` surface is
-rebuilt on every read and defaults to no caching. Exported so `./a2ui.ts`
-resolves its hints through the same guard rather than restating it.
+Fill in and validate `CacheableResult` fields, throwing on values the SDK would silently replace with `ttlMs: 0`.
 
 ## Parameters
 

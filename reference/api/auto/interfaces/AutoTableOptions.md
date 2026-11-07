@@ -5,7 +5,7 @@ url: /prefab/reference/api/auto/interfaces/AutoTableOptions.md
 
 # Interface: AutoTableOptions
 
-Defined in: [auto/index.ts:240](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/auto/index.ts#L240)
+Defined in: [auto/index.ts:235](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/auto/index.ts#L235)
 
 ## Properties
 
@@ -15,7 +15,7 @@ Defined in: [auto/index.ts:240](https://github.com/Max-Health-Inc/prefab/blob/f1
 optional title?: string;
 ```
 
-Defined in: [auto/index.ts:242](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/auto/index.ts#L242)
+Defined in: [auto/index.ts:237](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/auto/index.ts#L237)
 
 Title shown above the table.
 
@@ -27,7 +27,7 @@ Title shown above the table.
 optional columns?: DataTableColumnDef[];
 ```
 
-Defined in: [auto/index.ts:244](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/auto/index.ts#L244)
+Defined in: [auto/index.ts:239](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/auto/index.ts#L239)
 
 Override column definitions. If not set, auto-inferred from first row.
 
@@ -39,7 +39,7 @@ Override column definitions. If not set, auto-inferred from first row.
 optional exclude?: string[];
 ```
 
-Defined in: [auto/index.ts:246](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/auto/index.ts#L246)
+Defined in: [auto/index.ts:241](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/auto/index.ts#L241)
 
 Fields to exclude from auto-generated columns.
 
@@ -51,7 +51,7 @@ Fields to exclude from auto-generated columns.
 optional search?: boolean;
 ```
 
-Defined in: [auto/index.ts:248](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/auto/index.ts#L248)
+Defined in: [auto/index.ts:243](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/auto/index.ts#L243)
 
 Enable search. Default true.
 
@@ -63,6 +63,6 @@ Enable search. Default true.
 optional sortable?: boolean;
 ```
 
-Defined in: [auto/index.ts:250](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/auto/index.ts#L250)
+Defined in: [auto/index.ts:245](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/auto/index.ts#L245)
 
 Make all columns sortable. Default true.

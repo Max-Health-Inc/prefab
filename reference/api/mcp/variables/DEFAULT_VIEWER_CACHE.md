@@ -9,11 +9,6 @@ url: /prefab/reference/api/mcp/variables/DEFAULT_VIEWER_CACHE.md
 const DEFAULT_VIEWER_CACHE: Required<McpCacheHint>;
 ```
 
-Defined in: [mcp/resource.ts:159](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/mcp/resource.ts#L159)
+Defined in: [mcp/resource.ts:121](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/mcp/resource.ts#L121)
 
-Default cache hint for the viewer resource.
-
-The HTML is a pure function of this package's `VERSION` (the CDN base pins
-the exact version), so it cannot change for a given server build — it is
-safely shared-cacheable. Without this the SDK falls back to the conservative
-`{ ttlMs: 0, cacheScope: 'private' }` and the viewer is re-fetched every time.
+Viewer cache hint: the HTML is a pure function of `VERSION`, so it is shared-cacheable for a day.

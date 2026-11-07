@@ -9,22 +9,10 @@ url: /prefab/reference/api/mcp/functions/themeBridgeCss.md
 function themeBridgeCss(bridge): string;
 ```
 
-Defined in: [mcp/theme-bridge.ts:108](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/mcp/theme-bridge.ts#L108)
+Defined in: [mcp/theme-bridge.ts:71](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/mcp/theme-bridge.ts#L71)
 
-Generate the theme-bridge CSS (the contents of a `<style>` element).
-
-Mirrors the selectors `prefab.css` uses for *host-driven* tokens, so the
-override lands in both schemes rather than only in light mode: the `:root`
-default (alongside `[data-theme="light"]`, whose higher specificity would
-otherwise win) and the `prefers-color-scheme: dark` media block. Each selector
-matches its counterpart's specificity and is emitted after `prefab.css`, so it
-wins on document order.
-
-`:root[data-theme="dark"]` is deliberately NOT bridged. That block is
-prefab's standalone dark palette with static values and no host chain at all,
-the explicit separation of host theming (which cascades) from the manual theme
-toggle. Overriding it would make an app that pins `data-theme="dark"` follow
-the editor instead of its own choice.
+The theme-bridge CSS, matching `prefab.css`'s host-driven selectors in both schemes. `[data-theme="dark"]` is
+left alone, so an app that pins it keeps its own palette.
 
 ## Parameters
 

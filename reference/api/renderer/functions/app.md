@@ -9,7 +9,7 @@ url: /prefab/reference/api/renderer/functions/app.md
 function app(options?): Promise<PrefabApp>;
 ```
 
-Defined in: [renderer/app.ts:120](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/renderer/app.ts#L120)
+Defined in: [renderer/app.ts:121](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/renderer/app.ts#L121)
 
 Create a prefab app. Auto-detects iframe vs standalone.
 

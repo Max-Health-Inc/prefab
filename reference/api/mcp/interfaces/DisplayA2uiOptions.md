@@ -5,7 +5,7 @@ url: /prefab/reference/api/mcp/interfaces/DisplayA2uiOptions.md
 
 # Interface: DisplayA2uiOptions
 
-Defined in: [mcp/a2ui.ts:55](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/mcp/a2ui.ts#L55)
+Defined in: [mcp/a2ui.ts:35](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/mcp/a2ui.ts#L35)
 
 ## Extends
 
@@ -19,7 +19,7 @@ Defined in: [mcp/a2ui.ts:55](https://github.com/Max-Health-Inc/prefab/blob/f10bf
 optional surfaceId?: string;
 ```
 
-Defined in: [a2ui/emit.ts:45](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/a2ui/emit.ts#L45)
+Defined in: [a2ui/emit.ts:46](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/a2ui/emit.ts#L46)
 
 Surface id. Must be unique for the renderer's lifetime.
 
@@ -43,7 +43,7 @@ A2uiEmitOptions.surfaceId
 optional catalogId?: string;
 ```
 
-Defined in: [a2ui/emit.ts:50](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/a2ui/emit.ts#L50)
+Defined in: [a2ui/emit.ts:51](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/a2ui/emit.ts#L51)
 
 Catalog the surface's components are drawn from.
 
@@ -67,7 +67,7 @@ A2uiEmitOptions.catalogId
 optional stream?: boolean;
 ```
 
-Defined in: [a2ui/emit.ts:57](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/a2ui/emit.ts#L57)
+Defined in: [a2ui/emit.ts:58](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/a2ui/emit.ts#L58)
 
 Split the output into `createSurface` + `updateComponents` +
 `updateDataModel` instead of inlining everything into `createSurface`.
@@ -94,7 +94,7 @@ A2uiEmitOptions.stream
 optional sendDataModel?: boolean;
 ```
 
-Defined in: [a2ui/emit.ts:59](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/a2ui/emit.ts#L59)
+Defined in: [a2ui/emit.ts:60](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/a2ui/emit.ts#L60)
 
 Ask the renderer to echo the data model back on every event.
 
@@ -118,7 +118,7 @@ A2uiEmitOptions.sendDataModel
 optional warn?: boolean;
 ```
 
-Defined in: [a2ui/emit.ts:61](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/a2ui/emit.ts#L61)
+Defined in: [a2ui/emit.ts:62](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/a2ui/emit.ts#L62)
 
 Log degradations and dropped nodes at warn level.
 
@@ -142,7 +142,7 @@ A2uiEmitOptions.warn
 optional uri?: string;
 ```
 
-Defined in: [mcp/a2ui.ts:57](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/mcp/a2ui.ts#L57)
+Defined in: [mcp/a2ui.ts:37](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/mcp/a2ui.ts#L37)
 
 URI stamped on the embedded resource.
 
@@ -160,11 +160,9 @@ URI stamped on the embedded resource.
 optional onDiagnostics?: (diagnostics) => void;
 ```
 
-Defined in: [mcp/a2ui.ts:63](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/mcp/a2ui.ts#L63)
+Defined in: [mcp/a2ui.ts:39](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/mcp/a2ui.ts#L39)
 
-Called with anything lost in translation. Without it, a `degraded` or
-`unsupported` diagnostic is logged at warn level, because silently shipping
-a lesser UI is the failure mode worth making noisy.
+Called with anything lost in translation; without it, `degraded` and `unsupported` diagnostics are logged as warnings.
 
 #### Parameters
 

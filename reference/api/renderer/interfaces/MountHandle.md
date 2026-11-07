@@ -5,7 +5,7 @@ url: /prefab/reference/api/renderer/interfaces/MountHandle.md
 
 # Interface: MountHandle
 
-Defined in: [renderer/app.ts:103](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/renderer/app.ts#L103)
+Defined in: [renderer/app.ts:104](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/renderer/app.ts#L104)
 
 ## Properties
 
@@ -15,7 +15,7 @@ Defined in: [renderer/app.ts:103](https://github.com/Max-Health-Inc/prefab/blob/
 rerender: () => void;
 ```
 
-Defined in: [renderer/app.ts:105](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/renderer/app.ts#L105)
+Defined in: [renderer/app.ts:106](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/renderer/app.ts#L106)
 
 Re-render the current component tree.
 
@@ -31,7 +31,7 @@ Re-render the current component tree.
 store: Store;
 ```
 
-Defined in: [renderer/app.ts:107](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/renderer/app.ts#L107)
+Defined in: [renderer/app.ts:108](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/renderer/app.ts#L108)
 
 Access the reactive store.
 
@@ -43,7 +43,7 @@ Access the reactive store.
 destroy: () => void;
 ```
 
-Defined in: [renderer/app.ts:109](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/renderer/app.ts#L109)
+Defined in: [renderer/app.ts:110](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/renderer/app.ts#L110)
 
 Unmount.
 

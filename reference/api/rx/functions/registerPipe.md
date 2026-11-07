@@ -9,11 +9,9 @@ url: /prefab/reference/api/rx/functions/registerPipe.md
 function registerPipe(name, fn): void;
 ```
 
-Defined in: [rx/pipes.ts:30](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/rx/pipes.ts#L30)
+Defined in: [rx/pipes.ts:18](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/rx/pipes.ts#L18)
 
-Register a custom pipe filter.
-Re-registration warns and overwrites (HMR-friendly).
-Built-in pipes in applyFilter always shadow custom pipes.
+Register a custom pipe. Re-registering warns and overwrites; a built-in of the same name still wins.
 
 ## Parameters
 

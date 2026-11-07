@@ -12,7 +12,7 @@ const displayForm: {
 } = display_form;
 ```
 
-Defined in: [mcp/display.ts:367](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/mcp/display.ts#L367)
+Defined in: [mcp/display.ts:367](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/mcp/display.ts#L367)
 
 MCP display helpers — return prefab UIs as MCP tool results.
 

@@ -9,6 +9,6 @@ url: /prefab/reference/api/rx/variables/ITEM.md
 const ITEM: Rx;
 ```
 
-Defined in: [rx/rx.ts:229](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/rx/rx.ts#L229)
+Defined in: [rx/rx.ts:229](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/rx/rx.ts#L229)
 
 Current item in a ForEach loop

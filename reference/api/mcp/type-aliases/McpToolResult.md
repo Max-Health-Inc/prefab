@@ -9,22 +9,9 @@ url: /prefab/reference/api/mcp/type-aliases/McpToolResult.md
 type McpToolResult<S> = object;
 ```
 
-Defined in: [mcp/types.ts:96](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/mcp/types.ts#L96)
+Defined in: [mcp/types.ts:51](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/mcp/types.ts#L51)
 
-MCP tool result — returned from tool handlers.
-
-Structurally assignable to the SDK's `CallToolResult`. The index signature
-allows the SDK's `Result` base interface to be satisfied without a cast.
-
-`structuredContent` is generic rather than `Record<string, unknown>`: protocol
-revision 2026-07-28 loosened it to any JSON value (SEP-2106), and keeping the
-payload type lets callers read it back without casting.
-
-The wire discriminator `resultType` (SEP-2322) is intentionally absent. The
-SDK's protocol layer stamps it on encode and strips it before results reach
-consumers, so handlers do not author it for ordinary complete results. The
-index signature still admits `resultType: 'input_required'` for the one case
-a handler does own — multi-round-trip interim results.
+A tool result assignable to the SDK's `CallToolResult`; `structuredContent` keeps its payload type (any JSON since SEP-2106).
 
 ## Type Parameters
 
@@ -46,7 +33,7 @@ a handler does own — multi-round-trip interim results.
 content: McpContent[];
 ```
 
-Defined in: [mcp/types.ts:97](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/mcp/types.ts#L97)
+Defined in: [mcp/types.ts:52](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/mcp/types.ts#L52)
 
 ***
 
@@ -56,7 +43,7 @@ Defined in: [mcp/types.ts:97](https://github.com/Max-Health-Inc/prefab/blob/f10b
 optional structuredContent?: S;
 ```
 
-Defined in: [mcp/types.ts:99](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/mcp/types.ts#L99)
+Defined in: [mcp/types.ts:54](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/mcp/types.ts#L54)
 
 Structured payload forwarded to MCP Apps iframes via ui/notifications/tool-result.
 
@@ -68,7 +55,7 @@ Structured payload forwarded to MCP Apps iframes via ui/notifications/tool-resul
 optional isError?: boolean;
 ```
 
-Defined in: [mcp/types.ts:100](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/mcp/types.ts#L100)
+Defined in: [mcp/types.ts:55](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/mcp/types.ts#L55)
 
 ***
 
@@ -78,4 +65,4 @@ Defined in: [mcp/types.ts:100](https://github.com/Max-Health-Inc/prefab/blob/f10
 optional _meta?: Record<string, unknown>;
 ```
 
-Defined in: [mcp/types.ts:101](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/mcp/types.ts#L101)
+Defined in: [mcp/types.ts:56](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/mcp/types.ts#L56)

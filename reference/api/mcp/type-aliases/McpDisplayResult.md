@@ -9,17 +9,9 @@ url: /prefab/reference/api/mcp/type-aliases/McpDisplayResult.md
 type McpDisplayResult<S> = McpToolResult<S> & object;
 ```
 
-Defined in: [mcp/types.ts:116](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/mcp/types.ts#L116)
+Defined in: [mcp/types.ts:61](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/mcp/types.ts#L61)
 
-A tool result whose `structuredContent` is guaranteed present.
-
-`McpToolResult.structuredContent` is optional because a hand-written result
-may legitimately omit it. Every prefab display helper populates it, and
-saying so in the return type spares callers a null check on a field that is
-never absent — reading `result.structuredContent.view` should not need one.
-
-Assignable to `McpToolResult<S>` in every position, so widening a helper's
-return type to this breaks nothing.
+A tool result whose `structuredContent` is always present, as every prefab display helper returns.
 
 ## Type Declaration
 

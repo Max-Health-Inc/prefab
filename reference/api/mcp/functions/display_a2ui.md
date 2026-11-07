@@ -9,13 +9,9 @@ url: /prefab/reference/api/mcp/functions/display_a2ui.md
 function display_a2ui(viewOrApp, options?): McpDisplayResult<A2uiMessageList>;
 ```
 
-Defined in: [mcp/a2ui.ts:93](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/mcp/a2ui.ts#L93)
+Defined in: [mcp/a2ui.ts:65](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/mcp/a2ui.ts#L65)
 
-Return a view as an A2UI tool result.
-
-The messages travel as an `EmbeddedResource` in `content`, which is where a
-host looks for a payload it should route to its A2UI renderer, and as
-`structuredContent` for hosts that read results structurally.
+A view as an A2UI tool result: an `EmbeddedResource` in `content`, and the same payload as `structuredContent`.
 
 ## Parameters
 

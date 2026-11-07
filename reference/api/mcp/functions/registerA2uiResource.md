@@ -12,16 +12,10 @@ function registerA2uiResource(
    options?): void;
 ```
 
-Defined in: [mcp/a2ui.ts:144](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/mcp/a2ui.ts#L144)
+Defined in: [mcp/a2ui.ts:110](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/mcp/a2ui.ts#L110)
 
-Register a static A2UI surface as an `a2ui://` resource.
-
-Static is the point: a surface that does not depend on the conversation is
-cheaper as a resource than as a tool, because the host can read it once and
-cache it. Anything that varies per call belongs in [display\_a2ui](display_a2ui.md).
-
-`builder` runs on every read rather than once at registration, so a surface
-that closes over data refreshes without re-registering.
+Register an A2UI surface that does not depend on the conversation as an `a2ui://` resource; `builder` runs on every read.
+Per-call views belong in [display\_a2ui](display_a2ui.md).
 
 ## Parameters
 

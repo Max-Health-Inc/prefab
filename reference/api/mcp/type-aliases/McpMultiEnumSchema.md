@@ -9,7 +9,7 @@ url: /prefab/reference/api/mcp/type-aliases/McpMultiEnumSchema.md
 type McpMultiEnumSchema = object;
 ```
 
-Defined in: [mcp/types.ts:214](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/mcp/types.ts#L214)
+Defined in: [mcp/types.ts:126](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/mcp/types.ts#L126)
 
 Multiple selection: an array of values drawn from a fixed set.
 
@@ -21,7 +21,7 @@ Multiple selection: an array of values drawn from a fixed set.
 type: "array";
 ```
 
-Defined in: [mcp/types.ts:215](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/mcp/types.ts#L215)
+Defined in: [mcp/types.ts:127](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/mcp/types.ts#L127)
 
 ***
 
@@ -31,7 +31,7 @@ Defined in: [mcp/types.ts:215](https://github.com/Max-Health-Inc/prefab/blob/f10
 optional title?: string;
 ```
 
-Defined in: [mcp/types.ts:216](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/mcp/types.ts#L216)
+Defined in: [mcp/types.ts:128](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/mcp/types.ts#L128)
 
 ***
 
@@ -41,7 +41,7 @@ Defined in: [mcp/types.ts:216](https://github.com/Max-Health-Inc/prefab/blob/f10
 optional description?: string;
 ```
 
-Defined in: [mcp/types.ts:217](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/mcp/types.ts#L217)
+Defined in: [mcp/types.ts:129](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/mcp/types.ts#L129)
 
 ***
 
@@ -51,7 +51,7 @@ Defined in: [mcp/types.ts:217](https://github.com/Max-Health-Inc/prefab/blob/f10
 optional minItems?: number;
 ```
 
-Defined in: [mcp/types.ts:218](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/mcp/types.ts#L218)
+Defined in: [mcp/types.ts:130](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/mcp/types.ts#L130)
 
 ***
 
@@ -61,7 +61,7 @@ Defined in: [mcp/types.ts:218](https://github.com/Max-Health-Inc/prefab/blob/f10
 optional maxItems?: number;
 ```
 
-Defined in: [mcp/types.ts:219](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/mcp/types.ts#L219)
+Defined in: [mcp/types.ts:131](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/mcp/types.ts#L131)
 
 ***
 
@@ -71,7 +71,7 @@ Defined in: [mcp/types.ts:219](https://github.com/Max-Health-Inc/prefab/blob/f10
 items: object;
 ```
 
-Defined in: [mcp/types.ts:220](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/mcp/types.ts#L220)
+Defined in: [mcp/types.ts:132](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/mcp/types.ts#L132)
 
 #### type
 
@@ -93,4 +93,4 @@ enum: string[];
 optional default?: string[];
 ```
 
-Defined in: [mcp/types.ts:221](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/mcp/types.ts#L221)
+Defined in: [mcp/types.ts:133](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/mcp/types.ts#L133)

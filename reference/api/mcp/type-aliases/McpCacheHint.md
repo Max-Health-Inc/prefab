@@ -9,15 +9,9 @@ url: /prefab/reference/api/mcp/type-aliases/McpCacheHint.md
 type McpCacheHint = object;
 ```
 
-Defined in: [mcp/types.ts:137](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/mcp/types.ts#L137)
+Defined in: [mcp/types.ts:69](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/mcp/types.ts#L69)
 
-Cache fields required on results from the cacheable operations
-(`tools/list`, `prompts/list`, `resources/list`, `resources/templates/list`,
-`resources/read`, `server/discover`).
-
-Values a handler returns on the result take precedence over any hint
-configured on the server; when neither is present the SDK falls back to the
-conservative `{ ttlMs: 0, cacheScope: 'private' }` — i.e. no caching.
+Cache fields of cacheable results (SEP-2549). The result's own values beat a server hint; with neither, nothing is cached.
 
 ## Properties
 
@@ -27,7 +21,7 @@ conservative `{ ttlMs: 0, cacheScope: 'private' }` — i.e. no caching.
 optional ttlMs?: number;
 ```
 
-Defined in: [mcp/types.ts:139](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/mcp/types.ts#L139)
+Defined in: [mcp/types.ts:71](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/mcp/types.ts#L71)
 
 Cache lifetime in milliseconds. Must be a non-negative safe integer.
 
@@ -39,6 +33,6 @@ Cache lifetime in milliseconds. Must be a non-negative safe integer.
 optional cacheScope?: McpCacheScope;
 ```
 
-Defined in: [mcp/types.ts:141](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/mcp/types.ts#L141)
+Defined in: [mcp/types.ts:73](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/mcp/types.ts#L73)
 
 Whether shared caches may store the result.

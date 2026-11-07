@@ -9,7 +9,7 @@ url: /prefab/reference/api/renderer/functions/isIframe.md
 function isIframe(): boolean;
 ```
 
-Defined in: [renderer/bridge.ts:689](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/renderer/bridge.ts#L689)
+Defined in: [renderer/bridge.ts:664](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/renderer/bridge.ts#L664)
 
 ## Returns
 

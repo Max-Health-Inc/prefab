@@ -24,8 +24,8 @@ url: /prefab/reference/api/actions.md
 | [SendMessage](classes/SendMessage.md) | Base interface all actions implement |
 | [UpdateContext](classes/UpdateContext.md) | Base interface all actions implement |
 | [RequestDisplayMode](classes/RequestDisplayMode.md) | Base interface all actions implement |
-| [Subscribe](classes/Subscribe.md) | Subscribe to a resource URI for real-time updates. |
-| [Unsubscribe](classes/Unsubscribe.md) | Unsubscribe from a previously subscribed resource URI. |
+| [Subscribe](classes/Subscribe.md) | Subscribe to a resource URI: push when the host supports resource subscriptions, otherwise poll `fallbackTool`. |
+| [Unsubscribe](classes/Unsubscribe.md) | Unsubscribe from a resource URI; the renderer also unsubscribes everything on destroy. |
 
 ## Interfaces
 

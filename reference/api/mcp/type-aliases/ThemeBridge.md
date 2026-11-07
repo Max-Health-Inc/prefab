@@ -9,6 +9,6 @@ url: /prefab/reference/api/mcp/type-aliases/ThemeBridge.md
 type ThemeBridge = "vscode";
 ```
 
-Defined in: [mcp/theme-bridge.ts:66](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/mcp/theme-bridge.ts#L66)
+Defined in: [mcp/theme-bridge.ts:47](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/mcp/theme-bridge.ts#L47)
 
 Supported theme bridges.

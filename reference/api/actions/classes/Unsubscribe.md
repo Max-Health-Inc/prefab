@@ -5,12 +5,9 @@ url: /prefab/reference/api/actions/classes/Unsubscribe.md
 
 # Class: Unsubscribe
 
-Defined in: [actions/subscribe.ts:75](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/actions/subscribe.ts#L75)
+Defined in: [actions/subscribe.ts:60](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/actions/subscribe.ts#L60)
 
-Unsubscribe from a previously subscribed resource URI.
-
-Typically used in cleanup or when navigating away from a view.
-The renderer also automatically unsubscribes on destroy.
+Unsubscribe from a resource URI; the renderer also unsubscribes everything on destroy.
 
 ## Implements
 
@@ -24,7 +21,7 @@ The renderer also automatically unsubscribes on destroy.
 new Unsubscribe(uri): Unsubscribe;
 ```
 
-Defined in: [actions/subscribe.ts:76](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/actions/subscribe.ts#L76)
+Defined in: [actions/subscribe.ts:61](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/actions/subscribe.ts#L61)
 
 #### Parameters
 
@@ -44,7 +41,7 @@ Defined in: [actions/subscribe.ts:76](https://github.com/Max-Health-Inc/prefab/b
 readonly uri: string;
 ```
 
-Defined in: [actions/subscribe.ts:76](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/actions/subscribe.ts#L76)
+Defined in: [actions/subscribe.ts:61](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/actions/subscribe.ts#L61)
 
 ## Methods
 
@@ -54,7 +51,7 @@ Defined in: [actions/subscribe.ts:76](https://github.com/Max-Health-Inc/prefab/b
 toJSON(): ActionJSON;
 ```
 
-Defined in: [actions/subscribe.ts:78](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/actions/subscribe.ts#L78)
+Defined in: [actions/subscribe.ts:63](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/actions/subscribe.ts#L63)
 
 #### Returns
 

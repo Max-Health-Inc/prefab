@@ -40,7 +40,7 @@ url: /prefab/reference/api/renderer.md
 
 | Type Alias | Description |
 | ------ | ------ |
-| [LogLevel](type-aliases/LogLevel.md) | Centralized logger — the single sink for all prefab console output. |
+| [LogLevel](type-aliases/LogLevel.md) | The one sink for prefab's console output, with a runtime level a host can raise or mute: |
 | [DisplayMode](type-aliases/DisplayMode.md) | - |
 | [RenderFnReturn](type-aliases/RenderFnReturn.md) | - |
 | [RenderFn](type-aliases/RenderFn.md) | - |

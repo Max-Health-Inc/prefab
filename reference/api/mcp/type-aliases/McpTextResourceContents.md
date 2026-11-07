@@ -9,17 +9,9 @@ url: /prefab/reference/api/mcp/type-aliases/McpTextResourceContents.md
 type McpTextResourceContents = object;
 ```
 
-Defined in: [mcp/types.ts:54](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/mcp/types.ts#L54)
+Defined in: [mcp/types.ts:24](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/mcp/types.ts#L24)
 
 Text resource contents (has `text`, never `blob`).
-
-Declared as a type alias, not an interface, and the difference is load-bearing.
-The SDK's resource types are passthrough (`{ [x: string]: unknown }`), and
-TypeScript grants an *implicit index signature* only to type aliases of object
-types — never to interfaces, since an interface can be reopened by declaration
-merging and so its key set is not final. Declaring this as an interface makes
-it fail to satisfy the SDK's shape with "Index signature for type 'string' is
-missing", which a consumer can only work around by casting.
 
 ## Properties
 
@@ -29,7 +21,7 @@ missing", which a consumer can only work around by casting.
 uri: string;
 ```
 
-Defined in: [mcp/types.ts:55](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/mcp/types.ts#L55)
+Defined in: [mcp/types.ts:25](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/mcp/types.ts#L25)
 
 ***
 
@@ -39,7 +31,7 @@ Defined in: [mcp/types.ts:55](https://github.com/Max-Health-Inc/prefab/blob/f10b
 optional mimeType?: string;
 ```
 
-Defined in: [mcp/types.ts:56](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/mcp/types.ts#L56)
+Defined in: [mcp/types.ts:26](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/mcp/types.ts#L26)
 
 ***
 
@@ -49,7 +41,7 @@ Defined in: [mcp/types.ts:56](https://github.com/Max-Health-Inc/prefab/blob/f10b
 text: string;
 ```
 
-Defined in: [mcp/types.ts:57](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/mcp/types.ts#L57)
+Defined in: [mcp/types.ts:27](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/mcp/types.ts#L27)
 
 ***
 
@@ -59,4 +51,4 @@ Defined in: [mcp/types.ts:57](https://github.com/Max-Health-Inc/prefab/blob/f10b
 optional _meta?: Record<string, unknown>;
 ```
 
-Defined in: [mcp/types.ts:58](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/mcp/types.ts#L58)
+Defined in: [mcp/types.ts:28](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/mcp/types.ts#L28)

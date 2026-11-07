@@ -9,17 +9,9 @@ url: /prefab/reference/api/renderer/type-aliases/LogLevel.md
 type LogLevel = "silent" | "error" | "warn" | "info" | "debug";
 ```
 
-Defined in: [core/logger.ts:18](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/core/logger.ts#L18)
+Defined in: [core/logger.ts:10](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/core/logger.ts#L10)
 
-Centralized logger — the single sink for all prefab console output.
-
-Zero-dependency by design (prefab's renderer bundle ships no runtime deps),
-but API-compatible with the org-wide `@maxhealth.tech/utils` `createLogger`
-so call sites read the same everywhere and could later swap to the shared
-package without churn.
-
-Adds a runtime level (the utils logger gates on NODE\_ENV, which is unreliable
-in a browser bundle) so an embedding host can raise or mute prefab's output:
+The one sink for prefab's console output, with a runtime level a host can raise or mute:
 
 ```ts
 import { setLogLevel } from '@maxhealth.tech/prefab'

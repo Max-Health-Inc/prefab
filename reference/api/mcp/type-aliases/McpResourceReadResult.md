@@ -9,18 +9,9 @@ url: /prefab/reference/api/mcp/type-aliases/McpResourceReadResult.md
 type McpResourceReadResult<C> = object;
 ```
 
-Defined in: [mcp/types.ts:156](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/mcp/types.ts#L156)
+Defined in: [mcp/types.ts:77](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/mcp/types.ts#L77)
 
-A `resources/read` result carrying the required cache fields.
-
-Generic over the contents kind so a handler that only ever returns text (the
-prefab viewer, for one) does not force callers to narrow the union.
-
-A type alias rather than an interface, so it satisfies the SDK's passthrough
-`ReadResourceResult` (`{ [x: string]: unknown }`) without a cast. See
-[McpTextResourceContents](McpTextResourceContents.md) for why the distinction matters — returning
-this straight from an SDK read handler is the whole point of the type, and as
-an interface it did not typecheck there.
+A `resources/read` result with its required cache fields, generic over the contents kind.
 
 ## Type Parameters
 
@@ -36,7 +27,7 @@ an interface it did not typecheck there.
 contents: C[];
 ```
 
-Defined in: [mcp/types.ts:159](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/mcp/types.ts#L159)
+Defined in: [mcp/types.ts:80](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/mcp/types.ts#L80)
 
 ***
 
@@ -46,7 +37,7 @@ Defined in: [mcp/types.ts:159](https://github.com/Max-Health-Inc/prefab/blob/f10
 ttlMs: number;
 ```
 
-Defined in: [mcp/types.ts:161](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/mcp/types.ts#L161)
+Defined in: [mcp/types.ts:82](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/mcp/types.ts#L82)
 
 Cache lifetime in milliseconds.
 
@@ -58,6 +49,6 @@ Cache lifetime in milliseconds.
 cacheScope: McpCacheScope;
 ```
 
-Defined in: [mcp/types.ts:163](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/mcp/types.ts#L163)
+Defined in: [mcp/types.ts:84](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/mcp/types.ts#L84)
 
 Whether shared caches may store the result.

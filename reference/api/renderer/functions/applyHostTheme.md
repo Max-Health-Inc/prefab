@@ -9,7 +9,7 @@ url: /prefab/reference/api/renderer/functions/applyHostTheme.md
 function applyHostTheme(root, hostTheme): void;
 ```
 
-Defined in: [renderer/bridge.ts:661](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/renderer/bridge.ts#L661)
+Defined in: [renderer/bridge.ts:636](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/renderer/bridge.ts#L636)
 
 ## Parameters
 

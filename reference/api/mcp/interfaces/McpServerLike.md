@@ -5,13 +5,9 @@ url: /prefab/reference/api/mcp/interfaces/McpServerLike.md
 
 # Interface: McpServerLike
 
-Defined in: [mcp/resource.ts:307](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/mcp/resource.ts#L307)
+Defined in: [mcp/resource.ts:235](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/mcp/resource.ts#L235)
 
-MCP server interface expected by registerViewerResource.
-
-Structural rather than an SDK import, so fastmcp and hand-rolled servers stay
-compatible. `registerResource` is preferred; `resource` is the v1 overload
-that v2 retired and is used only as a fallback.
+The server shape registerViewerResource needs, structural so any SDK fits; `resource` is the v1 fallback.
 
 ## Properties
 
@@ -21,7 +17,7 @@ that v2 retired and is used only as a fallback.
 optional server?: object;
 ```
 
-Defined in: [mcp/resource.ts:311](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/mcp/resource.ts#L311)
+Defined in: [mcp/resource.ts:239](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/mcp/resource.ts#L239)
 
 Low-level server, where both SDK generations expose capability registration.
 
@@ -53,7 +49,7 @@ optional registerResource(
    handler): unknown;
 ```
 
-Defined in: [mcp/resource.ts:308](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/mcp/resource.ts#L308)
+Defined in: [mcp/resource.ts:236](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/mcp/resource.ts#L236)
 
 #### Parameters
 
@@ -80,7 +76,7 @@ optional resource(
    handler): unknown;
 ```
 
-Defined in: [mcp/resource.ts:309](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/mcp/resource.ts#L309)
+Defined in: [mcp/resource.ts:237](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/mcp/resource.ts#L237)
 
 #### Parameters
 
@@ -103,7 +99,7 @@ Defined in: [mcp/resource.ts:309](https://github.com/Max-Health-Inc/prefab/blob/
 optional registerCapabilities(capabilities): void;
 ```
 
-Defined in: [mcp/resource.ts:313](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/mcp/resource.ts#L313)
+Defined in: [mcp/resource.ts:241](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/mcp/resource.ts#L241)
 
 Some wrappers expose capability registration directly.
 

@@ -9,9 +9,6 @@ url: /prefab/reference/api/mcp/type-aliases/McpCacheScope.md
 type McpCacheScope = "public" | "private";
 ```
 
-Defined in: [mcp/types.ts:126](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/mcp/types.ts#L126)
+Defined in: [mcp/types.ts:66](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/mcp/types.ts#L66)
 
-Cache scopes defined for cacheable results.
-
-`public` — the result may be stored by shared caches.
-`private` — only the requesting client may cache it.
+`public`: shared caches may store the result; `private`: only the requesting client may.

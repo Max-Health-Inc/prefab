@@ -9,6 +9,6 @@ url: /prefab/reference/api/mcp/variables/PREFAB_RESOURCE_URI.md
 const PREFAB_RESOURCE_URI: "ui://prefab/viewer" = 'ui://prefab/viewer';
 ```
 
-Defined in: [mcp/resource.ts:126](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/mcp/resource.ts#L126)
+Defined in: [mcp/resource.ts:112](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/mcp/resource.ts#L112)
 
 Default URI for the prefab viewer resource.

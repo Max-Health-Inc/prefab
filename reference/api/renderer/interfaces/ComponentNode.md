@@ -5,7 +5,7 @@ url: /prefab/reference/api/renderer/interfaces/ComponentNode.md
 
 # Interface: ComponentNode
 
-Defined in: [renderer/engine.ts:46](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/renderer/engine.ts#L46)
+Defined in: [renderer/engine.ts:56](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/renderer/engine.ts#L56)
 
 ## Indexable
 
@@ -21,7 +21,7 @@ Defined in: [renderer/engine.ts:46](https://github.com/Max-Health-Inc/prefab/blo
 type: string;
 ```
 
-Defined in: [renderer/engine.ts:47](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/renderer/engine.ts#L47)
+Defined in: [renderer/engine.ts:57](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/renderer/engine.ts#L57)
 
 ***
 
@@ -31,7 +31,7 @@ Defined in: [renderer/engine.ts:47](https://github.com/Max-Health-Inc/prefab/blo
 optional id?: string;
 ```
 
-Defined in: [renderer/engine.ts:48](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/renderer/engine.ts#L48)
+Defined in: [renderer/engine.ts:58](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/renderer/engine.ts#L58)
 
 ***
 
@@ -41,7 +41,7 @@ Defined in: [renderer/engine.ts:48](https://github.com/Max-Health-Inc/prefab/blo
 optional cssClass?: string;
 ```
 
-Defined in: [renderer/engine.ts:49](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/renderer/engine.ts#L49)
+Defined in: [renderer/engine.ts:59](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/renderer/engine.ts#L59)
 
 ***
 
@@ -51,7 +51,7 @@ Defined in: [renderer/engine.ts:49](https://github.com/Max-Health-Inc/prefab/blo
 optional onMount?: ActionJSON | ActionJSON[];
 ```
 
-Defined in: [renderer/engine.ts:50](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/renderer/engine.ts#L50)
+Defined in: [renderer/engine.ts:60](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/renderer/engine.ts#L60)
 
 ***
 
@@ -61,4 +61,4 @@ Defined in: [renderer/engine.ts:50](https://github.com/Max-Health-Inc/prefab/blo
 optional children?: ComponentNode[];
 ```
 
-Defined in: [renderer/engine.ts:51](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/renderer/engine.ts#L51)
+Defined in: [renderer/engine.ts:61](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/renderer/engine.ts#L61)

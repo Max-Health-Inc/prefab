@@ -5,7 +5,7 @@ url: /prefab/reference/api/renderer/interfaces/McpTransport.md
 
 # Interface: McpTransport
 
-Defined in: [renderer/actions.ts:44](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/renderer/actions.ts#L44)
+Defined in: [renderer/actions.ts:44](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/renderer/actions.ts#L44)
 
 ## Properties
 
@@ -15,7 +15,7 @@ Defined in: [renderer/actions.ts:44](https://github.com/Max-Health-Inc/prefab/bl
 readonly optional capabilities?: object;
 ```
 
-Defined in: [renderer/actions.ts:52](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/renderer/actions.ts#L52)
+Defined in: [renderer/actions.ts:52](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/renderer/actions.ts#L52)
 
 Transport capabilities discovered during handshake.
 
@@ -33,7 +33,7 @@ optional subscriptions?: boolean;
 callTool(name, args): Promise<unknown>;
 ```
 
-Defined in: [renderer/actions.ts:45](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/renderer/actions.ts#L45)
+Defined in: [renderer/actions.ts:45](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/renderer/actions.ts#L45)
 
 #### Parameters
 
@@ -54,7 +54,7 @@ Defined in: [renderer/actions.ts:45](https://github.com/Max-Health-Inc/prefab/bl
 sendMessage(message): Promise<void>;
 ```
 
-Defined in: [renderer/actions.ts:46](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/renderer/actions.ts#L46)
+Defined in: [renderer/actions.ts:46](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/renderer/actions.ts#L46)
 
 #### Parameters
 
@@ -74,7 +74,7 @@ Defined in: [renderer/actions.ts:46](https://github.com/Max-Health-Inc/prefab/bl
 optional updateModelContext(update): Promise<void>;
 ```
 
-Defined in: [renderer/actions.ts:48](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/renderer/actions.ts#L48)
+Defined in: [renderer/actions.ts:48](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/renderer/actions.ts#L48)
 
 Replace what this view has told the model, without starting a turn.
 
@@ -93,12 +93,15 @@ Replace what this view has told the model, without starting a turn.
 ### subscribe()?
 
 ```ts
-optional subscribe(uri, onData): () => void;
+optional subscribe(
+   uri, 
+   onData, 
+   onError?): () => void;
 ```
 
-Defined in: [renderer/actions.ts:50](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/renderer/actions.ts#L50)
+Defined in: [renderer/actions.ts:50](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/renderer/actions.ts#L50)
 
-Subscribe to a resource URI for push updates. Returns an unsubscribe function.
+Subscribe to a resource URI for push updates; `onError` hears a refused subscription. Returns an unsubscribe function.
 
 #### Parameters
 
@@ -106,6 +109,7 @@ Subscribe to a resource URI for push updates. Returns an unsubscribe function.
 | ------ | ------ |
 | `uri` | `string` |
 | `onData` | (`data`) => `void` |
+| `onError?` | (`error`) => `void` |
 
 #### Returns
 

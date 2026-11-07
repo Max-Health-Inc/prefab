@@ -14,4 +14,4 @@ type McpPrimitiveSchema =
   | McpMultiEnumSchema;
 ```
 
-Defined in: [mcp/types.ts:224](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/mcp/types.ts#L224)
+Defined in: [mcp/types.ts:136](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/mcp/types.ts#L136)

@@ -9,7 +9,7 @@ url: /prefab/reference/api/mcp/functions/formInputRequest.md
 function formInputRequest(fields, options?): McpInputRequiredResult;
 ```
 
-Defined in: [mcp/input-required.ts:173](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/mcp/input-required.ts#L173)
+Defined in: [mcp/input-required.ts:166](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/mcp/input-required.ts#L166)
 
 Ask the client to collect these fields, then retry the call.
 

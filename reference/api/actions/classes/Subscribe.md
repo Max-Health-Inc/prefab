@@ -5,13 +5,9 @@ url: /prefab/reference/api/actions/classes/Subscribe.md
 
 # Class: Subscribe
 
-Defined in: [actions/subscribe.ts:47](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/actions/subscribe.ts#L47)
+Defined in: [actions/subscribe.ts:37](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/actions/subscribe.ts#L37)
 
-Subscribe to a resource URI for real-time updates.
-
-When the host supports MCP resource subscriptions (`capabilities.subscriptions`),
-the renderer uses push notifications via the bridge. Otherwise it falls back to
-periodic polling using `SetInterval` + `CallTool`.
+Subscribe to a resource URI: push when the host supports resource subscriptions, otherwise poll `fallbackTool`.
 
 ## Example
 
@@ -37,7 +33,7 @@ new Subscribe('chess://game/abc123', {
 new Subscribe(uri, opts): Subscribe;
 ```
 
-Defined in: [actions/subscribe.ts:48](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/actions/subscribe.ts#L48)
+Defined in: [actions/subscribe.ts:38](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/actions/subscribe.ts#L38)
 
 #### Parameters
 
@@ -58,7 +54,7 @@ Defined in: [actions/subscribe.ts:48](https://github.com/Max-Health-Inc/prefab/b
 readonly uri: string;
 ```
 
-Defined in: [actions/subscribe.ts:49](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/actions/subscribe.ts#L49)
+Defined in: [actions/subscribe.ts:39](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/actions/subscribe.ts#L39)
 
 ## Methods
 
@@ -68,7 +64,7 @@ Defined in: [actions/subscribe.ts:49](https://github.com/Max-Health-Inc/prefab/b
 toJSON(): ActionJSON;
 ```
 
-Defined in: [actions/subscribe.ts:53](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/actions/subscribe.ts#L53)
+Defined in: [actions/subscribe.ts:43](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/actions/subscribe.ts#L43)
 
 #### Returns
 

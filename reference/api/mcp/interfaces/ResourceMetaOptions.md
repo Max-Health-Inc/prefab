@@ -5,7 +5,7 @@ url: /prefab/reference/api/mcp/interfaces/ResourceMetaOptions.md
 
 # Interface: ResourceMetaOptions
 
-Defined in: [mcp/resource.ts:47](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/mcp/resource.ts#L47)
+Defined in: [mcp/resource.ts:37](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/mcp/resource.ts#L37)
 
 ## Properties
 
@@ -15,7 +15,7 @@ Defined in: [mcp/resource.ts:47](https://github.com/Max-Health-Inc/prefab/blob/f
 optional csp?: McpAppCsp;
 ```
 
-Defined in: [mcp/resource.ts:49](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/mcp/resource.ts#L49)
+Defined in: [mcp/resource.ts:39](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/mcp/resource.ts#L39)
 
 CSP domains configuration.
 
@@ -27,6 +27,6 @@ CSP domains configuration.
 optional permissions?: McpAppPermissions;
 ```
 
-Defined in: [mcp/resource.ts:51](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/mcp/resource.ts#L51)
+Defined in: [mcp/resource.ts:41](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/mcp/resource.ts#L41)
 
 Permission Policy requests (camera, mic, etc.).

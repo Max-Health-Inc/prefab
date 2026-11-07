@@ -9,16 +9,9 @@ url: /prefab/reference/api/mcp/type-aliases/McpStringSchema.md
 type McpStringSchema = object;
 ```
 
-Defined in: [mcp/types.ts:178](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/mcp/types.ts#L178)
+Defined in: [mcp/types.ts:90](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/mcp/types.ts#L90)
 
-The restricted JSON Schema an elicitation may request.
-
-Protocol revision 2026-07-28 replaced server-initiated `elicitation/create`
-pushes with Multi Round-Trip Requests: a handler *returns* an
-[McpInputRequiredResult](McpInputRequiredResult.md), the client answers the embedded requests and
-retries the original call. The schema is deliberately flat — top-level
-primitive properties only, no nesting — because it has to render as a form in
-hosts that have no UI surface of their own.
+A flat elicitation property schema, for [McpInputRequiredResult](McpInputRequiredResult.md) (Multi Round-Trip, revision 2026-07-28).
 
 ## Properties
 
@@ -28,7 +21,7 @@ hosts that have no UI surface of their own.
 type: "string";
 ```
 
-Defined in: [mcp/types.ts:179](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/mcp/types.ts#L179)
+Defined in: [mcp/types.ts:91](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/mcp/types.ts#L91)
 
 ***
 
@@ -38,7 +31,7 @@ Defined in: [mcp/types.ts:179](https://github.com/Max-Health-Inc/prefab/blob/f10
 optional title?: string;
 ```
 
-Defined in: [mcp/types.ts:180](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/mcp/types.ts#L180)
+Defined in: [mcp/types.ts:92](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/mcp/types.ts#L92)
 
 ***
 
@@ -48,7 +41,7 @@ Defined in: [mcp/types.ts:180](https://github.com/Max-Health-Inc/prefab/blob/f10
 optional description?: string;
 ```
 
-Defined in: [mcp/types.ts:181](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/mcp/types.ts#L181)
+Defined in: [mcp/types.ts:93](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/mcp/types.ts#L93)
 
 ***
 
@@ -58,7 +51,7 @@ Defined in: [mcp/types.ts:181](https://github.com/Max-Health-Inc/prefab/blob/f10
 optional minLength?: number;
 ```
 
-Defined in: [mcp/types.ts:182](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/mcp/types.ts#L182)
+Defined in: [mcp/types.ts:94](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/mcp/types.ts#L94)
 
 ***
 
@@ -68,7 +61,7 @@ Defined in: [mcp/types.ts:182](https://github.com/Max-Health-Inc/prefab/blob/f10
 optional maxLength?: number;
 ```
 
-Defined in: [mcp/types.ts:183](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/mcp/types.ts#L183)
+Defined in: [mcp/types.ts:95](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/mcp/types.ts#L95)
 
 ***
 
@@ -78,7 +71,7 @@ Defined in: [mcp/types.ts:183](https://github.com/Max-Health-Inc/prefab/blob/f10
 optional format?: "email" | "uri" | "date" | "date-time";
 ```
 
-Defined in: [mcp/types.ts:184](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/mcp/types.ts#L184)
+Defined in: [mcp/types.ts:96](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/mcp/types.ts#L96)
 
 ***
 
@@ -88,4 +81,4 @@ Defined in: [mcp/types.ts:184](https://github.com/Max-Health-Inc/prefab/blob/f10
 optional default?: string;
 ```
 
-Defined in: [mcp/types.ts:185](https://github.com/Max-Health-Inc/prefab/blob/f10bfdb14916287b0bbcf46e9ff8da46562d7a59/src/mcp/types.ts#L185)
+Defined in: [mcp/types.ts:97](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/mcp/types.ts#L97)
