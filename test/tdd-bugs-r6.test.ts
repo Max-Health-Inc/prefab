@@ -56,7 +56,7 @@ describe('A — fireAndForget', () => {
   it('stays silent when the promise resolves', async () => {
     fireAndForget(Promise.resolve('ok'), 'action dispatch')
     await tick()
-    const own = errorSpy.mock.calls.filter((call) => String(call[0]).includes('action dispatch'))
+    const own = errorSpy.mock.calls.filter((call: unknown[]) => String(call[0]).includes('action dispatch'))
     expect(own).toEqual([])
   })
 })
