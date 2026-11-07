@@ -1,36 +1,22 @@
 name: Publish
 
+# Dispatched by release.yml at the tag it pushed, after its gate passed on that commit.
 on:
   push:
     tags:
       - 'v*'
   workflow_dispatch:
 
+permissions:
+  contents: write
+  packages: write
+  id-token: write
+
 jobs:
   publish:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      id-token: write
-    steps:
-      - uses: actions/checkout@v7
-
-      - uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: latest
-
-      - run: bun install --frozen-lockfile
-
-      - name: Test
-        run: bun test
-
-      - name: Build
-        run: bun run build
-
-      - uses: actions/setup-node@v7
-        with:
-          node-version: '22'
-          registry-url: 'https://registry.npmjs.org'
-
-      - name: Publish to npm (uses npx npm@latest for OIDC trusted publishing)
-        run: npx npm@latest publish --provenance --access public
+    uses: max-network/.github/.github/workflows/publish-package.yml@main
+    with:
+      runtime: bun
+      scope: '@maxhealth.tech'
+      registry: https://registry.npmjs.org
+      check-steps: "typecheck lint build"
