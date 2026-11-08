@@ -1,0 +1,15 @@
+name: Retry transient failures
+
+on:
+  workflow_run:
+    workflows: ["**"]
+    types: [completed]
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  retry:
+    if: github.event.workflow_run.conclusion == 'failure'
+    uses: max-network/.github/.github/workflows/retry-transient.yml@main
