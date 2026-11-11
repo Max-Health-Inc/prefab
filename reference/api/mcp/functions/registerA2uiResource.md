@@ -12,7 +12,7 @@ function registerA2uiResource(
    options?): void;
 ```
 
-Defined in: [mcp/a2ui.ts:110](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/mcp/a2ui.ts#L110)
+Defined in: [mcp/a2ui.ts:110](https://github.com/Max-Health-Inc/prefab/blob/14b051946911add90406e1cbcaccfa458027e0bf/src/mcp/a2ui.ts#L110)
 
 Register an A2UI surface that does not depend on the conversation as an `a2ui://` resource; `builder` runs on every read.
 Per-call views belong in [display\_a2ui](display_a2ui.md).

@@ -9,7 +9,7 @@ url: /prefab/reference/api/mcp/functions/rendererHtml.md
 function rendererHtml(options?): string;
 ```
 
-Defined in: [mcp/resource.ts:162](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/mcp/resource.ts#L162)
+Defined in: [mcp/resource.ts:162](https://github.com/Max-Health-Inc/prefab/blob/14b051946911add90406e1cbcaccfa458027e0bf/src/mcp/resource.ts#L162)
 
 The viewer HTML: `prefab.css` and `renderer.auto.min.js` from the CDN, plus your scripts and stylesheets.
 

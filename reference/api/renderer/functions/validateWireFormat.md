@@ -9,7 +9,7 @@ url: /prefab/reference/api/renderer/functions/validateWireFormat.md
 function validateWireFormat(data, opts?): ValidationResult;
 ```
 
-Defined in: [core/validate.ts:40](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/core/validate.ts#L40)
+Defined in: [core/validate.ts:40](https://github.com/Max-Health-Inc/prefab/blob/14b051946911add90406e1cbcaccfa458027e0bf/src/core/validate.ts#L40)
 
 Validate a wire format payload. Returns `{ valid: true, errors: [] }` if OK,
 or `{ valid: false, errors: [...] }` with details about what's wrong.

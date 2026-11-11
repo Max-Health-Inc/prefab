@@ -9,7 +9,7 @@ url: /prefab/reference/api/auto/functions/autoComparison.md
 function autoComparison(items, options?): ContainerComponent;
 ```
 
-Defined in: [auto/comparison.ts:40](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/auto/comparison.ts#L40)
+Defined in: [auto/comparison.ts:40](https://github.com/Max-Health-Inc/prefab/blob/14b051946911add90406e1cbcaccfa458027e0bf/src/auto/comparison.ts#L40)
 
 Auto-generate a side-by-side comparison of items.
 

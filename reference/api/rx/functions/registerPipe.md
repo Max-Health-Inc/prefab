@@ -9,7 +9,7 @@ url: /prefab/reference/api/rx/functions/registerPipe.md
 function registerPipe(name, fn): void;
 ```
 
-Defined in: [rx/pipes.ts:18](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/rx/pipes.ts#L18)
+Defined in: [rx/pipes.ts:18](https://github.com/Max-Health-Inc/prefab/blob/14b051946911add90406e1cbcaccfa458027e0bf/src/rx/pipes.ts#L18)
 
 Register a custom pipe. Re-registering warns and overwrites; a built-in of the same name still wins.
 

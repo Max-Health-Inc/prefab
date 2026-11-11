@@ -9,7 +9,7 @@ url: /prefab/reference/api/auto/functions/autoTimeline.md
 function autoTimeline(events, options?): ContainerComponent;
 ```
 
-Defined in: [auto/timeline.ts:60](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/auto/timeline.ts#L60)
+Defined in: [auto/timeline.ts:60](https://github.com/Max-Health-Inc/prefab/blob/14b051946911add90406e1cbcaccfa458027e0bf/src/auto/timeline.ts#L60)
 
 Auto-generate a chronological timeline.
 

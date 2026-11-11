@@ -9,4 +9,4 @@ url: /prefab/reference/api/mcp/type-aliases/McpInputResponses.md
 type McpInputResponses = Record<string, McpElicitResult>;
 ```
 
-Defined in: [mcp/types.ts:181](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/mcp/types.ts#L181)
+Defined in: [mcp/types.ts:181](https://github.com/Max-Health-Inc/prefab/blob/14b051946911add90406e1cbcaccfa458027e0bf/src/mcp/types.ts#L181)

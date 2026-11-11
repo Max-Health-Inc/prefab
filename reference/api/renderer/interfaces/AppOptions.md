@@ -5,7 +5,7 @@ url: /prefab/reference/api/renderer/interfaces/AppOptions.md
 
 # Interface: AppOptions
 
-Defined in: [renderer/app.ts:41](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/renderer/app.ts#L41)
+Defined in: [renderer/app.ts:41](https://github.com/Max-Health-Inc/prefab/blob/14b051946911add90406e1cbcaccfa458027e0bf/src/renderer/app.ts#L41)
 
 ## Properties
 
@@ -15,7 +15,7 @@ Defined in: [renderer/app.ts:41](https://github.com/Max-Health-Inc/prefab/blob/1
 optional mode?: "auto" | "bridge" | "standalone";
 ```
 
-Defined in: [renderer/app.ts:43](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/renderer/app.ts#L43)
+Defined in: [renderer/app.ts:43](https://github.com/Max-Health-Inc/prefab/blob/14b051946911add90406e1cbcaccfa458027e0bf/src/renderer/app.ts#L43)
 
 Override environment detection: force bridge or standalone mode.
 
@@ -27,7 +27,7 @@ Override environment detection: force bridge or standalone mode.
 optional hostOrigin?: string;
 ```
 
-Defined in: [renderer/app.ts:45](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/renderer/app.ts#L45)
+Defined in: [renderer/app.ts:45](https://github.com/Max-Health-Inc/prefab/blob/14b051946911add90406e1cbcaccfa458027e0bf/src/renderer/app.ts#L45)
 
 Allowed host origin for postMessage (default: '\*'). Set explicitly in production.
 
@@ -39,7 +39,7 @@ Allowed host origin for postMessage (default: '\*'). Set explicitly in productio
 optional transport?: McpTransportOptions;
 ```
 
-Defined in: [renderer/app.ts:47](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/renderer/app.ts#L47)
+Defined in: [renderer/app.ts:47](https://github.com/Max-Health-Inc/prefab/blob/14b051946911add90406e1cbcaccfa458027e0bf/src/renderer/app.ts#L47)
 
 HTTP transport options (for standalone mode).
 
@@ -51,6 +51,6 @@ HTTP transport options (for standalone mode).
 optional capabilities?: AppCapabilities;
 ```
 
-Defined in: [renderer/app.ts:49](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/renderer/app.ts#L49)
+Defined in: [renderer/app.ts:49](https://github.com/Max-Health-Inc/prefab/blob/14b051946911add90406e1cbcaccfa458027e0bf/src/renderer/app.ts#L49)
 
 App capabilities to advertise to host.

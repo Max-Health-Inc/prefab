@@ -12,7 +12,7 @@ function autoChart(
    options?): ContainerComponent;
 ```
 
-Defined in: [auto/chart.ts:43](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/auto/chart.ts#L43)
+Defined in: [auto/chart.ts:43](https://github.com/Max-Health-Inc/prefab/blob/14b051946911add90406e1cbcaccfa458027e0bf/src/auto/chart.ts#L43)
 
 Auto-generate a chart Card from data and series definitions.
 

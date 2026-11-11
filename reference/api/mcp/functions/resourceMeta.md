@@ -9,7 +9,7 @@ url: /prefab/reference/api/mcp/functions/resourceMeta.md
 function resourceMeta(options?): object;
 ```
 
-Defined in: [mcp/resource.ts:81](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/mcp/resource.ts#L81)
+Defined in: [mcp/resource.ts:81](https://github.com/Max-Health-Inc/prefab/blob/14b051946911add90406e1cbcaccfa458027e0bf/src/mcp/resource.ts#L81)
 
 The `_meta` (CSP, permissions) for a `ui://` resource. Put it on the listing and the content item: VS Code reads only the latter.
 

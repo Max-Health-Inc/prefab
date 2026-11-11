@@ -198,11 +198,7 @@ Options:
 
 ## Remote: Use the Hosted MCP Server
 
-The fastest way to use prefab — no installation needed. Point any MCP client at the hosted renderer server:
-
-> **Important:** Claude Code / Claude Desktop require `/mcp` as the
-> first path segment. VS Code accepts any path. Use the appropriate
-> URL for your client.
+The fastest way to try prefab, with nothing to install: point any MCP client at the hosted renderer at `https://maxhealth.tech/mcp/prefab`. It is a public playground, open without sign-in and without guarantees, so use the npm package for anything you ship.
 
 **VS Code (`settings.json` or `.vscode/mcp.json`):**
 
@@ -211,7 +207,7 @@ The fastest way to use prefab — no installation needed. Point any MCP client a
   "servers": {
     "prefab-renderer": {
       "type": "http",
-      "url": "https://maxhealth.tech/prefab/mcp"
+      "url": "https://maxhealth.tech/mcp/prefab"
     }
   }
 }
@@ -230,7 +226,7 @@ The fastest way to use prefab — no installation needed. Point any MCP client a
 }
 ```
 
-Once connected, the server exposes a `render_prefab_ui` tool that accepts `$prefab` wire-format JSON and returns rendered HTML. Your LLM can call it directly to produce rich UI from structured data.
+The server exposes one tool, `render_ui`. It takes a `$prefab` wire-format JSON string, checks that it has a `$prefab` header and a `view`, and returns it as structured content, which an MCP Apps host renders through the prefab viewer. The `prefab://docs/*` resources hold the wire-format guide and component references for the model to read first.
 
 ::: tip See it in action
 The [interactive demo](/demo/) shows exactly what the remote renderer produces — dashboards, forms, charts, and more.

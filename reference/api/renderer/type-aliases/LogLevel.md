@@ -9,7 +9,7 @@ url: /prefab/reference/api/renderer/type-aliases/LogLevel.md
 type LogLevel = "silent" | "error" | "warn" | "info" | "debug";
 ```
 
-Defined in: [core/logger.ts:10](https://github.com/Max-Health-Inc/prefab/blob/1890bd36e825570eeb35b14d1f5a0235caa2c0fb/src/core/logger.ts#L10)
+Defined in: [core/logger.ts:10](https://github.com/Max-Health-Inc/prefab/blob/14b051946911add90406e1cbcaccfa458027e0bf/src/core/logger.ts#L10)
 
 The one sink for prefab's console output, with a runtime level a host can raise or mute:
 
