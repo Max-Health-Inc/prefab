@@ -74,7 +74,7 @@ interface McpAppPermissionsWire {
  * server.registerTool('browse', {
  *   title: 'Browse',
  *   inputSchema: schema,
- *   _meta: { ui: { resourceUri: 'ui://my/viewer' } },
+ *   _meta: uiToolMeta('ui://my/viewer'),
  * }, (args) => display(autoTable(rows)))
  * ```
  */
@@ -110,6 +110,11 @@ export const PREFAB_CDN_META = resourceMeta({
 
 /** Default URI for the prefab viewer resource. */
 export const PREFAB_RESOURCE_URI = 'ui://prefab/viewer'
+
+/** The tool-definition `_meta` that points an MCP Apps host at a `ui://` renderer, the prefab viewer by default. */
+export function uiToolMeta(resourceUri: string = PREFAB_RESOURCE_URI): { ui: { resourceUri: string } } {
+  return { ui: { resourceUri } }
+}
 
 /** MIME type required by MCP Apps hosts. */
 export const MCP_APP_MIME = 'text/html;profile=mcp-app'
@@ -274,7 +279,7 @@ function declareAppsExtension(server: McpServerLike): void {
  *
  * @example
  * ```ts
- * import { registerViewerResource, PREFAB_RESOURCE_URI, display } from '@maxhealth.tech/prefab/mcp'
+ * import { registerViewerResource, uiToolMeta, display } from '@maxhealth.tech/prefab/mcp'
  *
  * registerViewerResource(server)
  *
@@ -282,7 +287,7 @@ function declareAppsExtension(server: McpServerLike): void {
  * server.registerTool('browse', {
  *   title: 'Browse patients',
  *   inputSchema: { query: z.string() },
- *   _meta: { ui: { resourceUri: PREFAB_RESOURCE_URI } },
+ *   _meta: uiToolMeta(),
  * }, async (args) => display(autoTable(await search(args.query))))
  * ```
  */

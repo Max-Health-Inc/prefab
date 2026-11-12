@@ -20,6 +20,7 @@ import {
   SetState,
   CallTool,
   PREFAB_RESOURCE_URI,
+  uiToolMeta,
   rendererHtml,
   registerViewerResource,
   APPS_EXTENSION,
@@ -532,6 +533,16 @@ describe('mock MCP tool handler integration', () => {
 describe('PREFAB_RESOURCE_URI', () => {
   it('is a ui:// URI', () => {
     expect(PREFAB_RESOURCE_URI).toBe('ui://prefab/viewer')
+  })
+})
+
+describe('uiToolMeta()', () => {
+  it('points at the prefab viewer by default', () => {
+    expect(uiToolMeta()).toEqual({ ui: { resourceUri: PREFAB_RESOURCE_URI } })
+  })
+
+  it('points at a custom renderer when given one', () => {
+    expect(uiToolMeta('ui://my/viewer')).toEqual({ ui: { resourceUri: 'ui://my/viewer' } })
   })
 })
 

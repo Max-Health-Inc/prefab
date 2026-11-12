@@ -32,6 +32,7 @@ export {
   resolveCache,
   PREFAB_CDN_META,
   PREFAB_RESOURCE_URI,
+  uiToolMeta,
   MCP_APP_MIME,
   APPS_EXTENSION,
   DEFAULT_VIEWER_CACHE,
