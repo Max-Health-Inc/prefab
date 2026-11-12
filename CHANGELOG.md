@@ -6,6 +6,8 @@ All notable changes to this project will be documented in this file.
 
 <!-- Add new entries directly below. Keep this line: it makes a release merge conflict rather than file them under a published version. -->
 
+## [0.3.22] — 2026-11-12
+
 ### Added
 
 - **`uiToolMeta(resourceUri?)`** returns the tool-definition `_meta` that points an MCP Apps host at a `ui://` renderer, the prefab viewer by default, so servers stop spelling out `{ ui: { resourceUri: PREFAB_RESOURCE_URI } }` by hand. Exported from the root and from `@maxhealth.tech/prefab/mcp`.
