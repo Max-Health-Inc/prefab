@@ -578,6 +578,14 @@ bun run lint         # ESLint
 bun run typecheck    # Type check without emitting
 ```
 
+### Releasing
+
+Releases are cut by CI, so release tags and GitHub Releases are never created by hand.
+
+Record every user-facing change in `CHANGELOG.md` under `## [Unreleased]`, below the anchor comment, and keep that comment. Leave out the version heading. When `dev` is merged into `main`, `release.yml` (the shared `changelog-release.yml` in `max-network/.github`) stamps `[Unreleased]` as the next version, tags it and dispatches `publish.yml`. The next version is a patch bump over the npm release unless `package.json` already carries a higher version. A merge with nothing under `[Unreleased]` releases nothing.
+
+Sections that have already been released are never edited: both the release and the `dev` sync refuse such a change.
+
 ## License
 
 MIT
