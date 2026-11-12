@@ -6,35 +6,17 @@ on:
   pull_request:
     branches: [main, dev]
 
+permissions:
+  actions: read
+  contents: read
+  packages: read
+
 jobs:
   test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-
-      - uses: max-network/.github/.github/actions/setup-bun@main
-        with:
-          bun-version: latest
-
-      - run: bun install --frozen-lockfile
-
-      - name: Type check
-        run: bun run typecheck
-
-      - name: Lint
-        run: bun run lint
-
-      - name: Test
-        run: bun test
-
-      - name: Doc examples typecheck
-        run: bun run check:docs
-
-      - name: Build
-        run: bun run build
-
-      - name: Verify bundle exists
-        run: test -f dist/renderer.min.js
+    uses: max-network/.github/.github/workflows/check.yml@main
+    with:
+      runtime: bun
+      steps: "typecheck lint test check:docs build verify:dist"
 
   changelog:
     uses: max-network/.github/.github/workflows/changelog-guard.yml@main

@@ -130,6 +130,19 @@ Actions are serialized as objects with an `action` field:
 
 All actions support optional `onSuccess` and `onError` callbacks (single action or array). The renderer also accepts `callTool` as an alias of `toolCall`.
 
+Actions attach to `onClick`, `onChange`, `onSubmit` and `onMount`. To run several on one event, pass an array:
+
+```json
+{
+  "type": "Button",
+  "label": "Save",
+  "onClick": [
+    { "action": "setState", "key": "saved", "value": true },
+    { "action": "showToast", "message": "Saved!" }
+  ]
+}
+```
+
 ## Reactive Expressions
 
 String values containing `{{ }}` are evaluated as reactive expressions:
@@ -218,6 +231,12 @@ In protocol **0.3** this is **compiled into the wire `css` array** (it is *not* 
 ```
 
 The renderer injects each `css` entry as a `<style>` tag. Color scheme is selected by the host's `prefers-color-scheme`, the `data-theme` attribute, or the `dark`/`light` class. Use the top-level `mode` field to force one. (Legacy `0.2` payloads carrying a structured `theme` object still render.)
+
+### Theme Tokens
+
+Each key becomes a CSS custom property (`primary` → `--primary`). The base theme defines:
+
+`background`, `foreground`, `card`, `card-foreground`, `popover`, `popover-foreground`, `primary`, `primary-foreground`, `secondary`, `secondary-foreground`, `muted`, `muted-foreground`, `accent`, `accent-foreground`, `destructive`, `destructive-foreground`, `success`, `success-foreground`, `warning`, `warning-foreground`, `border`, `input`, `ring`
 
 ## State Updates (Partial)
 

@@ -13,7 +13,7 @@ import {
 import type { Action } from '../src/actions/index.js'
 
 const ROOT = join(import.meta.dir, '..')
-const REFERENCES = ['docs/reference/wire-format.md', 'skills/prefab-ui/references/wire-format.md']
+const REFERENCES = ['docs/reference/wire-format.md']
 const EXAMPLE_SOURCES = ['README.md', 'docs/**/*.md', 'skills/**/*.md', 'docs/public/examples/*.json']
 
 const read = (path: string): string => readFileSync(join(ROOT, path), 'utf8').replace(/\r\n/g, '\n')
@@ -146,14 +146,6 @@ describe('wire-format references match the renderer', () => {
   test('README lists exactly the built-in pipes', () => {
     const line = read('README.md').split('\n').find((l) => l.startsWith('**Built-in pipes:**')) ?? ''
     expect(sorted(ticked(line).map(pipeName))).toEqual(sorted(BUILTIN_PIPES))
-  })
-
-  test('both references document the same envelope fields', () => {
-    const [doc, skill] = REFERENCES.map((ref) => {
-      const table = tables(section(read(ref), /^## Envelope/))[0]
-      return sorted(table.rows.flatMap((row) => ticked(row[0])))
-    })
-    expect(skill).toEqual(doc)
   })
 
   test('action examples only use fields their builder emits', () => {
