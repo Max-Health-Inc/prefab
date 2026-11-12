@@ -90,9 +90,7 @@ console.log('✅ A2UI bundle → dist/a2ui.min.js')
 copyFileSync('src/prefab.css', 'dist/prefab.css')
 console.log('✅ Base theme → dist/prefab.css')
 
-// Regenerate the skill's example assets from the single canonical source
-// (docs/public/examples/). These copies are git-ignored, so a normal build
-// keeps the skill bundle self-contained without committing duplicate JSON.
+// Skill copies of docs/ examples and references; git-ignored.
 const { genSkillAssets } = await import('./gen-skill-assets.ts')
 genSkillAssets()
 

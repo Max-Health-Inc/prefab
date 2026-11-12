@@ -6,6 +6,10 @@ All notable changes to this project will be documented in this file.
 
 <!-- Add new entries directly below. Keep this line: it makes a release merge conflict rather than file them under a published version. -->
 
+### Changed
+
+- **The skill's wire-format reference is generated from `docs/reference/wire-format.md`** by the build, like its example assets, instead of being a second hand-written copy. The skill now also gets the expression grammar, the scope-variable table and `validateWireFormat`; the docs page gains the multi-action example and the theme token list the skill had.
+
 ## [0.3.21] — 2026-11-05
 
 ### Fixed
