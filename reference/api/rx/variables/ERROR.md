@@ -9,6 +9,6 @@ url: /prefab/reference/api/rx/variables/ERROR.md
 const ERROR: Rx;
 ```
 
-Defined in: [rx/rx.ts:238](https://github.com/Max-Health-Inc/prefab/blob/14b051946911add90406e1cbcaccfa458027e0bf/src/rx/rx.ts#L238)
+Defined in: [rx/rx.ts:238](https://github.com/Max-Health-Inc/prefab/blob/5d922c94bbfabe05e60f323caa169b4411113582/src/rx/rx.ts#L238)
 
 Error message available in on\_error callbacks

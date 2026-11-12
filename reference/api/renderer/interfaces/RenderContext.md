@@ -5,7 +5,7 @@ url: /prefab/reference/api/renderer/interfaces/RenderContext.md
 
 # Interface: RenderContext
 
-Defined in: [renderer/engine.ts:65](https://github.com/Max-Health-Inc/prefab/blob/14b051946911add90406e1cbcaccfa458027e0bf/src/renderer/engine.ts#L65)
+Defined in: [renderer/engine.ts:65](https://github.com/Max-Health-Inc/prefab/blob/5d922c94bbfabe05e60f323caa169b4411113582/src/renderer/engine.ts#L65)
 
 ## Properties
 
@@ -15,7 +15,7 @@ Defined in: [renderer/engine.ts:65](https://github.com/Max-Health-Inc/prefab/blo
 store: Store;
 ```
 
-Defined in: [renderer/engine.ts:66](https://github.com/Max-Health-Inc/prefab/blob/14b051946911add90406e1cbcaccfa458027e0bf/src/renderer/engine.ts#L66)
+Defined in: [renderer/engine.ts:66](https://github.com/Max-Health-Inc/prefab/blob/5d922c94bbfabe05e60f323caa169b4411113582/src/renderer/engine.ts#L66)
 
 ***
 
@@ -25,7 +25,7 @@ Defined in: [renderer/engine.ts:66](https://github.com/Max-Health-Inc/prefab/blo
 scope: EvalScope;
 ```
 
-Defined in: [renderer/engine.ts:67](https://github.com/Max-Health-Inc/prefab/blob/14b051946911add90406e1cbcaccfa458027e0bf/src/renderer/engine.ts#L67)
+Defined in: [renderer/engine.ts:67](https://github.com/Max-Health-Inc/prefab/blob/5d922c94bbfabe05e60f323caa169b4411113582/src/renderer/engine.ts#L67)
 
 ***
 
@@ -35,7 +35,7 @@ Defined in: [renderer/engine.ts:67](https://github.com/Max-Health-Inc/prefab/blo
 optional transport?: McpTransport;
 ```
 
-Defined in: [renderer/engine.ts:68](https://github.com/Max-Health-Inc/prefab/blob/14b051946911add90406e1cbcaccfa458027e0bf/src/renderer/engine.ts#L68)
+Defined in: [renderer/engine.ts:68](https://github.com/Max-Health-Inc/prefab/blob/5d922c94bbfabe05e60f323caa169b4411113582/src/renderer/engine.ts#L68)
 
 ***
 
@@ -45,7 +45,7 @@ Defined in: [renderer/engine.ts:68](https://github.com/Max-Health-Inc/prefab/blo
 rerender: () => void;
 ```
 
-Defined in: [renderer/engine.ts:69](https://github.com/Max-Health-Inc/prefab/blob/14b051946911add90406e1cbcaccfa458027e0bf/src/renderer/engine.ts#L69)
+Defined in: [renderer/engine.ts:69](https://github.com/Max-Health-Inc/prefab/blob/5d922c94bbfabe05e60f323caa169b4411113582/src/renderer/engine.ts#L69)
 
 #### Returns
 
@@ -59,7 +59,7 @@ Defined in: [renderer/engine.ts:69](https://github.com/Max-Health-Inc/prefab/blo
 optional onToast?: (toast) => void;
 ```
 
-Defined in: [renderer/engine.ts:70](https://github.com/Max-Health-Inc/prefab/blob/14b051946911add90406e1cbcaccfa458027e0bf/src/renderer/engine.ts#L70)
+Defined in: [renderer/engine.ts:70](https://github.com/Max-Health-Inc/prefab/blob/5d922c94bbfabe05e60f323caa169b4411113582/src/renderer/engine.ts#L70)
 
 #### Parameters
 
@@ -79,7 +79,7 @@ Defined in: [renderer/engine.ts:70](https://github.com/Max-Health-Inc/prefab/blo
 optional remount?: (data) => void;
 ```
 
-Defined in: [renderer/engine.ts:72](https://github.com/Max-Health-Inc/prefab/blob/14b051946911add90406e1cbcaccfa458027e0bf/src/renderer/engine.ts#L72)
+Defined in: [renderer/engine.ts:72](https://github.com/Max-Health-Inc/prefab/blob/5d922c94bbfabe05e60f323caa169b4411113582/src/renderer/engine.ts#L72)
 
 Replace the current view with a new prefab wire payload (server-rendered pattern).
 
@@ -101,7 +101,7 @@ Replace the current view with a new prefab wire payload (server-rendered pattern
 optional defs?: Record<string, ComponentNode>;
 ```
 
-Defined in: [renderer/engine.ts:73](https://github.com/Max-Health-Inc/prefab/blob/14b051946911add90406e1cbcaccfa458027e0bf/src/renderer/engine.ts#L73)
+Defined in: [renderer/engine.ts:73](https://github.com/Max-Health-Inc/prefab/blob/5d922c94bbfabe05e60f323caa169b4411113582/src/renderer/engine.ts#L73)
 
 ***
 
@@ -111,7 +111,7 @@ Defined in: [renderer/engine.ts:73](https://github.com/Max-Health-Inc/prefab/blo
 optional templates?: Record<string, ComponentNode[]>;
 ```
 
-Defined in: [renderer/engine.ts:74](https://github.com/Max-Health-Inc/prefab/blob/14b051946911add90406e1cbcaccfa458027e0bf/src/renderer/engine.ts#L74)
+Defined in: [renderer/engine.ts:74](https://github.com/Max-Health-Inc/prefab/blob/5d922c94bbfabe05e60f323caa169b4411113582/src/renderer/engine.ts#L74)
 
 ***
 
@@ -121,7 +121,7 @@ Defined in: [renderer/engine.ts:74](https://github.com/Max-Health-Inc/prefab/blo
 optional slots?: Record<string, ComponentNode[]>;
 ```
 
-Defined in: [renderer/engine.ts:75](https://github.com/Max-Health-Inc/prefab/blob/14b051946911add90406e1cbcaccfa458027e0bf/src/renderer/engine.ts#L75)
+Defined in: [renderer/engine.ts:75](https://github.com/Max-Health-Inc/prefab/blob/5d922c94bbfabe05e60f323caa169b4411113582/src/renderer/engine.ts#L75)
 
 ***
 
@@ -131,4 +131,4 @@ Defined in: [renderer/engine.ts:75](https://github.com/Max-Health-Inc/prefab/blo
 optional destroyRegistry?: DestroyRegistry;
 ```
 
-Defined in: [renderer/engine.ts:76](https://github.com/Max-Health-Inc/prefab/blob/14b051946911add90406e1cbcaccfa458027e0bf/src/renderer/engine.ts#L76)
+Defined in: [renderer/engine.ts:76](https://github.com/Max-Health-Inc/prefab/blob/5d922c94bbfabe05e60f323caa169b4411113582/src/renderer/engine.ts#L76)

@@ -5,7 +5,7 @@ url: /prefab/reference/api/renderer/interfaces/AppCapabilities.md
 
 # Interface: AppCapabilities
 
-Defined in: [renderer/bridge.ts:41](https://github.com/Max-Health-Inc/prefab/blob/14b051946911add90406e1cbcaccfa458027e0bf/src/renderer/bridge.ts#L41)
+Defined in: [renderer/bridge.ts:41](https://github.com/Max-Health-Inc/prefab/blob/5d922c94bbfabe05e60f323caa169b4411113582/src/renderer/bridge.ts#L41)
 
 ## Properties
 
@@ -15,7 +15,7 @@ Defined in: [renderer/bridge.ts:41](https://github.com/Max-Health-Inc/prefab/blo
 optional toolInput?: boolean;
 ```
 
-Defined in: [renderer/bridge.ts:42](https://github.com/Max-Health-Inc/prefab/blob/14b051946911add90406e1cbcaccfa458027e0bf/src/renderer/bridge.ts#L42)
+Defined in: [renderer/bridge.ts:42](https://github.com/Max-Health-Inc/prefab/blob/5d922c94bbfabe05e60f323caa169b4411113582/src/renderer/bridge.ts#L42)
 
 ***
 
@@ -25,7 +25,7 @@ Defined in: [renderer/bridge.ts:42](https://github.com/Max-Health-Inc/prefab/blo
 optional partialInput?: boolean;
 ```
 
-Defined in: [renderer/bridge.ts:43](https://github.com/Max-Health-Inc/prefab/blob/14b051946911add90406e1cbcaccfa458027e0bf/src/renderer/bridge.ts#L43)
+Defined in: [renderer/bridge.ts:43](https://github.com/Max-Health-Inc/prefab/blob/5d922c94bbfabe05e60f323caa169b4411113582/src/renderer/bridge.ts#L43)
 
 ***
 
@@ -35,7 +35,7 @@ Defined in: [renderer/bridge.ts:43](https://github.com/Max-Health-Inc/prefab/blo
 optional displayModes?: DisplayMode[];
 ```
 
-Defined in: [renderer/bridge.ts:44](https://github.com/Max-Health-Inc/prefab/blob/14b051946911add90406e1cbcaccfa458027e0bf/src/renderer/bridge.ts#L44)
+Defined in: [renderer/bridge.ts:44](https://github.com/Max-Health-Inc/prefab/blob/5d922c94bbfabe05e60f323caa169b4411113582/src/renderer/bridge.ts#L44)
 
 ***
 
@@ -45,4 +45,4 @@ Defined in: [renderer/bridge.ts:44](https://github.com/Max-Health-Inc/prefab/blo
 optional version?: string;
 ```
 
-Defined in: [renderer/bridge.ts:45](https://github.com/Max-Health-Inc/prefab/blob/14b051946911add90406e1cbcaccfa458027e0bf/src/renderer/bridge.ts#L45)
+Defined in: [renderer/bridge.ts:45](https://github.com/Max-Health-Inc/prefab/blob/5d922c94bbfabe05e60f323caa169b4411113582/src/renderer/bridge.ts#L45)

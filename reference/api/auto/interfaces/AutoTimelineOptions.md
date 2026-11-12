@@ -5,7 +5,7 @@ url: /prefab/reference/api/auto/interfaces/AutoTimelineOptions.md
 
 # Interface: AutoTimelineOptions
 
-Defined in: [auto/timeline.ts:41](https://github.com/Max-Health-Inc/prefab/blob/14b051946911add90406e1cbcaccfa458027e0bf/src/auto/timeline.ts#L41)
+Defined in: [auto/timeline.ts:41](https://github.com/Max-Health-Inc/prefab/blob/5d922c94bbfabe05e60f323caa169b4411113582/src/auto/timeline.ts#L41)
 
 ## Properties
 
@@ -15,7 +15,7 @@ Defined in: [auto/timeline.ts:41](https://github.com/Max-Health-Inc/prefab/blob/
 optional title?: string;
 ```
 
-Defined in: [auto/timeline.ts:43](https://github.com/Max-Health-Inc/prefab/blob/14b051946911add90406e1cbcaccfa458027e0bf/src/auto/timeline.ts#L43)
+Defined in: [auto/timeline.ts:43](https://github.com/Max-Health-Inc/prefab/blob/5d922c94bbfabe05e60f323caa169b4411113582/src/auto/timeline.ts#L43)
 
 Timeline heading.
 
@@ -27,6 +27,6 @@ Timeline heading.
 optional subtitle?: string;
 ```
 
-Defined in: [auto/timeline.ts:45](https://github.com/Max-Health-Inc/prefab/blob/14b051946911add90406e1cbcaccfa458027e0bf/src/auto/timeline.ts#L45)
+Defined in: [auto/timeline.ts:45](https://github.com/Max-Health-Inc/prefab/blob/5d922c94bbfabe05e60f323caa169b4411113582/src/auto/timeline.ts#L45)
 
 Optional subtitle.

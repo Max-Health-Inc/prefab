@@ -9,7 +9,7 @@ url: /prefab/reference/api/renderer/functions/createLogger.md
 function createLogger(scope?): Logger;
 ```
 
-Defined in: [core/logger.ts:39](https://github.com/Max-Health-Inc/prefab/blob/14b051946911add90406e1cbcaccfa458027e0bf/src/core/logger.ts#L39)
+Defined in: [core/logger.ts:39](https://github.com/Max-Health-Inc/prefab/blob/5d922c94bbfabe05e60f323caa169b4411113582/src/core/logger.ts#L39)
 
 Create a scoped logger. Output is prefixed `[prefab]` (no scope) or
 `[prefab:<scope>]`, matching prefab's existing console convention.

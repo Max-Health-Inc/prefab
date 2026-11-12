@@ -5,7 +5,7 @@ url: /prefab/reference/api/mcp/interfaces/A2uiResourceOptions.md
 
 # Interface: A2uiResourceOptions
 
-Defined in: [mcp/a2ui.ts:85](https://github.com/Max-Health-Inc/prefab/blob/14b051946911add90406e1cbcaccfa458027e0bf/src/mcp/a2ui.ts#L85)
+Defined in: [mcp/a2ui.ts:85](https://github.com/Max-Health-Inc/prefab/blob/5d922c94bbfabe05e60f323caa169b4411113582/src/mcp/a2ui.ts#L85)
 
 ## Extends
 
@@ -19,7 +19,7 @@ Defined in: [mcp/a2ui.ts:85](https://github.com/Max-Health-Inc/prefab/blob/14b05
 optional surfaceId?: string;
 ```
 
-Defined in: [a2ui/emit.ts:46](https://github.com/Max-Health-Inc/prefab/blob/14b051946911add90406e1cbcaccfa458027e0bf/src/a2ui/emit.ts#L46)
+Defined in: [a2ui/emit.ts:46](https://github.com/Max-Health-Inc/prefab/blob/5d922c94bbfabe05e60f323caa169b4411113582/src/a2ui/emit.ts#L46)
 
 Surface id. Must be unique for the renderer's lifetime.
 
@@ -43,7 +43,7 @@ A2uiEmitOptions.surfaceId
 optional catalogId?: string;
 ```
 
-Defined in: [a2ui/emit.ts:51](https://github.com/Max-Health-Inc/prefab/blob/14b051946911add90406e1cbcaccfa458027e0bf/src/a2ui/emit.ts#L51)
+Defined in: [a2ui/emit.ts:51](https://github.com/Max-Health-Inc/prefab/blob/5d922c94bbfabe05e60f323caa169b4411113582/src/a2ui/emit.ts#L51)
 
 Catalog the surface's components are drawn from.
 
@@ -67,7 +67,7 @@ A2uiEmitOptions.catalogId
 optional stream?: boolean;
 ```
 
-Defined in: [a2ui/emit.ts:58](https://github.com/Max-Health-Inc/prefab/blob/14b051946911add90406e1cbcaccfa458027e0bf/src/a2ui/emit.ts#L58)
+Defined in: [a2ui/emit.ts:58](https://github.com/Max-Health-Inc/prefab/blob/5d922c94bbfabe05e60f323caa169b4411113582/src/a2ui/emit.ts#L58)
 
 Split the output into `createSurface` + `updateComponents` +
 `updateDataModel` instead of inlining everything into `createSurface`.
@@ -94,7 +94,7 @@ A2uiEmitOptions.stream
 optional sendDataModel?: boolean;
 ```
 
-Defined in: [a2ui/emit.ts:60](https://github.com/Max-Health-Inc/prefab/blob/14b051946911add90406e1cbcaccfa458027e0bf/src/a2ui/emit.ts#L60)
+Defined in: [a2ui/emit.ts:60](https://github.com/Max-Health-Inc/prefab/blob/5d922c94bbfabe05e60f323caa169b4411113582/src/a2ui/emit.ts#L60)
 
 Ask the renderer to echo the data model back on every event.
 
@@ -118,7 +118,7 @@ A2uiEmitOptions.sendDataModel
 optional warn?: boolean;
 ```
 
-Defined in: [a2ui/emit.ts:62](https://github.com/Max-Health-Inc/prefab/blob/14b051946911add90406e1cbcaccfa458027e0bf/src/a2ui/emit.ts#L62)
+Defined in: [a2ui/emit.ts:62](https://github.com/Max-Health-Inc/prefab/blob/5d922c94bbfabe05e60f323caa169b4411113582/src/a2ui/emit.ts#L62)
 
 Log degradations and dropped nodes at warn level.
 
@@ -142,7 +142,7 @@ A2uiEmitOptions.warn
 optional uri?: string;
 ```
 
-Defined in: [mcp/a2ui.ts:87](https://github.com/Max-Health-Inc/prefab/blob/14b051946911add90406e1cbcaccfa458027e0bf/src/mcp/a2ui.ts#L87)
+Defined in: [mcp/a2ui.ts:87](https://github.com/Max-Health-Inc/prefab/blob/5d922c94bbfabe05e60f323caa169b4411113582/src/mcp/a2ui.ts#L87)
 
 Resource URI. Must start with `a2ui://`.
 
@@ -160,7 +160,7 @@ Resource URI. Must start with `a2ui://`.
 optional title?: string;
 ```
 
-Defined in: [mcp/a2ui.ts:89](https://github.com/Max-Health-Inc/prefab/blob/14b051946911add90406e1cbcaccfa458027e0bf/src/mcp/a2ui.ts#L89)
+Defined in: [mcp/a2ui.ts:89](https://github.com/Max-Health-Inc/prefab/blob/5d922c94bbfabe05e60f323caa169b4411113582/src/mcp/a2ui.ts#L89)
 
 Resource title shown in listings.
 
@@ -178,7 +178,7 @@ Resource title shown in listings.
 optional description?: string;
 ```
 
-Defined in: [mcp/a2ui.ts:91](https://github.com/Max-Health-Inc/prefab/blob/14b051946911add90406e1cbcaccfa458027e0bf/src/mcp/a2ui.ts#L91)
+Defined in: [mcp/a2ui.ts:91](https://github.com/Max-Health-Inc/prefab/blob/5d922c94bbfabe05e60f323caa169b4411113582/src/mcp/a2ui.ts#L91)
 
 Human-readable description for the listing.
 
@@ -190,7 +190,7 @@ Human-readable description for the listing.
 optional cache?: McpCacheHint;
 ```
 
-Defined in: [mcp/a2ui.ts:93](https://github.com/Max-Health-Inc/prefab/blob/14b051946911add90406e1cbcaccfa458027e0bf/src/mcp/a2ui.ts#L93)
+Defined in: [mcp/a2ui.ts:93](https://github.com/Max-Health-Inc/prefab/blob/5d922c94bbfabe05e60f323caa169b4411113582/src/mcp/a2ui.ts#L93)
 
 Cache fields for the `resources/read` result (SEP-2549).
 
@@ -202,7 +202,7 @@ Cache fields for the `resources/read` result (SEP-2549).
 optional onDiagnostics?: (diagnostics) => void;
 ```
 
-Defined in: [mcp/a2ui.ts:95](https://github.com/Max-Health-Inc/prefab/blob/14b051946911add90406e1cbcaccfa458027e0bf/src/mcp/a2ui.ts#L95)
+Defined in: [mcp/a2ui.ts:95](https://github.com/Max-Health-Inc/prefab/blob/5d922c94bbfabe05e60f323caa169b4411113582/src/mcp/a2ui.ts#L95)
 
 See [DisplayA2uiOptions.onDiagnostics](DisplayA2uiOptions.md#ondiagnostics).
 

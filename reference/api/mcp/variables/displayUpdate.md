@@ -9,7 +9,7 @@ url: /prefab/reference/api/mcp/variables/displayUpdate.md
 const displayUpdate: (state, options?) => McpDisplayResult<PrefabUpdateWire> = display_update;
 ```
 
-Defined in: [mcp/display.ts:368](https://github.com/Max-Health-Inc/prefab/blob/14b051946911add90406e1cbcaccfa458027e0bf/src/mcp/display.ts#L368)
+Defined in: [mcp/display.ts:368](https://github.com/Max-Health-Inc/prefab/blob/5d922c94bbfabe05e60f323caa169b4411113582/src/mcp/display.ts#L368)
 
 MCP display helpers — return prefab UIs as MCP tool results.
 

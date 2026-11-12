@@ -9,7 +9,7 @@ url: /prefab/reference/api/auto/functions/autoProgress.md
 function autoProgress(steps, options?): ContainerComponent;
 ```
 
-Defined in: [auto/progress.ts:52](https://github.com/Max-Health-Inc/prefab/blob/14b051946911add90406e1cbcaccfa458027e0bf/src/auto/progress.ts#L52)
+Defined in: [auto/progress.ts:52](https://github.com/Max-Health-Inc/prefab/blob/5d922c94bbfabe05e60f323caa169b4411113582/src/auto/progress.ts#L52)
 
 Auto-generate a multi-step progress tracker.
 

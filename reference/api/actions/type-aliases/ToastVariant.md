@@ -9,4 +9,4 @@ url: /prefab/reference/api/actions/type-aliases/ToastVariant.md
 type ToastVariant = "default" | "success" | "error" | "warning" | "info";
 ```
 
-Defined in: [actions/client.ts:80](https://github.com/Max-Health-Inc/prefab/blob/14b051946911add90406e1cbcaccfa458027e0bf/src/actions/client.ts#L80)
+Defined in: [actions/client.ts:80](https://github.com/Max-Health-Inc/prefab/blob/5d922c94bbfabe05e60f323caa169b4411113582/src/actions/client.ts#L80)

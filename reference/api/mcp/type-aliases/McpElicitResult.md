@@ -9,7 +9,7 @@ url: /prefab/reference/api/mcp/type-aliases/McpElicitResult.md
 type McpElicitResult = object;
 ```
 
-Defined in: [mcp/types.ts:176](https://github.com/Max-Health-Inc/prefab/blob/14b051946911add90406e1cbcaccfa458027e0bf/src/mcp/types.ts#L176)
+Defined in: [mcp/types.ts:176](https://github.com/Max-Health-Inc/prefab/blob/5d922c94bbfabe05e60f323caa169b4411113582/src/mcp/types.ts#L176)
 
 What the client sends back for one request, keyed the same way.
 
@@ -21,7 +21,7 @@ What the client sends back for one request, keyed the same way.
 action: "accept" | "decline" | "cancel";
 ```
 
-Defined in: [mcp/types.ts:177](https://github.com/Max-Health-Inc/prefab/blob/14b051946911add90406e1cbcaccfa458027e0bf/src/mcp/types.ts#L177)
+Defined in: [mcp/types.ts:177](https://github.com/Max-Health-Inc/prefab/blob/5d922c94bbfabe05e60f323caa169b4411113582/src/mcp/types.ts#L177)
 
 ***
 
@@ -31,4 +31,4 @@ Defined in: [mcp/types.ts:177](https://github.com/Max-Health-Inc/prefab/blob/14b
 optional content?: Record<string, string | number | boolean | string[]>;
 ```
 
-Defined in: [mcp/types.ts:178](https://github.com/Max-Health-Inc/prefab/blob/14b051946911add90406e1cbcaccfa458027e0bf/src/mcp/types.ts#L178)
+Defined in: [mcp/types.ts:178](https://github.com/Max-Health-Inc/prefab/blob/5d922c94bbfabe05e60f323caa169b4411113582/src/mcp/types.ts#L178)

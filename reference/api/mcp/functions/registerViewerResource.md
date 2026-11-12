@@ -9,7 +9,7 @@ url: /prefab/reference/api/mcp/functions/registerViewerResource.md
 function registerViewerResource(server, options?): void;
 ```
 
-Defined in: [mcp/resource.ts:289](https://github.com/Max-Health-Inc/prefab/blob/14b051946911add90406e1cbcaccfa458027e0bf/src/mcp/resource.ts#L289)
+Defined in: [mcp/resource.ts:289](https://github.com/Max-Health-Inc/prefab/blob/5d922c94bbfabe05e60f323caa169b4411113582/src/mcp/resource.ts#L289)
 
 Register the prefab viewer as a `ui://` resource. The CSP admits jsDelivr and every origin the page loads from.
 

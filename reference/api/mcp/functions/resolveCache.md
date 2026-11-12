@@ -9,7 +9,7 @@ url: /prefab/reference/api/mcp/functions/resolveCache.md
 function resolveCache(hint?, defaults?): Required<McpCacheHint>;
 ```
 
-Defined in: [mcp/resource.ts:245](https://github.com/Max-Health-Inc/prefab/blob/14b051946911add90406e1cbcaccfa458027e0bf/src/mcp/resource.ts#L245)
+Defined in: [mcp/resource.ts:245](https://github.com/Max-Health-Inc/prefab/blob/5d922c94bbfabe05e60f323caa169b4411113582/src/mcp/resource.ts#L245)
 
 Fill in and validate `CacheableResult` fields, throwing on values the SDK would silently replace with `ttlMs: 0`.
 

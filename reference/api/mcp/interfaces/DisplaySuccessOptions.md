@@ -5,7 +5,7 @@ url: /prefab/reference/api/mcp/interfaces/DisplaySuccessOptions.md
 
 # Interface: DisplaySuccessOptions
 
-Defined in: [mcp/display.ts:322](https://github.com/Max-Health-Inc/prefab/blob/14b051946911add90406e1cbcaccfa458027e0bf/src/mcp/display.ts#L322)
+Defined in: [mcp/display.ts:322](https://github.com/Max-Health-Inc/prefab/blob/5d922c94bbfabe05e60f323caa169b4411113582/src/mcp/display.ts#L322)
 
 ## Properties
 
@@ -15,7 +15,7 @@ Defined in: [mcp/display.ts:322](https://github.com/Max-Health-Inc/prefab/blob/1
 optional detail?: string;
 ```
 
-Defined in: [mcp/display.ts:324](https://github.com/Max-Health-Inc/prefab/blob/14b051946911add90406e1cbcaccfa458027e0bf/src/mcp/display.ts#L324)
+Defined in: [mcp/display.ts:324](https://github.com/Max-Health-Inc/prefab/blob/5d922c94bbfabe05e60f323caa169b4411113582/src/mcp/display.ts#L324)
 
 Additional detail text below the message.
 
@@ -27,6 +27,6 @@ Additional detail text below the message.
 optional theme?: Theme;
 ```
 
-Defined in: [mcp/display.ts:326](https://github.com/Max-Health-Inc/prefab/blob/14b051946911add90406e1cbcaccfa458027e0bf/src/mcp/display.ts#L326)
+Defined in: [mcp/display.ts:326](https://github.com/Max-Health-Inc/prefab/blob/5d922c94bbfabe05e60f323caa169b4411113582/src/mcp/display.ts#L326)
 
 Theme overrides.

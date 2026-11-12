@@ -9,7 +9,7 @@ url: /prefab/reference/api/rx/functions/rx.md
 function rx(key): Rx;
 ```
 
-Defined in: [rx/rx.ts:222](https://github.com/Max-Health-Inc/prefab/blob/14b051946911add90406e1cbcaccfa458027e0bf/src/rx/rx.ts#L222)
+Defined in: [rx/rx.ts:222](https://github.com/Max-Health-Inc/prefab/blob/5d922c94bbfabe05e60f323caa169b4411113582/src/rx/rx.ts#L222)
 
 Create an Rx expression referencing a state key
 

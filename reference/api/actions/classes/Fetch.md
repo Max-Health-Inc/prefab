@@ -5,7 +5,7 @@ url: /prefab/reference/api/actions/classes/Fetch.md
 
 # Class: Fetch
 
-Defined in: [actions/client.ts:152](https://github.com/Max-Health-Inc/prefab/blob/14b051946911add90406e1cbcaccfa458027e0bf/src/actions/client.ts#L152)
+Defined in: [actions/client.ts:152](https://github.com/Max-Health-Inc/prefab/blob/5d922c94bbfabe05e60f323caa169b4411113582/src/actions/client.ts#L152)
 
 Base interface all actions implement
 
@@ -21,7 +21,7 @@ Base interface all actions implement
 new Fetch(url, opts?): Fetch;
 ```
 
-Defined in: [actions/client.ts:153](https://github.com/Max-Health-Inc/prefab/blob/14b051946911add90406e1cbcaccfa458027e0bf/src/actions/client.ts#L153)
+Defined in: [actions/client.ts:153](https://github.com/Max-Health-Inc/prefab/blob/5d922c94bbfabe05e60f323caa169b4411113582/src/actions/client.ts#L153)
 
 #### Parameters
 
@@ -42,7 +42,7 @@ Defined in: [actions/client.ts:153](https://github.com/Max-Health-Inc/prefab/blo
 readonly url: string;
 ```
 
-Defined in: [actions/client.ts:154](https://github.com/Max-Health-Inc/prefab/blob/14b051946911add90406e1cbcaccfa458027e0bf/src/actions/client.ts#L154)
+Defined in: [actions/client.ts:154](https://github.com/Max-Health-Inc/prefab/blob/5d922c94bbfabe05e60f323caa169b4411113582/src/actions/client.ts#L154)
 
 ## Methods
 
@@ -52,7 +52,7 @@ Defined in: [actions/client.ts:154](https://github.com/Max-Health-Inc/prefab/blo
 toJSON(): ActionJSON;
 ```
 
-Defined in: [actions/client.ts:158](https://github.com/Max-Health-Inc/prefab/blob/14b051946911add90406e1cbcaccfa458027e0bf/src/actions/client.ts#L158)
+Defined in: [actions/client.ts:158](https://github.com/Max-Health-Inc/prefab/blob/5d922c94bbfabe05e60f323caa169b4411113582/src/actions/client.ts#L158)
 
 #### Returns
 

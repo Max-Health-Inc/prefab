@@ -9,7 +9,7 @@ url: /prefab/reference/api/rx/functions/unregisterPipe.md
 function unregisterPipe(name): boolean;
 ```
 
-Defined in: [rx/pipes.ts:26](https://github.com/Max-Health-Inc/prefab/blob/14b051946911add90406e1cbcaccfa458027e0bf/src/rx/pipes.ts#L26)
+Defined in: [rx/pipes.ts:26](https://github.com/Max-Health-Inc/prefab/blob/5d922c94bbfabe05e60f323caa169b4411113582/src/rx/pipes.ts#L26)
 
 Remove a custom pipe (useful in tests). Returns true if it existed.
 
