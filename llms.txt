@@ -214,6 +214,7 @@ Build the agent UI once, server-side. Emit A2UI for native rendering or $prefab 
 - [Function: inputResponse()](/reference/api/mcp/functions/inputResponse.md)
 - [Function: acceptedFormInput()](/reference/api/mcp/functions/acceptedFormInput.md)
 - [Function: resourceMeta()](/reference/api/mcp/functions/resourceMeta.md)
+- [Function: uiToolMeta()](/reference/api/mcp/functions/uiToolMeta.md)
 - [Function: rendererHtml()](/reference/api/mcp/functions/rendererHtml.md)
 - [Function: resolveCache()](/reference/api/mcp/functions/resolveCache.md)
 - [Function: registerViewerResource()](/reference/api/mcp/functions/registerViewerResource.md)

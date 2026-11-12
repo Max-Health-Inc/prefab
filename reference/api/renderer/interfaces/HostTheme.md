@@ -5,7 +5,7 @@ url: /prefab/reference/api/renderer/interfaces/HostTheme.md
 
 # Interface: HostTheme
 
-Defined in: [renderer/bridge.ts:67](https://github.com/Max-Health-Inc/prefab/blob/5d922c94bbfabe05e60f323caa169b4411113582/src/renderer/bridge.ts#L67)
+Defined in: [renderer/bridge.ts:67](https://github.com/Max-Health-Inc/prefab/blob/a243ee4157f94da56581132c47a7cf134a78ad06/src/renderer/bridge.ts#L67)
 
 ## Properties
 
@@ -15,7 +15,7 @@ Defined in: [renderer/bridge.ts:67](https://github.com/Max-Health-Inc/prefab/blo
 optional variables?: Record<string, string>;
 ```
 
-Defined in: [renderer/bridge.ts:68](https://github.com/Max-Health-Inc/prefab/blob/5d922c94bbfabe05e60f323caa169b4411113582/src/renderer/bridge.ts#L68)
+Defined in: [renderer/bridge.ts:68](https://github.com/Max-Health-Inc/prefab/blob/a243ee4157f94da56581132c47a7cf134a78ad06/src/renderer/bridge.ts#L68)
 
 ***
 
@@ -25,7 +25,7 @@ Defined in: [renderer/bridge.ts:68](https://github.com/Max-Health-Inc/prefab/blo
 optional colorScheme?: "light" | "dark" | "auto";
 ```
 
-Defined in: [renderer/bridge.ts:69](https://github.com/Max-Health-Inc/prefab/blob/5d922c94bbfabe05e60f323caa169b4411113582/src/renderer/bridge.ts#L69)
+Defined in: [renderer/bridge.ts:69](https://github.com/Max-Health-Inc/prefab/blob/a243ee4157f94da56581132c47a7cf134a78ad06/src/renderer/bridge.ts#L69)
 
 ***
 
@@ -35,4 +35,4 @@ Defined in: [renderer/bridge.ts:69](https://github.com/Max-Health-Inc/prefab/blo
 optional fontCss?: string;
 ```
 
-Defined in: [renderer/bridge.ts:71](https://github.com/Max-Health-Inc/prefab/blob/5d922c94bbfabe05e60f323caa169b4411113582/src/renderer/bridge.ts#L71)
+Defined in: [renderer/bridge.ts:71](https://github.com/Max-Health-Inc/prefab/blob/a243ee4157f94da56581132c47a7cf134a78ad06/src/renderer/bridge.ts#L71)

@@ -153,10 +153,13 @@ cannot change for a given server build, which is what makes it safe to mark
 **Shortcut:** if you're using prefab's TypeScript SDK, `registerViewerResource()` handles all of the above in one call — MIME type, CSP on both locations, the cache fields, and the `io.modelcontextprotocol/ui` extension capability (SEP-2133):
 
 ```ts
-import { registerViewerResource, PREFAB_RESOURCE_URI } from '@maxhealth.tech/prefab/mcp'
+import { registerViewerResource, uiToolMeta } from '@maxhealth.tech/prefab/mcp'
 
 // Registers ui://prefab/viewer with correct MIME, CSP, and HTML
 registerViewerResource(server)
+
+// Each tool that renders through it carries this on its definition
+server.registerTool('browse_patient', { title: 'Browse Patient', _meta: uiToolMeta() }, handler)
 
 // With custom options:
 registerViewerResource(server, {

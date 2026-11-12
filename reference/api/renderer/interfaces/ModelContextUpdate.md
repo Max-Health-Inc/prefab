@@ -5,7 +5,7 @@ url: /prefab/reference/api/renderer/interfaces/ModelContextUpdate.md
 
 # Interface: ModelContextUpdate
 
-Defined in: [renderer/actions.ts:37](https://github.com/Max-Health-Inc/prefab/blob/5d922c94bbfabe05e60f323caa169b4411113582/src/renderer/actions.ts#L37)
+Defined in: [renderer/actions.ts:37](https://github.com/Max-Health-Inc/prefab/blob/a243ee4157f94da56581132c47a7cf134a78ad06/src/renderer/actions.ts#L37)
 
 What the host adds to the model's context for its next turn (MCP Apps `ui/update-model-context`).
 
@@ -17,7 +17,7 @@ What the host adds to the model's context for its next turn (MCP Apps `ui/update
 optional content?: object[];
 ```
 
-Defined in: [renderer/actions.ts:39](https://github.com/Max-Health-Inc/prefab/blob/5d922c94bbfabe05e60f323caa169b4411113582/src/renderer/actions.ts#L39)
+Defined in: [renderer/actions.ts:39](https://github.com/Max-Health-Inc/prefab/blob/a243ee4157f94da56581132c47a7cf134a78ad06/src/renderer/actions.ts#L39)
 
 Text the model reads.
 
@@ -41,6 +41,6 @@ text: string;
 optional structuredContent?: Record<string, unknown>;
 ```
 
-Defined in: [renderer/actions.ts:41](https://github.com/Max-Health-Inc/prefab/blob/5d922c94bbfabe05e60f323caa169b4411113582/src/renderer/actions.ts#L41)
+Defined in: [renderer/actions.ts:41](https://github.com/Max-Health-Inc/prefab/blob/a243ee4157f94da56581132c47a7cf134a78ad06/src/renderer/actions.ts#L41)
 
 Machine-readable data for the host.

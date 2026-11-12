@@ -12,7 +12,7 @@ function autoForm(
    options?): ContainerComponent;
 ```
 
-Defined in: [auto/form.ts:86](https://github.com/Max-Health-Inc/prefab/blob/5d922c94bbfabe05e60f323caa169b4411113582/src/auto/form.ts#L86)
+Defined in: [auto/form.ts:86](https://github.com/Max-Health-Inc/prefab/blob/a243ee4157f94da56581132c47a7cf134a78ad06/src/auto/form.ts#L86)
 
 Auto-generate a Form that calls an MCP tool on submit.
 

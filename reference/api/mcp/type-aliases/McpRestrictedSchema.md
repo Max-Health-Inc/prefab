@@ -9,7 +9,7 @@ url: /prefab/reference/api/mcp/type-aliases/McpRestrictedSchema.md
 type McpRestrictedSchema = object;
 ```
 
-Defined in: [mcp/types.ts:144](https://github.com/Max-Health-Inc/prefab/blob/5d922c94bbfabe05e60f323caa169b4411113582/src/mcp/types.ts#L144)
+Defined in: [mcp/types.ts:144](https://github.com/Max-Health-Inc/prefab/blob/a243ee4157f94da56581132c47a7cf134a78ad06/src/mcp/types.ts#L144)
 
 The flat object schema an `elicitation/create` request asks the client to fill.
 
@@ -21,7 +21,7 @@ The flat object schema an `elicitation/create` request asks the client to fill.
 type: "object";
 ```
 
-Defined in: [mcp/types.ts:145](https://github.com/Max-Health-Inc/prefab/blob/5d922c94bbfabe05e60f323caa169b4411113582/src/mcp/types.ts#L145)
+Defined in: [mcp/types.ts:145](https://github.com/Max-Health-Inc/prefab/blob/a243ee4157f94da56581132c47a7cf134a78ad06/src/mcp/types.ts#L145)
 
 ***
 
@@ -31,7 +31,7 @@ Defined in: [mcp/types.ts:145](https://github.com/Max-Health-Inc/prefab/blob/5d9
 properties: Record<string, McpPrimitiveSchema>;
 ```
 
-Defined in: [mcp/types.ts:146](https://github.com/Max-Health-Inc/prefab/blob/5d922c94bbfabe05e60f323caa169b4411113582/src/mcp/types.ts#L146)
+Defined in: [mcp/types.ts:146](https://github.com/Max-Health-Inc/prefab/blob/a243ee4157f94da56581132c47a7cf134a78ad06/src/mcp/types.ts#L146)
 
 ***
 
@@ -41,4 +41,4 @@ Defined in: [mcp/types.ts:146](https://github.com/Max-Health-Inc/prefab/blob/5d9
 optional required?: string[];
 ```
 
-Defined in: [mcp/types.ts:147](https://github.com/Max-Health-Inc/prefab/blob/5d922c94bbfabe05e60f323caa169b4411113582/src/mcp/types.ts#L147)
+Defined in: [mcp/types.ts:147](https://github.com/Max-Health-Inc/prefab/blob/a243ee4157f94da56581132c47a7cf134a78ad06/src/mcp/types.ts#L147)

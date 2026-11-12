@@ -9,7 +9,7 @@ url: /prefab/reference/api/mcp/type-aliases/PrefabUpdateWire.md
 type PrefabUpdateWire = object;
 ```
 
-Defined in: [mcp/display.ts:226](https://github.com/Max-Health-Inc/prefab/blob/5d922c94bbfabe05e60f323caa169b4411113582/src/mcp/display.ts#L226)
+Defined in: [mcp/display.ts:226](https://github.com/Max-Health-Inc/prefab/blob/a243ee4157f94da56581132c47a7cf134a78ad06/src/mcp/display.ts#L226)
 
 The `$prefab` state-delta payload, sent as `structuredContent`.
 
@@ -27,7 +27,7 @@ interface here cannot be assigned to the SDK's
 $prefab: object;
 ```
 
-Defined in: [mcp/display.ts:227](https://github.com/Max-Health-Inc/prefab/blob/5d922c94bbfabe05e60f323caa169b4411113582/src/mcp/display.ts#L227)
+Defined in: [mcp/display.ts:227](https://github.com/Max-Health-Inc/prefab/blob/a243ee4157f94da56581132c47a7cf134a78ad06/src/mcp/display.ts#L227)
 
 #### version
 
@@ -43,4 +43,4 @@ version: string;
 update: StateUpdate;
 ```
 
-Defined in: [mcp/display.ts:228](https://github.com/Max-Health-Inc/prefab/blob/5d922c94bbfabe05e60f323caa169b4411113582/src/mcp/display.ts#L228)
+Defined in: [mcp/display.ts:228](https://github.com/Max-Health-Inc/prefab/blob/a243ee4157f94da56581132c47a7cf134a78ad06/src/mcp/display.ts#L228)

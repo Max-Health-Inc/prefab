@@ -9,7 +9,7 @@ url: /prefab/reference/api/mcp/type-aliases/McpResourceReadResult.md
 type McpResourceReadResult<C> = object;
 ```
 
-Defined in: [mcp/types.ts:77](https://github.com/Max-Health-Inc/prefab/blob/5d922c94bbfabe05e60f323caa169b4411113582/src/mcp/types.ts#L77)
+Defined in: [mcp/types.ts:77](https://github.com/Max-Health-Inc/prefab/blob/a243ee4157f94da56581132c47a7cf134a78ad06/src/mcp/types.ts#L77)
 
 A `resources/read` result with its required cache fields, generic over the contents kind.
 
@@ -27,7 +27,7 @@ A `resources/read` result with its required cache fields, generic over the conte
 contents: C[];
 ```
 
-Defined in: [mcp/types.ts:80](https://github.com/Max-Health-Inc/prefab/blob/5d922c94bbfabe05e60f323caa169b4411113582/src/mcp/types.ts#L80)
+Defined in: [mcp/types.ts:80](https://github.com/Max-Health-Inc/prefab/blob/a243ee4157f94da56581132c47a7cf134a78ad06/src/mcp/types.ts#L80)
 
 ***
 
@@ -37,7 +37,7 @@ Defined in: [mcp/types.ts:80](https://github.com/Max-Health-Inc/prefab/blob/5d92
 ttlMs: number;
 ```
 
-Defined in: [mcp/types.ts:82](https://github.com/Max-Health-Inc/prefab/blob/5d922c94bbfabe05e60f323caa169b4411113582/src/mcp/types.ts#L82)
+Defined in: [mcp/types.ts:82](https://github.com/Max-Health-Inc/prefab/blob/a243ee4157f94da56581132c47a7cf134a78ad06/src/mcp/types.ts#L82)
 
 Cache lifetime in milliseconds.
 
@@ -49,6 +49,6 @@ Cache lifetime in milliseconds.
 cacheScope: McpCacheScope;
 ```
 
-Defined in: [mcp/types.ts:84](https://github.com/Max-Health-Inc/prefab/blob/5d922c94bbfabe05e60f323caa169b4411113582/src/mcp/types.ts#L84)
+Defined in: [mcp/types.ts:84](https://github.com/Max-Health-Inc/prefab/blob/a243ee4157f94da56581132c47a7cf134a78ad06/src/mcp/types.ts#L84)
 
 Whether shared caches may store the result.

@@ -12,4 +12,4 @@ type RenderFnReturn =
   | RenderResult;
 ```
 
-Defined in: [renderer/engine.ts:85](https://github.com/Max-Health-Inc/prefab/blob/5d922c94bbfabe05e60f323caa169b4411113582/src/renderer/engine.ts#L85)
+Defined in: [renderer/engine.ts:85](https://github.com/Max-Health-Inc/prefab/blob/a243ee4157f94da56581132c47a7cf134a78ad06/src/renderer/engine.ts#L85)

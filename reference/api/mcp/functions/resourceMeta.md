@@ -9,7 +9,7 @@ url: /prefab/reference/api/mcp/functions/resourceMeta.md
 function resourceMeta(options?): object;
 ```
 
-Defined in: [mcp/resource.ts:81](https://github.com/Max-Health-Inc/prefab/blob/5d922c94bbfabe05e60f323caa169b4411113582/src/mcp/resource.ts#L81)
+Defined in: [mcp/resource.ts:81](https://github.com/Max-Health-Inc/prefab/blob/a243ee4157f94da56581132c47a7cf134a78ad06/src/mcp/resource.ts#L81)
 
 The `_meta` (CSP, permissions) for a `ui://` resource. Put it on the listing and the content item: VS Code reads only the latter.
 
@@ -64,6 +64,6 @@ server.registerResource('viewer', 'ui://my/viewer', {
 server.registerTool('browse', {
   title: 'Browse',
   inputSchema: schema,
-  _meta: { ui: { resourceUri: 'ui://my/viewer' } },
+  _meta: uiToolMeta('ui://my/viewer'),
 }, (args) => display(autoTable(rows)))
 ```

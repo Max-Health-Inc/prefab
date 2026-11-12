@@ -96,6 +96,7 @@ url: /prefab/reference/api/mcp.md
 | [inputResponse](functions/inputResponse.md) | A client's answer for one key, or `undefined` when it has not arrived yet. |
 | [acceptedFormInput](functions/acceptedFormInput.md) | Read and check an accepted form answer. |
 | [resourceMeta](functions/resourceMeta.md) | The `_meta` (CSP, permissions) for a `ui://` resource. Put it on the listing and the content item: VS Code reads only the latter. |
+| [uiToolMeta](functions/uiToolMeta.md) | The tool-definition `_meta` that points an MCP Apps host at a `ui://` renderer, the prefab viewer by default. |
 | [rendererHtml](functions/rendererHtml.md) | The viewer HTML: `prefab.css` and `renderer.auto.min.js` from the CDN, plus your scripts and stylesheets. |
 | [resolveCache](functions/resolveCache.md) | Fill in and validate `CacheableResult` fields, throwing on values the SDK would silently replace with `ttlMs: 0`. |
 | [registerViewerResource](functions/registerViewerResource.md) | Register the prefab viewer as a `ui://` resource. The CSP admits jsDelivr and every origin the page loads from. |

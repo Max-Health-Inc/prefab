@@ -12,7 +12,7 @@ function set(
    opts?): SetState;
 ```
 
-Defined in: [actions/sugar.ts:33](https://github.com/Max-Health-Inc/prefab/blob/5d922c94bbfabe05e60f323caa169b4411113582/src/actions/sugar.ts#L33)
+Defined in: [actions/sugar.ts:33](https://github.com/Max-Health-Inc/prefab/blob/a243ee4157f94da56581132c47a7cf134a78ad06/src/actions/sugar.ts#L33)
 
 Set a state value. `set(signal, value)` → `new SetState(signal.key, value)`
 

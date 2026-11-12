@@ -9,7 +9,7 @@ url: /prefab/reference/api/mcp/functions/registerViewerResource.md
 function registerViewerResource(server, options?): void;
 ```
 
-Defined in: [mcp/resource.ts:289](https://github.com/Max-Health-Inc/prefab/blob/5d922c94bbfabe05e60f323caa169b4411113582/src/mcp/resource.ts#L289)
+Defined in: [mcp/resource.ts:294](https://github.com/Max-Health-Inc/prefab/blob/a243ee4157f94da56581132c47a7cf134a78ad06/src/mcp/resource.ts#L294)
 
 Register the prefab viewer as a `ui://` resource. The CSP admits jsDelivr and every origin the page loads from.
 
@@ -27,7 +27,7 @@ Register the prefab viewer as a `ui://` resource. The CSP admits jsDelivr and ev
 ## Example
 
 ```ts
-import { registerViewerResource, PREFAB_RESOURCE_URI, display } from '@maxhealth.tech/prefab/mcp'
+import { registerViewerResource, uiToolMeta, display } from '@maxhealth.tech/prefab/mcp'
 
 registerViewerResource(server)
 
@@ -35,6 +35,6 @@ registerViewerResource(server)
 server.registerTool('browse', {
   title: 'Browse patients',
   inputSchema: { query: z.string() },
-  _meta: { ui: { resourceUri: PREFAB_RESOURCE_URI } },
+  _meta: uiToolMeta(),
 }, async (args) => display(autoTable(await search(args.query))))
 ```
