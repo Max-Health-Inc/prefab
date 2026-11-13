@@ -6,6 +6,10 @@ All notable changes to this project will be documented in this file.
 
 <!-- Add new entries directly below. Keep this line: it makes a release merge conflict rather than file them under a published version. -->
 
+### Docs
+
+- **Input required guide** covers a `cancel` answer: a client can return it without ever showing the form, so a tool should say nothing changed and offer another way to finish rather than report it as the user's choice.
+
 ## [0.3.22] — 2026-11-12
 
 ### Added
