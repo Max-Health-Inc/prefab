@@ -25,13 +25,26 @@ export function recordOrList(value: unknown): Record<string, unknown>[] {
   return isRecord(value) ? [value] : recordList(value)
 }
 
+function isScalar(value: unknown): value is string | number | boolean {
+  return typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean'
+}
+
 export function scalarStringRecord(value: unknown): Record<string, string> {
   const out: Record<string, string> = {}
   if (!isRecord(value)) return out
   for (const [key, v] of Object.entries(value)) {
-    if (typeof v === 'string' || typeof v === 'number' || typeof v === 'boolean') out[key] = String(v)
+    if (isScalar(v)) out[key] = String(v)
   }
   return out
+}
+
+/** The first of `keys` that holds a scalar prop, as text. */
+export function textOf(node: ComponentJSON, ...keys: string[]): string | undefined {
+  for (const key of keys) {
+    const v = node[key]
+    if (isScalar(v)) return String(v)
+  }
+  return undefined
 }
 
 function isActionJSON(value: unknown): value is ActionJSON {

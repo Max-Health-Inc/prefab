@@ -17,18 +17,9 @@
  */
 
 import type { ComponentJSON } from '../core/component.js'
-import { componentList, isRecord } from '../core/guards.js'
+import { componentList, isRecord, textOf } from '../core/guards.js'
 import { escapePointerToken } from './expr.js'
 import type { Mapper } from './catalog.js'
-
-/** Read the first present scalar prop from a node. */
-function textOf(node: ComponentJSON, ...keys: string[]): string | undefined {
-  for (const k of keys) {
-    const v = node[k]
-    if (typeof v === 'string' || typeof v === 'number' || typeof v === 'boolean') return String(v)
-  }
-  return undefined
-}
 
 function nodeSlots(value: unknown): Record<string, ComponentJSON[]> {
   if (!isRecord(value)) return {}

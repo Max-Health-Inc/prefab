@@ -16,7 +16,7 @@
  */
 
 import type { ComponentJSON } from '../core/component.js'
-import { toComponentJSON } from '../core/guards.js'
+import { textOf, toComponentJSON } from '../core/guards.js'
 import type { A2uiComponentProps, A2uiAction, A2uiDiagnosticKind, A2uiDynamicString, A2uiFunctionCall } from './types.js'
 import type { BindingResult } from './expr.js'
 import { a2uiIconName } from './icons.js'
@@ -67,15 +67,6 @@ export interface EmitContext {
 export type Mapper = (node: ComponentJSON, ctx: EmitContext) => A2uiProps | undefined
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
-
-/** Read the first present scalar prop from a node. */
-function textOf(node: ComponentJSON, ...keys: string[]): string | undefined {
-  for (const k of keys) {
-    const v = node[k]
-    if (typeof v === 'string' || typeof v === 'number' || typeof v === 'boolean') return String(v)
-  }
-  return undefined
-}
 
 /** Build a `Text` component, prefixing Markdown syntax onto literal content. */
 function text(
