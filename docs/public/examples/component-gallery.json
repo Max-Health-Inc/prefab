@@ -53,6 +53,26 @@
               { "type": "Dot", "color": "var(--success)" },
               { "type": "Dot", "color": "var(--warning)" },
               { "type": "Dot", "color": "var(--destructive)" }
+            ]},
+            { "type": "Row", "gap": 3, "align": "center", "cssClass": "text-muted-foreground", "children": [
+              { "type": "Icon", "name": "home" },
+              { "type": "Icon", "name": "search" },
+              { "type": "Icon", "name": "settings" },
+              { "type": "Icon", "name": "mail" },
+              { "type": "Icon", "name": "calendar" },
+              { "type": "Icon", "name": "user" },
+              { "type": "Icon", "name": "bell" },
+              { "type": "Icon", "name": "heart" },
+              { "type": "Icon", "name": "star" },
+              { "type": "Icon", "name": "share" },
+              { "type": "Icon", "name": "download" },
+              { "type": "Icon", "name": "upload" },
+              { "type": "Icon", "name": "edit" },
+              { "type": "Icon", "name": "trash" },
+              { "type": "Icon", "name": "lock" },
+              { "type": "Icon", "name": "eye" },
+              { "type": "Icon", "name": "send" },
+              { "type": "Icon", "name": "refresh" }
             ]}
           ]}
         ]}
@@ -110,19 +130,19 @@
 
       { "type": "Grid", "columns": 2, "gap": 4, "children": [
         { "type": "Column", "gap": 3, "children": [
-          { "type": "Alert", "children": [
+          { "type": "Alert", "icon": "info", "children": [
             { "type": "AlertTitle", "content": "Heads up" },
             { "type": "AlertDescription", "content": "A default alert for neutral information." }
           ]},
-          { "type": "Alert", "variant": "success", "children": [
+          { "type": "Alert", "variant": "success", "icon": "CheckCircle", "children": [
             { "type": "AlertTitle", "content": "Saved" },
             { "type": "AlertDescription", "content": "Your changes were stored." }
           ]},
-          { "type": "Alert", "variant": "warning", "children": [
+          { "type": "Alert", "variant": "warning", "icon": "AlertTriangle", "children": [
             { "type": "AlertTitle", "content": "Quota almost reached" },
             { "type": "AlertDescription", "content": "You have used 92% of this month's requests." }
           ]},
-          { "type": "Alert", "variant": "destructive", "children": [
+          { "type": "Alert", "variant": "destructive", "icon": "error", "children": [
             { "type": "AlertTitle", "content": "Payment failed" },
             { "type": "AlertDescription", "content": "Update your card to keep the subscription active." }
           ]}

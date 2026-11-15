@@ -1,6 +1,9 @@
 import { describe, it, expect } from 'bun:test'
 import { PrefabRenderer } from '../src/renderer/index'
+import { registerAllComponents } from '../src/renderer/components/index'
 import { makeRenderCtx, renderEl, query, queryAll } from './helpers/render'
+
+registerAllComponents()
 
 describe('mount root carries the base theme class', () => {
   it('adds pf-app-root to the container, so raw wire payloads get fonts and colors', () => {

@@ -18,6 +18,7 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- **`Icon` and the Alert `icon` prop draw their glyph.** Both only set a `data-icon` attribute and rendered nothing. The renderer now ships inline SVGs for the 59 A2UI icon names, and Lucide spellings such as `CheckCircle` or `alert-triangle` resolve through the existing A2UI aliases. The glyphs come from Lucide (ISC) through `bun run gen:icons`, and the generated module is committed, so the renderer still has no runtime dependencies.
 - **Raw wire payloads mounted with `PrefabRenderer.mount` get the base theme.** The container now carries `pf-app-root`, so text uses the theme font and foreground color. Previously headings rendered black on dark backgrounds and controls fell back to the browser font.
 - **Native controls follow the color scheme.** Each theme block sets `color-scheme`, so radios, date pickers and scrollbars turn dark in dark mode.
 - **Presentation moved from inline styles into `prefab.css`.** Inline `border: none` hid outline button borders and every `Separator`, Card sections overrode their own padding, and the Tooltip forced white text onto a light background in dark mode. Themes can now restyle every component.
