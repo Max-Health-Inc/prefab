@@ -498,6 +498,17 @@ Selectable card for option picking.
 ChoiceCard({ value: 'pro', label: 'Pro Plan', description: '$29/mo', selected: true })
 ```
 
+`selected` also takes an expression, so the highlight follows state:
+
+```ts
+ChoiceCard({
+  value: 'pro',
+  label: 'Pro Plan',
+  selected: "{{ plan == 'pro' }}",
+  onClick: new SetState('plan', 'pro'),
+})
+```
+
 ***
 
 ## Interactive

@@ -12,6 +12,7 @@
             { "type": "ChoiceCard",
               "label": "{{ $item.name }}",
               "description": "{{ $item.role }}",
+              "selected": "{{ sel.name == $item.name }}",
               "onClick": [
                 { "action": "setState", "key": "sel.name", "value": "{{ $item.name }}" },
                 { "action": "setState", "key": "sel.role", "value": "{{ $item.role }}" },

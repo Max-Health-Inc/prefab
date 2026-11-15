@@ -9,7 +9,7 @@ url: /prefab/reference/api/mcp/variables/displayA2ui.md
 const displayA2ui: (viewOrApp, options?) => McpDisplayResult<A2uiMessageList> = display_a2ui;
 ```
 
-Defined in: [mcp/a2ui.ts:156](https://github.com/Max-Health-Inc/prefab/blob/a243ee4157f94da56581132c47a7cf134a78ad06/src/mcp/a2ui.ts#L156)
+Defined in: [mcp/a2ui.ts:156](https://github.com/Max-Health-Inc/prefab/blob/c0cfbec14aa21a1c1e0bc95f1b172db8df096fe0/src/mcp/a2ui.ts#L156)
 
 camelCase alias, matching the other display helpers.
 

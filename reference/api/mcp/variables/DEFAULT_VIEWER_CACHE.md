@@ -9,6 +9,6 @@ url: /prefab/reference/api/mcp/variables/DEFAULT_VIEWER_CACHE.md
 const DEFAULT_VIEWER_CACHE: Required<McpCacheHint>;
 ```
 
-Defined in: [mcp/resource.ts:126](https://github.com/Max-Health-Inc/prefab/blob/a243ee4157f94da56581132c47a7cf134a78ad06/src/mcp/resource.ts#L126)
+Defined in: [mcp/resource.ts:126](https://github.com/Max-Health-Inc/prefab/blob/c0cfbec14aa21a1c1e0bc95f1b172db8df096fe0/src/mcp/resource.ts#L126)
 
 Viewer cache hint: the HTML is a pure function of `VERSION`, so it is shared-cacheable for a day.

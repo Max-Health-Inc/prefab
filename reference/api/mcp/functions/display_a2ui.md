@@ -9,7 +9,7 @@ url: /prefab/reference/api/mcp/functions/display_a2ui.md
 function display_a2ui(viewOrApp, options?): McpDisplayResult<A2uiMessageList>;
 ```
 
-Defined in: [mcp/a2ui.ts:65](https://github.com/Max-Health-Inc/prefab/blob/a243ee4157f94da56581132c47a7cf134a78ad06/src/mcp/a2ui.ts#L65)
+Defined in: [mcp/a2ui.ts:65](https://github.com/Max-Health-Inc/prefab/blob/c0cfbec14aa21a1c1e0bc95f1b172db8df096fe0/src/mcp/a2ui.ts#L65)
 
 A view as an A2UI tool result: an `EmbeddedResource` in `content`, and the same payload as `structuredContent`.
 

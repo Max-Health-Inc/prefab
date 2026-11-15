@@ -9,7 +9,7 @@ url: /prefab/reference/api/mcp/variables/PREFAB_CDN_META.md
 const PREFAB_CDN_META: object;
 ```
 
-Defined in: [mcp/resource.ts:105](https://github.com/Max-Health-Inc/prefab/blob/a243ee4157f94da56581132c47a7cf134a78ad06/src/mcp/resource.ts#L105)
+Defined in: [mcp/resource.ts:105](https://github.com/Max-Health-Inc/prefab/blob/c0cfbec14aa21a1c1e0bc95f1b172db8df096fe0/src/mcp/resource.ts#L105)
 
 Default CSP meta for prefab apps using jsDelivr CDN.
 

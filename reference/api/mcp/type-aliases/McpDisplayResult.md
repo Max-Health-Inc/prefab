@@ -9,7 +9,7 @@ url: /prefab/reference/api/mcp/type-aliases/McpDisplayResult.md
 type McpDisplayResult<S> = McpToolResult<S> & object;
 ```
 
-Defined in: [mcp/types.ts:61](https://github.com/Max-Health-Inc/prefab/blob/a243ee4157f94da56581132c47a7cf134a78ad06/src/mcp/types.ts#L61)
+Defined in: [mcp/types.ts:61](https://github.com/Max-Health-Inc/prefab/blob/c0cfbec14aa21a1c1e0bc95f1b172db8df096fe0/src/mcp/types.ts#L61)
 
 A tool result whose `structuredContent` is always present, as every prefab display helper returns.
 
