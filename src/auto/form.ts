@@ -9,7 +9,7 @@ import { humanizeKey } from '../core/humanize.js'
 import { Column } from '../components/layout/index.js'
 import { Heading, Muted } from '../components/typography/index.js'
 import { Card, CardContent } from '../components/card/index.js'
-import { Form, Input, Button, Select, SelectOption } from '../components/form/index.js'
+import { Form, Input, Button, Select, SelectOption, Checkbox, Switch, Textarea } from '../components/form/index.js'
 import { CallTool } from '../actions/mcp.js'
 import { ShowToast } from '../actions/client.js'
 import type { Action } from '../actions/types.js'
@@ -33,7 +33,7 @@ export interface AutoFormField {
   name: string
   /** Display label. Defaults to humanized name. */
   label?: string
-  /** Input type: 'text', 'email', 'number', 'password', 'url', etc. */
+  /** Input type: 'text', 'email', 'number', 'password', 'url', etc., or 'checkbox', 'switch' and 'textarea' for those controls. */
   type?: string
   /** Placeholder text. */
   placeholder?: string
@@ -113,6 +113,19 @@ export function autoForm(
         children: f.options.map(o => SelectOption(o.value, o.label ?? o.value)),
       })
     }
+    if (f.type === 'checkbox' || f.type === 'switch') {
+      const toggle = f.type === 'switch' ? Switch : Checkbox
+      return toggle({ name: f.name, label, ...(f.default === true && { checked: true }) })
+    }
+    if (f.type === 'textarea') {
+      return Textarea({
+        name: f.name,
+        label,
+        ...(f.placeholder && { placeholder: f.placeholder }),
+        ...(f.required && { required: true }),
+        ...(f.default !== undefined && { value: f.default }),
+      })
+    }
     return Input({
       name: f.name,
       label,
@@ -131,7 +144,7 @@ export function autoForm(
   ]
 
   const children: Component[] = []
-  if (options?.title) children.push(Heading(options.title))
+  if (options?.title) children.push(Heading(options.title, { level: 3 }))
   if (options?.subtitle) children.push(Muted(options.subtitle))
 
   children.push(Card({ children: [

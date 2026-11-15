@@ -8,6 +8,7 @@ import { dispatchActions, fireAndForget } from '../actions.js'
 import { stringifyValue } from '../../core/stringify.js'
 import { isRecord, optionalNumber, optionalString, recordList } from '../../core/guards.js'
 import { svgEl } from './charts/helpers.js'
+import { fillIcon } from '../icons.js'
 
 export function registerDataComponents(): void {
   registerComponent('DataTable', renderDataTable)
@@ -253,7 +254,7 @@ function renderLoader(_node: ComponentNode, _ctx: RenderContext): HTMLElement {
 
 function renderIcon(node: ComponentNode, ctx: RenderContext): HTMLElement {
   const e = el('span', 'pf-icon')
-  e.setAttribute('data-icon', resolveStr(node.name ?? node.content, ctx))
+  fillIcon(e, resolveStr(node.name ?? node.content, ctx))
   return e
 }
 

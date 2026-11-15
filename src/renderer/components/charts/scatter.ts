@@ -4,7 +4,7 @@ import { bindTooltip, createTooltip } from './tooltip.js'
 import {
   COLORS, AXIS_COLOR, GRID_COLOR, AXIS_FONT,
   chartLayout, createSvg, svgEl, svgText, drawBaseline,
-  valueFormatter, addLegend, DEFAULT_CHART_WIDTH, niceTicks,
+  valueFormatter, addLegend, DEFAULT_CHART_WIDTH, niceTicks, drawYAxis,
 } from './helpers.js'
 import { chartHeight, chartRows, chartSeries, chartValues } from './props.js'
 import { optionalNumber, optionalString } from '../../../core/guards.js'
@@ -116,12 +116,34 @@ export function renderHistogram(node: ComponentNode, ctx: RenderContext, width =
   }
   const maxBin = Math.max(...bins)
 
-  const barW = width / binCount
+  const showY = node.showYAxis !== false
+  const showX = node.showXAxis !== false
+  const yMax = niceTicks(0, Math.max(1, maxBin)).at(-1) ?? maxBin
+  const layout = chartLayout(width, H, showY)
   const svg = createSvg(width, H, 'Histogram')
+  if (showY) drawYAxis(svg, layout, yMax, node.showGrid !== false)
+  drawBaseline(svg, layout)
 
+  const ttCtx = node.showTooltip !== false ? createTooltip(wrapper, svg) : undefined
+  const barW = layout.plotWidth / binCount
   for (let i = 0; i < binCount; i++) {
-    const barH = maxBin > 0 ? (bins[i] / maxBin) * H : 0
-    svg.appendChild(svgEl('rect', { x: i * barW, y: H - barH, width: barW - 1, height: barH, fill: color }))
+    const barH = yMax > 0 ? (bins[i] / yMax) * layout.plotHeight : 0
+    const x = layout.plotLeft + i * barW
+    const bar = svgEl('rect', { x: x + 1, y: layout.plotBottom - barH, width: Math.max(1, barW - 2), height: barH, fill: color, rx: 2 })
+    if (ttCtx) {
+      const range = `${round2(min + i * binWidth)} – ${round2(min + (i + 1) * binWidth)}`
+      bindTooltip(bar, ttCtx, x + barW / 2, layout.plotBottom - barH, range, [{ label: 'Count', value: bins[i], color }])
+    }
+    svg.appendChild(bar)
+  }
+
+  if (showX) {
+    for (const [i, v] of [[0, min], [binCount / 2, min + (binCount / 2) * binWidth], [binCount, min + binCount * binWidth]] as const) {
+      svg.appendChild(svgText(
+        { x: layout.plotLeft + i * barW, y: layout.plotBottom + 14, 'text-anchor': i === 0 ? 'start' : i === binCount ? 'end' : 'middle', 'font-size': AXIS_FONT, fill: AXIS_COLOR },
+        round2(v),
+      ))
+    }
   }
 
   wrapper.appendChild(svg)

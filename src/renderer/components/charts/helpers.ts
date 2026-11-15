@@ -136,12 +136,19 @@ export function drawXAxisLabels(
   yBase: number,
   format?: (raw: unknown) => string,
 ): void {
+  const texts = data.map(row => {
+    const val = row[xAxisKey]
+    return val == null ? '' : (format ? format(val) : stringifyValue(val))
+  })
+  const span = data.length > 1 ? Math.abs(getX(data.length - 1) - getX(0)) / (data.length - 1) : Infinity
+  const widest = Math.max(1, ...texts.map(t => t.length)) * Number(AXIS_FONT) * 0.6 + 8
+  const every = Math.max(1, Math.ceil(widest / span))
   for (let i = 0; i < data.length; i++) {
-    const val = data[i][xAxisKey]
+    if (i % every !== 0) continue
     const label = svgEl('text', {
       x: getX(i), y: yBase + 14, 'text-anchor': 'middle', 'font-size': AXIS_FONT, fill: AXIS_COLOR,
     })
-    label.textContent = val == null ? '' : (format ? format(val) : stringifyValue(val))
+    label.textContent = texts[i]
     svg.appendChild(label)
   }
 }
@@ -232,18 +239,24 @@ export function responsiveChart(render: SizedChartRender): (node: ComponentNode,
     let current = render(node, ctx, DEFAULT_CHART_WIDTH)
     if (typeof ResizeObserver === 'undefined') return current
     let drawnWidth = DEFAULT_CHART_WIDTH
-    const observer = new ResizeObserver((entries) => {
-      const width = Math.floor(entries[0]?.contentRect.width ?? 0)
-      if (width < MIN_CHART_WIDTH || Math.abs(width - drawnWidth) < 1 || !current.isConnected) return
+    let frame = 0
+    const redraw = (width: number): void => {
+      if (!current.isConnected) return
       drawnWidth = width
       const next = render(node, ctx, width)
       observer.unobserve(current)
       current.replaceWith(next)
       current = next
       observer.observe(current)
+    }
+    const observer = new ResizeObserver((entries) => {
+      const width = Math.floor(entries[0]?.contentRect.width ?? 0)
+      if (width < MIN_CHART_WIDTH || Math.abs(width - drawnWidth) < 1) return
+      cancelAnimationFrame(frame)
+      frame = requestAnimationFrame(() => { redraw(width) })
     })
     observer.observe(current)
-    return { element: current, destroy: () => { observer.disconnect() } }
+    return { element: current, destroy: () => { cancelAnimationFrame(frame); observer.disconnect() } }
   }
 }
 

@@ -44,6 +44,9 @@ function renderForm(node: ComponentNode, ctx: RenderContext): HTMLElement {
       const isList = (field instanceof HTMLSelectElement && field.multiple) || all.length > 1
       values[key] = isList ? all : all[0]
     }
+    for (const toggle of form.querySelectorAll<HTMLInputElement>('input[type="checkbox"][name]')) {
+      values[toggle.name] = toggle.checked
+    }
 
     ctx.store.merge(values)
 

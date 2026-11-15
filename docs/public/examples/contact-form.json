@@ -23,7 +23,7 @@
         "children": [
           {
             "type": "Column",
-            "gap": 12,
+            "gap": 3,
             "children": [
               {
                 "type": "Input",
@@ -76,7 +76,7 @@
               },
               {
                 "type": "Row",
-                "gap": 8,
+                "gap": 2,
                 "children": [
                   {
                     "type": "Button",

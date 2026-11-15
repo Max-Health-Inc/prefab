@@ -164,8 +164,20 @@ export function DashboardItem(props: DashboardItemProps & { children?: Component
 
 // ── Pages + Page ─────────────────────────────────────────────────────────────
 
-export function Pages(props?: ContainerProps): ContainerComponent {
-  return new ContainerComponent('Pages', props)
+export interface PagesProps extends ContainerProps {
+  /** State key holding the active page's name; `SetState(name, 'settings')` navigates. */
+  name?: string
+  /** Page shown until the state key is set. Defaults to the first page. */
+  value?: string
+}
+
+export function Pages(props?: PagesProps): ContainerComponent {
+  const c = new ContainerComponent('Pages', props)
+  c.getProps = () => ({
+    ...(props?.name !== undefined && { name: props.name }),
+    ...(props?.value !== undefined && { value: props.value }),
+  })
+  return c
 }
 
 export interface PageProps extends ContainerProps {

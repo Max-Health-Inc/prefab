@@ -69,6 +69,7 @@
   white-space: nowrap;
   transition: background-color 0.15s;
 }
+.pf-row > .pf-badge { align-self: center; }
 .pf-badge[data-variant="default"]     { background: var(--primary); color: var(--primary-foreground); }
 .pf-badge[data-variant="secondary"]   { background: var(--secondary); color: var(--secondary-foreground); }
 .pf-badge[data-variant="destructive"] { background: var(--destructive); color: var(--destructive-foreground); }

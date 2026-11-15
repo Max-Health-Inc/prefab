@@ -2,15 +2,15 @@
 
 import { registerComponent, resolveStr, el } from '../engine.js'
 import { isRecord, optionalString } from '../../core/guards.js'
-import type { ComponentNode, RenderContext } from '../engine.js'
+import type { ComponentNode, RenderContext, RenderResult } from '../engine.js'
+import { importFromCdn } from '../cdn.js'
 
-/** CDN URL for pdf.js (ES module build). */
 const PDFJS_CDN = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.9/build/pdf.min.mjs'
 const PDFJS_WORKER_CDN = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.9/build/pdf.worker.min.mjs'
-
-/** Cached PDF.js library reference. */
-let pdfjsLib: PdfjsLib | null = null
-let loadPromise: Promise<PdfjsLib> | null = null
+const ZOOM_STEP = 1.25
+const MIN_SCALE = 0.25
+const MAX_SCALE = 5
+const CANVAS_PADDING = 32
 
 /** Minimal type interface for the parts of PDF.js we use. */
 interface PdfjsLib {
@@ -23,13 +23,20 @@ interface PdfDocument {
   getPage(num: number): Promise<PdfPage>
 }
 
+interface PdfViewport { width: number; height: number }
+
+interface PdfRenderTask { promise: Promise<void>; cancel(): void }
+
 interface PdfPage {
-  getViewport(opts: { scale: number }): { width: number; height: number }
-  render(opts: { canvasContext: CanvasRenderingContext2D; viewport: { width: number; height: number } }): { promise: Promise<void> }
+  getViewport(opts: { scale: number }): PdfViewport
+  render(opts: { canvasContext: CanvasRenderingContext2D; viewport: PdfViewport; transform?: number[] }): PdfRenderTask
 }
 
-function isPdfjsLib(mod: unknown): mod is PdfjsLib {
-  return isRecord(mod) && typeof mod.getDocument === 'function' && isRecord(mod.GlobalWorkerOptions)
+/** PDF.js 4 exports `GlobalWorkerOptions` as a class, so it is a function there and an object in older builds. */
+export function isPdfjsLib(mod: unknown): mod is PdfjsLib {
+  if (!isRecord(mod) || typeof mod.getDocument !== 'function') return false
+  const options = mod.GlobalWorkerOptions
+  return typeof options === 'function' || isRecord(options)
 }
 
 /** A finite number, or a string holding one; otherwise `fallback`. */
@@ -38,240 +45,213 @@ function numberProp(value: unknown, fallback: number): number {
   return typeof n === 'number' && Number.isFinite(n) ? n : fallback
 }
 
-function zoomProp(value: unknown): string | number {
+type Zoom = 'fit-page' | 'fit-width' | number
+
+function zoomProp(value: unknown): Zoom {
   return value === 'fit-page' || value === 'fit-width' ? value : numberProp(value, 0) || 'fit-width'
 }
 
-/** Load PDF.js on demand. Cached after first call. */
 async function loadPdfjs(): Promise<PdfjsLib> {
-  if (pdfjsLib) return pdfjsLib
-  if (loadPromise) return loadPromise
-
-  loadPromise = import(/* webpackIgnore: true */ PDFJS_CDN).then((mod: unknown) => {
-    if (!isPdfjsLib(mod)) throw new Error('PDF.js did not load')
-    const lib = mod
-    lib.GlobalWorkerOptions.workerSrc = PDFJS_WORKER_CDN
-    pdfjsLib = lib
-    return lib
-  })
-
-  return loadPromise
+  const mod = await importFromCdn(PDFJS_CDN)
+  if (!isPdfjsLib(mod)) throw new Error('PDF.js did not load')
+  mod.GlobalWorkerOptions.workerSrc = PDFJS_WORKER_CDN
+  return mod
 }
 
 export function registerPdfComponents(): void {
   registerComponent('PdfViewer', renderPdfViewer)
 }
 
-function renderPdfViewer(node: ComponentNode, ctx: RenderContext): HTMLElement {
+function renderPdfViewer(node: ComponentNode, ctx: RenderContext): RenderResult {
   const wrapper = el('div', 'pf-pdf-viewer')
-  const src = node.src != null ? resolveStr(node.src, ctx) : undefined
-  const data = optionalString(node.data)
-  const initialPage = numberProp(node.page, 1)
-  const zoom = zoomProp(node.zoom)
-  const showToolbar = node.toolbar !== false
-  const height = numberProp(node.height, 600)
+  wrapper.style.height = `${numberProp(node.height, 600)}px`
 
-  wrapper.style.height = `${height}px`
-  wrapper.style.display = 'flex'
-  wrapper.style.flexDirection = 'column'
-  wrapper.style.overflow = 'hidden'
-  wrapper.style.border = '1px solid var(--color-border-primary, #e5e7eb)'
-  wrapper.style.borderRadius = 'var(--border-radius-md, 0.375rem)'
-  wrapper.style.background = 'var(--color-background-secondary, #f9fafb)'
+  const message = el('div', 'pf-pdf-message')
+  message.setAttribute('role', 'status')
+  message.textContent = 'Loading PDF…'
+  wrapper.appendChild(message)
 
-  // Loading state
-  const loading = el('div', 'pf-pdf-loading')
-  loading.textContent = 'Loading PDF…'
-  loading.style.display = 'flex'
-  loading.style.alignItems = 'center'
-  loading.style.justifyContent = 'center'
-  loading.style.flex = '1'
-  loading.style.color = 'var(--color-text-secondary, #6b7280)'
-  wrapper.appendChild(loading)
+  const session = { destroyed: false, cleanup: (): void => undefined }
+  void renderPdfAsync(wrapper, message, session, {
+    src: node.src != null ? resolveStr(node.src, ctx) : undefined,
+    data: optionalString(node.data),
+    initialPage: numberProp(node.page, 1),
+    zoom: zoomProp(node.zoom),
+    showToolbar: node.toolbar !== false,
+  })
 
-  // Boot async rendering
-  void renderPdfAsync(wrapper, loading, { src, data, initialPage, zoom, showToolbar })
-
-  return wrapper
+  return { element: wrapper, destroy: () => { session.destroyed = true; session.cleanup() } }
 }
 
 interface PdfRenderOpts {
   src?: string
   data?: string
   initialPage: number
-  zoom: string | number
+  zoom: Zoom
   showToolbar: boolean
 }
 
-async function renderPdfAsync(
-  wrapper: HTMLElement,
-  loading: HTMLElement,
-  opts: PdfRenderOpts,
-): Promise<void> {
+interface PdfSession { destroyed: boolean; cleanup: () => void }
+
+function decodeBase64(data: string): Uint8Array {
+  const binary = atob(data)
+  const bytes = new Uint8Array(binary.length)
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i)
+  return bytes
+}
+
+async function renderPdfAsync(wrapper: HTMLElement, message: HTMLElement, session: PdfSession, opts: PdfRenderOpts): Promise<void> {
   try {
+    if (!opts.src && !opts.data) throw new Error('No PDF source provided')
     const lib = await loadPdfjs()
+    const doc = await lib.getDocument(opts.src ? { url: opts.src } : { data: decodeBase64(opts.data ?? '') }).promise
+    if (session.destroyed) return
+    message.remove()
 
-    let docSource: { url: string } | { data: Uint8Array }
-    if (opts.src) {
-      docSource = { url: opts.src }
-    } else if (opts.data) {
-      const binary = atob(opts.data)
-      const bytes = new Uint8Array(binary.length)
-      for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i)
-      docSource = { data: bytes }
-    } else {
-      loading.textContent = 'Error: No PDF source provided'
-      return
-    }
-
-    const doc = await lib.getDocument(docSource).promise
-    loading.remove()
-
-    // State
     let currentPage = Math.max(1, Math.min(opts.initialPage, doc.numPages))
+    let zoom: Zoom = opts.zoom
+    let scale = 1
+    let task: PdfRenderTask | undefined
+    let generation = 0
 
-    // Toolbar
-    let pageInput: HTMLInputElement | null = null
-    let pageCount: HTMLSpanElement | null = null
-
-    if (opts.showToolbar) {
-      const toolbar = buildToolbar(doc.numPages, currentPage, {
-        onPrev: () => { if (currentPage > 1) { currentPage--; void renderPage() } },
-        onNext: () => { if (currentPage < doc.numPages) { currentPage++; void renderPage() } },
-        onPageChange: (p) => {
-          const n = Math.max(1, Math.min(p, doc.numPages))
-          if (n !== currentPage) { currentPage = n; void renderPage() }
-        },
+    const toolbar = opts.showToolbar
+      ? buildToolbar(doc.numPages, {
+        onPage: (p) => { goTo(p) },
+        onZoom: (factor) => { zoom = clampScale(scale * factor); void renderPage() },
+        onFit: () => { zoom = zoom === 'fit-page' ? 'fit-width' : 'fit-page'; void renderPage() },
       })
-      pageInput = toolbar.pageInput
-      pageCount = toolbar.pageCount
-      wrapper.insertBefore(toolbar.el, wrapper.firstChild)
-    }
+      : undefined
+    if (toolbar) wrapper.appendChild(toolbar.el)
 
-    // Canvas container (scrollable)
     const canvasContainer = el('div', 'pf-pdf-canvas-container')
-    canvasContainer.style.flex = '1'
-    canvasContainer.style.overflow = 'auto'
-    canvasContainer.style.display = 'flex'
-    canvasContainer.style.justifyContent = 'center'
-    canvasContainer.style.padding = '8px'
+    const canvas = document.createElement('canvas')
+    canvas.className = 'pf-pdf-canvas'
+    canvasContainer.appendChild(canvas)
     wrapper.appendChild(canvasContainer)
 
-    const canvas = document.createElement('canvas')
-    canvas.style.display = 'block'
-    canvas.style.boxShadow = 'var(--shadow-md, 0 4px 6px -1px rgba(0,0,0,.1))'
-    canvasContainer.appendChild(canvas)
+    function goTo(page: number): void {
+      const n = Math.max(1, Math.min(page, doc.numPages))
+      if (n !== currentPage) { currentPage = n; void renderPage() }
+    }
 
     async function renderPage(): Promise<void> {
+      generation += 1
+      const mine = generation
+      task?.cancel()
       const page = await doc.getPage(currentPage)
-      const containerWidth = canvasContainer.clientWidth - 16 // padding
-
-      let scale: number
-      const baseViewport = page.getViewport({ scale: 1 })
-
-      if (opts.zoom === 'fit-width') {
-        scale = containerWidth / baseViewport.width
-      } else if (opts.zoom === 'fit-page') {
-        const containerHeight = canvasContainer.clientHeight - 16
-        const scaleW = containerWidth / baseViewport.width
-        const scaleH = containerHeight / baseViewport.height
-        scale = Math.min(scaleW, scaleH)
-      } else {
-        scale = typeof opts.zoom === 'number' ? opts.zoom : 1
-      }
+      if (session.destroyed || mine !== generation) return
+      const base = page.getViewport({ scale: 1 })
+      const width = Math.max(1, canvasContainer.clientWidth - CANVAS_PADDING)
+      const height = Math.max(1, canvasContainer.clientHeight - CANVAS_PADDING)
+      scale = zoom === 'fit-width' ? width / base.width
+        : zoom === 'fit-page' ? Math.min(width / base.width, height / base.height)
+          : zoom
 
       const viewport = page.getViewport({ scale })
-      canvas.width = viewport.width
-      canvas.height = viewport.height
-      canvas.style.width = `${viewport.width}px`
-      canvas.style.height = `${viewport.height}px`
+      const ratio = window.devicePixelRatio || 1
+      canvas.width = Math.floor(viewport.width * ratio)
+      canvas.height = Math.floor(viewport.height * ratio)
+      canvas.style.width = `${Math.floor(viewport.width)}px`
+      canvas.style.height = `${Math.floor(viewport.height)}px`
 
       const canvasCtx = canvas.getContext('2d')
       if (!canvasCtx) return
+      const current = page.render({ canvasContext: canvasCtx, viewport, transform: ratio !== 1 ? [ratio, 0, 0, ratio, 0, 0] : undefined })
+      task = current
+      try {
+        await current.promise
+      } catch (err) {
+        if (mine !== generation) return
+        throw err
+      }
+      toolbar?.update(currentPage, scale, zoom)
+    }
 
-      await page.render({ canvasContext: canvasCtx, viewport }).promise
-
-      // Update toolbar
-      if (pageInput) pageInput.value = String(currentPage)
-      if (pageCount) pageCount.textContent = `/ ${doc.numPages}`
+    if (typeof ResizeObserver !== 'undefined') {
+      let lastWidth = 0
+      const observer = new ResizeObserver((entries) => {
+        const w = Math.round(entries[0]?.contentRect.width ?? 0)
+        if (typeof zoom === 'number' || w === lastWidth) return
+        lastWidth = w
+        void renderPage()
+      })
+      observer.observe(canvasContainer)
+      session.cleanup = () => { observer.disconnect() }
     }
 
     await renderPage()
   } catch (err) {
-    loading.textContent = `PDF Error: ${err instanceof Error ? err.message : String(err)}`
-    loading.style.color = 'var(--color-text-danger, #dc2626)'
+    message.textContent = `Could not load PDF: ${err instanceof Error ? err.message : String(err)}`
+    message.setAttribute('data-state', 'error')
   }
 }
 
-interface ToolbarCallbacks {
-  onPrev: () => void
-  onNext: () => void
-  onPageChange: (page: number) => void
+function clampScale(s: number): number {
+  return Math.min(MAX_SCALE, Math.max(MIN_SCALE, s))
 }
 
-function buildToolbar(
-  numPages: number,
-  currentPage: number,
-  cb: ToolbarCallbacks,
-): { el: HTMLElement; pageInput: HTMLInputElement; pageCount: HTMLSpanElement } {
+interface ToolbarCallbacks {
+  onPage: (page: number) => void
+  onZoom: (factor: number) => void
+  onFit: () => void
+}
+
+interface Toolbar {
+  el: HTMLElement
+  update: (page: number, scale: number, zoom: Zoom) => void
+}
+
+function toolbarButton(glyph: string, label: string, onClick: () => void): HTMLButtonElement {
+  const btn = document.createElement('button')
+  btn.type = 'button'
+  btn.className = 'pf-pdf-btn'
+  btn.textContent = glyph
+  btn.title = label
+  btn.setAttribute('aria-label', label)
+  btn.addEventListener('click', onClick)
+  return btn
+}
+
+function buildToolbar(numPages: number, cb: ToolbarCallbacks): Toolbar {
   const toolbar = el('div', 'pf-pdf-toolbar')
-  toolbar.style.display = 'flex'
-  toolbar.style.alignItems = 'center'
-  toolbar.style.gap = '8px'
-  toolbar.style.padding = '6px 12px'
-  toolbar.style.borderBottom = '1px solid var(--color-border-primary, #e5e7eb)'
-  toolbar.style.background = 'var(--color-background-primary, #fff)'
-  toolbar.style.flexShrink = '0'
-  toolbar.style.fontSize = '13px'
+  let page = 1
 
-  const prevBtn = document.createElement('button')
-  prevBtn.textContent = '‹'
-  prevBtn.title = 'Previous page'
-  prevBtn.className = 'pf-pdf-btn'
-  styleButton(prevBtn)
-  prevBtn.addEventListener('click', cb.onPrev)
-
-  const nextBtn = document.createElement('button')
-  nextBtn.textContent = '›'
-  nextBtn.title = 'Next page'
-  nextBtn.className = 'pf-pdf-btn'
-  styleButton(nextBtn)
-  nextBtn.addEventListener('click', cb.onNext)
+  const prevBtn = toolbarButton('‹', 'Previous page', () => { cb.onPage(page - 1) })
+  const nextBtn = toolbarButton('›', 'Next page', () => { cb.onPage(page + 1) })
 
   const pageInput = document.createElement('input')
-  pageInput.type = 'number'
-  pageInput.min = '1'
-  pageInput.max = String(numPages)
-  pageInput.value = String(currentPage)
-  pageInput.style.width = '48px'
-  pageInput.style.textAlign = 'center'
-  pageInput.style.border = '1px solid var(--color-border-primary, #e5e7eb)'
-  pageInput.style.borderRadius = '4px'
-  pageInput.style.padding = '2px 4px'
-  pageInput.style.fontSize = '13px'
+  pageInput.type = 'text'
+  pageInput.inputMode = 'numeric'
+  pageInput.className = 'pf-pdf-page-input'
+  pageInput.setAttribute('aria-label', 'Page number')
   pageInput.addEventListener('change', () => {
     const val = parseInt(pageInput.value, 10)
-    if (!isNaN(val)) cb.onPageChange(val)
+    if (isNaN(val)) pageInput.value = String(page)
+    else cb.onPage(val)
   })
 
-  const pageCount = document.createElement('span')
-  pageCount.textContent = `/ ${numPages}`
-  pageCount.style.color = 'var(--color-text-secondary, #6b7280)'
+  const pageCount = el('span', 'pf-pdf-page-count')
+  pageCount.textContent = `/ ${String(numPages)}`
 
-  toolbar.appendChild(prevBtn)
-  toolbar.appendChild(pageInput)
-  toolbar.appendChild(pageCount)
-  toolbar.appendChild(nextBtn)
+  const spacer = el('span', 'pf-pdf-spacer')
+  const zoomOut = toolbarButton('−', 'Zoom out', () => { cb.onZoom(1 / ZOOM_STEP) })
+  const zoomLabel = el('span', 'pf-pdf-zoom-label')
+  const zoomIn = toolbarButton('+', 'Zoom in', () => { cb.onZoom(ZOOM_STEP) })
+  const fit = toolbarButton('⤢', 'Fit page / fit width', cb.onFit)
 
-  return { el: toolbar, pageInput, pageCount }
-}
+  toolbar.append(prevBtn, pageInput, pageCount, nextBtn, spacer, zoomOut, zoomLabel, zoomIn, fit)
 
-function styleButton(btn: HTMLButtonElement): void {
-  btn.style.border = '1px solid var(--color-border-primary, #e5e7eb)'
-  btn.style.borderRadius = '4px'
-  btn.style.background = 'var(--color-background-primary, #fff)'
-  btn.style.cursor = 'pointer'
-  btn.style.padding = '2px 8px'
-  btn.style.fontSize = '16px'
-  btn.style.lineHeight = '1'
+  return {
+    el: toolbar,
+    update(current, scale, zoom) {
+      page = current
+      pageInput.value = String(current)
+      prevBtn.disabled = current <= 1
+      nextBtn.disabled = current >= numPages
+      zoomLabel.textContent = `${String(Math.round(scale * 100))}%`
+      zoomOut.disabled = scale <= MIN_SCALE
+      zoomIn.disabled = scale >= MAX_SCALE
+      fit.setAttribute('aria-pressed', typeof zoom === 'number' ? 'false' : 'true')
+    },
+  }
 }

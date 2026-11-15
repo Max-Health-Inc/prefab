@@ -23,11 +23,11 @@
         "children": [
           {
             "type": "Column",
-            "gap": 12,
+            "gap": 3,
             "children": [
               {
                 "type": "Row",
-                "gap": 16,
+                "gap": 4,
                 "children": [
                   {
                     "type": "Metric",

@@ -6,6 +6,7 @@ import { registerComponent, renderChildren, resolveStr, el } from '../engine.js'
 import type { ComponentNode, RenderContext } from '../engine.js'
 import { optionalString } from '../../core/guards.js'
 import { stringifyValue } from '../../core/stringify.js'
+import { fillIcon } from '../icons.js'
 
 export function registerAlertComponents(): void {
   registerComponent('Alert', renderAlert)
@@ -21,7 +22,7 @@ function renderAlert(node: ComponentNode, ctx: RenderContext): HTMLElement {
 
   if (node.icon != null) {
     const icon = el('span', 'pf-alert-icon')
-    icon.setAttribute('data-icon', stringifyValue(node.icon))
+    fillIcon(icon, stringifyValue(node.icon))
     e.appendChild(icon)
   }
 

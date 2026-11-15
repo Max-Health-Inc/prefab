@@ -14,7 +14,8 @@ import { Column, Row } from '../components/layout/index.js'
 import { Heading, Text, Muted } from '../components/typography/index.js'
 import { Card, CardContent } from '../components/card/index.js'
 import { DataTable, col, Badge, Separator } from '../components/data/index.js'
-import type { DataTableColumnDef, BadgeVariant } from '../components/data/index.js'
+import type { DataTableColumnDef } from '../components/data/index.js'
+import { statusVariant, isKnownStatus } from './status.js'
 
 // ── Re-export sub-modules ───────────────────────────────────────────────────
 
@@ -33,67 +34,7 @@ export type { AutoTimelineEvent, AutoTimelineOptions } from './timeline.js'
 export { autoProgress } from './progress.js'
 export type { AutoProgressStep, AutoProgressOptions } from './progress.js'
 
-// ── Status → Badge variant mapping ──────────────────────────────────────────
-
-const STATUS_VARIANTS: Record<string, BadgeVariant> = {
-  // Success
-  available: 'success',
-  active: 'success',
-  enabled: 'success',
-  approved: 'success',
-  delivered: 'success',
-  complete: 'success',
-  completed: 'success',
-  resolved: 'success',
-  verified: 'success',
-  published: 'success',
-  open: 'success',
-  healthy: 'success',
-  connected: 'success',
-  // Warning
-  pending: 'warning',
-  processing: 'warning',
-  in_progress: 'warning',
-  in_review: 'warning',
-  placed: 'warning',
-  waiting: 'warning',
-  queued: 'warning',
-  draft: 'warning',
-  partial: 'warning',
-  // Destructive / Error
-  sold: 'destructive',
-  inactive: 'destructive',
-  disabled: 'destructive',
-  deleted: 'destructive',
-  cancelled: 'destructive',
-  rejected: 'destructive',
-  failed: 'destructive',
-  error: 'destructive',
-  expired: 'destructive',
-  blocked: 'destructive',
-  closed: 'destructive',
-  revoked: 'destructive',
-  suspended: 'destructive',
-  disconnected: 'destructive',
-}
-
-/**
- * Get a Badge variant for a status string.
- * Falls back to 'outline' for unknown statuses.
- */
-export function statusVariant(status: string): BadgeVariant {
-  const normalized = status.toLowerCase().replace(/[\s-]/g, '_')
-  return STATUS_VARIANTS[normalized] ?? 'outline'
-}
-
-/**
- * Register additional status→variant mappings.
- */
-export function registerStatusVariants(mappings: Record<string, BadgeVariant>): void {
-  for (const [key, variant] of Object.entries(mappings)) {
-    STATUS_VARIANTS[key.toLowerCase().replace(/[\s-]/g, '_')] = variant
-  }
-}
+export { statusVariant, registerStatusVariants, statusColor, variantColor } from './status.js'
 
 // ── Type detection helpers ──────────────────────────────────────────────────
 
@@ -104,7 +45,7 @@ function isDateString(value: string): boolean {
 function isStatusLike(key: string, value: string): boolean {
   const statusKeys = ['status', 'state', 'phase', 'condition', 'mode']
   return statusKeys.some(sk => key.toLowerCase().includes(sk))
-    || value.toLowerCase().replace(/[\s-]/g, '_') in STATUS_VARIANTS
+    || isKnownStatus(value)
 }
 
 // ── autoDetail ───────────────────────────────────────────────────────
@@ -144,7 +85,7 @@ export function autoDetail(data: Record<string, unknown>, options?: AutoDetailOp
   const fieldRows = buildDetailFields(data, exclude, include, 0, maxDepth)
 
   return Column({ gap: 5, cssClass: 'p-6 max-w-2xl', children: [
-    ...(title ? [Heading(title)] : []),
+    ...(title ? [Heading(title, { level: 3 })] : []),
     Card({ children: [
       CardContent({ cssClass: 'py-4', children: fieldRows }),
     ] }),
@@ -270,7 +211,7 @@ export function autoTable(rows: Record<string, unknown>[], options?: AutoTableOp
   const children: Component[] = []
 
   if (title) {
-    children.push(Heading(title))
+    children.push(Heading(title, { level: 3 }))
     children.push(Row({ gap: 2, align: 'center', children: [
       Badge(`${rows.length} records`, { variant: 'outline' }),
     ] }))
