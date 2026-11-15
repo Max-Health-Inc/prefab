@@ -6,6 +6,8 @@ All notable changes to this project will be documented in this file.
 
 <!-- Add new entries directly below. Keep this line: it makes a release merge conflict rather than file them under a published version. -->
 
+## [0.3.24] — 2026-11-15
+
 ### Added
 
 - **`statusColor(status)` and `variantColor(variant)`** return the theme color for a status or Badge variant, next to `statusVariant` in `@maxhealth.tech/prefab/auto`.
