@@ -6,6 +6,8 @@ All notable changes to this project will be documented in this file.
 
 <!-- Add new entries directly below. Keep this line: it makes a release merge conflict rather than file them under a published version. -->
 
+## [0.3.23] — 2026-11-15
+
 ### Added
 
 - **`component-gallery` example** renders every built-in component and variant on one page, and is listed in the playground.
