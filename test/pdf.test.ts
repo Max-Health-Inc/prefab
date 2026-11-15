@@ -79,3 +79,14 @@ describe('PdfViewer renderer', () => {
     expect(height('tall')).toBe('600px')
   })
 })
+
+describe('PDF.js module detection', () => {
+  it('accepts the PDF.js 4 module shape, where GlobalWorkerOptions is a class', async () => {
+    const { isPdfjsLib } = await import('../src/renderer/components/pdf')
+    const GlobalWorkerOptions = Object.assign(function GlobalWorkerOptions() { return undefined }, { workerSrc: '' })
+    const namespace = Object.assign(Object.create(null) as object, { getDocument: () => ({}), GlobalWorkerOptions })
+    expect(isPdfjsLib(namespace)).toBe(true)
+    expect(isPdfjsLib({ getDocument: () => ({}), GlobalWorkerOptions: { workerSrc: '' } })).toBe(true)
+    expect(isPdfjsLib({ getDocument: () => ({}) })).toBe(false)
+  })
+})

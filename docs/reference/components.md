@@ -83,9 +83,16 @@ Generic block/inline wrappers.
 
 Dashboard grid layout with named items.
 
-### `Pages(props?)` / `Page(props?)`
+### `Pages(props?)` / `Page(props)`
 
-Paginated view container.
+Multi-page container. Only the active `Page` renders: the one whose `name` the `name` state key holds, else `value`, else the first. Navigate with `SetState`.
+
+```ts
+Pages({ name: 'page', value: 'home', children: [
+  Page({ name: 'home', children: [Button('Settings', { onClick: new SetState('page', 'settings') })] }),
+  Page({ name: 'settings', children: [Button('Back', { onClick: new SetState('page', 'home') })] }),
+] })
+```
 
 ### `Detail(props)`
 

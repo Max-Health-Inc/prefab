@@ -181,3 +181,42 @@ describe('ChoiceCard selected', () => {
     expect(other.getAttribute('aria-pressed')).toBe('false')
   })
 })
+
+describe('Pages', () => {
+  const view = {
+    type: 'Pages', name: 'page', value: 'home',
+    children: [
+      { type: 'Page', name: 'home', children: [{ type: 'Text', content: 'Home' }] },
+      { type: 'Page', name: 'settings', children: [{ type: 'Text', content: 'Settings' }] },
+    ],
+  }
+
+  it('renders only the initial page', () => {
+    expect(renderEl(view, makeRenderCtx()).textContent).toBe('Home')
+  })
+
+  it('follows the state key, so SetState navigates', () => {
+    expect(renderEl(view, makeRenderCtx({ page: 'settings' })).textContent).toBe('Settings')
+  })
+
+  it('falls back to the first page and accepts the upstream value/title fields', () => {
+    const upstream = { type: 'Pages', children: [
+      { type: 'Page', title: 'One', children: [{ type: 'Text', content: '1' }] },
+      { type: 'Page', title: 'Two', value: 'two', children: [{ type: 'Text', content: '2' }] },
+    ] }
+    expect(renderEl(upstream, makeRenderCtx()).textContent).toBe('1')
+    expect(renderEl({ ...upstream, value: 'two' }, makeRenderCtx()).textContent).toBe('2')
+  })
+})
+
+describe('Dashboard', () => {
+  it('applies rowHeight and places items by col/row', () => {
+    const dom = renderEl({ type: 'Dashboard', columns: 4, rowHeight: 120, children: [
+      { type: 'DashboardItem', col: 2, row: 1, colSpan: 2, children: [] },
+    ] }, makeRenderCtx())
+    expect(dom.style.gridAutoRows).toBe('minmax(120px, auto)')
+    const item = query(dom, '.pf-grid-item')
+    expect(item.style.gridColumn).toBe('2 / span 2')
+    expect(item.style.gridRow).toBe('1')
+  })
+})

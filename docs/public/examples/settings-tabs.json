@@ -4,7 +4,7 @@
   },
   "view": {
     "type": "Column",
-    "gap": 16,
+    "gap": 4,
     "children": [
       {
         "type": "Heading",
@@ -21,7 +21,7 @@
             "children": [
               {
                 "type": "Column",
-                "gap": 12,
+                "gap": 3,
                 "children": [
                   {
                     "type": "Alert",
@@ -58,7 +58,7 @@
             "children": [
               {
                 "type": "Column",
-                "gap": 12,
+                "gap": 3,
                 "children": [
                   {
                     "type": "Alert",
@@ -120,7 +120,7 @@
             "children": [
               {
                 "type": "Column",
-                "gap": 12,
+                "gap": 3,
                 "children": [
                   {
                     "type": "Checkbox",

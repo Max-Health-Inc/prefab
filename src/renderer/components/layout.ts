@@ -52,16 +52,23 @@ function renderGrid(node: ComponentNode, ctx: RenderContext): HTMLElement {
   e.style.gridTemplateColumns = `repeat(${gridColumns(node.columns)}, minmax(0, 1fr))`
   const gap = extractGap(node)
   if (gap != null) e.style.gap = `${gap * 4}px`
+  const rowHeight = optionalNumber(node.rowHeight)
+  if (rowHeight != null) e.style.gridAutoRows = `minmax(${rowHeight}px, auto)`
   renderChildren(node, e, ctx)
   return e
 }
 
+function gridLine(start: number | undefined, span: number | undefined): string | undefined {
+  if (start != null) return span != null ? `${start} / span ${span}` : String(start)
+  return span != null ? `span ${span}` : undefined
+}
+
 function renderGridItem(node: ComponentNode, ctx: RenderContext): HTMLElement {
   const e = el('div', 'pf-grid-item')
-  const colSpan = optionalNumber(node.colSpan)
-  const rowSpan = optionalNumber(node.rowSpan)
-  if (colSpan != null) e.style.gridColumn = `span ${colSpan}`
-  if (rowSpan != null) e.style.gridRow = `span ${rowSpan}`
+  const column = gridLine(optionalNumber(node.col), optionalNumber(node.colSpan))
+  const row = gridLine(optionalNumber(node.row), optionalNumber(node.rowSpan))
+  if (column != null) e.style.gridColumn = column
+  if (row != null) e.style.gridRow = row
   renderChildren(node, e, ctx)
   return e
 }
@@ -88,9 +95,23 @@ function renderSpan(node: ComponentNode, ctx: RenderContext): HTMLElement {
   return e
 }
 
+/** A Page's identifier: prefab's `name`, or upstream's `value` falling back to `title`. */
+function pageId(page: ComponentNode): string | undefined {
+  return optionalString(page.name) ?? optionalString(page.value) ?? optionalString(page.title)
+}
+
+/** Only the active Page renders: the one the `name` state key holds, else `value`, else the first. */
 function renderPages(node: ComponentNode, ctx: RenderContext): HTMLElement {
   const e = el('div', 'pf-pages')
-  renderChildren(node, e, ctx)
+  const pages = node.children ?? []
+  const key = optionalString(node.name)
+  const stored = key != null ? ctx.store.get(key) : undefined
+  const wanted = typeof stored === 'string' ? stored : optionalString(node.value)
+  const active = pages.find(p => wanted != null && pageId(p) === wanted) ?? pages.at(0)
+  if (active != null) {
+    e.setAttribute('data-page', pageId(active) ?? '')
+    e.appendChild(renderNode(active, ctx))
+  }
   return e
 }
 

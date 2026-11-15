@@ -6,15 +6,16 @@
 
 import { type Component, type ContainerComponent } from '../core/component.js'
 import { Column, Row } from '../components/layout/index.js'
-import { Heading, Muted } from '../components/typography/index.js'
+import { Heading, Muted, Text } from '../components/typography/index.js'
+import { variantColor } from './status.js'
 import { Card, CardContent } from '../components/card/index.js'
 import { Badge, Dot, Progress, Separator } from '../components/data/index.js'
 import type { BadgeVariant } from '../components/data/index.js'
 
-const STEP_CONFIG: Record<string, { color: string; badgeVariant: BadgeVariant; label: string }> = {
-  completed: { color: 'green', badgeVariant: 'success', label: 'Done' },
-  active: { color: 'blue', badgeVariant: 'info', label: 'In Progress' },
-  pending: { color: 'gray', badgeVariant: 'outline', label: 'Pending' },
+const STEP_CONFIG: Record<string, { badgeVariant: BadgeVariant; label: string }> = {
+  completed: { badgeVariant: 'success', label: 'Done' },
+  active: { badgeVariant: 'info', label: 'In Progress' },
+  pending: { badgeVariant: 'outline', label: 'Pending' },
 }
 
 export interface AutoProgressStep {
@@ -61,7 +62,7 @@ export function autoProgress(
     : 0
 
   const children: Component[] = []
-  if (options?.title) children.push(Heading(options.title))
+  if (options?.title) children.push(Heading(options.title, { level: 3 }))
   if (options?.subtitle) children.push(Muted(options.subtitle))
 
   children.push(Progress({ value: progressPct, cssClass: 'h-2' }))
@@ -76,11 +77,11 @@ export function autoProgress(
     const config = STEP_CONFIG[step.status] ?? STEP_CONFIG.pending
 
     const stepContent: Component[] = [
-      Dot(config.color, { cssClass: 'shrink-0' }),
+      Dot(variantColor(config.badgeVariant), { cssClass: 'shrink-0' }),
     ]
 
     const labelCol: Component[] = [
-      Heading(step.label, { cssClass: 'font-medium' }),
+      Text(step.label, { cssClass: 'font-medium' }),
     ]
     if (step.description) {
       labelCol.push(Muted(step.description))

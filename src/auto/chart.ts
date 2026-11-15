@@ -59,7 +59,7 @@ export function autoChart(
   }
 
   const children: Component[] = []
-  if (options?.title) children.push(Heading(options.title))
+  if (options?.title) children.push(Heading(options.title, { level: 3 }))
   if (options?.subtitle) children.push(Muted(options.subtitle))
 
   children.push(Card({ children: [

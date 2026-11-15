@@ -40,6 +40,7 @@
 .pf-grid   { display: grid; }
 
 .pf-grid-item { min-width: 0; }
+.pf-grid-item > .pf-card:only-child { height: 100%; }
 .pf-container { width: 100%; max-width: 1200px; margin: 0 auto; }
 .pf-div  { display: block; }
 .pf-span { display: inline; }
@@ -51,7 +52,7 @@
 
 @media (max-width: 560px) {
   .pf-grid { grid-template-columns: minmax(0, 1fr) !important; }
-  .pf-grid-item { grid-column: auto !important; }
+  .pf-grid-item { grid-column: auto !important; grid-row: auto !important; }
   .pf-master-detail { flex-direction: column; }
   .pf-master-detail-master { width: auto !important; }
 }

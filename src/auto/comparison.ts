@@ -43,7 +43,7 @@ export function autoComparison(
 ): ContainerComponent {
   const children: Component[] = []
 
-  if (options?.title) children.push(Heading(options.title))
+  if (options?.title) children.push(Heading(options.title, { level: 3 }))
   if (options?.subtitle) children.push(Muted(options.subtitle))
 
   if (items.length === 0) {

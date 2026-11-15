@@ -5,7 +5,8 @@
 import { registerComponent, resolveStr, el, makeDispatchCtx } from '../engine.js'
 import type { ComponentNode, RenderContext } from '../engine.js'
 import { dispatchActions, fireAndForget } from '../actions.js'
-import { optionalString } from '../../core/guards.js'
+import { isRecord, optionalString } from '../../core/guards.js'
+import { importFromCdn, prefersDark } from '../cdn.js'
 import { stringifyValue } from '../../core/stringify.js'
 
 export function registerMediaComponents(): void {
@@ -194,18 +195,37 @@ function renderDropZone(node: ComponentNode, ctx: RenderContext): HTMLElement {
   return e
 }
 
+const MERMAID_CDN = 'https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.esm.min.mjs'
+let mermaidSeq = 0
+
+interface MermaidApi {
+  initialize(config: Record<string, unknown>): void
+  render(id: string, text: string): Promise<{ svg: string }>
+}
+
+function isMermaidApi(value: unknown): value is MermaidApi {
+  return isRecord(value) && typeof value.initialize === 'function' && typeof value.render === 'function'
+}
+
+/** Show the diagram source right away, then swap in the SVG once mermaid.js loads from the CDN. */
 function renderMermaid(node: ComponentNode, ctx: RenderContext): HTMLElement {
   const e = el('div', 'pf-mermaid')
   e.setAttribute('data-mermaid', 'true')
   const content = resolveStr(node.content, ctx)
-  // Store raw mermaid content; actual rendering requires mermaid.js
-  e.textContent = content
+  const source = el('pre', 'pf-mermaid-source')
+  source.textContent = content
+  e.appendChild(source)
+  if (content.trim() === '') return e
 
-  // Attempt to render if mermaid is available globally
-  if ('mermaid' in globalThis) {
-    e.classList.add('mermaid')
-    e.textContent = content
-  }
+  void importFromCdn(MERMAID_CDN).then(async (mod) => {
+    const api = isRecord(mod) ? mod.default : undefined
+    if (!isMermaidApi(api)) return
+    api.initialize({ startOnLoad: false, securityLevel: 'strict', theme: prefersDark(e) ? 'dark' : 'neutral', fontFamily: 'inherit' })
+    mermaidSeq += 1
+    const { svg } = await api.render(`pf-mermaid-${String(mermaidSeq)}`, content)
+    e.innerHTML = svg
+    e.setAttribute('data-state', 'rendered')
+  }).catch(() => { e.setAttribute('data-state', 'source') })
 
   return e
 }

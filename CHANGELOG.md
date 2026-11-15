@@ -6,7 +6,24 @@ All notable changes to this project will be documented in this file.
 
 <!-- Add new entries directly below. Keep this line: it makes a release merge conflict rather than file them under a published version. -->
 
+### Added
+
+- **`statusColor(status)` and `variantColor(variant)`** return the theme color for a status or Badge variant, next to `statusVariant` in `@maxhealth.tech/prefab/auto`.
+- **`Pages({ name, value })`** declares the state key and initial page, and **`Switch({ checked })`** matches `Checkbox`.
+
 ### Fixed
+
+- **`PdfViewer` loads.** PDF.js 4 exports `GlobalWorkerOptions` as a class, which the module check rejected, so every viewer showed an error. Pages also render sharp on HiDPI screens, refit on resize in the fit modes, and stay upright when a resize lands mid-render. The toolbar adds zoom out, zoom in and a fit toggle, disables the arrows at either end, and its buttons no longer submit a surrounding `Form`. It follows the theme tokens.
+- **`Mermaid` draws the diagram.** It printed the source text; it now loads mermaid.js from the CDN and renders an SVG in the current color scheme, keeping the source visible until then or when the CDN is blocked.
+- **`Pages` shows one page.** Only the active `Page` renders: the one the `name` state key holds, else `value`, else the first, so `SetState` navigates. Upstream's `Page` `value`/`title` fields work too.
+- **`Dashboard` honors `rowHeight` and `DashboardItem` `col`/`row`**, and a lone Card fills its tile.
+- **`Histogram` draws its axes and tooltips** and honors `showXAxis`/`showYAxis`.
+- **`autoForm` renders `switch`, `checkbox` and `textarea` fields as those controls.** They rendered as text inputs, including the `checkbox` that `fieldsFromJsonSchema` produces for a boolean.
+- **A `Form` submits checkboxes and switches as booleans**, unchecked ones included. They submitted `"on"` or nothing.
+- **Auto-renderer section titles are level-3 headings**, and autoTimeline and autoProgress dots take their color from the theme through `statusColor`.
+- **Crowded x-axis labels are thinned** so they no longer overlap.
+- **Responsive charts redraw on the next frame**, which stops the `ResizeObserver loop` error.
+- **Examples use the spacing scale for `gap`.** Six examples and the getting-started guide passed pixel values, so `gap: 16` rendered 64px apart.
 
 - **`Icon` and the Alert `icon` prop draw their glyph.** Both only set a `data-icon` attribute and rendered nothing. The renderer now ships inline SVGs for the 59 A2UI icon names, and Lucide spellings such as `CheckCircle` or `alert-triangle` resolve through the existing A2UI aliases. The glyphs come from Lucide (ISC) through `bun run gen:icons`, and the generated module is committed, so the renderer still has no runtime dependencies.
 

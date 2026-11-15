@@ -9,19 +9,8 @@ import { Column, Row } from '../components/layout/index.js'
 import { Heading, Text, Muted, Small } from '../components/typography/index.js'
 import { Card, CardContent } from '../components/card/index.js'
 import { Badge, Dot, Separator } from '../components/data/index.js'
+import { statusColor } from './status.js'
 import type { BadgeVariant } from '../components/data/index.js'
-
-const DOT_COLORS: Record<string, string> = {
-  completed: 'green',
-  success: 'green',
-  active: 'blue',
-  in_progress: 'blue',
-  pending: 'yellow',
-  warning: 'yellow',
-  error: 'red',
-  failed: 'red',
-  cancelled: 'gray',
-}
 
 export interface AutoTimelineEvent {
   /** Event title. */
@@ -62,14 +51,13 @@ export function autoTimeline(
   options?: AutoTimelineOptions,
 ): ContainerComponent {
   const children: Component[] = []
-  if (options?.title) children.push(Heading(options.title))
+  if (options?.title) children.push(Heading(options.title, { level: 3 }))
   if (options?.subtitle) children.push(Muted(options.subtitle))
 
   const eventRows: Component[] = []
   for (let i = 0; i < events.length; i++) {
     const event = events[i]
-    const status = (event.status ?? '').toLowerCase().replace(/[\s-]/g, '_')
-    const color = DOT_COLORS[status] ?? 'gray'
+    const color = statusColor(event.status ?? '')
 
     const rowChildren: Component[] = [
       Dot(color, { cssClass: 'mt-1.5 shrink-0' }),

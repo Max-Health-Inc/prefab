@@ -33,4 +33,85 @@
 .pf-embed { position: relative; overflow: hidden; border-radius: var(--radius-sm); }
 .pf-embed iframe { display: block; width: 100%; border: none; }
 .pf-svg { display: inline-block; }
-.pf-mermaid { overflow-x: auto; }
+.pf-mermaid { overflow-x: auto; min-width: 0; }
+
+.pf-pdf-viewer {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--muted);
+}
+.pf-pdf-message {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  text-align: center;
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
+}
+.pf-pdf-message[data-state="error"] { color: var(--destructive); }
+.pf-pdf-toolbar {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.5rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--card);
+  font-size: 0.8125rem;
+  font-variant-numeric: tabular-nums;
+}
+.pf-pdf-spacer { flex: 1; }
+.pf-pdf-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--foreground);
+  font: inherit;
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+.pf-pdf-btn:hover:not(:disabled) { background: var(--muted); }
+.pf-pdf-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.pf-pdf-btn[aria-pressed="true"] { background: var(--muted); }
+.pf-pdf-page-input {
+  width: 2.75rem;
+  height: 1.75rem;
+  padding: 0 0.25rem;
+  border: 1px solid var(--input);
+  border-radius: var(--radius-sm);
+  background: var(--background);
+  color: var(--foreground);
+  font: inherit;
+  text-align: center;
+}
+.pf-pdf-page-input:focus-visible { outline: none; border-color: var(--ring); box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 25%, transparent); }
+.pf-pdf-page-count, .pf-pdf-zoom-label { color: var(--muted-foreground); }
+.pf-pdf-zoom-label { min-width: 3rem; text-align: center; }
+.pf-pdf-canvas-container { flex: 1; min-height: 0; overflow: auto; padding: 1rem; }
+.pf-pdf-canvas { display: block; margin: 0 auto; background: #fff; box-shadow: var(--shadow-md); }
+.pf-mermaid-source {
+  margin: 0;
+  padding: 0.875rem 1rem;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  color: var(--muted-foreground);
+  white-space: pre;
+  overflow-x: auto;
+}
+.pf-mermaid[data-state="rendered"] { display: flex; justify-content: center; }
+.pf-mermaid svg { max-width: 100%; height: auto; }

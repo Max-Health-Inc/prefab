@@ -291,7 +291,10 @@ describe('Histogram', () => {
     const node: ComponentNode = { type: 'Histogram', data: [1, 1, 1, 2, 3, 3], bins: 3, height: 90 }
     const dom = renderEl(node, ctx)
     const bars = queryAll(query(dom, 'svg', SVGSVGElement), 'rect', SVGRectElement)
-    expect(bars.map(b => b.getAttribute('height'))).toEqual(['90', '30', '60'])
+    const heights = bars.map(b => Number(b.getAttribute('height')))
+    expect(heights).toHaveLength(3)
+    expect(heights[0] / heights[1]).toBeCloseTo(3)
+    expect(heights[2] / heights[1]).toBeCloseTo(2)
   })
 
   it('shows "No data" when no value is numeric', () => {

@@ -219,7 +219,7 @@ describe('autoTimeline', () => {
     expect(firstRow.type).toBe('Row')
     const dot = firstRow.children!.find(c => c.type === 'Dot')
     expect(dot).toBeDefined()
-    expect(dot!.color).toBe('green') // completed → green
+    expect(dot!.color).toBe('var(--success)') // completed
   })
 
   it('badge is rendered when provided', () => {
@@ -270,19 +270,19 @@ describe('autoProgress', () => {
 
     const firstRow = content.children![0]
     const dot = firstRow.children!.find(c => c.type === 'Dot')
-    expect(dot!.color).toBe('green') // completed
+    expect(dot!.color).toBe('var(--success)') // completed
     const badge = firstRow.children!.find(c => c.type === 'Badge')
     expect(badge!.label).toBe('Done')
   })
 
-  it('active step has blue dot', () => {
+  it('active step has an info dot', () => {
     const json = autoProgress(steps).toJSON()
     const card = json.children!.find(c => c.type === 'Card')!
     const content = card.children![0]
     // step rows at index 0, 2, 4, 6 (separators at 1, 3, 5)
     const activeRow = content.children![2]
     const dot = activeRow.children!.find(c => c.type === 'Dot')
-    expect(dot!.color).toBe('blue')
+    expect(dot!.color).toBe('var(--info)')
   })
 
   it('100% when all completed', () => {

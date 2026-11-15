@@ -147,10 +147,16 @@ export function Checkbox(props: CheckboxProps): StatefulComponent {
 
 // ── Switch ───────────────────────────────────────────────────────────────────
 
-export type SwitchProps = StatefulProps
+export type SwitchProps = CheckboxProps
 
 export function Switch(props: SwitchProps): StatefulComponent {
-  return new StatefulComponent('Switch', props)
+  const c = new StatefulComponent('Switch', props)
+  const origGetProps = c.getProps.bind(c)
+  c.getProps = () => ({
+    ...origGetProps(),
+    ...(props.checked !== undefined && { checked: props.checked }),
+  })
+  return c
 }
 
 // ── Slider ───────────────────────────────────────────────────────────────────
