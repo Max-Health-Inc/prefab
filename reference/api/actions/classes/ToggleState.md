@@ -5,7 +5,7 @@ url: /prefab/reference/api/actions/classes/ToggleState.md
 
 # Class: ToggleState
 
-Defined in: [actions/client.ts:37](https://github.com/Max-Health-Inc/prefab/blob/c0cfbec14aa21a1c1e0bc95f1b172db8df096fe0/src/actions/client.ts#L37)
+Defined in: [actions/client.ts:37](https://github.com/Max-Health-Inc/prefab/blob/4e102b3517c5a62f380fd91b75fb8c49a1f96cec/src/actions/client.ts#L37)
 
 Base interface all actions implement
 
@@ -21,7 +21,7 @@ Base interface all actions implement
 new ToggleState(key): ToggleState;
 ```
 
-Defined in: [actions/client.ts:38](https://github.com/Max-Health-Inc/prefab/blob/c0cfbec14aa21a1c1e0bc95f1b172db8df096fe0/src/actions/client.ts#L38)
+Defined in: [actions/client.ts:38](https://github.com/Max-Health-Inc/prefab/blob/4e102b3517c5a62f380fd91b75fb8c49a1f96cec/src/actions/client.ts#L38)
 
 #### Parameters
 
@@ -41,7 +41,7 @@ Defined in: [actions/client.ts:38](https://github.com/Max-Health-Inc/prefab/blob
 readonly key: string;
 ```
 
-Defined in: [actions/client.ts:38](https://github.com/Max-Health-Inc/prefab/blob/c0cfbec14aa21a1c1e0bc95f1b172db8df096fe0/src/actions/client.ts#L38)
+Defined in: [actions/client.ts:38](https://github.com/Max-Health-Inc/prefab/blob/4e102b3517c5a62f380fd91b75fb8c49a1f96cec/src/actions/client.ts#L38)
 
 ## Methods
 
@@ -51,7 +51,7 @@ Defined in: [actions/client.ts:38](https://github.com/Max-Health-Inc/prefab/blob
 toJSON(): ActionJSON;
 ```
 
-Defined in: [actions/client.ts:40](https://github.com/Max-Health-Inc/prefab/blob/c0cfbec14aa21a1c1e0bc95f1b172db8df096fe0/src/actions/client.ts#L40)
+Defined in: [actions/client.ts:40](https://github.com/Max-Health-Inc/prefab/blob/4e102b3517c5a62f380fd91b75fb8c49a1f96cec/src/actions/client.ts#L40)
 
 #### Returns
 

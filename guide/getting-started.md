@@ -106,7 +106,7 @@ async function userDashboard() {
 
   return display(
     Column({
-      gap: 8,
+      gap: 4,
       children: [
         H1('User Dashboard'),
         Text('Manage your organization members.'),

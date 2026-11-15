@@ -5,7 +5,7 @@ url: /prefab/reference/api/auto/interfaces/AutoProgressStep.md
 
 # Interface: AutoProgressStep
 
-Defined in: [auto/progress.ts:20](https://github.com/Max-Health-Inc/prefab/blob/c0cfbec14aa21a1c1e0bc95f1b172db8df096fe0/src/auto/progress.ts#L20)
+Defined in: [auto/progress.ts:21](https://github.com/Max-Health-Inc/prefab/blob/4e102b3517c5a62f380fd91b75fb8c49a1f96cec/src/auto/progress.ts#L21)
 
 ## Properties
 
@@ -15,7 +15,7 @@ Defined in: [auto/progress.ts:20](https://github.com/Max-Health-Inc/prefab/blob/
 label: string;
 ```
 
-Defined in: [auto/progress.ts:22](https://github.com/Max-Health-Inc/prefab/blob/c0cfbec14aa21a1c1e0bc95f1b172db8df096fe0/src/auto/progress.ts#L22)
+Defined in: [auto/progress.ts:23](https://github.com/Max-Health-Inc/prefab/blob/4e102b3517c5a62f380fd91b75fb8c49a1f96cec/src/auto/progress.ts#L23)
 
 Step label.
 
@@ -24,10 +24,10 @@ Step label.
 ### status
 
 ```ts
-status: "completed" | "active" | "pending";
+status: "active" | "completed" | "pending";
 ```
 
-Defined in: [auto/progress.ts:24](https://github.com/Max-Health-Inc/prefab/blob/c0cfbec14aa21a1c1e0bc95f1b172db8df096fe0/src/auto/progress.ts#L24)
+Defined in: [auto/progress.ts:25](https://github.com/Max-Health-Inc/prefab/blob/4e102b3517c5a62f380fd91b75fb8c49a1f96cec/src/auto/progress.ts#L25)
 
 Step status: 'completed', 'active', or 'pending'.
 
@@ -39,6 +39,6 @@ Step status: 'completed', 'active', or 'pending'.
 optional description?: string;
 ```
 
-Defined in: [auto/progress.ts:26](https://github.com/Max-Health-Inc/prefab/blob/c0cfbec14aa21a1c1e0bc95f1b172db8df096fe0/src/auto/progress.ts#L26)
+Defined in: [auto/progress.ts:27](https://github.com/Max-Health-Inc/prefab/blob/4e102b3517c5a62f380fd91b75fb8c49a1f96cec/src/auto/progress.ts#L27)
 
 Optional description.

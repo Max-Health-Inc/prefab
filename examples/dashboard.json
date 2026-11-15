@@ -4,10 +4,12 @@
   },
   "view": {
     "type": "Column",
-    "gap": 16,
+    "gap": 4,
     "children": [
       {
         "type": "Row",
+        "gap": 3,
+        "align": "center",
         "children": [
           {
             "type": "Heading",
@@ -22,8 +24,9 @@
         ]
       },
       {
-        "type": "Row",
-        "gap": 16,
+        "type": "Grid",
+        "columns": 4,
+        "gap": 4,
         "children": [
           {
             "type": "Card",
@@ -88,8 +91,9 @@
         ]
       },
       {
-        "type": "Row",
-        "gap": 16,
+        "type": "Grid",
+        "columns": 2,
+        "gap": 4,
         "children": [
           {
             "type": "Card",

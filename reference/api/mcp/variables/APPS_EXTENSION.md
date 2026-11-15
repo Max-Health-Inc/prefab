@@ -9,6 +9,6 @@ url: /prefab/reference/api/mcp/variables/APPS_EXTENSION.md
 const APPS_EXTENSION: "io.modelcontextprotocol/ui" = 'io.modelcontextprotocol/ui';
 ```
 
-Defined in: [mcp/resource.ts:123](https://github.com/Max-Health-Inc/prefab/blob/c0cfbec14aa21a1c1e0bc95f1b172db8df096fe0/src/mcp/resource.ts#L123)
+Defined in: [mcp/resource.ts:123](https://github.com/Max-Health-Inc/prefab/blob/4e102b3517c5a62f380fd91b75fb8c49a1f96cec/src/mcp/resource.ts#L123)
 
 The MCP Apps extension id, `…/ui` per the spec and ext-apps (`…/apps` in some SDK doc examples is only illustrative).

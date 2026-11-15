@@ -5,7 +5,7 @@ url: /prefab/reference/api/mcp/interfaces/ToolResultOptions.md
 
 # Interface: ToolResultOptions
 
-Defined in: [mcp/result.ts:5](https://github.com/Max-Health-Inc/prefab/blob/c0cfbec14aa21a1c1e0bc95f1b172db8df096fe0/src/mcp/result.ts#L5)
+Defined in: [mcp/result.ts:5](https://github.com/Max-Health-Inc/prefab/blob/4e102b3517c5a62f380fd91b75fb8c49a1f96cec/src/mcp/result.ts#L5)
 
 ## Properties
 
@@ -15,6 +15,6 @@ Defined in: [mcp/result.ts:5](https://github.com/Max-Health-Inc/prefab/blob/c0cf
 optional isError?: boolean;
 ```
 
-Defined in: [mcp/result.ts:7](https://github.com/Max-Health-Inc/prefab/blob/c0cfbec14aa21a1c1e0bc95f1b172db8df096fe0/src/mcp/result.ts#L7)
+Defined in: [mcp/result.ts:7](https://github.com/Max-Health-Inc/prefab/blob/4e102b3517c5a62f380fd91b75fb8c49a1f96cec/src/mcp/result.ts#L7)
 
 Flag the result as failed (hosts render it as a tool error).

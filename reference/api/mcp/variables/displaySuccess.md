@@ -9,7 +9,7 @@ url: /prefab/reference/api/mcp/variables/displaySuccess.md
 const displaySuccess: (title, message, options?) => McpDisplayResult<PrefabWireFormat> = display_success;
 ```
 
-Defined in: [mcp/display.ts:370](https://github.com/Max-Health-Inc/prefab/blob/c0cfbec14aa21a1c1e0bc95f1b172db8df096fe0/src/mcp/display.ts#L370)
+Defined in: [mcp/display.ts:370](https://github.com/Max-Health-Inc/prefab/blob/4e102b3517c5a62f380fd91b75fb8c49a1f96cec/src/mcp/display.ts#L370)
 
 MCP display helpers — return prefab UIs as MCP tool results.
 

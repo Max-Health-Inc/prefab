@@ -4,7 +4,7 @@
   },
   "view": {
     "type": "Column",
-    "gap": 16,
+    "gap": 4,
     "children": [
       {
         "type": "Heading",

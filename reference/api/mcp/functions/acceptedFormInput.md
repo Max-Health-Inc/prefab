@@ -14,7 +14,7 @@ function acceptedFormInput(
   | undefined;
 ```
 
-Defined in: [mcp/input-required.ts:216](https://github.com/Max-Health-Inc/prefab/blob/c0cfbec14aa21a1c1e0bc95f1b172db8df096fe0/src/mcp/input-required.ts#L216)
+Defined in: [mcp/input-required.ts:216](https://github.com/Max-Health-Inc/prefab/blob/4e102b3517c5a62f380fd91b75fb8c49a1f96cec/src/mcp/input-required.ts#L216)
 
 Read and check an accepted form answer.
 

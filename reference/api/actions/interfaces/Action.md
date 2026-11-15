@@ -5,7 +5,7 @@ url: /prefab/reference/api/actions/interfaces/Action.md
 
 # Interface: Action
 
-Defined in: [actions/types.ts:15](https://github.com/Max-Health-Inc/prefab/blob/c0cfbec14aa21a1c1e0bc95f1b172db8df096fe0/src/actions/types.ts#L15)
+Defined in: [actions/types.ts:15](https://github.com/Max-Health-Inc/prefab/blob/4e102b3517c5a62f380fd91b75fb8c49a1f96cec/src/actions/types.ts#L15)
 
 Base interface all actions implement
 
@@ -17,7 +17,7 @@ Base interface all actions implement
 toJSON(): ActionJSON;
 ```
 
-Defined in: [actions/types.ts:16](https://github.com/Max-Health-Inc/prefab/blob/c0cfbec14aa21a1c1e0bc95f1b172db8df096fe0/src/actions/types.ts#L16)
+Defined in: [actions/types.ts:16](https://github.com/Max-Health-Inc/prefab/blob/4e102b3517c5a62f380fd91b75fb8c49a1f96cec/src/actions/types.ts#L16)
 
 #### Returns
 

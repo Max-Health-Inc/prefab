@@ -44,11 +44,13 @@ url: /prefab/reference/api/auto.md
 | [autoComparison](functions/autoComparison.md) | Auto-generate a side-by-side comparison of items. |
 | [autoForm](functions/autoForm.md) | Auto-generate a Form that calls an MCP tool on submit. |
 | [QuickForm](functions/QuickForm.md) | Factory function for the chainable QuickForm builder. |
-| [statusVariant](functions/statusVariant.md) | Get a Badge variant for a status string. Falls back to 'outline' for unknown statuses. |
-| [registerStatusVariants](functions/registerStatusVariants.md) | Register additional status→variant mappings. |
 | [autoDetail](functions/autoDetail.md) | Auto-generate a detail Card from a data object. |
 | [autoTable](functions/autoTable.md) | Auto-generate a DataTable from an array of objects. |
 | [autoMetrics](functions/autoMetrics.md) | Auto-generate a KPI dashboard grid. |
 | [autoProgress](functions/autoProgress.md) | Auto-generate a multi-step progress tracker. |
 | [fieldsFromJsonSchema](functions/fieldsFromJsonSchema.md) | Derive `autoForm` fields from a JSON Schema object. |
+| [statusVariant](functions/statusVariant.md) | - |
+| [registerStatusVariants](functions/registerStatusVariants.md) | Register additional status→variant mappings. |
+| [variantColor](functions/variantColor.md) | The theme color behind a Badge variant. |
+| [statusColor](functions/statusColor.md) | The theme color for a status, so dots and badges for the same status agree. |
 | [autoTimeline](functions/autoTimeline.md) | Auto-generate a chronological timeline. |

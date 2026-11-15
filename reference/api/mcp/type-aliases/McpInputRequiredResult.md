@@ -9,7 +9,7 @@ url: /prefab/reference/api/mcp/type-aliases/McpInputRequiredResult.md
 type McpInputRequiredResult = object;
 ```
 
-Defined in: [mcp/types.ts:184](https://github.com/Max-Health-Inc/prefab/blob/c0cfbec14aa21a1c1e0bc95f1b172db8df096fe0/src/mcp/types.ts#L184)
+Defined in: [mcp/types.ts:184](https://github.com/Max-Health-Inc/prefab/blob/4e102b3517c5a62f380fd91b75fb8c49a1f96cec/src/mcp/types.ts#L184)
 
 A result asking for input before the call completes; carries `inputRequests`, `requestState` or both.
 
@@ -21,7 +21,7 @@ A result asking for input before the call completes; carries `inputRequests`, `r
 resultType: "input_required";
 ```
 
-Defined in: [mcp/types.ts:185](https://github.com/Max-Health-Inc/prefab/blob/c0cfbec14aa21a1c1e0bc95f1b172db8df096fe0/src/mcp/types.ts#L185)
+Defined in: [mcp/types.ts:185](https://github.com/Max-Health-Inc/prefab/blob/4e102b3517c5a62f380fd91b75fb8c49a1f96cec/src/mcp/types.ts#L185)
 
 ***
 
@@ -31,7 +31,7 @@ Defined in: [mcp/types.ts:185](https://github.com/Max-Health-Inc/prefab/blob/c0c
 optional inputRequests?: McpInputRequests;
 ```
 
-Defined in: [mcp/types.ts:186](https://github.com/Max-Health-Inc/prefab/blob/c0cfbec14aa21a1c1e0bc95f1b172db8df096fe0/src/mcp/types.ts#L186)
+Defined in: [mcp/types.ts:186](https://github.com/Max-Health-Inc/prefab/blob/4e102b3517c5a62f380fd91b75fb8c49a1f96cec/src/mcp/types.ts#L186)
 
 ***
 
@@ -41,7 +41,7 @@ Defined in: [mcp/types.ts:186](https://github.com/Max-Health-Inc/prefab/blob/c0c
 optional requestState?: string;
 ```
 
-Defined in: [mcp/types.ts:188](https://github.com/Max-Health-Inc/prefab/blob/c0cfbec14aa21a1c1e0bc95f1b172db8df096fe0/src/mcp/types.ts#L188)
+Defined in: [mcp/types.ts:188](https://github.com/Max-Health-Inc/prefab/blob/4e102b3517c5a62f380fd91b75fb8c49a1f96cec/src/mcp/types.ts#L188)
 
 Opaque state echoed back byte-for-byte on the retry.
 
@@ -53,4 +53,4 @@ Opaque state echoed back byte-for-byte on the retry.
 optional _meta?: Record<string, unknown>;
 ```
 
-Defined in: [mcp/types.ts:189](https://github.com/Max-Health-Inc/prefab/blob/c0cfbec14aa21a1c1e0bc95f1b172db8df096fe0/src/mcp/types.ts#L189)
+Defined in: [mcp/types.ts:189](https://github.com/Max-Health-Inc/prefab/blob/4e102b3517c5a62f380fd91b75fb8c49a1f96cec/src/mcp/types.ts#L189)

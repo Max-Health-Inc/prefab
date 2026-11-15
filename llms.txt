@@ -120,13 +120,15 @@ Build the agent UI once, server-side. Emit A2UI for native rendering or $prefab 
 - [Function: autoComparison()](/reference/api/auto/functions/autoComparison.md)
 - [Function: autoForm()](/reference/api/auto/functions/autoForm.md)
 - [Function: QuickForm()](/reference/api/auto/functions/QuickForm.md)
-- [Function: statusVariant()](/reference/api/auto/functions/statusVariant.md)
-- [Function: registerStatusVariants()](/reference/api/auto/functions/registerStatusVariants.md)
 - [Function: autoDetail()](/reference/api/auto/functions/autoDetail.md)
 - [Function: autoTable()](/reference/api/auto/functions/autoTable.md)
 - [Function: autoMetrics()](/reference/api/auto/functions/autoMetrics.md)
 - [Function: autoProgress()](/reference/api/auto/functions/autoProgress.md)
 - [Function: fieldsFromJsonSchema()](/reference/api/auto/functions/fieldsFromJsonSchema.md)
+- [Function: statusVariant()](/reference/api/auto/functions/statusVariant.md)
+- [Function: registerStatusVariants()](/reference/api/auto/functions/registerStatusVariants.md)
+- [Function: variantColor()](/reference/api/auto/functions/variantColor.md)
+- [Function: statusColor()](/reference/api/auto/functions/statusColor.md)
 - [Function: autoTimeline()](/reference/api/auto/functions/autoTimeline.md)
 
 #### mcp

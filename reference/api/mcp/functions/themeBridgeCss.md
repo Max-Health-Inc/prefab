@@ -9,7 +9,7 @@ url: /prefab/reference/api/mcp/functions/themeBridgeCss.md
 function themeBridgeCss(bridge): string;
 ```
 
-Defined in: [mcp/theme-bridge.ts:71](https://github.com/Max-Health-Inc/prefab/blob/c0cfbec14aa21a1c1e0bc95f1b172db8df096fe0/src/mcp/theme-bridge.ts#L71)
+Defined in: [mcp/theme-bridge.ts:71](https://github.com/Max-Health-Inc/prefab/blob/4e102b3517c5a62f380fd91b75fb8c49a1f96cec/src/mcp/theme-bridge.ts#L71)
 
 The theme-bridge CSS, matching `prefab.css`'s host-driven selectors in both schemes. `[data-theme="dark"]` is
 left alone, so an app that pins it keeps its own palette.

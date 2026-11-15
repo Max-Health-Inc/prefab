@@ -11,4 +11,4 @@ type McpElicitRequest =
   | McpElicitUrlRequest;
 ```
 
-Defined in: [mcp/types.ts:170](https://github.com/Max-Health-Inc/prefab/blob/c0cfbec14aa21a1c1e0bc95f1b172db8df096fe0/src/mcp/types.ts#L170)
+Defined in: [mcp/types.ts:170](https://github.com/Max-Health-Inc/prefab/blob/4e102b3517c5a62f380fd91b75fb8c49a1f96cec/src/mcp/types.ts#L170)

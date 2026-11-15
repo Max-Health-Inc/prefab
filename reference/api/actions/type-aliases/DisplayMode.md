@@ -9,4 +9,4 @@ url: /prefab/reference/api/actions/type-aliases/DisplayMode.md
 type DisplayMode = "inline" | "fullscreen" | "pip";
 ```
 
-Defined in: [actions/mcp.ts:60](https://github.com/Max-Health-Inc/prefab/blob/c0cfbec14aa21a1c1e0bc95f1b172db8df096fe0/src/actions/mcp.ts#L60)
+Defined in: [actions/mcp.ts:60](https://github.com/Max-Health-Inc/prefab/blob/4e102b3517c5a62f380fd91b75fb8c49a1f96cec/src/actions/mcp.ts#L60)

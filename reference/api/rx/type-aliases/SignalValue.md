@@ -9,6 +9,6 @@ url: /prefab/reference/api/rx/type-aliases/SignalValue.md
 type SignalValue = string | number | boolean | null;
 ```
 
-Defined in: [rx/signal.ts:16](https://github.com/Max-Health-Inc/prefab/blob/c0cfbec14aa21a1c1e0bc95f1b172db8df096fe0/src/rx/signal.ts#L16)
+Defined in: [rx/signal.ts:16](https://github.com/Max-Health-Inc/prefab/blob/4e102b3517c5a62f380fd91b75fb8c49a1f96cec/src/rx/signal.ts#L16)
 
 Allowed signal value types — intentionally excludes objects/arrays.

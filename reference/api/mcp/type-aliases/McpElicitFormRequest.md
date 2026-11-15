@@ -9,7 +9,7 @@ url: /prefab/reference/api/mcp/type-aliases/McpElicitFormRequest.md
 type McpElicitFormRequest = object;
 ```
 
-Defined in: [mcp/types.ts:151](https://github.com/Max-Health-Inc/prefab/blob/c0cfbec14aa21a1c1e0bc95f1b172db8df096fe0/src/mcp/types.ts#L151)
+Defined in: [mcp/types.ts:151](https://github.com/Max-Health-Inc/prefab/blob/4e102b3517c5a62f380fd91b75fb8c49a1f96cec/src/mcp/types.ts#L151)
 
 Form-mode elicitation: the client renders the schema and returns the values.
 
@@ -21,7 +21,7 @@ Form-mode elicitation: the client renders the schema and returns the values.
 method: "elicitation/create";
 ```
 
-Defined in: [mcp/types.ts:152](https://github.com/Max-Health-Inc/prefab/blob/c0cfbec14aa21a1c1e0bc95f1b172db8df096fe0/src/mcp/types.ts#L152)
+Defined in: [mcp/types.ts:152](https://github.com/Max-Health-Inc/prefab/blob/4e102b3517c5a62f380fd91b75fb8c49a1f96cec/src/mcp/types.ts#L152)
 
 ***
 
@@ -31,7 +31,7 @@ Defined in: [mcp/types.ts:152](https://github.com/Max-Health-Inc/prefab/blob/c0c
 params: object;
 ```
 
-Defined in: [mcp/types.ts:153](https://github.com/Max-Health-Inc/prefab/blob/c0cfbec14aa21a1c1e0bc95f1b172db8df096fe0/src/mcp/types.ts#L153)
+Defined in: [mcp/types.ts:153](https://github.com/Max-Health-Inc/prefab/blob/4e102b3517c5a62f380fd91b75fb8c49a1f96cec/src/mcp/types.ts#L153)
 
 #### mode?
 

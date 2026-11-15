@@ -9,7 +9,7 @@ url: /prefab/reference/api/auto/functions/autoDetail.md
 function autoDetail(data, options?): ContainerComponent;
 ```
 
-Defined in: [auto/index.ts:138](https://github.com/Max-Health-Inc/prefab/blob/c0cfbec14aa21a1c1e0bc95f1b172db8df096fe0/src/auto/index.ts#L138)
+Defined in: [auto/index.ts:79](https://github.com/Max-Health-Inc/prefab/blob/4e102b3517c5a62f380fd91b75fb8c49a1f96cec/src/auto/index.ts#L79)
 
 Auto-generate a detail Card from a data object.
 

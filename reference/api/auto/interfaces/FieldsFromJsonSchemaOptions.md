@@ -5,7 +5,7 @@ url: /prefab/reference/api/auto/interfaces/FieldsFromJsonSchemaOptions.md
 
 # Interface: FieldsFromJsonSchemaOptions
 
-Defined in: [auto/schema.ts:68](https://github.com/Max-Health-Inc/prefab/blob/c0cfbec14aa21a1c1e0bc95f1b172db8df096fe0/src/auto/schema.ts#L68)
+Defined in: [auto/schema.ts:68](https://github.com/Max-Health-Inc/prefab/blob/4e102b3517c5a62f380fd91b75fb8c49a1f96cec/src/auto/schema.ts#L68)
 
 ## Properties
 
@@ -15,7 +15,7 @@ Defined in: [auto/schema.ts:68](https://github.com/Max-Health-Inc/prefab/blob/c0
 optional exclude?: string[];
 ```
 
-Defined in: [auto/schema.ts:70](https://github.com/Max-Health-Inc/prefab/blob/c0cfbec14aa21a1c1e0bc95f1b172db8df096fe0/src/auto/schema.ts#L70)
+Defined in: [auto/schema.ts:70](https://github.com/Max-Health-Inc/prefab/blob/4e102b3517c5a62f380fd91b75fb8c49a1f96cec/src/auto/schema.ts#L70)
 
 Property names to leave out (server-managed keys, path params already known).
 
@@ -27,7 +27,7 @@ Property names to leave out (server-managed keys, path params already known).
 optional include?: string[];
 ```
 
-Defined in: [auto/schema.ts:75](https://github.com/Max-Health-Inc/prefab/blob/c0cfbec14aa21a1c1e0bc95f1b172db8df096fe0/src/auto/schema.ts#L75)
+Defined in: [auto/schema.ts:75](https://github.com/Max-Health-Inc/prefab/blob/4e102b3517c5a62f380fd91b75fb8c49a1f96cec/src/auto/schema.ts#L75)
 
 Property names to keep, in this order. Anything else is dropped, and a name
 the schema does not declare is ignored rather than invented.
@@ -40,7 +40,7 @@ the schema does not declare is ignored rather than invented.
 optional includeReadOnly?: boolean;
 ```
 
-Defined in: [auto/schema.ts:80](https://github.com/Max-Health-Inc/prefab/blob/c0cfbec14aa21a1c1e0bc95f1b172db8df096fe0/src/auto/schema.ts#L80)
+Defined in: [auto/schema.ts:80](https://github.com/Max-Health-Inc/prefab/blob/4e102b3517c5a62f380fd91b75fb8c49a1f96cec/src/auto/schema.ts#L80)
 
 Emit a field for every property, including ones already marked
 `readOnly: true` in the schema.

@@ -9,7 +9,7 @@ url: /prefab/reference/api/mcp/functions/uiToolMeta.md
 function uiToolMeta(resourceUri?): object;
 ```
 
-Defined in: [mcp/resource.ts:115](https://github.com/Max-Health-Inc/prefab/blob/c0cfbec14aa21a1c1e0bc95f1b172db8df096fe0/src/mcp/resource.ts#L115)
+Defined in: [mcp/resource.ts:115](https://github.com/Max-Health-Inc/prefab/blob/4e102b3517c5a62f380fd91b75fb8c49a1f96cec/src/mcp/resource.ts#L115)
 
 The tool-definition `_meta` that points an MCP Apps host at a `ui://` renderer, the prefab viewer by default.
 
