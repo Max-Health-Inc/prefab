@@ -76,7 +76,15 @@ const view = inputResponse(responses, 'signup')
 if (view?.action === 'decline') {
   // The user said no. Asking again is not the answer.
 }
+if (view?.action === 'cancel') {
+  // Dismissed, or never shown. Offer another way to finish.
+}
 ```
+
+Treat `cancel` as "no answer", and avoid reporting it as the user's choice. A
+client can advertise elicitation and still return `cancel` without rendering the
+form, so the user may never have seen the question. Return a result that says
+nothing changed and names another way to finish, such as a settings page.
 
 ## The schema
 

@@ -1,0 +1,36 @@
+.pf-chart { position: relative; min-width: 0; }
+.pf-chart svg { display: block; max-width: 100%; height: auto; margin: 0 auto; overflow: visible; }
+.pf-chart text { font-family: var(--font-sans); font-variant-numeric: tabular-nums; }
+
+.pf-chart-tooltip {
+  position: absolute;
+  pointer-events: none;
+  z-index: 50;
+  background: var(--popover);
+  color: var(--popover-foreground);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.375rem 0.625rem;
+  font-size: 0.75rem;
+  line-height: 1.25rem;
+  box-shadow: var(--shadow-md);
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+.pf-chart-tooltip.pf-visible { opacity: 1; }
+.pf-chart-tooltip-label { font-weight: 600; margin-bottom: 0.125rem; }
+.pf-chart-tooltip-row { display: flex; align-items: center; gap: 0.375rem; font-variant-numeric: tabular-nums; }
+.pf-chart-tooltip-dot { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; }
+
+.pf-chart-legend { display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; margin-bottom: 0.75rem; font-size: 0.75rem; color: var(--muted-foreground); }
+.pf-chart-legend-item { display: flex; align-items: center; gap: 0.375rem; }
+.pf-chart-legend-dot { width: 0.5rem; height: 0.5rem; border-radius: 2px; flex-shrink: 0; }
+
+.pf-image { max-width: 100%; height: auto; display: block; border-radius: var(--radius-sm); }
+.pf-audio { width: 100%; }
+.pf-video { max-width: 100%; height: auto; display: block; border-radius: var(--radius-sm); }
+.pf-embed { position: relative; overflow: hidden; border-radius: var(--radius-sm); }
+.pf-embed iframe { display: block; width: 100%; border: none; }
+.pf-svg { display: inline-block; }
+.pf-mermaid { overflow-x: auto; }

@@ -26,8 +26,6 @@ function renderDataTable(node: ComponentNode, ctx: RenderContext): HTMLElement {
   const wrapper = el('div', 'pf-datatable-wrapper')
   const table = document.createElement('table')
   table.className = 'pf-datatable'
-  table.style.width = '100%'
-  table.style.borderCollapse = 'collapse'
 
   const cols = recordList(node.columns).map(c => ({
     key: stringifyValue(c.key),
@@ -45,9 +43,8 @@ function renderDataTable(node: ComponentNode, ctx: RenderContext): HTMLElement {
   for (const col of cols) {
     const th = document.createElement('th')
     th.className = 'pf-datatable-th'
+    th.setAttribute('scope', 'col')
     th.textContent = col.header ?? col.key
-    th.style.padding = '8px 12px'
-    th.style.textAlign = 'left'
     headerRow.appendChild(th)
   }
   thead.appendChild(headerRow)
@@ -74,7 +71,7 @@ function renderDataTable(node: ComponentNode, ctx: RenderContext): HTMLElement {
 
       // Row click actions
       if (node.onRowClick != null && rowKey) {
-        tr.style.cursor = 'pointer'
+        tr.classList.add('pf-datatable-row-clickable')
         tr.addEventListener('click', () => {
           const rowScope = { ...ctx.scope, $item: item, $index: rows.indexOf(row) }
           const dispCtx = makeDispatchCtx({ ...ctx, scope: rowScope })
@@ -98,11 +95,19 @@ function renderDataTable(node: ComponentNode, ctx: RenderContext): HTMLElement {
           }
         }
         td.textContent = stringifyValue(cellVal)
-        td.style.padding = '8px 12px'
         tr.appendChild(td)
       }
       tbody.appendChild(tr)
     }
+  }
+  if (!Array.isArray(rows) || rows.length === 0) {
+    const tr = document.createElement('tr')
+    const td = document.createElement('td')
+    td.className = 'pf-datatable-empty'
+    td.colSpan = Math.max(1, cols.length)
+    td.textContent = 'No results'
+    tr.appendChild(td)
+    tbody.appendChild(tr)
   }
   table.appendChild(tbody)
 
@@ -112,20 +117,19 @@ function renderDataTable(node: ComponentNode, ctx: RenderContext): HTMLElement {
     input.type = 'text'
     input.placeholder = 'Search...'
     input.className = 'pf-datatable-search'
-    input.style.marginBottom = '8px'
-    input.style.padding = '6px 12px'
-    input.style.width = '100%'
-    input.style.boxSizing = 'border-box'
+    input.setAttribute('aria-label', 'Search table')
     input.addEventListener('input', () => {
       const q = input.value.toLowerCase()
-      for (const tr of tbody.querySelectorAll('tr')) {
+      for (const tr of tbody.querySelectorAll<HTMLTableRowElement>('tr.pf-datatable-row')) {
         tr.style.display = tr.textContent.toLowerCase().includes(q) ? '' : 'none'
       }
     })
     wrapper.appendChild(input)
   }
 
-  wrapper.appendChild(table)
+  const scroll = el('div', 'pf-datatable-scroll')
+  scroll.appendChild(table)
+  wrapper.appendChild(scroll)
   return wrapper
 }
 
@@ -133,24 +137,14 @@ function renderBadge(node: ComponentNode, ctx: RenderContext): HTMLElement {
   const e = el('span', 'pf-badge')
   const variant = optionalString(node.variant) ?? 'default'
   e.setAttribute('data-variant', variant)
-  e.style.alignItems = 'center'
-  e.style.padding = '2px 10px'
-  e.style.borderRadius = '9999px'
-  e.style.fontSize = '12px'
-  e.style.fontWeight = '500'
   e.textContent = resolveStr(node.label ?? node.content, ctx)
-  applyBadgeStyle(e, variant)
   return e
 }
 
 function renderDot(node: ComponentNode, _ctx: RenderContext): HTMLElement {
   const e = el('span', 'pf-dot')
-  const color = optionalString(node.color) ?? 'gray'
-  e.style.display = 'inline-block'
-  e.style.width = '8px'
-  e.style.height = '8px'
-  e.style.borderRadius = '50%'
-  e.style.backgroundColor = color
+  const color = optionalString(node.color)
+  if (color != null) e.style.backgroundColor = color
   return e
 }
 
@@ -159,31 +153,26 @@ function renderMetric(node: ComponentNode, ctx: RenderContext): HTMLElement {
 
   const label = el('div', 'pf-metric-label')
   label.textContent = resolveStr(node.label, ctx)
-  label.style.fontSize = '14px'
   e.appendChild(label)
 
+  const row = el('div', 'pf-metric-row')
   const value = el('div', 'pf-metric-value')
   value.textContent = resolveStr(node.value, ctx)
-  value.style.fontSize = '28px'
-  value.style.fontWeight = '700'
-  e.appendChild(value)
+  row.appendChild(value)
 
   if (node.delta != null) {
     const delta = el('span', 'pf-metric-delta')
-    delta.textContent = resolveStr(node.delta, ctx)
-    const trend = optionalString(node.trend) ?? ''
-    const sentiment = optionalString(node.trendSentiment) ?? 'neutral'
-    delta.style.fontSize = '14px'
-    delta.style.color = sentiment === 'positive' ? 'green' : sentiment === 'negative' ? 'red' : 'inherit'
-    if (trend === 'up') delta.textContent = '↑ ' + delta.textContent
-    else if (trend === 'down') delta.textContent = '↓ ' + delta.textContent
-    e.appendChild(delta)
+    const trend = optionalString(node.trend)
+    const arrow = trend === 'up' ? '↑ ' : trend === 'down' ? '↓ ' : ''
+    delta.textContent = arrow + resolveStr(node.delta, ctx)
+    delta.setAttribute('data-sentiment', optionalString(node.trendSentiment) ?? 'neutral')
+    row.appendChild(delta)
   }
+  e.appendChild(row)
 
   if (node.description != null) {
     const desc = el('div', 'pf-metric-desc')
     desc.textContent = resolveStr(node.description, ctx)
-    desc.style.fontSize = '12px'
     e.appendChild(desc)
   }
 
@@ -192,6 +181,7 @@ function renderMetric(node: ComponentNode, ctx: RenderContext): HTMLElement {
 
 function renderRing(node: ComponentNode, ctx: RenderContext): HTMLElement {
   const e = el('div', 'pf-ring')
+  e.setAttribute('data-variant', optionalString(node.variant) ?? 'default')
   const size = optionalNumber(node.size) ?? 80
   const thickness = optionalNumber(node.thickness) ?? 8
   const rawValue = Number(resolveValue(node.value, ctx) ?? 0)
@@ -202,26 +192,25 @@ function renderRing(node: ComponentNode, ctx: RenderContext): HTMLElement {
 
   const svg = svgEl('svg', { width: size, height: size, viewBox: `0 0 ${size} ${size}` })
   const ring = { cx: size / 2, cy: size / 2, r: radius, fill: 'none', 'stroke-width': thickness }
-  const bgCircle = svgEl('circle', { ...ring, stroke: 'var(--muted, #e5e7eb)' })
+  const bgCircle = svgEl('circle', { ...ring, class: 'pf-ring-track', stroke: 'var(--muted, #e5e7eb)' })
   const fgCircle = svgEl('circle', {
     ...ring,
+    class: 'pf-ring-fill',
     stroke: 'var(--primary, #3b82f6)',
     'stroke-dasharray': circumference,
     'stroke-dashoffset': offset,
     'stroke-linecap': 'round',
   })
-  fgCircle.style.transform = 'rotate(-90deg)'
-  fgCircle.style.transformOrigin = 'center'
 
   svg.appendChild(bgCircle)
   svg.appendChild(fgCircle)
   e.appendChild(svg)
+  e.setAttribute('role', 'img')
+  e.setAttribute('aria-label', `${String(value)}%`)
 
   if (node.label != null) {
     const label = el('div', 'pf-ring-label')
     label.textContent = resolveStr(node.label, ctx)
-    label.style.textAlign = 'center'
-    label.style.fontSize = '12px'
     e.appendChild(label)
   }
   return e
@@ -230,6 +219,7 @@ function renderRing(node: ComponentNode, ctx: RenderContext): HTMLElement {
 function renderProgress(node: ComponentNode, ctx: RenderContext): HTMLElement {
   const e = el('div', 'pf-progress')
   e.setAttribute('role', 'progressbar')
+  e.setAttribute('data-variant', optionalString(node.variant) ?? 'default')
   const value = Number(resolveValue(node.value, ctx) ?? 0)
   const max = optionalNumber(node.max) ?? 100
   const pct = max > 0 ? Math.max(0, Math.min(100, (value / max) * 100)) : 0
@@ -237,34 +227,27 @@ function renderProgress(node: ComponentNode, ctx: RenderContext): HTMLElement {
   e.setAttribute('aria-valuemin', '0')
   e.setAttribute('aria-valuemax', String(max))
 
-  e.style.height = '8px'
-  e.style.borderRadius = '4px'
-  e.style.overflow = 'hidden'
-
   const fill = el('div', 'pf-progress-fill')
-  fill.style.height = '100%'
   fill.style.width = `${pct}%`
-  fill.style.borderRadius = '4px'
-  fill.style.transition = 'width 0.3s ease'
   e.appendChild(fill)
 
   return e
 }
 
-function renderSeparator(_node: ComponentNode, _ctx: RenderContext): HTMLElement {
+function renderSeparator(node: ComponentNode, _ctx: RenderContext): HTMLElement {
   const e = document.createElement('hr')
   e.className = 'pf-separator'
-  e.style.border = 'none'
-  e.style.margin = '8px 0'
+  if (node.orientation === 'vertical') {
+    e.setAttribute('data-orientation', 'vertical')
+    e.setAttribute('aria-orientation', 'vertical')
+  }
   return e
 }
 
 function renderLoader(_node: ComponentNode, _ctx: RenderContext): HTMLElement {
   const e = el('div', 'pf-loader')
-  e.textContent = '⏳'
-  e.style.display = 'flex'
-  e.style.justifyContent = 'center'
-  e.style.padding = '16px'
+  e.setAttribute('role', 'status')
+  e.setAttribute('aria-label', 'Loading')
   return e
 }
 
@@ -298,22 +281,4 @@ function renderSparkline(node: ComponentNode, _ctx: RenderContext): HTMLElement 
   e.appendChild(svg)
 
   return e
-}
-
-// ── Helpers ──────────────────────────────────────────────────────────────────
-
-function applyBadgeStyle(e: HTMLElement, variant: string): void {
-  // Non-theme fallback colors for variants without CSS class coverage
-  const staticStyles: Partial<Record<string, { bg: string; fg: string }>> = {
-    success: { bg: '#10b981', fg: '#fff' },
-    warning: { bg: '#f59e0b', fg: '#fff' },
-    info: { bg: '#3b82f6', fg: '#fff' },
-  }
-  const s = staticStyles[variant]
-  if (s) {
-    e.style.backgroundColor = s.bg
-    e.style.color = s.fg
-  }
-  // All other variants (default, secondary, destructive, outline) are handled
-  // by prefab.css via .pf-badge[data-variant="..."] selectors
 }

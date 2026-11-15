@@ -1,0 +1,241 @@
+{
+  "$prefab": { "version": "0.3" },
+  "state": {
+    "name": "Ada Lovelace",
+    "plan": "pro",
+    "notify": true,
+    "beta": false,
+    "volume": 40,
+    "region": "eu",
+    "framework": "",
+    "start": "",
+    "bio": ""
+  },
+  "view": {
+    "type": "Column",
+    "gap": 6,
+    "children": [
+      { "type": "Column", "gap": 2, "children": [
+        { "type": "Heading", "content": "Component Gallery", "level": 1 },
+        { "type": "Lead", "content": "Every built-in component and variant on one page, in both color schemes." }
+      ]},
+
+      { "type": "Card", "children": [
+        { "type": "CardHeader", "children": [
+          { "type": "CardTitle", "content": "Buttons and badges" },
+          { "type": "CardDescription", "content": "Variants, sizes and disabled state" }
+        ]},
+        { "type": "CardContent", "children": [
+          { "type": "Column", "gap": 4, "children": [
+            { "type": "ButtonGroup", "children": [
+              { "type": "Button", "label": "Default" },
+              { "type": "Button", "label": "Secondary", "variant": "secondary" },
+              { "type": "Button", "label": "Outline", "variant": "outline" },
+              { "type": "Button", "label": "Ghost", "variant": "ghost" },
+              { "type": "Button", "label": "Destructive", "variant": "destructive" },
+              { "type": "Button", "label": "Link", "variant": "link" },
+              { "type": "Button", "label": "Disabled", "disabled": true }
+            ]},
+            { "type": "Row", "gap": 2, "align": "center", "children": [
+              { "type": "Button", "label": "Small", "size": "sm" },
+              { "type": "Button", "label": "Default size" },
+              { "type": "Button", "label": "Large", "size": "lg" },
+              { "type": "Button", "label": "+", "size": "icon", "variant": "outline" }
+            ]},
+            { "type": "Row", "gap": 2, "align": "center", "children": [
+              { "type": "Badge", "label": "Default" },
+              { "type": "Badge", "label": "Secondary", "variant": "secondary" },
+              { "type": "Badge", "label": "Success", "variant": "success" },
+              { "type": "Badge", "label": "Warning", "variant": "warning" },
+              { "type": "Badge", "label": "Info", "variant": "info" },
+              { "type": "Badge", "label": "Destructive", "variant": "destructive" },
+              { "type": "Badge", "label": "Outline", "variant": "outline" },
+              { "type": "Dot", "color": "var(--success)" },
+              { "type": "Dot", "color": "var(--warning)" },
+              { "type": "Dot", "color": "var(--destructive)" }
+            ]}
+          ]}
+        ]}
+      ]},
+
+      { "type": "Grid", "columns": 2, "gap": 4, "children": [
+        { "type": "Card", "children": [
+          { "type": "CardHeader", "children": [ { "type": "CardTitle", "content": "Text inputs" } ]},
+          { "type": "CardContent", "children": [
+            { "type": "Column", "gap": 4, "children": [
+              { "type": "Input", "name": "name", "label": "Full name", "placeholder": "Jane Doe" },
+              { "type": "Input", "name": "email", "label": "Email", "inputType": "email", "placeholder": "jane@example.com", "required": true },
+              { "type": "Input", "name": "broken", "label": "With error", "placeholder": "Invalid value", "error": "This field is required" },
+              { "type": "Textarea", "name": "bio", "label": "Bio", "placeholder": "Tell us about yourself", "rows": 3 },
+              { "type": "Select", "name": "region", "label": "Region", "options": [
+                { "value": "eu", "label": "Europe" },
+                { "value": "us", "label": "United States" },
+                { "value": "apac", "label": "Asia Pacific" }
+              ]},
+              { "type": "Combobox", "name": "framework", "label": "Framework", "placeholder": "Search frameworks", "children": [
+                { "type": "ComboboxOption", "value": "react", "label": "React" },
+                { "type": "ComboboxOption", "value": "vue", "label": "Vue" },
+                { "type": "ComboboxOption", "value": "svelte", "label": "Svelte" }
+              ]},
+              { "type": "DatePicker", "name": "start", "label": "Start date" }
+            ]}
+          ]}
+        ]},
+        { "type": "Card", "children": [
+          { "type": "CardHeader", "children": [ { "type": "CardTitle", "content": "Choice controls" } ]},
+          { "type": "CardContent", "children": [
+            { "type": "Column", "gap": 4, "children": [
+              { "type": "Checkbox", "name": "notify", "label": "Email me about updates" },
+              { "type": "Switch", "name": "beta", "label": "Enable beta features" },
+              { "type": "RadioGroup", "name": "plan", "label": "Plan", "children": [
+                { "type": "Radio", "value": "free", "label": "Free" },
+                { "type": "Radio", "value": "pro", "label": "Pro" },
+                { "type": "Radio", "value": "team", "label": "Team" }
+              ]},
+              { "type": "Slider", "name": "volume", "label": "Volume: {{ volume }}%", "min": 0, "max": 100 },
+              { "type": "Field", "children": [
+                { "type": "FieldTitle", "content": "API key" },
+                { "type": "FieldDescription", "content": "Used to sign requests from your server." },
+                { "type": "FieldContent", "children": [ { "type": "Input", "name": "key", "placeholder": "sk-..." } ]},
+                { "type": "FieldError", "content": "Key has expired" }
+              ]},
+              { "type": "Grid", "columns": 2, "gap": 3, "children": [
+                { "type": "ChoiceCard", "value": "monthly", "label": "Monthly", "description": "$12 per month", "selected": true },
+                { "type": "ChoiceCard", "value": "yearly", "label": "Yearly", "description": "$120 per year" }
+              ]}
+            ]}
+          ]}
+        ]}
+      ]},
+
+      { "type": "Grid", "columns": 2, "gap": 4, "children": [
+        { "type": "Column", "gap": 3, "children": [
+          { "type": "Alert", "children": [
+            { "type": "AlertTitle", "content": "Heads up" },
+            { "type": "AlertDescription", "content": "A default alert for neutral information." }
+          ]},
+          { "type": "Alert", "variant": "success", "children": [
+            { "type": "AlertTitle", "content": "Saved" },
+            { "type": "AlertDescription", "content": "Your changes were stored." }
+          ]},
+          { "type": "Alert", "variant": "warning", "children": [
+            { "type": "AlertTitle", "content": "Quota almost reached" },
+            { "type": "AlertDescription", "content": "You have used 92% of this month's requests." }
+          ]},
+          { "type": "Alert", "variant": "destructive", "children": [
+            { "type": "AlertTitle", "content": "Payment failed" },
+            { "type": "AlertDescription", "content": "Update your card to keep the subscription active." }
+          ]}
+        ]},
+        { "type": "Card", "children": [
+          { "type": "CardHeader", "children": [ { "type": "CardTitle", "content": "Metrics and progress" } ]},
+          { "type": "CardContent", "children": [
+            { "type": "Column", "gap": 4, "children": [
+              { "type": "Grid", "columns": 2, "gap": 4, "children": [
+                { "type": "Metric", "label": "Revenue", "value": "$48,210", "delta": "12.4%", "trend": "up", "trendSentiment": "positive", "description": "vs. last month" },
+                { "type": "Metric", "label": "Churn", "value": "3.1%", "delta": "0.6%", "trend": "up", "trendSentiment": "negative", "description": "vs. last month" }
+              ]},
+              { "type": "Progress", "value": 64 },
+              { "type": "Row", "gap": 4, "align": "center", "children": [
+                { "type": "Ring", "value": 72, "label": "72%" },
+                { "type": "Sparkline", "data": [4, 7, 5, 9, 6, 11, 10, 14] },
+                { "type": "Loader" }
+              ]},
+              { "type": "Separator" },
+              { "type": "Small", "content": "Separator above, Kbd here: " },
+              { "type": "Row", "gap": 1, "children": [ { "type": "Kbd", "content": "Ctrl" }, { "type": "Kbd", "content": "K" } ]}
+            ]}
+          ]}
+        ]}
+      ]},
+
+      { "type": "Card", "children": [
+        { "type": "CardHeader", "children": [ { "type": "CardTitle", "content": "Disclosure" } ]},
+        { "type": "CardContent", "children": [
+          { "type": "Column", "gap": 4, "children": [
+            { "type": "Tabs", "children": [
+              { "type": "Tab", "title": "Overview", "children": [ { "type": "Text", "content": "Tabs switch panels without reflowing the tab bar." } ]},
+              { "type": "Tab", "title": "Activity", "children": [ { "type": "Text", "content": "Activity panel." } ]},
+              { "type": "Tab", "title": "Settings", "children": [ { "type": "Text", "content": "Settings panel." } ]}
+            ]},
+            { "type": "Accordion", "children": [
+              { "type": "AccordionItem", "title": "What is prefab?", "children": [ { "type": "Text", "content": "A server-side way to describe agent UIs as JSON." } ]},
+              { "type": "AccordionItem", "title": "Does it need a framework?", "children": [ { "type": "Text", "content": "No. The renderer is a single dependency-free script." } ]}
+            ]},
+            { "type": "Row", "gap": 2, "align": "center", "children": [
+              { "type": "Dialog", "title": "Delete project", "description": "This permanently removes the project and its data.",
+                "trigger": { "type": "Button", "label": "Open dialog", "variant": "outline" },
+                "children": [
+                  { "type": "Row", "gap": 2, "justify": "end", "children": [
+                    { "type": "Button", "label": "Cancel", "variant": "outline", "onClick": { "action": "closeOverlay" } },
+                    { "type": "Button", "label": "Delete", "variant": "destructive", "onClick": { "action": "closeOverlay" } }
+                  ]}
+                ]},
+              { "type": "Popover", "title": "Share link",
+                "trigger": { "type": "Button", "label": "Popover", "variant": "outline" },
+                "children": [ { "type": "Muted", "content": "Anyone with the link can view." } ]},
+              { "type": "Tooltip", "content": "Copied to clipboard", "children": [ { "type": "Button", "label": "Hover for tooltip", "variant": "outline" } ]},
+              { "type": "HoverCard",
+                "trigger": { "type": "Link", "content": "@prefab", "href": "#" },
+                "children": [
+                  { "type": "Column", "gap": 1, "children": [
+                    { "type": "Large", "content": "prefab" },
+                    { "type": "Muted", "content": "Agent UIs in TypeScript." }
+                  ]}
+                ]}
+            ]},
+            { "type": "Carousel", "children": [
+              { "type": "Div", "cssClass": "p-8 bg-muted rounded text-center", "children": [ { "type": "Large", "content": "Slide one" } ]},
+              { "type": "Div", "cssClass": "p-8 bg-muted rounded text-center", "children": [ { "type": "Large", "content": "Slide two" } ]},
+              { "type": "Div", "cssClass": "p-8 bg-muted rounded text-center", "children": [ { "type": "Large", "content": "Slide three" } ]}
+            ]}
+          ]}
+        ]}
+      ]},
+
+      { "type": "Card", "children": [
+        { "type": "CardHeader", "children": [ { "type": "CardTitle", "content": "Tables" } ]},
+        { "type": "CardContent", "children": [
+          { "type": "Column", "gap": 4, "children": [
+            { "type": "DataTable", "search": true,
+              "columns": [ { "key": "name", "header": "Name" }, { "key": "role", "header": "Role" }, { "key": "status", "header": "Status" } ],
+              "rows": [
+                { "name": "Ada Lovelace", "role": "Engineer", "status": "Active" },
+                { "name": "Grace Hopper", "role": "Admiral", "status": "Active" },
+                { "name": "Alan Turing", "role": "Researcher", "status": "Away" }
+              ]},
+            { "type": "Table", "striped": true, "children": [
+              { "type": "TableHead", "children": [ { "type": "TableRow", "children": [
+                { "type": "TableHeader", "content": "Invoice" }, { "type": "TableHeader", "content": "Status" }, { "type": "TableHeader", "content": "Amount" }
+              ]}]},
+              { "type": "TableBody", "children": [
+                { "type": "TableRow", "children": [ { "type": "TableCell", "content": "INV-001" }, { "type": "TableCell", "content": "Paid" }, { "type": "TableCell", "content": "$250.00" } ]},
+                { "type": "TableRow", "children": [ { "type": "TableCell", "content": "INV-002" }, { "type": "TableCell", "content": "Pending" }, { "type": "TableCell", "content": "$150.00" } ]},
+                { "type": "TableRow", "children": [ { "type": "TableCell", "content": "INV-003" }, { "type": "TableCell", "content": "Overdue" }, { "type": "TableCell", "content": "$350.00" } ]}
+              ]},
+              { "type": "TableCaption", "content": "Recent invoices" }
+            ]},
+            { "type": "ExpandableRow", "summary": [ { "type": "Text", "content": "Show request details" } ], "children": [ { "type": "Code", "content": "GET /api/v1/items?limit=20" } ]}
+          ]}
+        ]}
+      ]},
+
+      { "type": "Card", "children": [
+        { "type": "CardHeader", "children": [ { "type": "CardTitle", "content": "Typography" } ]},
+        { "type": "CardContent", "children": [
+          { "type": "Column", "gap": 3, "children": [
+            { "type": "Heading", "content": "Heading 2", "level": 2 },
+            { "type": "Heading", "content": "Heading 3", "level": 3 },
+            { "type": "Heading", "content": "Heading 4", "level": 4 },
+            { "type": "P", "content": "Body paragraph text with a ", "children": [] },
+            { "type": "Link", "content": "link to somewhere", "href": "#" },
+            { "type": "BlockQuote", "content": "Simplicity is prerequisite for reliability." },
+            { "type": "Markdown", "content": "Markdown with **bold**, _italic_ and `inline code`.\n\n- First item\n- Second item" },
+            { "type": "Code", "content": "const ui = await prefab.app()\nui.render('#root', view)", "language": "ts" },
+            { "type": "DropZone", "label": "Drop files here or click to browse" }
+          ]}
+        ]}
+      ]}
+    ]
+  }
+}

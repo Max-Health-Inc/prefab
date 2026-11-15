@@ -1,0 +1,152 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+.pf-app-root {
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  color: var(--foreground);
+  background-color: var(--background);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+:where(.pf-button, .pf-input, .pf-textarea, .pf-select, .pf-combobox-input, .pf-datatable-search,
+  .pf-tab-trigger, .pf-accordion-trigger, .pf-carousel-prev, .pf-carousel-next, .pf-dialog-close,
+  .pf-theme-toggle, .pf-expandable-row-summary) {
+  font: inherit;
+  color: inherit;
+  letter-spacing: inherit;
+}
+
+:where(.pf-app-root, .pf-toast-region, .pf-dialog) :focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :where(.pf-app-root, .pf-toast-region) *,
+  :where(.pf-app-root, .pf-toast-region) *::before,
+  :where(.pf-app-root, .pf-toast-region) *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+.pf-column { display: flex; flex-direction: column; }
+.pf-row    { display: flex; flex-direction: row; flex-wrap: wrap; }
+.pf-grid   { display: grid; }
+
+.pf-grid-item { min-width: 0; }
+.pf-container { width: 100%; max-width: 1200px; margin: 0 auto; }
+.pf-div  { display: block; }
+.pf-span { display: inline; }
+.pf-pages { position: relative; }
+
+.pf-master-detail { display: flex; flex-direction: row; min-height: 0; }
+.pf-master-detail-master { flex-shrink: 0; overflow: auto; }
+.pf-master-detail-detail { flex: 1; min-width: 0; overflow: auto; }
+
+@media (max-width: 560px) {
+  .pf-grid { grid-template-columns: minmax(0, 1fr) !important; }
+  .pf-grid-item { grid-column: auto !important; }
+  .pf-master-detail { flex-direction: column; }
+  .pf-master-detail-master { width: auto !important; }
+}
+
+.pf-heading { margin: 0; font-weight: 600; letter-spacing: -0.02em; text-wrap: balance; }
+.pf-h1 { font-size: 2.25rem; line-height: 2.5rem; font-weight: 700; }
+.pf-h2 { font-size: 1.875rem; line-height: 2.25rem; }
+.pf-h3 { font-size: 1.5rem;  line-height: 2rem; }
+.pf-h4 { font-size: 1.25rem; line-height: 1.75rem; }
+.pf-h5 { font-size: 1.125rem; line-height: 1.75rem; }
+.pf-h6 { font-size: 1rem; line-height: 1.5rem; }
+
+.pf-p     { margin: 0; line-height: 1.625; }
+.pf-lead  { margin: 0; font-size: 1.125rem; line-height: 1.75rem; color: var(--muted-foreground); }
+.pf-large { font-size: 1.125rem; line-height: 1.75rem; font-weight: 600; }
+.pf-small { font-size: 0.875rem; line-height: 1.25rem; font-weight: 500; }
+.pf-muted { margin: 0; color: var(--muted-foreground); font-size: 0.875rem; line-height: 1.25rem; }
+
+.pf-blockquote {
+  margin: 0;
+  padding-left: 1rem;
+  border-left: 2px solid var(--border);
+  font-style: italic;
+  color: var(--muted-foreground);
+}
+
+.pf-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.25rem;
+}
+
+.pf-link {
+  color: var(--primary);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in oklab, var(--primary) 40%, transparent);
+  text-underline-offset: 4px;
+  cursor: pointer;
+  transition: text-decoration-color 0.15s;
+}
+.pf-link:hover { text-decoration-color: currentColor; }
+
+.pf-code {
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  background: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.875rem 1rem;
+  overflow-x: auto;
+  margin: 0;
+  white-space: pre;
+}
+
+.pf-markdown { line-height: 1.7; }
+.pf-markdown > :first-child { margin-top: 0; }
+.pf-markdown > :last-child { margin-bottom: 0; }
+.pf-markdown h1, .pf-markdown h2, .pf-markdown h3 { margin: 1.5em 0 0.5em; line-height: 1.3; letter-spacing: -0.01em; }
+.pf-markdown p { margin: 0.75em 0; }
+.pf-markdown ul, .pf-markdown ol { margin: 0.75em 0; padding-left: 1.5em; }
+.pf-markdown li + li { margin-top: 0.25em; }
+.pf-markdown a { color: var(--primary); text-underline-offset: 4px; }
+.pf-markdown code {
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+  background: var(--muted);
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+}
+.pf-markdown pre {
+  background: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.875rem 1rem;
+  overflow-x: auto;
+}
+.pf-markdown pre code { background: none; padding: 0; }
+
+.pf-kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1;
+  min-width: 1.5em;
+  height: 1.5em;
+  padding: 0 0.4em;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--muted);
+  color: var(--muted-foreground);
+  box-shadow: 0 1px 0 var(--border);
+}
+
+.pf-app-root [role="button"]:not(button, .pf-expandable-row-summary) { cursor: pointer; }

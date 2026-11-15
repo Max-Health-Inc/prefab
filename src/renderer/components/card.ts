@@ -16,7 +16,6 @@ export function registerCardComponents(): void {
 
 function renderCard(node: ComponentNode, ctx: RenderContext): HTMLElement {
   const e = el('div', 'pf-card')
-  e.style.overflow = 'hidden'
   renderChildren(node, e, ctx)
   return e
 }
@@ -24,7 +23,6 @@ function renderCard(node: ComponentNode, ctx: RenderContext): HTMLElement {
 function renderCardSection(cls: string) {
   return (node: ComponentNode, ctx: RenderContext): HTMLElement => {
     const e = el('div', cls)
-    e.style.padding = '16px 24px'
     renderChildren(node, e, ctx)
     return e
   }

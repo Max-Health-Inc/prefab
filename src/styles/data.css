@@ -1,0 +1,154 @@
+.pf-metric       { display: flex; flex-direction: column; gap: 0.25rem; min-width: 0; }
+.pf-metric-label { font-size: 0.875rem; font-weight: 500; line-height: 1.25rem; color: var(--muted-foreground); }
+.pf-metric-row   { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.5rem; }
+.pf-metric-value { font-size: 1.75rem; line-height: 2.25rem; font-weight: 700; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.pf-metric-delta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.125rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  color: var(--muted-foreground);
+}
+.pf-metric-delta[data-sentiment="positive"] { color: color-mix(in oklab, var(--success) 80%, var(--foreground)); }
+.pf-metric-delta[data-sentiment="negative"] { color: color-mix(in oklab, var(--destructive) 85%, var(--foreground)); }
+.pf-metric-desc  { font-size: 0.75rem; line-height: 1rem; color: var(--muted-foreground); }
+
+.pf-ring       { position: relative; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.pf-ring svg   { display: block; }
+.pf-ring-track { stroke: var(--muted); }
+.pf-ring-fill  { stroke: var(--primary); transform: rotate(-90deg); transform-origin: center; transition: stroke-dashoffset 0.4s ease; }
+.pf-ring-label { position: absolute; text-align: center; font-size: 0.8125rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+
+.pf-progress {
+  width: 100%;
+  height: 0.5rem;
+  background: var(--muted);
+  border-radius: 9999px;
+  overflow: hidden;
+}
+.pf-progress-fill {
+  height: 100%;
+  background: var(--primary);
+  border-radius: 9999px;
+  transition: width 0.3s ease;
+}
+
+.pf-separator {
+  flex-shrink: 0;
+  width: 100%;
+  height: 0;
+  margin: 0;
+  border: 0;
+  border-top: 1px solid var(--border);
+}
+
+.pf-separator[data-orientation="vertical"] {
+  width: 0;
+  height: auto;
+  align-self: stretch;
+  border-top: 0;
+  border-left: 1px solid var(--border);
+}
+
+.pf-loader {
+  display: inline-block;
+  flex-shrink: 0;
+  align-self: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 2px solid var(--muted);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: pf-spin 0.7s linear infinite;
+}
+@keyframes pf-spin { to { transform: rotate(360deg); } }
+
+.pf-icon { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; width: 1.25em; height: 1.25em; vertical-align: -0.25em; }
+.pf-icon svg { width: 100%; height: 100%; }
+
+.pf-sparkline { display: inline-flex; flex-shrink: 0; }
+.pf-sparkline svg { display: block; overflow: visible; }
+.pf-sparkline polyline { stroke: var(--primary); stroke-linecap: round; stroke-linejoin: round; }
+
+.pf-datatable-wrapper { display: flex; flex-direction: column; gap: 0.75rem; min-width: 0; }
+.pf-datatable-scroll {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.pf-datatable, .pf-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+.pf-datatable-th, .pf-table-header {
+  height: 2.5rem;
+  padding: 0 0.75rem;
+  text-align: left;
+  vertical-align: middle;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--muted-foreground);
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+.pf-datatable-th { background: color-mix(in oklab, var(--muted) 45%, transparent); }
+.pf-datatable-td, .pf-table-cell {
+  padding: 0.75rem;
+  vertical-align: middle;
+  border-bottom: 1px solid var(--border);
+}
+.pf-datatable tbody tr:last-child .pf-datatable-td { border-bottom: 0; }
+.pf-datatable-row, .pf-table tbody .pf-table-row { transition: background-color 0.15s; }
+.pf-datatable-row:hover, .pf-table tbody .pf-table-row:hover { background: color-mix(in oklab, var(--muted) 50%, transparent); }
+.pf-datatable-row-clickable { cursor: pointer; }
+.pf-datatable-row-selected,
+.pf-datatable-row-selected:hover { background: color-mix(in oklab, var(--primary) 12%, transparent); }
+.pf-datatable-empty { padding: 1.5rem 0.75rem; text-align: center; color: var(--muted-foreground); }
+
+.pf-table-striped tbody .pf-table-row:nth-child(even) {
+  background: color-mix(in oklab, var(--muted) 40%, transparent);
+}
+.pf-tfoot .pf-table-cell { font-weight: 500; background: color-mix(in oklab, var(--muted) 45%, transparent); }
+.pf-table-caption {
+  caption-side: bottom;
+  padding-top: 0.75rem;
+  color: var(--muted-foreground);
+  font-size: 0.8125rem;
+}
+
+.pf-expandable-row { border-bottom: 1px solid var(--border); }
+.pf-expandable-row-summary {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.625rem 0;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  user-select: none;
+}
+.pf-expandable-arrow {
+  display: inline-block;
+  flex-shrink: 0;
+  width: 0.4375rem;
+  height: 0.4375rem;
+  margin: 0 0.25rem;
+  border-right: 1.5px solid var(--muted-foreground);
+  border-bottom: 1.5px solid var(--muted-foreground);
+  transform: rotate(-45deg);
+  transition: transform 0.2s;
+}
+.pf-expandable-row-summary[aria-expanded="true"] .pf-expandable-arrow { transform: rotate(45deg); }
+.pf-expandable-row-detail { padding: 0 0 0.75rem 1.5rem; }
+
+.pf-ring[data-variant="success"] .pf-ring-fill,     .pf-progress[data-variant="success"] .pf-progress-fill     { stroke: var(--success); background: var(--success); }
+.pf-ring[data-variant="warning"] .pf-ring-fill,     .pf-progress[data-variant="warning"] .pf-progress-fill     { stroke: var(--warning); background: var(--warning); }
+.pf-ring[data-variant="destructive"] .pf-ring-fill, .pf-progress[data-variant="destructive"] .pf-progress-fill { stroke: var(--destructive); background: var(--destructive); }
+.pf-ring[data-variant="info"] .pf-ring-fill,        .pf-progress[data-variant="info"] .pf-progress-fill        { stroke: var(--info); background: var(--info); }

@@ -9,11 +9,11 @@
  */
 
 import { describe, it, expect } from 'bun:test'
-import { readFileSync } from 'node:fs'
+import { bundleCss } from '../scripts/bundle-css'
 import { rendererHtml, themeBridgeCss, VSCODE_BRIDGE } from '../src/index'
 import type { ThemeBridge } from '../src/index'
 
-const css = readFileSync(new URL('../src/prefab.css', import.meta.url), 'utf8')
+const css = bundleCss()
 
 /** Declarations of one prefab.css block, as `token -> value`. */
 function block(pattern: RegExp): Record<string, string> {

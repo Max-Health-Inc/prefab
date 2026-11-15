@@ -5,7 +5,7 @@ import {
   COLORS, AXIS_COLOR,
   chartLayout, createSvg, svgEl,
   drawYAxis, drawYAxisRight, drawXAxisLabels, drawBaseline,
-  applyPipeFormat, resolveValueFormat, makeTooltipFormatter, addLegend,
+  applyPipeFormat, resolveValueFormat, makeTooltipFormatter, addLegend, DEFAULT_CHART_WIDTH,
 } from './helpers.js'
 import type { ChartLayout } from './helpers.js'
 import { cartesianProps, seriesMax } from './props.js'
@@ -18,14 +18,13 @@ interface AxisScale {
   rightMax: number
 }
 
-function drawAxes(node: ComponentNode, p: CartesianProps, chartType: string): AxisScale {
+function drawAxes(node: ComponentNode, p: CartesianProps, chartType: string, w: number): AxisScale {
   const leftSeries = p.series.filter(s => s.yAxisId !== 'right')
   const rightSeries = p.series.filter(s => s.yAxisId === 'right')
   const hasRight = p.showYAxisRight && rightSeries.length > 0
   const leftMax = leftSeries.length > 0 ? seriesMax(p.rows, leftSeries) : 1
   const rightMax = hasRight ? seriesMax(p.rows, rightSeries) : 1
 
-  const w = 400
   const layout = chartLayout(w, p.height, p.showYAxis, hasRight)
   const svg = createSvg(w, p.height, chartType)
 
@@ -39,7 +38,7 @@ function pipeFormatter(format: string | undefined, ctx: RenderContext): ((v: unk
   return format ? (v: unknown) => applyPipeFormat(v, format, ctx) : undefined
 }
 
-export function renderBarChart(node: ComponentNode, ctx: RenderContext): HTMLElement {
+export function renderBarChart(node: ComponentNode, ctx: RenderContext, width = DEFAULT_CHART_WIDTH): HTMLElement {
   const wrapper = el('div', 'pf-chart pf-bar-chart')
   const p = cartesianProps(node, ctx)
   const { rows: data, series } = p
@@ -49,7 +48,7 @@ export function renderBarChart(node: ComponentNode, ctx: RenderContext): HTMLEle
     return wrapper
   }
 
-  const { layout, svg, leftMax, rightMax } = drawAxes(node, p, 'Bar')
+  const { layout, svg, leftMax, rightMax } = drawAxes(node, p, 'Bar', width)
 
   const barGroupWidth = layout.plotWidth / data.length
   const barWidth = barGroupWidth / (series.length + 1)
@@ -142,7 +141,7 @@ function drawCrosshair(svg: SVGSVGElement, layout: ChartLayout): SVGLineElement 
   return crosshair
 }
 
-export function renderLineChart(node: ComponentNode, ctx: RenderContext): HTMLElement {
+export function renderLineChart(node: ComponentNode, ctx: RenderContext, width = DEFAULT_CHART_WIDTH): HTMLElement {
   const wrapper = el('div', `pf-chart pf-${node.type.toLowerCase()}-chart`)
   const p = cartesianProps(node, ctx)
   const { rows: data, series: allSeries } = p
@@ -153,7 +152,7 @@ export function renderLineChart(node: ComponentNode, ctx: RenderContext): HTMLEl
   }
 
   const isArea = node.type === 'AreaChart'
-  const { layout, svg, leftMax, rightMax } = drawAxes(node, p, isArea ? 'Area' : 'Line')
+  const { layout, svg, leftMax, rightMax } = drawAxes(node, p, isArea ? 'Area' : 'Line', width)
   const xAt = (i: number): number => data.length === 1
     ? (layout.plotLeft + layout.plotRight) / 2
     : layout.plotLeft + (i / (data.length - 1)) * layout.plotWidth
