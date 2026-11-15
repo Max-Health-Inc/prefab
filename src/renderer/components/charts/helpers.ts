@@ -4,14 +4,14 @@
  */
 
 import { resolveValue, el } from '../../engine.js'
-import type { ComponentNode, RenderContext } from '../../engine.js'
+import type { ComponentNode, RenderContext, RenderFnReturn } from '../../engine.js'
 import { stringifyValue } from '../../../core/stringify.js'
 import { optionalString } from '../../../core/guards.js'
 
 export const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899']
 export const AXIS_COLOR = 'var(--muted-foreground, #6b7280)'
 export const GRID_COLOR = 'var(--border, #e5e7eb)'
-export const AXIS_FONT = '10'
+export const AXIS_FONT = '11'
 
 export interface SeriesEntry {
   dataKey: string
@@ -54,19 +54,27 @@ export function chartLayout(
   }
 }
 
+/** A 1-2-5 step that splits `range` into about `count` intervals. */
+function niceStep(range: number, count: number): number {
+  const rawStep = range / count
+  const magnitude = Math.pow(10, Math.floor(Math.log10(rawStep)))
+  const residual = rawStep / magnitude
+  return (residual <= 1.5 ? 1 : residual <= 3 ? 2 : residual <= 7 ? 5 : 10) * magnitude
+}
+
 /** Nice round tick values for a 0..max range, returning ~tickCount values. */
 function niceYTicks(max: number, tickCount = 5): number[] {
   if (max <= 0) return [0]
-  const rawStep = max / tickCount
-  const magnitude = Math.pow(10, Math.floor(Math.log10(rawStep)))
-  const residual = rawStep / magnitude
-  const niceStep =
-    residual <= 1.5 ? magnitude
-      : residual <= 3 ? 2 * magnitude
-        : residual <= 7 ? 5 * magnitude
-          : 10 * magnitude
+  return niceTicks(0, max, tickCount)
+}
+
+/** Nice round ticks covering min..max, extended outward to whole steps. */
+export function niceTicks(min: number, max: number, tickCount = 4): number[] {
+  const hiIn = max > min ? max : min + 1
+  const step = niceStep(hiIn - min, tickCount)
+  const lo = Math.floor(min / step) * step
   const ticks: number[] = []
-  for (let v = 0; v <= max + niceStep * 0.01; v += niceStep) {
+  for (let v = lo; v <= hiIn + step * 0.01 || ticks.length < 2; v += step) {
     ticks.push(Math.round(v * 1000) / 1000)
   }
   return ticks
@@ -203,12 +211,40 @@ export function makeTooltipFormatter(
 // ── SVG primitives ───────────────────────────────────────────────────────────
 
 export function createSvg(width: number, height: number, chartType?: string): SVGSVGElement {
-  const svg = svgEl('svg', {
-    width: '100%', height, viewBox: `0 0 ${width} ${height}`, role: 'img',
+  return svgEl('svg', {
+    width, height, viewBox: `0 0 ${width} ${height}`, role: 'img',
     ...(chartType ? { 'aria-label': `${chartType} chart` } : {}),
   })
-  svg.style.overflow = 'visible'
-  return svg
+}
+
+export const DEFAULT_CHART_WIDTH = 400
+const MIN_CHART_WIDTH = 160
+
+export type SizedChartRender = (node: ComponentNode, ctx: RenderContext, width: number) => HTMLElement
+
+/**
+ * Draw a chart at its container's real width, so axis text keeps its size and the
+ * requested height holds. The first draw uses DEFAULT_CHART_WIDTH (no layout yet);
+ * each resize swaps in a chart drawn for the new width.
+ */
+export function responsiveChart(render: SizedChartRender): (node: ComponentNode, ctx: RenderContext) => RenderFnReturn {
+  return (node, ctx) => {
+    let current = render(node, ctx, DEFAULT_CHART_WIDTH)
+    if (typeof ResizeObserver === 'undefined') return current
+    let drawnWidth = DEFAULT_CHART_WIDTH
+    const observer = new ResizeObserver((entries) => {
+      const width = Math.floor(entries[0]?.contentRect.width ?? 0)
+      if (width < MIN_CHART_WIDTH || Math.abs(width - drawnWidth) < 1 || !current.isConnected) return
+      drawnWidth = width
+      const next = render(node, ctx, width)
+      observer.unobserve(current)
+      current.replaceWith(next)
+      current = next
+      observer.observe(current)
+    })
+    observer.observe(current)
+    return { element: current, destroy: () => { observer.disconnect() } }
+  }
 }
 
 /** Create an SVG element with string-coerced attributes. */
@@ -250,21 +286,11 @@ export function arcPath(cx: number, cy: number, r: number, a1: number, a2: numbe
 export function addLegend(wrapper: HTMLElement, series: SeriesEntry[], show: boolean): void {
   if (!show || series.length <= 1) return
   const legend = el('div', 'pf-chart-legend')
-  legend.style.display = 'flex'
-  legend.style.gap = '12px'
-  legend.style.fontSize = '12px'
-  legend.style.marginBottom = '8px'
 
   for (let i = 0; i < series.length; i++) {
     const item = el('div', 'pf-chart-legend-item')
-    item.style.display = 'flex'
-    item.style.alignItems = 'center'
-    item.style.gap = '4px'
 
-    const dot = el('span')
-    dot.style.width = '8px'
-    dot.style.height = '8px'
-    dot.style.borderRadius = '50%'
+    const dot = el('span', 'pf-chart-legend-dot')
     dot.style.backgroundColor = series[i].color ?? COLORS[i % COLORS.length]
 
     const label = el('span')

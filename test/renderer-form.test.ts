@@ -51,7 +51,8 @@ describe('Input rendering', () => {
     const label = query(dom, 'label', HTMLLabelElement)
     expect(label).toBeTruthy()
     expect(label.textContent).toBe('Email Address')
-    expect(label.htmlFor).toBe('email')
+    expect(label.htmlFor).toBe(query(dom, 'input', HTMLInputElement).id)
+    expect(label.htmlFor).not.toBe('')
   })
 
   it('sets placeholder attribute', () => {
@@ -467,7 +468,6 @@ describe('ButtonGroup rendering', () => {
     }, ctx)
 
     expect(dom.className).toBe('pf-button-group')
-    expect(dom.style.display).toBe('flex')
     const buttons = dom.querySelectorAll('button')
     expect(buttons.length).toBe(2)
     expect(buttons[0].textContent).toBe('Save')

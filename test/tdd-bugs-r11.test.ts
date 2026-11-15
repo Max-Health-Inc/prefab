@@ -24,13 +24,13 @@ describe('Grid responsive columns', () => {
   it('renders a breakpoint map at its widest breakpoint', () => {
     const node: ComponentNode = { type: 'Grid', columns: { sm: 1, md: 2, lg: 3 } }
     const dom = renderNode(node, makeRenderCtx()) as HTMLElement
-    expect(dom.style.gridTemplateColumns).toBe('repeat(3, 1fr)')
+    expect(dom.style.gridTemplateColumns).toBe('repeat(3, minmax(0, 1fr))')
   })
 
   it('falls back to 3 columns for a map without numeric breakpoints', () => {
     const node: ComponentNode = { type: 'Grid', columns: { lg: 'wide' } }
     const dom = renderNode(node, makeRenderCtx()) as HTMLElement
-    expect(dom.style.gridTemplateColumns).toBe('repeat(3, 1fr)')
+    expect(dom.style.gridTemplateColumns).toBe('repeat(3, minmax(0, 1fr))')
   })
 })
 

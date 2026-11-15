@@ -816,7 +816,7 @@ describe('Layout alignment and justification', () => {
     const ctx = makeCtx()
     const node: ComponentNode = { type: 'Grid', columns: 4, gap: 2 }
     const el = renderNode(node, ctx) as HTMLElement
-    expect(el.style.gridTemplateColumns).toBe('repeat(4, 1fr)')
+    expect(el.style.gridTemplateColumns).toBe('repeat(4, minmax(0, 1fr))')
     expect(el.style.gap).toBe('8px')
   })
 })

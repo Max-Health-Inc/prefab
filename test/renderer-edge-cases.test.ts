@@ -217,13 +217,13 @@ describe('Grid rendering', () => {
   it('defaults to 3 columns', () => {
     const ctx = makeRenderCtx()
     const dom = renderEl({ type: 'Grid' }, ctx)
-    expect(dom.style.gridTemplateColumns).toBe('repeat(3, 1fr)')
+    expect(dom.style.gridTemplateColumns).toBe('repeat(3, minmax(0, 1fr))')
   })
 
   it('respects custom column count', () => {
     const ctx = makeRenderCtx()
     const dom = renderEl({ type: 'Grid', columns: 4 }, ctx)
-    expect(dom.style.gridTemplateColumns).toBe('repeat(4, 1fr)')
+    expect(dom.style.gridTemplateColumns).toBe('repeat(4, minmax(0, 1fr))')
   })
 
   it('applies gap from gap prop', () => {

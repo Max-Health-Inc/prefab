@@ -20,11 +20,11 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach } from 'bun:test'
-import { readFileSync } from 'node:fs'
+import { bundleCss } from '../scripts/bundle-css'
 import { compileThemeCss } from '../src/index'
 import { createThemeToggle } from '../src/renderer/theme'
 
-const PREFAB_CSS = readFileSync(new URL('../src/prefab.css', import.meta.url), 'utf8')
+const PREFAB_CSS = bundleCss()
 
 /** A dark value that appears only in prefab.css's explicit dark block. */
 const DARK_BACKGROUND = '#09090b'

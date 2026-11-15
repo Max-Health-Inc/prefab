@@ -49,7 +49,7 @@ function renderRow(node: ComponentNode, ctx: RenderContext): HTMLElement {
 function renderGrid(node: ComponentNode, ctx: RenderContext): HTMLElement {
   const e = el('div', 'pf-grid')
   e.style.display = 'grid'
-  e.style.gridTemplateColumns = `repeat(${gridColumns(node.columns)}, 1fr)`
+  e.style.gridTemplateColumns = `repeat(${gridColumns(node.columns)}, minmax(0, 1fr))`
   const gap = extractGap(node)
   if (gap != null) e.style.gap = `${gap * 4}px`
   renderChildren(node, e, ctx)
@@ -109,8 +109,6 @@ function renderDetail(node: ComponentNode, ctx: RenderContext): HTMLElement {
 
 function renderMasterDetail(node: ComponentNode, ctx: RenderContext): HTMLElement {
   const e = el('div', 'pf-master-detail')
-  e.style.display = 'flex'
-  e.style.flexDirection = 'row'
   const gap = extractGap(node)
   if (gap != null) e.style.gap = `${gap * 4}px`
 
@@ -120,16 +118,12 @@ function renderMasterDetail(node: ComponentNode, ctx: RenderContext): HTMLElemen
   if (children.length > 0) {
     const masterPane = el('div', 'pf-master-detail-master')
     masterPane.style.width = masterWidth
-    masterPane.style.flexShrink = '0'
-    masterPane.style.overflow = 'auto'
     masterPane.appendChild(renderNode(children[0], ctx))
     e.appendChild(masterPane)
   }
 
   if (children.length > 1) {
     const detailPane = el('div', 'pf-master-detail-detail')
-    detailPane.style.flex = '1'
-    detailPane.style.overflow = 'auto'
     detailPane.appendChild(renderNode(children[1], ctx))
     e.appendChild(detailPane)
   }

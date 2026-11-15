@@ -133,8 +133,8 @@ export const PrefabRenderer = {
    * @returns A MountedApp handle for updates and cleanup.
    */
   mount(root: HTMLElement, initialData: PrefabWireData, options?: MountOptions): MountedApp {
-    // Register all built-in components (idempotent)
     registerAllComponents()
+    root.classList.add('pf-app-root')
 
     // Surface wire-format problems as non-fatal console warnings. Catches the
     // silent-failure class (children under a wrong key, showToast without a
@@ -409,19 +409,17 @@ function defaultToastHandler(toast: ToastEvent): void {
   const variant = toast.variant ?? 'default'
   toastEl.className = `pf-toast${variant !== 'default' ? ` pf-toast--${variant}` : ''}`
   toastEl.setAttribute('data-variant', variant)
-  toastEl.style.marginBottom = '8px'
-  toastEl.style.transition = 'opacity 0.3s ease'
+  toastEl.setAttribute('role', variant === 'error' ? 'alert' : 'status')
 
   const msg = document.createElement('div')
+  msg.className = 'pf-toast-title'
   msg.textContent = toast.message
-  msg.style.fontWeight = '500'
   toastEl.appendChild(msg)
 
   if (toast.description) {
     const desc = document.createElement('div')
+    desc.className = 'pf-toast-description'
     desc.textContent = toast.description
-    desc.style.fontSize = '14px'
-    desc.style.color = 'var(--muted-foreground, #6b7280)'
     toastEl.appendChild(desc)
   }
 
@@ -429,7 +427,7 @@ function defaultToastHandler(toast: ToastEvent): void {
 
   const duration = toast.duration ?? 4000
   setTimeout(() => {
-    toastEl.style.opacity = '0'
+    toastEl.classList.add('pf-toast--leaving')
     setTimeout(() => toastEl.remove(), 300)
   }, duration)
 }
@@ -515,11 +513,8 @@ function getOrCreateToastContainer(): HTMLElement {
   if (!container) {
     container = document.createElement('div')
     container.id = id
-    container.style.position = 'fixed'
-    container.style.bottom = '16px'
-    container.style.right = '16px'
-    container.style.zIndex = '9999'
-    container.style.maxWidth = '400px'
+    container.className = 'pf-toast-region'
+    container.setAttribute('aria-live', 'polite')
     document.body.appendChild(container)
   }
   return container

@@ -3,7 +3,7 @@
  */
 
 import { $ } from 'bun'
-import { readFileSync, writeFileSync, copyFileSync } from 'node:fs'
+import { readFileSync, writeFileSync } from 'node:fs'
 
 // ── Sync VERSION constant with package.json ──────────────────────────────────
 const pkg = JSON.parse(readFileSync('package.json', 'utf-8')) as { version: string }
@@ -86,8 +86,8 @@ if (!a2uiResult.success) {
 
 console.log('✅ A2UI bundle → dist/a2ui.min.js')
 
-// Copy CSS theme file to dist
-copyFileSync('src/prefab.css', 'dist/prefab.css')
+const { bundleCss } = await import('./bundle-css.ts')
+writeFileSync('dist/prefab.css', bundleCss())
 console.log('✅ Base theme → dist/prefab.css')
 
 // Skill copies of docs/ examples and references; git-ignored.

@@ -873,7 +873,6 @@ describe('Dot component', () => {
     const node: ComponentNode = { type: 'Dot', color: 'green' }
     const dom = renderEl(node, ctx)
     expect(dom.style.backgroundColor).toBe('green')
-    expect(dom.style.borderRadius).toBe('50%')
   })
 })
 
@@ -1122,7 +1121,7 @@ describe('Layout components', () => {
     }
     const dom = renderEl(node, ctx)
     expect(dom.style.display).toBe('grid')
-    expect(dom.style.gridTemplateColumns).toBe('repeat(3, 1fr)')
+    expect(dom.style.gridTemplateColumns).toBe('repeat(3, minmax(0, 1fr))')
   })
 
   it('Container renders max-width wrapper', () => {

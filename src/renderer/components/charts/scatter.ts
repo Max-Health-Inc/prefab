@@ -4,14 +4,14 @@ import { bindTooltip, createTooltip } from './tooltip.js'
 import {
   COLORS, AXIS_COLOR, GRID_COLOR, AXIS_FONT,
   chartLayout, createSvg, svgEl, svgText, drawBaseline,
-  valueFormatter, addLegend,
+  valueFormatter, addLegend, DEFAULT_CHART_WIDTH, niceTicks,
 } from './helpers.js'
 import { chartHeight, chartRows, chartSeries, chartValues } from './props.js'
 import { optionalNumber, optionalString } from '../../../core/guards.js'
 
 const round2 = (v: number): string => String(Math.round(v * 100) / 100)
 
-export function renderScatterChart(node: ComponentNode, ctx: RenderContext): HTMLElement {
+export function renderScatterChart(node: ComponentNode, ctx: RenderContext, width = DEFAULT_CHART_WIDTH): HTMLElement {
   const wrapper = el('div', 'pf-chart pf-scatter-chart')
   const data = chartRows(node, ctx)
   const xKey = optionalString(node.xAxis)
@@ -31,23 +31,24 @@ export function renderScatterChart(node: ComponentNode, ctx: RenderContext): HTM
 
   const xs = data.map(d => Number(d[xKey] ?? 0))
   const ys = data.map(d => Number(d[yKey] ?? 0))
-  const xMin = Math.min(...xs), xMax = Math.max(...xs)
-  const yMin = Math.min(...ys), yMax = Math.max(...ys)
-  const xRange = (xMax - xMin) || 1
-  const yRange = (yMax - yMin) || 1
+  const xTicks = niceTicks(Math.min(...xs), Math.max(...xs), 5)
+  const yTicks = niceTicks(Math.min(...ys), Math.max(...ys), 4)
+  const xMin = xTicks[0], xRange = (xTicks[xTicks.length - 1] - xMin) || 1
+  const yMin = yTicks[0], yRange = (yTicks[yTicks.length - 1] - yMin) || 1
   const zs = zKey ? data.map(d => Number(d[zKey] ?? 0)) : []
   const zMax = zKey ? Math.max(...zs, 1) : 1
+  const maxRadius = zKey ? 18 : 4
 
-  const W = 400
-  const layout = chartLayout(W, height, true)
-  const svg = createSvg(W, height, 'Scatter')
+  const layout = chartLayout(width, height, true)
+  const svg = createSvg(width, height, 'Scatter')
 
-  const sx = (v: number): number => layout.plotLeft + ((v - xMin) / xRange) * layout.plotWidth
+  const innerLeft = layout.plotLeft + maxRadius
+  const innerWidth = Math.max(1, layout.plotWidth - maxRadius * 2)
+  const sx = (v: number): number => innerLeft + ((v - xMin) / xRange) * innerWidth
   const sy = (v: number): number => layout.plotBottom - ((v - yMin) / yRange) * layout.plotHeight
 
-  const Y_TICKS = 4
-  for (let t = 0; t <= Y_TICKS; t++) {
-    const val = yMin + (yRange * t) / Y_TICKS
+  for (let t = 0; t < yTicks.length; t++) {
+    const val = yTicks[t]
     const y = sy(val)
     svg.appendChild(svgText(
       { x: layout.plotLeft - 6, y: y + 3, 'text-anchor': 'end', 'font-size': AXIS_FONT, fill: AXIS_COLOR },
@@ -62,7 +63,7 @@ export function renderScatterChart(node: ComponentNode, ctx: RenderContext): HTM
   }
   drawBaseline(svg, layout)
 
-  for (const xv of [xMin, (xMin + xMax) / 2, xMax]) {
+  for (const xv of xTicks) {
     svg.appendChild(svgText(
       { x: sx(xv), y: layout.plotBottom + 14, 'text-anchor': 'middle', 'font-size': AXIS_FONT, fill: AXIS_COLOR },
       round2(xv),
@@ -93,7 +94,7 @@ export function renderScatterChart(node: ComponentNode, ctx: RenderContext): HTM
   return wrapper
 }
 
-export function renderHistogram(node: ComponentNode, ctx: RenderContext): HTMLElement {
+export function renderHistogram(node: ComponentNode, ctx: RenderContext, width = DEFAULT_CHART_WIDTH): HTMLElement {
   const wrapper = el('div', 'pf-chart pf-histogram')
   const data = chartValues(node, ctx)
   if (!data) {
@@ -115,9 +116,8 @@ export function renderHistogram(node: ComponentNode, ctx: RenderContext): HTMLEl
   }
   const maxBin = Math.max(...bins)
 
-  const W = 300
-  const barW = W / binCount
-  const svg = createSvg(W, H, 'Histogram')
+  const barW = width / binCount
+  const svg = createSvg(width, H, 'Histogram')
 
   for (let i = 0; i < binCount; i++) {
     const barH = maxBin > 0 ? (bins[i] / maxBin) * H : 0

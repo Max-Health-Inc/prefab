@@ -18,12 +18,10 @@ function renderAlert(node: ComponentNode, ctx: RenderContext): HTMLElement {
   e.setAttribute('role', 'alert')
   const variant = optionalString(node.variant) ?? 'default'
   e.setAttribute('data-variant', variant)
-  e.style.padding = '12px 16px'
 
   if (node.icon != null) {
     const icon = el('span', 'pf-alert-icon')
     icon.setAttribute('data-icon', stringifyValue(node.icon))
-    icon.style.marginRight = '8px'
     e.appendChild(icon)
   }
 
@@ -34,14 +32,11 @@ function renderAlert(node: ComponentNode, ctx: RenderContext): HTMLElement {
 function renderAlertTitle(node: ComponentNode, ctx: RenderContext): HTMLElement {
   const e = el('h5', 'pf-alert-title')
   e.textContent = resolveStr(node.content, ctx)
-  e.style.fontWeight = '600'
-  e.style.marginBottom = '4px'
   return e
 }
 
 function renderAlertDescription(node: ComponentNode, ctx: RenderContext): HTMLElement {
   const e = el('p', 'pf-alert-description')
   e.textContent = resolveStr(node.content, ctx)
-  e.style.fontSize = '14px'
   return e
 }

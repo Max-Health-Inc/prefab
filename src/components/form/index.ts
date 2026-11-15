@@ -352,7 +352,8 @@ export interface ChoiceCardProps extends ContainerProps {
   value: string
   label?: string
   description?: string
-  selected?: boolean
+  /** Highlight the card; an expression such as `{{ plan == 'pro' }}` keeps it in sync with state. */
+  selected?: boolean | RxStr
   onClick?: Action | Action[]
 }
 
@@ -363,7 +364,7 @@ export function ChoiceCard(props: ChoiceCardProps): ContainerComponent {
     // Not stateful, so it carries its own label.
     ...(props.label && { label: props.label }),
     ...(props.description && { description: props.description }),
-    ...(props.selected !== undefined && { selected: props.selected }),
+    ...(props.selected !== undefined && { selected: typeof props.selected === 'boolean' ? props.selected : String(props.selected) }),
     ...(props.onClick && {
       onClick: Array.isArray(props.onClick)
         ? props.onClick.map((a: Action) => a.toJSON())

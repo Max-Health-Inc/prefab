@@ -6,6 +6,38 @@ All notable changes to this project will be documented in this file.
 
 <!-- Add new entries directly below. Keep this line: it makes a release merge conflict rather than file them under a published version. -->
 
+### Added
+
+- **`component-gallery` example** renders every built-in component and variant on one page, and is listed in the playground.
+- **`ChoiceCard` `selected` accepts an expression** such as `{{ plan == 'pro' }}`, so the highlight follows state.
+- **`Ring` and `Progress` honor `variant`** (`success`, `warning`, `destructive`, `info`), and `Separator` honors `orientation: 'vertical'`.
+- **`info` and `info-foreground` tokens** back the `info` Badge and Alert variants.
+- **Combobox keyboard support**: arrow keys move through options, Enter picks one, Escape closes, with `combobox`/`listbox`/`option` roles.
+
+### Fixed
+
+- **Raw wire payloads mounted with `PrefabRenderer.mount` get the base theme.** The container now carries `pf-app-root`, so text uses the theme font and foreground color. Previously headings rendered black on dark backgrounds and controls fell back to the browser font.
+- **Native controls follow the color scheme.** Each theme block sets `color-scheme`, so radios, date pickers and scrollbars turn dark in dark mode.
+- **Presentation moved from inline styles into `prefab.css`.** Inline `border: none` hid outline button borders and every `Separator`, Card sections overrode their own padding, and the Tooltip forced white text onto a light background in dark mode. Themes can now restyle every component.
+- **Button `size`** (`sm`, `lg`, `icon`) changes the button's size.
+- **`Switch` renders as a switch**, and `Slider` fills its track up to the current value.
+- **`Input` `error` shows its message** under the field and links it with `aria-describedby`.
+- **Labels target their control's id**, so clicking a label focuses the field. Required fields mark their label.
+- **`Loader` draws the spinner alone** with `role="status"`. It no longer shows an hourglass emoji inside the ring.
+- **`Metric` deltas** sit beside the value and take their color from the theme's success and destructive tokens.
+- **`ChoiceCard` `selected`**, the DataTable selected row and the `success`/`warning` Alert variants have styles.
+- **`Table` accepts both header conventions**: `TableHeader` with children renders `<thead>`, `TableHead` with only `content` renders `<th>`. `TableCell` renders `content`, and `ExpandableRow` takes a string `summary` and exposes `aria-expanded`.
+- **Charts draw at their container's width.** A `height: 260` chart is 260px tall at any width and axis text keeps its size. Pie, radar and radial charts stop growing past their size. Scatter axes use round tick values and bubbles stay inside the plot.
+- **Overlays**: `Dialog` has a close button, a non-dismissible dialog ignores Escape, and its document listener is removed on unmount. `Popover` closes on an outside click or Escape. `HoverCard` stays open while the pointer crosses the gap to the card, and Cards no longer clip dropdowns and popovers.
+- **`Carousel` disables the arrow that has no slide to move to.** `Accordion` regions are labelled by their trigger and show a chevron.
+- **The theme toggle reserves its own strip** at the top of the mount, so it never covers content.
+- **`Grid` columns use `minmax(0, 1fr)`**, so long content cannot widen a column, and grids stack into one column below 560px.
+
+### Changed
+
+- **`prefab.css` is assembled from modules in `src/styles/`** by the build. The published `dist/prefab.css` is still a single file.
+- **Light-theme `success` is `#16a34a` and `warning-foreground` is `#422006`**, for readable text on success and warning fills.
+
 ### Docs
 
 - **Input required guide** covers a `cancel` answer: a client can return it without ever showing the form, so a tool should say nothing changed and offer another way to finish rather than report it as the user's choice.

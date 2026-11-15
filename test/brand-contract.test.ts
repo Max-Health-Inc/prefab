@@ -17,7 +17,7 @@
  */
 
 import { describe, it, expect } from 'bun:test'
-import { readFileSync } from 'node:fs'
+import { bundleCss } from '../scripts/bundle-css'
 import {
   BRANDS,
   CONTRACT,
@@ -32,7 +32,7 @@ import { PrefabApp, Column, Text } from '../src/index'
 import type { Theme } from '../src/index'
 
 function prefabCss(): string {
-  return readFileSync(new URL('../src/prefab.css', import.meta.url), 'utf8')
+  return bundleCss()
 }
 
 /** Token names prefab.css defines in its `:root` block (without the leading `--`). */
@@ -65,6 +65,9 @@ function prefabTokenReads(): string[] {
  */
 const HOST_VARIABLE = /^(color-|border-radius-|vscode-)/
 
+/** Component-private variables (`--pf-tone`, `--pf-fill`) that rules set and read locally; never theme tokens. */
+const PRIVATE_PREFIX = 'pf-'
+
 describe('brandc token contract', () => {
   it('prefab.css defines a non-trivial set of tokens', () => {
     // Guards the extraction itself: a regex that silently matched nothing would
@@ -89,7 +92,7 @@ describe('brandc token contract', () => {
     // token prefab never defines, e.g. `color: var(--maxhealth)`.
     const contract = new Set<string>(CONTRACT)
     const unknown = prefabTokenReads()
-      .filter(name => !contract.has(name) && !HOST_VARIABLE.test(name))
+      .filter(name => !contract.has(name) && !HOST_VARIABLE.test(name) && !name.startsWith(PRIVATE_PREFIX))
     expect(unknown).toEqual([])
   })
 

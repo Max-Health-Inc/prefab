@@ -25,7 +25,7 @@ function renderImage(node: ComponentNode, ctx: RenderContext): HTMLElement {
   if (node.alt != null) img.alt = resolveStr(node.alt, ctx)
   if (node.width != null) img.width = Number(node.width)
   if (node.height != null) img.height = Number(node.height)
-  img.style.maxWidth = '100%'
+  img.loading = 'lazy'
   return img
 }
 
@@ -44,7 +44,6 @@ function renderVideo(node: ComponentNode, ctx: RenderContext): HTMLElement {
   video.controls = true
   if (node.width != null) video.width = Number(node.width)
   if (node.height != null) video.height = Number(node.height)
-  video.style.maxWidth = '100%'
   return video
 }
 
@@ -52,9 +51,7 @@ function renderEmbed(node: ComponentNode, ctx: RenderContext): HTMLElement {
   const wrapper = el('div', 'pf-embed')
   const iframe = document.createElement('iframe')
   iframe.src = resolveStr(node.src, ctx)
-  iframe.style.width = '100%'
   iframe.style.height = node.height != null ? `${String(Number(node.height))}px` : '400px'
-  iframe.style.border = 'none'
   iframe.setAttribute('sandbox', 'allow-scripts')
   wrapper.appendChild(iframe)
   return wrapper
@@ -130,9 +127,6 @@ export function matchesAccept(file: File, accept?: string): boolean {
 
 function renderDropZone(node: ComponentNode, ctx: RenderContext): HTMLElement {
   const e = el('div', 'pf-dropzone')
-  e.style.padding = '32px'
-  e.style.textAlign = 'center'
-  e.style.cursor = 'pointer'
   e.textContent = resolveStr(node.label ?? 'Drop files here', ctx)
 
   // Click-to-browse, so the zone is not drag-only (and is reachable by keyboard).
