@@ -16,7 +16,7 @@ jobs:
     uses: max-network/.github/.github/workflows/check.yml@main
     with:
       runtime: bun
-      steps: "typecheck lint test check:docs build verify:dist"
+      steps: "typecheck lint test build check:docs verify:dist"
 
   changelog:
     uses: max-network/.github/.github/workflows/changelog-guard.yml@main
