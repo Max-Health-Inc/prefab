@@ -30,17 +30,20 @@ describe('Bridge (prefab:* protocol)', () => {
     bridge.disconnect()
   })
 
-  it('ignores foreign messages that carry no type instead of throwing on them', async () => {
+  it('ignores foreign messages that carry no type instead of throwing on them', () => {
     const errors: unknown[] = []
     const onError = (event: ErrorEvent): void => { errors.push(event.error ?? event.message) }
+    bridge.connect()
+    // Synchronous dispatch: async errors from other tests cannot land in this window.
     window.addEventListener('error', onError)
     const original = console.error
     console.error = (...args: unknown[]) => { errors.push(args) }
     try {
-      bridge.connect()
-      window.postMessage('hello from an extension', '*')
-      window.postMessage({ source: 'react-devtools-content-script' }, '*')
-      await new Promise((r) => setTimeout(r, 50))
+      for (const data of ['hello from an extension', { source: 'react-devtools-content-script' }]) {
+        window.dispatchEvent(new MessageEvent('message', { data }))
+      }
+    } catch (err) {
+      errors.push(err)
     } finally {
       console.error = original
       window.removeEventListener('error', onError)
