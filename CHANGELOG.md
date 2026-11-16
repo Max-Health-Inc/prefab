@@ -6,6 +6,10 @@ All notable changes to this project will be documented in this file.
 
 <!-- Add new entries directly below. Keep this line: it makes a release merge conflict rather than file them under a published version. -->
 
+### Changed
+
+- **`bun run check:docs` runs the shared `doccheck examples` from `@max-health-inc/config`** instead of a local copy of it. The package API stays in scope in every example through `doccheck.inject`, and examples now resolve `@maxhealth.tech/prefab` through the package's own `exports`, so they are checked against the built type declarations users install; CI runs it after `build`. `tsx` blocks are checked too, and an illustrative import path is stubbed and reported rather than failing.
+
 ## [0.3.24] — 2026-11-15
 
 ### Added
