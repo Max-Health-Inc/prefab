@@ -13,6 +13,20 @@ export function optionalNumber(value: unknown): number | undefined {
   return typeof value === 'number' ? value : undefined
 }
 
+const CSS_LENGTH = /^(?:(?:\d+\.?\d*|\.\d+)(?:px|r?em|%|ch|ex|r?lh|cap|ic|[sdl]?v(?:h|w|min|max|i|b)|cq(?:w|h|i|b|min|max)|cm|mm|q|in|pt|pc)|(?:min|max|clamp|calc|var|env)\([^;{}<>]*\)|auto|fit-content|min-content|max-content)$/i
+
+/** A number, or a string holding one, as pixels; a CSS length string such as `60dvh` or `min(720px, 75vh)` as written; anything else as `fallback` pixels. */
+export function cssLength(value: unknown, fallback: number): string {
+  const n = typeof value === 'number' ? value : typeof value === 'string' && value.trim() !== '' ? Number(value) : NaN
+  if (Number.isFinite(n)) return `${String(n)}px`
+  const fallbackPx = `${String(fallback)}px`
+  if (typeof value !== 'string') return fallbackPx
+  const length = value.trim()
+  if (!CSS_LENGTH.test(length)) return fallbackPx
+  if (typeof CSS !== 'undefined' && typeof CSS.supports === 'function' && !CSS.supports('height', length)) return fallbackPx
+  return length
+}
+
 export function optionalRecord(value: unknown): Record<string, unknown> | undefined {
   return isRecord(value) ? value : undefined
 }

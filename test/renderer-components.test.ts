@@ -819,6 +819,15 @@ describe('Media components', () => {
     expect(iframe.getAttribute('sandbox')).toContain('allow-scripts')
   })
 
+  it('sizes Embed from a CSS length and falls back to 400px for anything else', () => {
+    const ctx = makeRenderCtx()
+    const height = (value: unknown): string =>
+      query(renderEl({ type: 'Embed', src: 'https://example.com/widget', height: value }, ctx), 'iframe', HTMLIFrameElement).style.height
+    expect(height('calc(100% - 2rem)')).toBe('calc(100% - 2rem)')
+    expect(height('tall')).toBe('400px')
+    expect(height(undefined)).toBe('400px')
+  })
+
   it('renders Mermaid as data-mermaid container', () => {
     const ctx = makeRenderCtx()
     const node: ComponentNode = { type: 'Mermaid', content: 'graph TD; A-->B;' }
