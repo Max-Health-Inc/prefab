@@ -345,7 +345,10 @@ Variants: `default`, `info`, `success`, `warning`, `destructive`
 { "type": "Image", "src": "/photo.jpg", "alt": "Profile", "width": 200, "height": 200 }
 { "type": "Mermaid", "content": "graph TD; A-->B; B-->C;" }
 { "type": "DropZone", "accept": "image/*", "multiple": true }
+{ "type": "PdfViewer", "src": "https://example.com/plan.pdf", "zoom": "fit-page", "height": "min(720px, 75dvh)" }
 ```
+
+`PdfViewer` `height` takes pixels or a CSS length. Users drag to pan, Ctrl/⌘ + wheel or pinch to zoom at the pointer, double-click to zoom in and back to fit, and use arrows, `+`/`-`, `0` and PageUp/PageDown once the page has focus.
 
 ## Control Flow
 

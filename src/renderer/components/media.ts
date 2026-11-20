@@ -5,7 +5,7 @@
 import { registerComponent, resolveStr, el, makeDispatchCtx } from '../engine.js'
 import type { ComponentNode, RenderContext } from '../engine.js'
 import { dispatchActions, fireAndForget } from '../actions.js'
-import { isRecord, optionalString } from '../../core/guards.js'
+import { cssLength, isRecord, optionalString } from '../../core/guards.js'
 import { importFromCdn, prefersDark } from '../cdn.js'
 import { stringifyValue } from '../../core/stringify.js'
 
@@ -52,7 +52,7 @@ function renderEmbed(node: ComponentNode, ctx: RenderContext): HTMLElement {
   const wrapper = el('div', 'pf-embed')
   const iframe = document.createElement('iframe')
   iframe.src = resolveStr(node.src, ctx)
-  iframe.style.height = node.height != null ? `${String(Number(node.height))}px` : '400px'
+  iframe.style.height = cssLength(node.height, 400)
   iframe.setAttribute('sandbox', 'allow-scripts')
   wrapper.appendChild(iframe)
   return wrapper

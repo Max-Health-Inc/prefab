@@ -53,6 +53,13 @@
     "CHANGELOG.md"
   ],
   "style": "dist/prefab.css",
+  "doccheck": {
+    "skipSegments": [".vitepress"],
+    "skipPrefixes": ["docs/reference/api", "test/fixtures"],
+    "inject": {
+      "@maxhealth.tech/prefab": "src/index.ts"
+    }
+  },
   "scripts": {
     "build": "bun run scripts/build.ts",
     "fixtures": "python test/fixtures/run_fixtures.py",
@@ -65,7 +72,7 @@
     "gen:skill": "bun run scripts/gen-skill-assets.ts",
     "gen:types": "bun run scripts/gen-component-types.ts",
     "gen:icons": "bun run scripts/gen-icons.ts",
-    "check:docs": "bun run scripts/check-doc-examples.ts",
+    "check:docs": "doccheck examples",
     "verify:dist": "node -e \"require('fs').existsSync('dist/renderer.min.js') || (console.error('missing dist/renderer.min.js'), process.exit(1))\"",
     "docs:api": "typedoc && bun run scripts/fix-typedoc-vue.ts",
     "predocs:dev": "bun run docs:api",
@@ -101,6 +108,7 @@
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@happy-dom/global-registrator": "^20.11.1",
+    "@max-health-inc/config": "^4.8.0",
     "@types/bun": "^1.4.4",
     "ajv": "^8.20.0",
     "brandc": "^0.9.0",
