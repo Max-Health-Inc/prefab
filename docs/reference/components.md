@@ -728,6 +728,31 @@ Mermaid diagram (rendered by the browser if `mermaid` library is available).
 Mermaid('graph TD; A-->B; B-->C;')
 ```
 
+### `PdfViewer(src, opts?)` / `PdfViewer(props)`
+
+Renders one PDF page at a time with PDF.js, loaded from jsDelivr, so list `cdn.jsdelivr.net` in `resourceDomains` and a `src` URL's origin in `connectDomains`.
+
+```ts
+PdfViewer('https://example.com/plan.pdf', { zoom: 'fit-page', height: 'min(720px, 75dvh)' })
+PdfViewer({ data: 'JVBERi0xLjQK', toolbar: false, height: 480 })
+```
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `src` | `string` | URL of the PDF |
+| `data` | `string` | Base64-encoded PDF, used when there is no `src` |
+| `page` | `number` | First page shown, 1-based. Defaults to `1` |
+| `zoom` | `'fit-width' \| 'fit-page' \| number` | Initial zoom mode or scale. Defaults to `'fit-width'` |
+| `toolbar` | `boolean` | Show page navigation and zoom controls. Defaults to `true` |
+| `height` | `number \| string` | Viewer height. A number is pixels; a string is any CSS length, such as `'60dvh'` or `'min(720px, 75vh)'`. Defaults to `600` |
+
+Interaction:
+
+- **Pan** by dragging with a mouse or pen when the page is larger than the viewer, or by swiping on touch screens. Panning scrolls the viewer, so its scrollbars stay in step.
+- **Zoom** with Ctrl/⌘ + wheel or a trackpad pinch around the pointer, or with a two-finger pinch around its midpoint. A plain wheel keeps scrolling. The point under the pointer stays in place.
+- **Double-click or double-tap** zooms in a step at that point; the next one returns to the fit mode.
+- **Keyboard**, once the page has focus: arrows pan, `+` and `-` zoom, `0` fits, PageUp and PageDown change pages, Home and End jump to the first and last page.
+
 ---
 
 ## Alert

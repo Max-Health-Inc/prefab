@@ -19,8 +19,8 @@ export interface PdfViewerProps extends ComponentProps {
   zoom?: PdfZoom
   /** Show the page navigation toolbar. @default true */
   toolbar?: boolean
-  /** Container height in pixels. @default 600 */
-  height?: number
+  /** Viewer height: a number of pixels, or a CSS length such as `'60dvh'` or `'min(720px, 75vh)'`. @default 600 */
+  height?: number | string
 }
 
 /**
@@ -39,6 +39,11 @@ export interface PdfViewerProps extends ComponentProps {
  * @example With options:
  * ```ts
  * PdfViewer('https://example.com/doc.pdf', { page: 3, zoom: 'fit-page', height: 800 })
+ * ```
+ *
+ * @example Height that follows the viewport on phones:
+ * ```ts
+ * PdfViewer('https://example.com/plan.pdf', { zoom: 'fit-page', height: 'min(720px, 75dvh)' })
  * ```
  */
 export function PdfViewer(srcOrProps: string | PdfViewerProps, opts?: Omit<PdfViewerProps, 'src'>): Component {

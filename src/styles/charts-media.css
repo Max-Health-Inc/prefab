@@ -100,8 +100,11 @@
 .pf-pdf-page-input:focus-visible { outline: none; border-color: var(--ring); box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 25%, transparent); }
 .pf-pdf-page-count, .pf-pdf-zoom-label { color: var(--muted-foreground); }
 .pf-pdf-zoom-label { min-width: 3rem; text-align: center; }
-.pf-pdf-canvas-container { flex: 1; min-height: 0; overflow: auto; padding: 1rem; }
-.pf-pdf-canvas { display: block; margin: 0 auto; background: #fff; box-shadow: var(--shadow-md); }
+.pf-pdf-canvas-container { flex: 1; min-height: 0; overflow: auto; padding: 1rem; touch-action: pan-x pan-y; }
+.pf-pdf-canvas-container:focus-visible { outline: 2px solid var(--ring); outline-offset: -2px; }
+.pf-pdf-canvas-container.pf-pdf-pannable { cursor: grab; }
+.pf-pdf-canvas-container.pf-pdf-panning { cursor: grabbing; user-select: none; }
+.pf-pdf-canvas { display: block; margin: 0 auto; background: #fff; box-shadow: var(--shadow-md); user-select: none; -webkit-user-select: none; }
 .pf-mermaid-source {
   margin: 0;
   padding: 0.875rem 1rem;
