@@ -1,4 +1,4 @@
-/** Pan, pinch, wheel, double-tap and keyboard input for the PdfViewer's scroll container. */
+/** Pan, pinch, wheel, double-tap and keyboard input for a zoomable scroll container; framework-free, exported as `@maxhealth.tech/prefab/gestures`. */
 
 export const ZOOM_STEP = 1.25
 export const MIN_SCALE = 0.25
@@ -124,10 +124,16 @@ interface Pinch {
 
 interface Drag { id: number; start: Point; scroll: Point; moved: boolean }
 
-export interface GestureOptions { settleMs?: number }
+export interface GestureOptions {
+  settleMs?: number
+  /** Class on the container while its content overflows. @default 'pf-pdf-pannable' */
+  pannableClass?: string
+  /** Class on the container during a drag. @default 'pf-pdf-panning' */
+  panningClass?: string
+}
 
 export function attachGestures(container: HTMLElement, host: GestureHost, options: GestureOptions = {}): GestureController {
-  const settleMs = options.settleMs ?? PINCH_SETTLE_MS
+  const { settleMs = PINCH_SETTLE_MS, pannableClass = 'pf-pdf-pannable', panningClass = 'pf-pdf-panning' } = options
   const touches = new Map<number, Point>()
   let pinch: Pinch | undefined
   let touchPinch: { startDist: number; startMid: Point } | undefined
@@ -201,7 +207,7 @@ export function attachGestures(container: HTMLElement, host: GestureHost, option
   }
 
   function refresh(): void {
-    container.classList.toggle('pf-pdf-pannable', overflows(container))
+    container.classList.toggle(pannableClass, overflows(container))
     const p = pinch
     const canvas = host.canvas()
     if (!p || canvas.style.transform !== '') return
@@ -273,7 +279,7 @@ export function attachGestures(container: HTMLElement, host: GestureHost, option
     if (!overflows(container)) return
     drag = { id: e.pointerId, start: { x: e.clientX, y: e.clientY }, scroll: { x: container.scrollLeft, y: container.scrollTop }, moved: false }
     container.setPointerCapture(e.pointerId)
-    container.classList.add('pf-pdf-panning')
+    container.classList.add(panningClass)
   }
 
   function onPointerMove(e: PointerEvent): void {
@@ -301,7 +307,7 @@ export function attachGestures(container: HTMLElement, host: GestureHost, option
     const d = drag
     if (d?.id !== e.pointerId) return false
     drag = undefined
-    container.classList.remove('pf-pdf-panning')
+    container.classList.remove(panningClass)
     if (container.hasPointerCapture(e.pointerId)) container.releasePointerCapture(e.pointerId)
     return d.moved
   }

@@ -251,4 +251,19 @@ describe('gesture controller', () => {
     h.destroy()
     fits.destroy()
   })
+
+  it('uses the class names a consumer passes instead of the PdfViewer ones', () => {
+    const h = harness()
+    const ctl = attachGestures(h.container, {
+      canvas: () => h.canvas, renderedScale: () => 1, preview: () => undefined, zoomTo: () => undefined, doubleTap: () => undefined, command: () => undefined,
+    }, { pannableClass: 'can-pan', panningClass: 'is-panning' })
+    ctl.refresh()
+    expect(h.container.classList.contains('can-pan')).toBe(true)
+    h.container.dispatchEvent(pointer('pointerdown', { clientX: 400, clientY: 300, pointerId: 7 }))
+    expect(h.container.classList.contains('is-panning')).toBe(true)
+    h.container.dispatchEvent(pointer('pointerup', { clientX: 400, clientY: 300, pointerId: 7 }))
+    expect(h.container.classList.contains('is-panning')).toBe(false)
+    ctl.destroy()
+    h.destroy()
+  })
 })

@@ -6,7 +6,8 @@
     "src/rx/index.ts",
     "src/mcp/index.ts",
     "src/auto/index.ts",
-    "src/renderer/index.ts"
+    "src/renderer/index.ts",
+    "src/renderer/components/pdf/gestures.ts"
   ],
   "entryPointStrategy": "resolve",
   "tsconfig": "tsconfig.build.json",
