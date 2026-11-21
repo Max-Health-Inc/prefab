@@ -10,6 +10,7 @@ All notable changes to this project will be documented in this file.
 
 - **`PdfViewer` pans and zooms by hand.** Drag with a mouse or pen to pan a page larger than the viewer (touch swipes scroll natively), with a grab cursor while there is somewhere to go. Ctrl/⌘ + wheel, a trackpad pinch or a two-finger pinch zoom around the pointer, previewed with a CSS transform and committed to a sharp re-render once the gesture settles; the point under the pointer stays put. Double-click or double-tap zooms in a step and back to fit. The toolbar buttons zoom around the middle of the view. A plain wheel still scrolls.
 - **`PdfViewer` keyboard control.** The page area is focusable: arrows pan, `+`/`-` zoom, `0` fits, PageUp/PageDown change pages and Home/End jump to either end.
+- **`@maxhealth.tech/prefab/gestures`**: the PdfViewer's pan, pinch, wheel zoom, double-tap and keyboard handling as a subpath that imports nothing else from Prefab, so a page with its own zoomable view bundles only that module. `attachGestures(container, host, options)` wires a scroll container to a `GestureHost`; `clampScale`, `anchorAt`, `anchorScrollDelta`, `wheelZoomFactor`, `isDoubleTap` and `keyCommand` are the pure pieces. `pannableClass` and `panningClass` options rename the classes it toggles. PdfViewer uses the same module.
 - **`PdfViewer` `height` takes a CSS length** such as `'60dvh'` or `'min(720px, 75vh)'`. Numbers are still pixels.
 
 ### Fixed

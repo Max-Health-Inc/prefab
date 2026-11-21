@@ -565,6 +565,8 @@ import { ... } from '@maxhealth.tech/prefab/auto'       // Auto-renderers
 import { ... } from '@maxhealth.tech/prefab/mcp'        // MCP display helpers
 import { ... } from '@maxhealth.tech/prefab/a2ui'      // A2UI emitter
 import { ... } from '@maxhealth.tech/prefab/renderer'   // Browser renderer
+import { ... } from '@maxhealth.tech/prefab/pdf'        // PdfViewer component
+import { ... } from '@maxhealth.tech/prefab/gestures'   // Pan/pinch/wheel/keyboard zoom, no DOM framework
 import '@maxhealth.tech/prefab/prefab.css'              // Default stylesheet
 ```
 

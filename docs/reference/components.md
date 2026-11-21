@@ -753,6 +753,36 @@ Interaction:
 - **Double-click or double-tap** zooms in a step at that point; the next one returns to the fit mode.
 - **Keyboard**, once the page has focus: arrows pan, `+` and `-` zoom, `0` fits, PageUp and PageDown change pages, Home and End jump to the first and last page.
 
+The same handling is exported on its own as `@maxhealth.tech/prefab/gestures`. It imports nothing else from Prefab, so a page with its own zoomable view bundles only that module. `attachGestures` previews a pinch or wheel zoom as a CSS transform on `canvas()` and calls `zoomTo` once the gesture settles; `anchorScrollDelta` gives the scroll that keeps the anchored point in place after the redraw.
+
+```ts
+import { anchorScrollDelta, attachGestures } from '@maxhealth.tech/prefab/gestures'
+
+const scroller = document.createElement('div')
+const page = document.createElement('div')
+scroller.append(page)
+let scale = 1
+
+function draw(next: number): void {
+  scale = next
+  page.style.width = `${String(600 * next)}px`
+}
+
+const gestures = attachGestures(scroller, {
+  canvas: () => page,
+  renderedScale: () => scale,
+  preview: () => undefined,
+  zoomTo: (next, anchor) => {
+    draw(next)
+    const d = anchorScrollDelta(anchor, page.getBoundingClientRect(), next)
+    scroller.scrollBy(d.x, d.y)
+    gestures.refresh()
+  },
+  doubleTap: () => { gestures.zoomBy(1.25) },
+  command: (cmd) => { if (cmd.kind === 'fit') draw(1) },
+}, { pannableClass: 'can-pan', panningClass: 'is-panning' })
+```
+
 ---
 
 ## Alert

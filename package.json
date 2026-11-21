@@ -43,6 +43,10 @@
       "import": "./dist/components/pdf/index.js",
       "types": "./dist/components/pdf/index.d.ts"
     },
+    "./gestures": {
+      "import": "./dist/renderer/components/pdf/gestures.js",
+      "types": "./dist/renderer/components/pdf/gestures.d.ts"
+    },
     "./prefab.css": "./dist/prefab.css"
   },
   "sideEffects": false,
