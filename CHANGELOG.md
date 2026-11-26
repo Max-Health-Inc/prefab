@@ -6,6 +6,8 @@ All notable changes to this project will be documented in this file.
 
 <!-- Add new entries directly below. Keep this line: it makes a release merge conflict rather than file them under a published version. -->
 
+## [0.3.25] — 2026-11-26
+
 ### Added
 
 - **`PdfViewer` pans and zooms by hand.** Drag with a mouse or pen to pan a page larger than the viewer (touch swipes scroll natively), with a grab cursor while there is somewhere to go. Ctrl/⌘ + wheel, a trackpad pinch or a two-finger pinch zoom around the pointer, previewed with a CSS transform and committed to a sharp re-render once the gesture settles; the point under the pointer stays put. Double-click or double-tap zooms in a step and back to fit. The toolbar buttons zoom around the middle of the view. A plain wheel still scrolls.

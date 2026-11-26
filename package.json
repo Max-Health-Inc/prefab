@@ -1,6 +1,6 @@
 {
   "name": "@maxhealth.tech/prefab",
-  "version": "0.3.24",
+  "version": "0.3.25",
   "description": "TypeScript authoring for A2UI and MCP Apps. Build agent UIs server-side and emit either wire format.",
   "type": "module",
   "main": "dist/index.js",
@@ -54,8 +54,13 @@
   ],
   "style": "dist/prefab.css",
   "doccheck": {
-    "skipSegments": [".vitepress"],
-    "skipPrefixes": ["docs/reference/api", "test/fixtures"],
+    "skipSegments": [
+      ".vitepress"
+    ],
+    "skipPrefixes": [
+      "docs/reference/api",
+      "test/fixtures"
+    ],
     "inject": {
       "@maxhealth.tech/prefab": "src/index.ts"
     }
