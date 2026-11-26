@@ -17,6 +17,7 @@ All notable changes to this project will be documented in this file.
 - **`Embed` `height` accepts CSS lengths** through the same parsing; a non-numeric string rendered as `NaNpx`.
 - **A `PdfViewer` page that fails to render shows its error.** The message was removed once the document loaded, so a later render error was invisible.
 - **`PdfViewer` zoom no longer flashes blank**: each re-render draws into a new canvas and swaps it in when done.
+- **`registerViewerResource` takes an SDK server under `exactOptionalPropertyTypes`.** The MCP SDK types `capabilities.extensions` as optional-or-undefined; the structural capability shape now says `| undefined` too, so a consumer with that flag on no longer fails to pass its `McpServer`.
 
 ### Changed
 

@@ -233,7 +233,7 @@ export type ResourceReadHandler = (uri: URL) => Promise<McpResourceReadResult<Mc
 
 /** Capability bag carrying extension declarations. */
 interface CapabilityDeclaration {
-  extensions?: Record<string, Record<string, unknown>>
+  extensions?: Record<string, Record<string, unknown>> | undefined
 }
 
 /** The server shape registerViewerResource needs, structural so any SDK fits; `resource` is the v1 fallback. */
